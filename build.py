@@ -8,7 +8,7 @@ DIST = os.path.join(ROOT, 'docs')
 NM = os.path.join(ROOT, 'node_modules')
 ICON_DIR = os.path.join(NM, 'lucide-static/icons')
 FONT = os.path.join(NM, '@fontsource-variable/big-shoulders-display/files/big-shoulders-display-latin-wght-normal.woff2')
-JS_ORDER = ['data.js', 'info.js', 'core.js', 'charts.js', 'ui.js', 'ui2.js', 'actions.js', 'main.js']
+JS_ORDER = ['data.js', 'data2.js', 'info.js', 'core.js', 'core2.js', 'charts.js', 'ui.js', 'ui2.js', 'ui3.js', 'ui4.js', 'knee.js', 'actions.js', 'actions2.js', 'main.js']
 
 
 def read(p):
@@ -19,6 +19,8 @@ def read(p):
 def icons_js(js):
     names = set(re.findall(r"icon\('([a-z0-9-]+)'", js))
     names |= set(re.findall(r"\bic: '([a-z0-9-]+)'", js))
+    for grp in re.findall(r"/\*icons:([^*]+)\*/", js):
+        names |= set(grp.split())
     names |= {'check', 'arrow-down', 'arrow-up', 'triangle-alert', 'minus'}
     out = {}
     for n in sorted(names):

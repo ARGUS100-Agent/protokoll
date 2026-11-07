@@ -2,7 +2,7 @@
    OBERFLÄCHE Teil 1: Grundgerüst, Heute, Ernährung, Sheets
    ============================================================ */
 const ui = {
-  tab: 'heute', date: todayKey(), lastToday: todayKey(), ernSub: 'plan', gesSub: 'garmin', exp: new Set(), q: '',
+  tab: 'heute', date: todayKey(), lastToday: todayKey(), ernSub: 'uebersicht', exp: new Set(), q: '',
   range: 30, heatMetric: 'nutri', heatMonth: todayKey().slice(0, 7), weekOf: weekStart(todayKey()), hMetric: 'sleepScore',
   microMode: 'act', scroll: {}, tables: new Set(), sheet: null, updateReady: false, setOpen: null, setQ: '',
 };
@@ -10,22 +10,19 @@ function icon(name, cls = '') { const s = ICONS[name] || ''; return s.replace('<
 const numIn = (v, d = 1) => (v == null || v === '' ? '' : String(Math.round(v * 10 ** d) / 10 ** d).replace('.', ','));
 
 /* ---------- Rahmen ---------- */
-const TABS = [
-  { id: 'heute', n: 'Heute', ic: 'sun' },
-  { id: 'ern', n: 'Ernährung', ic: 'salad' },
-  { id: 'ges', n: 'Gesundheit', ic: 'heart-pulse' },
-  { id: 'fort', n: 'Fortschritt', ic: 'chart-no-axes-column' },
-  { id: 'set', n: 'Einstellungen', ic: 'settings' },
-];
 function renderTabbar() {
-  $('#tabbar').innerHTML = TABS.map((t) => `<button class="tab${ui.tab === t.id ? ' is-on' : ''}" data-a="tab" data-tab="${t.id}" aria-current="${ui.tab === t.id ? 'page' : 'false'}">${icon(t.ic)}<span>${t.n}</span></button>`).join('');
+  const tabs = navTabs().map(areaById).concat([MORE_TAB]);
+  const inBar = tabs.some((t) => t.id === ui.tab);
+  $('#tabbar').innerHTML = tabs.map((t) => { const on = ui.tab === t.id || (t.id === 'mehr' && !inBar); return `<button class="tab${on ? ' is-on' : ''}" data-a="tab" data-tab="${t.id}" aria-current="${on ? 'page' : 'false'}">${icon(t.ic)}<span>${esc(t.short || t.n)}</span></button>`; }).join('');
 }
+const VIEWS = { heute: () => vHeute(), ern: () => vErn(), supp: () => vSupp(), train: () => vTrain(), knie: () => vKnie(), licht: () => vLicht(), haut: () => vHaut2(), koerper: () => vKoerper(), blut: () => vBlut(), garmin: () => vGarminArea(), einkauf: () => vShop(), woche: () => vWoche(), set: () => vSet(), mehr: () => vMehr() };
 function render(keepScroll = true) {
   const y = window.scrollY;
-  const views = { heute: vHeute, ern: vErn, ges: vGes, fort: vFort, set: vSet };
-  $('#main').innerHTML = views[ui.tab]();
+  if (!VIEWS[ui.tab]) ui.tab = 'heute';
+  $('#main').innerHTML = VIEWS[ui.tab]();
   renderTabbar();
   if (keepScroll) window.scrollTo(0, y);
+  hydratePhotos($('#main'));
 }
 function go(tab, opts = {}) {
   ui.scroll[ui.tab] = window.scrollY;
@@ -98,7 +95,7 @@ function arcInner() {
 function phaseChip(k) {
   const ph = skinPhase(k);
   if (!ph) return '';
-  return `<button class="chip-info" data-a="goto" data-tab="ges" data-sub="haut">${icon('sparkles')}Haut ${esc(ph.n)}, Tag ${ph.day}/${ph.len}</button>`;
+  return `<button class="chip-info" data-a="goto" data-tab="haut" data-sub="heute">${icon('sparkles')}Haut ${esc(ph.n)}, Tag ${ph.day}/${ph.len}</button>`;
 }
 function banners(k) {
   let h = '';
@@ -109,7 +106,7 @@ function banners(k) {
     h += `<div class="banner">${icon('download')}<div><b>Backup fällig</b><span>${last} Deine Daten liegen nur auf diesem iPhone.</span></div><div class="banner-acts"><button class="pill-btn is-accent" data-a="backup-export">Sichern</button><button class="link-btn" data-a="backup-snooze">Morgen</button></div></div>`;
   }
   const ph = skinPhase(k);
-  if (ph && ph.day <= 2 && ph.rules.length) h += `<div class="banner">${icon('sparkles')}<div><b>${esc(ph.n)} beginnt</b><span>${esc(ph.rules.join(', '))}</span></div></div>`;
+  if (ph && ph.day <= 2 && ph.rules.length) h += `<div class="banner">${icon('sparkles')}<div><b>${ph.day === 1 ? 'Ab heute' : 'Seit gestern'}: ${esc(ph.rules.slice(0, 3).map((r) => r.replace(/^(Kein|Keine|Nicht)\b/, (m) => m.toLowerCase())).join(', '))}</b><span>${esc(ph.n)} im Haut-Protokoll${ph.rules.length > 3 ? ` – dazu: ${esc(ph.rules.slice(3).join(', '))}` : ''}</span></div><button class="pill-btn" data-a="goto" data-tab="haut" data-sub="heute">Haut</button></div>`;
   return h;
 }
 /* Aktueller Block für „Als Nächstes“ */
@@ -121,30 +118,6 @@ function nowBlock(k) {
   if (due.length) return due[due.length - 1].b;
   const next = blocks.find((x) => x.t > now && x.open.length);
   return next ? next.b : null;
-}
-function vHeute() {
-  const k = todayKey(), ev = evaluate(k), d = getDay(k);
-  const nb = nowBlock(k);
-  const [c1, c2] = cafWindow();
-  let h = `<header class="page-head is-home">
-    <div class="head-top"><p class="eyebrow-date">${esc(fmtDate(k))}</p>${phaseChip(k)}</div>
-    <h1>${greeting()}</h1>
-  </header>
-  ${banners(k)}
-  <section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
-  <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin() - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>
-  ${dayControls(k, true)}`;
-  h += `<section class="block-now">${nb ? blockCard(nb, k, { now: true }) : `<div class="all-done">${icon('check')}<div><b>Standardtag erledigt</b><span>Trink weiter über den Tag verteilt.</span></div></div>`}${openBlocksLine(k, nb)}</section>`;
-  h += ringsRow(k, ev);
-  h += energyBar(ev.act.tot);
-  h += microSection(k, ev);
-  h += tipsSection(k, 4);
-  h += trendSection(k, 3);
-  h += suppSection(k);
-  h += habitsQuick(k);
-  h += healthQuick(k);
-  h += todosSection();
-  return h;
 }
 function openBlocksLine(k, current) {
   const d = getDay(k), variant = dayVariant(k);
@@ -158,7 +131,7 @@ function dayControls(k, compact = false) {
   return `<div class="day-controls${compact ? ' is-compact' : ''}">
     <div class="chips${compact ? ' chips-scroll' : ''}" role="group" aria-label="Tagesvariante">${Object.entries(VARIANTS).map(([id, n]) => `<button class="chip${v === id ? ' is-on' : ''}" data-a="set-variant" data-v="${id}">${esc(n)}</button>`).join('')}</div>
     <div class="chips${compact ? ' chips-scroll' : ''}" role="group" aria-label="Training">${icon('dumbbell', 'ic-lead')}${Object.entries(TRAINING).map(([id, t]) => `<button class="chip chip-sm${tr === id ? ' is-on' : ''}" data-a="set-training" data-v="${id}">${esc(t.n)}</button>`).join('')}</div>
-    ${tr ? `<p class="hint">${esc(TRAINING[tr].hint)}</p>` : compact ? '' : '<p class="hint">Trainingszeit wählen, dann passen Timing-Hinweise und Flüssigkeitsziel.</p>'}
+    ${tr ? `<p class="hint">${mainTraining(d) ? `Aus deinem Training um ${esc(mainTraining(d).time)} Uhr: ` : ''}${esc(TRAINING[tr].hint)}</p>` : compact ? '' : '<p class="hint">Trainingszeit wählen oder ein Training eintragen, dann passen Timing-Hinweise und Flüssigkeitsziel automatisch.</p>'}
   </div>`;
 }
 function ringsRow(k, ev) {
@@ -264,42 +237,9 @@ function suppSection(k) {
 }
 function shortSupp(f) { return shortName(f); }
 function habitName(h) { if (h.id === 'koffein') { const [a, b] = cafWindow(); return `Koffein nur ${minToTime(a)}–${minToTime(b)}`; } return h.n; }
-function habitsQuick(k) {
-  const d = getDay(k);
-  const hs = HABITS.filter((h) => !S.settings.habitsOff.includes(h.id));
-  const n = hs.filter((h) => d.habits[h.id]).length;
-  return `<section class="sec">
-    <div class="sec-head"><h2>Gewohnheiten</h2><span class="count">${n}/${hs.length}</span></div>
-    <div class="toggle-grid">${hs.map((h) => { const on = !!d.habits[h.id]; return `<button class="tgl${on ? ' is-on' : ''}" data-a="habit" data-id="${h.id}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>${esc(habitName(h))}</b></span></button>`; }).join('')}</div>
-    <button class="link-btn more" data-a="goto" data-tab="ges" data-sub="habits">Details, Uhrzeiten und Erklärungen</button>
-  </section>`;
-}
-function healthQuick(k) {
-  const d = getDay(k);
-  let h = '';
-  if (d.health.sleepScore == null) {
-    const y = peekDay(addDays(k, -1));
-    const q = [['sleepScore', 'Sleep Score'], ['hrv', 'HRV'], ['rhr', 'Ruhepuls'], ['bbMorning', 'Body Battery']];
-    h += `<section class="sec"><div class="sec-head"><h2>Schlaf letzte Nacht</h2></div>
-      <div class="quick-health">${q.map(([f, n]) => `<label class="qh"><span>${n}</span><input type="text" inputmode="decimal" data-c="health" data-k="${f}" data-date="${k}" placeholder="${y && y.health[f] != null ? 'Vortag ' + fmt(y.health[f]) : '–'}" value=""></label>`).join('')}</div>
-      <button class="link-btn more" data-a="goto" data-tab="ges" data-sub="garmin">Alle Garmin-Werte eintragen</button></section>`;
-  }
-  const ph = skinPhase(k);
-  if (ph && d.skin.score == null) {
-    h += `<section class="sec"><div class="sec-head"><h2>Hautbild heute</h2><span class="count">${esc(ph.n)}</span></div>${scale10('skin-score', null, k)}</section>`;
-  }
-  return h;
-}
 function scale10(action, val, k, field = '') {
   return `<div class="scale10" role="radiogroup">${Array.from({ length: 10 }, (_, i) => i + 1).map((n) => `<button role="radio" aria-checked="${val === n}" class="${val === n ? 'is-on' : ''}" data-a="${action}" data-v="${n}" data-date="${k}" data-f="${field}">${n}</button>`).join('')}</div>`;
 }
-function todosSection() {
-  const open = (S.settings.todos || []).filter((t) => !t.done);
-  if (!open.length) return '';
-  return `<section class="sec"><div class="sec-head"><h2>Offene To-dos</h2></div>
-    <div class="list">${open.map((t) => `<button class="row-check" data-a="todo" data-id="${t.id}"><span class="tgl-box">${icon('check')}</span><span>${esc(t.t)}</span></button>`).join('')}</div></section>`;
-}
-
 /* ============================================================
    STANDARDTAG-Block (Schnellmodus)
    ============================================================ */
@@ -365,9 +305,11 @@ function waterQuick(k) {
 function vErn() {
   const k = ui.date;
   let h = `<header class="page-head is-tight"><h1>Ernährung</h1></header>${dateBar(k)}`;
-  h += seg('ern', ui.ernSub, [['plan', 'Standardtag'], ['detail', 'Lebensmittel'], ['eval', 'Auswertung']]);
-  if (ui.ernSub === 'plan') h += vPlan(k);
+  h += subnav('ern', ui.ernSub, [['uebersicht', 'Übersicht'], ['plan', 'Standardtag'], ['detail', 'Lebensmittel'], ['eval', 'Auswertung'], ['verlauf', 'Verlauf']]);
+  if (ui.ernSub === 'uebersicht') h += vErnOverview(k);
+  else if (ui.ernSub === 'plan') h += vPlan(k);
   else if (ui.ernSub === 'detail') h += vDetail(k);
+  else if (ui.ernSub === 'verlauf') h += vErnVerlauf();
   else h += vEval(k);
   return h;
 }

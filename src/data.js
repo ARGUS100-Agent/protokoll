@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '2.0.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -360,14 +360,14 @@ const PLANT_PICKS = ['Bohne', 'Mais', 'Erbse', 'Linse', 'Kichererbse', 'Reis', '
 /* ---------- Haut-Protokoll (Daten in den Einstellungen änderbar) ---------- */
 const DEFAULT_SKIN = {
   phases: [
-    { id: 1, n: 'Phase 1', start: '2026-11-03', end: '2026-11-30', rules: ['Epilierer weg, Rasur schonend', 'Pflege morgens und abends', 'Gesicht nach dem Gym waschen', 'Kissenbezug alle 3 Tage wechseln', 'Kopfhörer-Polster regelmäßig reinigen'], block: [] },
+    { id: 1, n: 'Phase 1', start: '2026-11-03', end: '2026-11-30', rules: ['Epilierer weg, Rasur mit OneBlade', 'Pflege: Zeniac + Physiogel', 'Kein Clienzo', 'Gesicht nach dem Gym waschen', 'Kissenbezug alle 3 Tage wechseln'], block: [] },
     { id: 2, n: 'Phase 2', start: '2026-12-01', end: '2026-12-28', rules: ['Kein Whey', 'Keine Milbona-Shakes'], block: ['whey', 'milbona'] },
     { id: 3, n: 'Phase 3', start: '2026-12-29', end: '2027-01-25', rules: ['AG1 pausieren'], block: ['ag1'] },
   ],
   routine: [
-    { id: 'pflege_am', n: 'Pflege morgens' },
-    { id: 'pflege_pm', n: 'Pflege abends' },
-    { id: 'rasur', n: 'Rasiert (schonend)' },
+    { id: 'pflege_am', n: 'Pflege morgens (Zeniac + Physiogel)' },
+    { id: 'pflege_pm', n: 'Pflege abends (Zeniac + Physiogel)' },
+    { id: 'rasur', n: 'Rasiert mit OneBlade' },
     { id: 'kissen', n: 'Kissenbezug gewechselt', every: 3 },
     { id: 'polster', n: 'Kopfhörer-Polster gereinigt', every: 7 },
     { id: 'foto', n: 'Wöchentliches Foto (gleiches Licht)', every: 7 },
@@ -405,6 +405,7 @@ const HEALTH_FIELDS = [
   ] },
   { group: 'Körper', fields: [
     { k: 'weight', n: 'Körpergewicht', type: 'num', unit: 'kg', min: 30, max: 250, dec: 1 },
+    { k: 'waist', n: 'Bauchumfang', type: 'num', unit: 'cm', min: 40, max: 200, dec: 1 },
   ] },
 ];
 const TRAINING_TYPES = ['Kraft / Gym', 'Laufen', 'Rad', 'Schwimmen', 'HIIT', 'Spaziergang', 'Mobility', 'Sport', 'Sonstiges'];

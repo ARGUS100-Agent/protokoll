@@ -20,7 +20,8 @@ function toggleItem(id, k) {
   const before = getDay(k);
   const on = !before.checks[id];
   const food = FOOD[itemFoodId(found.it, before)];
-  mutDay(k, (d) => { if (on) { d.checks[id] = 1; persistRotation(d, found.it); } else delete d.checks[id]; });
+  mutDay(k, (d) => { if (on) { d.checks[id] = 1; persistRotation(d, found.it); if (k === todayKey()) { d.ct = d.ct || {}; d.ct[id] = minToTime(nowMin()); } } else { delete d.checks[id]; if (d.ct) delete d.ct[id]; } });
+  if (food && food.v && food.v.caf) mutDay(k, () => syncCafHabit(k));
   if (on) { const ph = phaseBlocks(k, food); if (ph) toast(`${ph.n} im Haut-Protokoll: ${ph.rules.join(', ')}`); }
   render();
   if (on) { const btn = $(`[data-a="toggle-item"][data-id="${id}"]`); if (btn) { const row = btn.closest('.item, .tgl'); if (row) row.classList.add('just'); } }
@@ -52,15 +53,6 @@ function planItem(bid, i) { const b = S.settings.plan.find((x) => x.id === bid);
 function saveSettings(rerender = true) { markDirty('settings'); invalidate(); if (rerender) render(); }
 
 const A = {
-  tab: (el) => { if (el.dataset.tab === ui.tab) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; } go(el.dataset.tab); },
-  goto: (el) => {
-    const opts = {};
-    if (el.dataset.tab === 'ern' && el.dataset.sub) opts.ernSub = el.dataset.sub;
-    if (el.dataset.tab === 'ges' && el.dataset.sub) opts.gesSub = el.dataset.sub;
-    if (ui.tab === 'heute') opts.date = todayKey();
-    go(el.dataset.tab, { ...opts, scrollTop: true });
-    if (el.dataset.anchor) requestAnimationFrame(() => { const t = document.getElementById(el.dataset.anchor); if (t) t.scrollIntoView({ block: 'start' }); });
-  },
   'goto-eval': (el) => {
     const key = el.dataset.key;
     ui.exp.add('m:' + key);
@@ -69,7 +61,7 @@ const A = {
   },
   seg: (el) => {
     const s = el.dataset.seg, v = el.dataset.v;
-    if (s === 'ern') ui.ernSub = v; else if (s === 'ges') ui.gesSub = v; else if (s === 'micro') ui.microMode = v; else if (s === 'range') ui.range = Number(v);
+    if (s === 'ern') ui.ernSub = v; else if (s === 'micro') ui.microMode = v; else if (s === 'range') ui.range = Number(v);
     render();
   },
   'date-prev': () => { ui.date = addDays(ui.date, -1); render(); },
@@ -194,21 +186,6 @@ const A = {
   'h-prev': (el) => { const k = el.dataset.date, y = peekDay(addDays(k, -1)); if (!y) return; mutDay(k, (d) => { d.health[el.dataset.k] = y.health[el.dataset.k]; }); render(); },
   'h-choice': (el) => { mutDay(el.dataset.date, (d) => { d.health[el.dataset.k] = d.health[el.dataset.k] === el.dataset.v ? undefined : el.dataset.v; if (d.health[el.dataset.k] === undefined) delete d.health[el.dataset.k]; }); render(); },
   'h-sign': (el) => { const k = el.dataset.date; const v = getDay(k).health[el.dataset.k]; if (v == null) return; mutDay(k, (d) => { d.health[el.dataset.k] = -v; }); render(); },
-  'training-add': (el) => sheetTraining(curDate(el), null),
-  'training-edit': (el) => sheetTraining(curDate(el), el.dataset.id),
-  'tr-type': (el) => { ui.sheet.t.type = el.dataset.v; $$('[data-a="tr-type"]').forEach((b) => b.classList.toggle('is-on', b === el)); },
-  'tr-save': () => {
-    const s = ui.sheet;
-    const t = { ...s.t, time: $('#tr-time').value || '', dur: parseNum($('#tr-dur').value), load: parseNum($('#tr-load').value) };
-    mutDay(s.k, (d) => {
-      d.trainings = d.trainings || [];
-      if (t.id) { const i = d.trainings.findIndex((x) => x.id === t.id); if (i >= 0) d.trainings[i] = t; }
-      else { t.id = uid(); d.trainings.push(t); }
-      if (!d.training && t.time) { const m = timeToMin(t.time); d.training = m < 660 ? 'morgens' : m < 1080 ? 'mittags' : 'abends'; }
-    });
-    closeSheet(); render();
-  },
-  'tr-del': () => { const s = ui.sheet; mutDay(s.k, (d) => { d.trainings = (d.trainings || []).filter((x) => x.id !== s.t.id); }); closeSheet(); render(); },
   mood: (el) => { const k = curDate(el), f = el.dataset.f, v = Number(el.dataset.v); mutDay(k, (d) => { d.mood = d.mood || {}; if (d.mood[f] === v) delete d.mood[f]; else d.mood[f] = v; }); render(); },
 
   /* Haut */
@@ -227,19 +204,28 @@ const A = {
   'backup-days': (el) => { S.settings.backupDays = Number(el.dataset.v); saveSettings(); },
   'import-do': async (el) => {
     const data = ui.sheet && ui.sheet.data; if (!data) return;
-    if (el.dataset.mode === 'replace') { S.days = data.days || {}; S.settings = mergeDefaults(defaultSettings(), data.settings || null); S.foods = data.foods || { custom: [], over: {} }; }
-    else {
+    const st = defaultStores();
+    if (el.dataset.mode === 'replace') {
+      S.days = data.days || {}; S.settings = mergeDefaults(defaultSettings(), data.settings || null); S.foods = data.foods || { custom: [], over: {} };
+      S.shop = data.shop || shopDefault();
+      for (const key of ['blood', 'knee', 'reviews']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
+    } else {
       Object.assign(S.days, data.days || {});
       if (data.foods) { const ids = new Set(S.foods.custom.map((f) => f.id)); for (const f of data.foods.custom || []) if (!ids.has(f.id)) S.foods.custom.push(f); S.foods.over = { ...(data.foods.over || {}), ...S.foods.over }; }
+      const byId = (a = [], b = []) => { const m = new Map(a.map((x) => [x.id, x])); for (const x of b) m.set(x.id, x); return [...m.values()]; };
+      if (data.blood) { S.blood.entries = byId(S.blood.entries, data.blood.entries); S.blood.custom = byId(S.blood.custom, data.blood.custom); S.blood.markers = { ...(data.blood.markers || {}), ...S.blood.markers }; }
+      if (data.knee) { S.knee.tests = byId(S.knee.tests, data.knee.tests); if (!S.knee.befund && data.knee.befund) S.knee.befund = data.knee.befund; }
+      if (data.reviews) S.reviews = { ...S.reviews, ...data.reviews };
+      if (data.settings && data.settings.todos) S.settings.todos = byId(S.settings.todos, data.settings.todos);
     }
     await DB.clear();
-    markDirty('settings'); markDirty('meta'); markDirty('foods'); Object.keys(S.days).forEach((k) => markDirty('day:' + k));
+    markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); Object.keys(S.days).forEach((k) => markDirty('day:' + k));
     await flush();
     buildFoodIndex(); invalidate(); closeSheet(); render(); toast('Backup importiert');
   },
   'wipe-ask': () => {
     ui.sheet = { type: 'wipe' };
-    openSheet(`<h3 class="sheet-title">Alle Daten löschen?</h3><p class="hint">Alle Tage, Einstellungen und eigenen Lebensmittel werden von diesem Gerät gelöscht. Das lässt sich nicht rückgängig machen. Mach vorher ein Backup.</p>
+    openSheet(`<h3 class="sheet-title">Alle Daten löschen?</h3><p class="hint">Alle Tage, Einstellungen, eigenen Lebensmittel, Blutwerte, Knie-Daten und Wochenfotos werden von diesem Gerät gelöscht. Das lässt sich nicht rückgängig machen. Mach vorher ein Backup.</p>
       <label class="amount-in is-wide"><input type="text" id="wipe-in" placeholder="Zum Bestätigen LÖSCHEN eingeben" autocapitalize="characters"></label>
       <div class="sheet-acts"><button class="btn" data-a="backup-export">Vorher Backup erstellen</button><button class="btn is-danger" data-a="wipe-do">Endgültig löschen</button></div>`);
   },
@@ -247,8 +233,10 @@ const A = {
     const v = ($('#wipe-in') || {}).value || '';
     if (v.trim().toUpperCase() !== 'LÖSCHEN') { toast('Bitte LÖSCHEN eingeben'); return; }
     await DB.clear();
-    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 1, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
-    markDirty('settings'); markDirty('meta'); markDirty('foods'); await flush();
+    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 2, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
+    Object.assign(S, defaultStores()); S.shop = shopDefault();
+    try { await PhotoDB.clear(); photoUrls.forEach((u) => URL.revokeObjectURL(u)); photoUrls.clear(); photoIdx.keys = []; } catch (e) { /* egal */ }
+    markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); await flush();
     buildFoodIndex(); invalidate(); closeSheet(); ui.tab = 'heute'; render(false); toast('Alle Daten gelöscht');
   },
   reload: () => {
@@ -262,7 +250,6 @@ const A = {
   week: (el) => { const n = addDays(ui.weekOf, Number(el.dataset.d)); if (n <= weekStart(todayKey())) { ui.weekOf = n; render(); } },
   'heat-metric': (el) => { ui.heatMetric = el.dataset.v; render(); },
   'heat-month': (el) => { const [y, m] = ui.heatMonth.split('-').map(Number); const d = new Date(y, m - 1 + Number(el.dataset.d), 1); const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; if (key <= todayKey().slice(0, 7)) { ui.heatMonth = key; render(); } },
-  'heat-day': (el) => { if (el.dataset.date > todayKey()) return; const m = ui.heatMetric; ui.date = el.dataset.date; if (m === 'sleep') go('ges', { gesSub: 'garmin', scrollTop: true }); else if (m === 'skin') go('ges', { gesSub: 'haut', scrollTop: true }); else if (m === 'habits') go('ges', { gesSub: 'habits', scrollTop: true }); else go('ern', { ernSub: m === 'supp' ? 'plan' : 'eval', scrollTop: true }); },
   'h-metric': (el) => { ui.hMetric = el.dataset.v; render(); },
 
   /* Einstellungen */
@@ -370,6 +357,7 @@ const C = {
     mutDay(k, (d) => { if (v == null) delete d.health[key]; else d.health[key] = v; if (key === 'weight' && v != null && k === todayKey()) { S.settings.profile.weight = v; markDirty('settings'); } });
     flashSaved(el);
     if (el.closest('.quick-health')) { const allSet = $$('.quick-health input').every((i) => i.value.trim()); if (allSet) render(); }
+    if (el.closest('.sunday')) render();
   },
   'health-dur': (el) => { const k = el.dataset.date, key = el.dataset.k; const v = timeToMin(el.value); mutDay(k, (d) => { if (v == null) delete d.health[key]; else d.health[key] = v; }); flashSaved(el); },
   'habit-detail': (el) => {
@@ -465,16 +453,18 @@ function setupEvents() {
     if (e.key === 'Escape' && ui.sheet) closeSheet();
     if (e.key === 'Enter' && e.target.id === 'plant-new') { const b = $('[data-a="plant-add-custom"]'); if (b) b.click(); }
     if (e.key === 'Enter' && e.target.id === 'todo-new') A['todo-add']();
+    if (e.key === 'Enter' && e.target.id === 'shop-new') { e.preventDefault(); A['shop-add'](); }
   });
   document.addEventListener('pointerdown', (e) => { const el = e.target.closest('[data-tip]'); if (el) showTip(el); else if (!e.target.closest('#tip')) hideTip(); }, { passive: true });
   document.addEventListener('pointerover', (e) => { if (e.pointerType !== 'mouse') return; const el = e.target.closest('[data-tip]'); if (el) showTip(el); else hideTip(); }, { passive: true });
   window.addEventListener('scroll', hideTip, { passive: true });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { flush(); return; }
+    if (ui.timer) { lockScreen(); timerTick(); return; }
     try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then((r) => { if (r) r.update(); }).catch(() => {}); } catch (e) { /* egal */ }
     const t = todayKey();
-    if (t !== ui.lastToday) { if (ui.date === ui.lastToday) ui.date = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7); ui.lastToday = t; invalidate(); render(); }
-    else if (ui.tab === 'heute') render();
+    if (t !== ui.lastToday) { if (ui.date === ui.lastToday) ui.date = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7); ui.trainWeek = weekStart(t); ui.reviewWeek = weekStart(t); ui.photoWeek = weekStart(t); ui.lastToday = t; invalidate(); if (!ui.sheet) render(); }
+    else if (ui.tab === 'heute' && !ui.sheet) render();
   });
   window.addEventListener('pagehide', () => { flush(); });
 }

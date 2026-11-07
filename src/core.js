@@ -105,7 +105,8 @@ const DB = {
 };
 
 /* ---------- Zustand ---------- */
-const S = { settings: null, meta: null, foods: null, days: {} };
+const S = { settings: null, meta: null, foods: null, days: {}, shop: null, blood: null, knee: null, reviews: null };
+const STORE_KEYS = ['shop', 'blood', 'knee', 'reviews'];
 const dirty = new Set();
 let saveTimer = null;
 function markDirty(key) { dirty.add(key); clearTimeout(saveTimer); saveTimer = setTimeout(flush, key === 'settings' || key === 'meta' ? 0 : 100); }
@@ -117,6 +118,7 @@ function flush() {
     if (key === 'settings') entries.push(['settings', S.settings]);
     else if (key === 'meta') entries.push(['meta', S.meta]);
     else if (key === 'foods') entries.push(['foods', S.foods]);
+    else if (STORE_KEYS.includes(key)) entries.push([key, S[key]]);
     else if (key.startsWith('day:')) entries.push([key, S.days[key.slice(4)]]);
   }
   dirty.clear();
@@ -135,6 +137,7 @@ function defaultSettings() {
     habitGoal: 7,
     backupDays: 7,
     todos: [{ id: 'bluttest', t: 'Bluttest beim Hausarzt: 25-OH-Vitamin-D und Ferritin messen lassen, danach D3-Dosis anpassen', done: false }],
+    ...defaultSettings2(),
   };
 }
 function mergeDefaults(def, cur) {
@@ -153,6 +156,9 @@ async function loadState() {
   S.foods = all.foods || { custom: [], over: {} };
   S.days = {};
   for (const [k, v] of Object.entries(all)) if (k.startsWith('day:')) S.days[k.slice(4)] = v;
+  const st = defaultStores();
+  for (const key of STORE_KEYS) S[key] = all[key] ? mergeDefaults(st[key] || {}, all[key]) : st[key];
+  if (!S.shop) { S.shop = shopDefault(); markDirty('shop'); }
   if (!all.meta) markDirty('meta');
   buildFoodIndex();
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* egal */ }
@@ -209,7 +215,7 @@ function dayVariant(k) {
 function isSportDay(k) {
   const d = peekDay(k);
   if (!d) return false;
-  return (d.training && d.training !== 'keins') || !!d.habits.sauna || (d.trainings || []).length > 0;
+  return (d.training && d.training !== 'keins') || !!d.habits.sauna || saunaMin(d) > 0 || (d.trainings || []).some((t) => !trainType(t).light);
 }
 function hasData(d) {
   if (!d) return false;
@@ -261,6 +267,8 @@ function itemLabel(it, day) {
 }
 function resolveBlockTime(b, day) {
   if (b.time === 'training') {
+    const mt = mainTraining(day);
+    if (mt) return Math.max(0, timeToMin(mt.time) - 30);
     const t = day && day.training;
     return timeToMin((TRAINING[t] || TRAINING.keins).time);
   }
@@ -307,6 +315,7 @@ function dayLines(k, withPlan = false) {
     lines.push({ food: FOOD[fid], g: itemGrams(it, d, variant), label: itemLabel(it, d), planned: !checked, src: 'plan', id: it.id, block: block && block.id });
   }
   for (const e of d.entries || []) lines.push({ food: FOOD[e.food], g: e.g, label: FOOD[e.food] ? FOOD[e.food].n : e.food, planned: false, src: 'entry', id: e.id, meal: e.meal });
+  for (const c of d.caf || []) lines.push({ food: cafFood(c), g: 1, label: c.n, planned: false, src: 'caf', id: c.id });
   return lines;
 }
 const totCache = new Map();
@@ -794,7 +803,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 1, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days };
+  return { app: 'protokoll', schema: 2, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
 }
 function backupDue() {
   const n = S.settings.backupDays;

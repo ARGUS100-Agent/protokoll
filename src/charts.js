@@ -92,9 +92,9 @@ function lineChart({ keys, series, height = 190, band = null, fmtY = tickFmt, un
 function emptyChart(msg) { return `<div class="chart-empty">${esc(msg)}</div>`; }
 
 /* ---------- Gestapelte Säulen (Kalorien aus Protein/Fett/KH) ---------- */
-function stackedColumns({ keys, rows, series, height = 200, band = null }) {
+function stackedColumns({ keys, rows, series, height = 200, band = null, unit = 'kcal', empty = 'Noch keine Ernährungsdaten im Zeitraum.' }) {
   const W = CH.W, H = height, { padL, padR, padT, padB } = CH;
-  if (!rows.some(Boolean)) return emptyChart('Noch keine Ernährungsdaten im Zeitraum.');
+  if (!rows.some(Boolean)) return emptyChart(empty);
   const totals = rows.map((r) => (r ? series.reduce((a, s) => a + (r[s.key] || 0), 0) : 0));
   const mxv = Math.max(...totals, band && band.hi ? band.hi : 0);
   if (!mxv) return emptyChart('Noch keine Werte im Zeitraum.');
@@ -122,7 +122,7 @@ function stackedColumns({ keys, rows, series, height = 200, band = null }) {
       marks += `<path d="M${x},${yBot} V${yTop + rr} Q${x},${yTop} ${x + rr},${yTop} H${x + bw - rr} Q${x + bw},${yTop} ${x + bw},${yTop + rr} V${yBot} Z" fill="${sg.s.color}"/>`;
       acc += sg.v;
     });
-    const tip = fmtDate(keys[i], { weekday: 'short', day: 'numeric', month: 'short' }) + `\nGesamt: ${fmt(totals[i])} kcal\n` + series.map((s) => `${s.name}: ${fmt(r[s.key] || 0)} kcal`).join('\n');
+    const tip = (unit === 'kcal' ? fmtDate(keys[i], { weekday: 'short', day: 'numeric', month: 'short' }) : 'Woche ab ' + fmtDate(keys[i], { day: 'numeric', month: 'short' })) + `\nGesamt: ${fmt(totals[i])} ${unit}\n` + series.map((s) => `${s.name}: ${fmt(r[s.key] || 0)} ${unit}`).join('\n');
     marks += `<rect x="${padL + i * slot}" y="${padT}" width="${slot}" height="${H - padT - padB}" fill="transparent" data-tip="${esc(tip)}"/>`;
   });
   const lbl = [0, Math.floor((n - 1) / 2), n - 1].filter((v, i, a) => a.indexOf(v) === i);

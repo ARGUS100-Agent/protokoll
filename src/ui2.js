@@ -5,15 +5,6 @@
 /* ============================================================
    GESUNDHEIT
    ============================================================ */
-function vGes() {
-  const k = ui.date;
-  let h = `<header class="page-head is-tight"><h1>Gesundheit</h1></header>${dateBar(k)}`;
-  h += seg('ges', ui.gesSub, [['garmin', 'Garmin'], ['habits', 'Gewohnheiten'], ['haut', 'Haut']]);
-  if (ui.gesSub === 'garmin') h += vGarmin(k);
-  else if (ui.gesSub === 'habits') h += vHabits(k);
-  else h += vHaut(k);
-  return h;
-}
 function healthVal(f, v) {
   if (v == null) return '';
   if (f.type === 'dur') return fmtDur(v);
@@ -26,6 +17,7 @@ function vGarmin(k) {
   const d = getDay(k), y = peekDay(addDays(k, -1));
   let h = '<p class="sec-sub">Werte aus Garmin Connect übertragen. Der Vortag steht als Vorschlag daneben; ein Tipp darauf übernimmt ihn.</p>';
   for (const grp of HEALTH_FIELDS) {
+    if (grp.group === 'Körper') continue;
     h += `<section class="sec"><div class="sec-head"><h2>${esc(grp.group)}</h2></div><div class="form">`;
     for (const f of grp.fields) {
       const v = d.health[f.k];
@@ -41,9 +33,8 @@ function vGarmin(k) {
     h += '</div></section>';
   }
   const tr = d.trainings || [];
-  h += `<section class="sec"><div class="sec-head"><h2>Training</h2><button class="pill-btn" data-a="training-add" data-date="${k}">${icon('plus')}Hinzufügen</button></div>
-    ${tr.length ? `<div class="list">${tr.map((t) => `<button class="row" data-a="training-edit" data-id="${t.id}" data-date="${k}"><span class="row-main"><b>${esc(t.type)}</b><small>${[t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.load ? 'Belastung ' + t.load : ''].filter(Boolean).join(', ')}</small></span>${icon('pencil', 'row-ic')}</button>`).join('')}</div>` : '<p class="sec-sub">Noch kein Training eingetragen.</p>'}
-  </section>`;
+  h += `<section class="sec"><div class="sec-head"><h2>Training</h2><button class="link-btn" data-a="goto" data-tab="train" data-sub="heute">Training & Sauna</button></div>
+    <p class="sec-sub">${tr.length ? esc(tr.map((t) => `${t.type}${t.time ? ' ' + t.time : ''}${t.dur ? ', ' + t.dur + ' Min.' : ''}`).join(' · ')) : 'Trainings trägst du unter „Training & Sauna“ ein, das Gewicht unter „Körper“.'}</p></section>`;
   h += `<section class="sec"><div class="sec-head"><h2>Befinden</h2></div>${MOOD_FIELDS.map((m) => `<div class="mood"><span class="flabel">${m.n}</span>${scale10('mood', d.mood ? d.mood[m.k] : null, k, m.k)}</div>`).join('')}</section>`;
   h += `<section class="sec"><div class="sec-head"><h2>Notizen</h2></div><textarea class="note" rows="3" data-c="note" data-date="${k}" placeholder="Wie war der Tag?">${esc(d.note || '')}</textarea></section>`;
   return h;
@@ -71,60 +62,9 @@ function vHabits(k) {
   }
   return h + '</div>';
 }
-function vHaut(k) {
-  const d = getDay(k), sk = d.skin || {};
-  const phases = S.settings.skin.phases;
-  const ph = skinPhase(k);
-  let h = '';
-  const first = phases[0], last = phases[phases.length - 1];
-  let status = '';
-  if (ph) status = `${esc(ph.n)}, Tag ${ph.day} von ${ph.len}`;
-  else if (first && k < first.start) status = `Start am ${esc(fmtDate(first.start, { day: 'numeric', month: 'long' }))}`;
-  else status = 'Protokoll abgeschlossen';
-  const total = first && last ? daysBetween(first.start, last.end) + 1 : 1;
-  h += `<section class="phase-card">
-    <div class="phase-top"><h2>Haut-Protokoll</h2><span class="count">${status}</span></div>
-    <div class="phase-bar">${phases.map((p) => { const len = daysBetween(p.start, p.end) + 1; const done = k > p.end ? 1 : k < p.start ? 0 : (daysBetween(p.start, k) + 1) / len; return `<div class="phase-seg${ph && ph.id === p.id ? ' is-now' : ''}" style="flex:${len}"><i style="width:${done * 100}%"></i><span>${esc(p.n)}</span></div>`; }).join('')}</div>
-    ${ph ? `<ul class="rules">${ph.rules.map((r) => `<li>${icon('check')}${esc(r)}</li>`).join('')}</ul>` : ''}
-    ${phases.filter((p) => p.start > k).slice(0, 1).map((p) => `<p class="hint">Als Nächstes ab ${esc(fmtDate(p.start, { day: 'numeric', month: 'long' }))}: ${esc(p.rules.join(', '))}</p>`).join('')}
-  </section>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Hautbild</h2><span class="count">1 sehr schlecht, 10 sehr gut</span></div>${scale10('skin-score', sk.score ?? null, k)}</section>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Neue Pickel</h2></div><div class="chips">${[0, 1, 2, 3, 4, 5].map((n) => `<button class="chip${sk.spots === n ? ' is-on' : ''}" data-a="skin-spots" data-v="${n}" data-date="${k}">${n === 5 ? '5+' : n}</button>`).join('')}</div></section>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Routine</h2></div><div class="toggle-grid">${S.settings.skin.routine.map((r) => {
-    const on = !!sk[r.id];
-    const ld = lastDone(r.id, k);
-    const due = r.every && (ld == null || ld >= r.every) && !on;
-    const sub = r.every ? (on ? 'heute erledigt' : ld == null ? `alle ${r.every} Tage` : `zuletzt vor ${ld} ${ld === 1 ? 'Tag' : 'Tagen'}`) : '';
-    return `<button class="tgl${on ? ' is-on' : ''}${due ? ' is-due' : ''}" data-a="skin-check" data-id="${r.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>${esc(r.n)}</b>${sub ? `<small>${due ? 'fällig, ' : ''}${esc(sub)}</small>` : ''}</span></button>`;
-  }).join('')}
-    <button class="tgl${d.habits.gesicht ? ' is-on' : ''}" data-a="habit" data-id="gesicht" data-date="${k}" aria-pressed="${!!d.habits.gesicht}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Gesicht nach dem Gym gewaschen</b><small>auch bei den Gewohnheiten</small></span></button>
-  </div></section>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Notiz zur Haut</h2></div><textarea class="note" rows="2" data-c="skin-note" data-date="${k}" placeholder="z. B. neue Stelle am Kinn, Rasur gereizt">${esc(sk.note || '')}</textarea></section>`;
-  h += `<div class="mlist">${topicRow('skin', 'So funktioniert das Protokoll')}</div>`;
-  return h;
-}
-
 /* ============================================================
    FORTSCHRITT
    ============================================================ */
-function vFort() {
-  const n = ui.range;
-  const keys = rangeKeys(n);
-  let h = '<header class="page-head is-tight"><h1>Fortschritt</h1></header>';
-  const st = { nutri: streak('nutri'), supp: streak('supp'), habits: streak('habits') };
-  h += `<section class="streaks">${[['nutri', 'Ernährung'], ['supp', 'Supplements'], ['habits', 'Gewohnheiten']].map(([k2, l]) => `<div class="streak${st[k2].cur ? ' is-live' : ''}"><span class="streak-ic">${icon('flame')}</span><b>${st[k2].cur}</b><span class="streak-l">${st[k2].cur === 1 ? 'Tag' : 'Tage'} ${l}</span><small>Rekord ${st[k2].best}</small></div>`).join('')}</section>`;
-  h += `<p class="hint">Ernährung zählt, wenn Protein ≥ ${T().p.min || T().p.lo} g, Kalorien ≥ 90 % des Ziels (ohne Maximum zu überschreiten), Ballaststoffe ≥ 80 % und mind. 80 % der Mikronährstoffe im Ziel sind. Supplements: alle täglichen genommen. Gewohnheiten: mind. ${S.settings.habitGoal} erledigt.</p>`;
-  h += weekReportHTML(ui.weekOf);
-  h += heatmapHTML();
-  h += `<div class="range-row">${seg('range', String(n), [['7', '7 Tage'], ['30', '30 Tage'], ['90', '90 Tage']])}</div>`;
-  h += coverageHTML(keys);
-  h += macrosHTML(keys);
-  h += weightHTML(keys);
-  h += healthChartHTML(keys);
-  h += correlationsHTML();
-  h += skinProgressHTML(keys);
-  return h;
-}
 function chartCard(id, title, sub, body, tableRows, legend = '') {
   const showT = ui.tables.has(id);
   return `<section class="sec chart-card"><div class="sec-head"><h2>${esc(title)}</h2>${tableRows ? `<button class="link-btn" data-a="table" data-id="${id}">${showT ? 'Diagramm' : 'Tabelle'}</button>` : ''}</div>
@@ -341,12 +281,14 @@ function skinProgressHTML(keys) {
    EINSTELLUNGEN
    ============================================================ */
 const SET_SECTIONS = [
-  ['profil', 'Profil & Schlafzeiten'], ['ziele', 'Tagesziele'], ['plan', 'Standardtag bearbeiten'], ['woche', 'Tagesvarianten pro Wochentag'],
-  ['foods', 'Lebensmittel & Supplements'], ['haut', 'Haut-Protokoll'], ['habits', 'Gewohnheiten'], ['todos', 'To-dos'],
-  ['backup', 'Backup & Daten'], ['about', 'Installation & Hinweise'],
+  ['profil', 'Profil & Schlafzeiten'], ['nav', 'Tab-Leiste'], ['backup', 'Backup & Daten'], ['ziele', 'Tagesziele'], ['plan', 'Standardtag bearbeiten'], ['woche', 'Tagesvarianten pro Wochentag'],
+  ['training', 'Training, Wochenstruktur & Sauna'], ['knie', 'Knie-Programm'], ['koffein', 'Koffein'],
+  ['foods', 'Lebensmittel & Supplements'], ['haut', 'Haut-Protokoll'], ['habits', 'Gewohnheiten'], ['todos', 'Termine & To-dos'],
+  ['about', 'Installation & Hinweise'],
 ];
 function vSet() {
   let h = '<header class="page-head is-tight"><h1>Einstellungen</h1></header><div class="acc">';
+  if (backupDue()) h += `<div class="banner">${icon('download')}<div><b>Backup fällig</b><span>Unter „Backup & Daten“ sichern.</span></div></div>`;
   for (const [id, n] of SET_SECTIONS) {
     const open = ui.setOpen === id;
     h += `<section class="acc-sec${open ? ' is-open' : ''}" id="set-${id}"><button class="acc-head" data-a="set-open" data-id="${id}" aria-expanded="${open}"><span>${esc(n)}</span>${icon(open ? 'chevron-down' : 'chevron-right')}</button>${open ? `<div class="acc-body">${SET_VIEWS[id]()}</div>` : ''}</section>`;
@@ -418,11 +360,7 @@ const SET_VIEWS = {
     return `<div class="list">${HABITS.map((h) => { const on = !S.settings.habitsOff.includes(h.id); return `<button class="row-check${on ? ' is-on' : ''}" data-a="habit-onoff" data-id="${h.id}"><span class="tgl-box">${icon('check')}</span><span>${esc(habitName(h))}</span></button>`; }).join('')}</div>
       <div class="frow is-wide"><span class="flabel">Serie zählt ab</span><div class="chips chips-tight">${[5, 6, 7, 8, 9, 10].map((n) => `<button class="chip chip-xs${S.settings.habitGoal === n ? ' is-on' : ''}" data-a="habit-goal" data-v="${n}">${n}</button>`).join('')}</div></div>`;
   },
-  todos() {
-    const td = S.settings.todos || [];
-    return `<div class="list">${td.map((t) => `<div class="pe-row"><button class="row-check${t.done ? ' is-on' : ''}" data-a="todo" data-id="${t.id}"><span class="tgl-box">${icon('check')}</span><span>${esc(t.t)}</span></button><button class="icon-btn sm" data-a="todo-del" data-id="${t.id}" aria-label="Löschen">${icon('trash-2')}</button></div>`).join('')}</div>
-      <div class="search"><span>${icon('plus')}</span><input type="text" id="todo-new" placeholder="Neues To-do"><button class="pill-btn" data-a="todo-add">Hinzufügen</button></div>`;
-  },
+  todos() { return todosSection2(); },
   backup() {
     const last = S.meta.lastBackup ? fmtDate(S.meta.lastBackup.slice(0, 10), { day: 'numeric', month: 'long', year: 'numeric' }) : 'noch nie';
     const n = Object.keys(S.days).length;
@@ -431,7 +369,9 @@ const SET_VIEWS = {
       <div class="sheet-acts"><button class="btn is-accent" data-a="backup-export">${icon('share')}Backup erstellen</button>
       <label class="btn">${icon('upload')}Backup importieren<input type="file" accept="application/json,.json" data-c="backup-import" hidden></label></div>
       <div class="frow is-wide"><span class="flabel">Erinnerung</span><div class="chips chips-tight">${[[0, 'Aus'], [7, 'Wöchentlich'], [14, 'Alle 2 Wochen'], [30, 'Monatlich']].map(([v, l]) => `<button class="chip chip-xs${S.settings.backupDays === v ? ' is-on' : ''}" data-a="backup-days" data-v="${v}">${l}</button>`).join('')}</div></div>
-      <p class="hint">Speicher: ${DB.mode === 'idb' ? 'IndexedDB' : 'localStorage'} auf diesem Gerät.</p>
+      <p class="hint">Speicher: ${DB.mode === 'idb' ? 'IndexedDB' : 'localStorage'} auf diesem Gerät. Das Backup enthält alle Bereiche (Ernährung, Training, Knie, Haut-Tagebuch, Blutwerte, Einkauf, Rückblicke) – nur die Fotos nicht.</p>
+      <h5>Wochenfotos</h5><p class="hint">${photoIdx.loaded ? `${photoIdx.keys.length} Fotos gespeichert.` : ''} Fotos sind groß und werden deshalb getrennt als ZIP gesichert (JPEG-Dateien, auch am Mac lesbar).</p>
+      <div class="sheet-acts"><button class="btn" data-a="photos-export">${icon('images')}Fotos als ZIP sichern</button><label class="btn">${icon('upload')}Fotos-ZIP importieren<input type="file" accept="application/zip,.zip" data-c="photos-import" hidden></label></div>
       <button class="btn is-danger" data-a="wipe-ask">Alle Daten löschen</button>`;
   },
   about() {
@@ -470,17 +410,6 @@ function sheetFoodEdit(fid, opts = {}) {
     <div class="sheet-acts"><button class="btn is-accent" data-a="fe-save">Speichern</button>
       ${!isNew && FOOD[fid].edited ? '<button class="btn is-ghost" data-a="fe-reset">Auf Originalwerte zurücksetzen</button>' : ''}
       ${!isNew && FOOD[fid].custom ? '<button class="btn is-danger" data-a="fe-del">Löschen</button>' : ''}</div>`);
-}
-function sheetTraining(k, id) {
-  const d = getDay(k);
-  const t = id ? (d.trainings || []).find((x) => x.id === id) : { id: null, type: 'Kraft / Gym', dur: null, time: '', load: null };
-  ui.sheet = { type: 'training', k, t: clone(t) };
-  openSheet(`<h3 class="sheet-title">${id ? 'Training bearbeiten' : 'Training hinzufügen'}</h3>
-    <div class="chips">${TRAINING_TYPES.map((x) => `<button class="chip chip-sm${x === t.type ? ' is-on' : ''}" data-a="tr-type" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>
-    <div class="form"><div class="frow"><span class="flabel">Uhrzeit</span><div class="fin"><input type="time" id="tr-time" value="${esc(t.time || '')}"></div></div>
-    <div class="frow"><span class="flabel">Dauer</span><div class="fin"><input type="text" inputmode="numeric" id="tr-dur" value="${t.dur ?? ''}" placeholder="–"><span class="unit">Min.</span></div></div>
-    <div class="frow"><span class="flabel">Belastung</span><div class="fin"><input type="text" inputmode="numeric" id="tr-load" value="${t.load ?? ''}" placeholder="Garmin"></div></div></div>
-    <div class="sheet-acts"><button class="btn is-accent" data-a="tr-save">Speichern</button>${id ? '<button class="btn is-danger" data-a="tr-del">Löschen</button>' : ''}</div>`);
 }
 function sheetPickFood(blockId) {
   ui.sheet = { type: 'pick', blockId, q: '' };

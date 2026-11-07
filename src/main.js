@@ -26,8 +26,10 @@ function registerSW() {
     S.meta = { schema: 1, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
     S.foods = { custom: [], over: {} };
     S.days = {};
+    Object.assign(S, defaultStores()); S.shop = shopDefault();
     buildFoodIndex();
   }
+  try { migrate2(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);
   if (S.meta.version !== APP_VERSION) {
@@ -35,17 +37,19 @@ function registerSW() {
     S.meta.version = APP_VERSION; markDirty('meta');
   }
   document.body.classList.add('ready');
+  loadPhotoIndex().then(() => { if (!ui.sheet && (ui.tab === 'heute' || ui.tab === 'haut')) render(); });
   registerSW();
   setInterval(() => {
     if (document.hidden) return;
     const t = todayKey();
     if (t !== ui.lastToday) {
       if (ui.date === ui.lastToday) ui.date = t;
-      ui.lastToday = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7);
+      ui.lastToday = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7); ui.trainWeek = weekStart(t); ui.reviewWeek = weekStart(t); ui.photoWeek = weekStart(t);
       invalidate();
       if (!ui.sheet) render();
       return;
     }
     if (ui.tab === 'heute' && !ui.sheet) { const a = $('#arc'); if (a) a.innerHTML = arcInner(); }
+    if (ui.tab === 'licht' && !ui.sheet && ui.date === todayKey() && !document.activeElement.matches('input, textarea, select')) render();
   }, 30000);
 })();
