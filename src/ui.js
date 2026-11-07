@@ -333,8 +333,8 @@ function defaultMeal() { const n = nowMin(); return n < 660 ? 'fruehstueck' : n 
 function vDetail(k) {
   const d = getDay(k);
   let h = `<div class="search"><span>${icon('search')}</span><input type="search" placeholder="Lebensmittel suchen" data-i="search" value="${esc(ui.q)}" autocomplete="off" enterkeyhint="search"></div>
-  <div id="results">${searchResults()}</div>
-  <div class="row-btns"><button class="pill-btn" data-a="food-new">${icon('plus')}Eigenes Lebensmittel</button><button class="pill-btn" data-a="plant-pick" data-date="${k}">${icon('sprout')}Pflanze hinzufügen</button></div>`;
+  <div class="row-btns"><button class="pill-btn is-accent" data-a="frank-open" data-date="${k}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new">${icon('plus')}Eigenes Lebensmittel</button><button class="pill-btn" data-a="plant-pick" data-date="${k}">${icon('sprout')}Pflanze hinzufügen</button></div>
+  <div id="results">${searchResults()}</div>`;
   const entries = d.entries || [];
   h += `<section class="sec"><div class="sec-head"><h2>Eingetragen ${k === todayKey() ? 'heute' : 'an diesem Tag'}</h2><span class="count">${entries.length}</span></div>`;
   if (!entries.length) h += `<p class="sec-sub">Noch keine Einzel-Einträge. Suche oben ein Lebensmittel oder nutze den Standardtag.</p>`;
@@ -363,12 +363,12 @@ function searchResults() {
   const words = q.split(/\s+/);
   const hits = all.filter((f) => words.every((w) => (f.n + ' ' + f.cat + ' ' + [].concat(f.pl || []).join(' ')).toLowerCase().includes(w)));
   hits.sort((a, b) => (a.n.toLowerCase().startsWith(q) ? -1 : 0) - (b.n.toLowerCase().startsWith(q) ? -1 : 0) || a.n.localeCompare(b.n, 'de'));
-  if (!hits.length) return `<div class="empty"><p>Nichts gefunden für „${esc(ui.q)}“.</p><button class="pill-btn is-accent" data-a="food-new" data-name="${esc(ui.q)}">${icon('plus')}„${esc(ui.q)}“ anlegen</button></div>`;
+  if (!hits.length) return `<div class="empty"><p>Nichts gefunden für „${esc(ui.q)}“.</p><div class="row-btns center"><button class="pill-btn is-accent" data-a="frank-open" data-q="${esc(ui.q)}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new" data-name="${esc(ui.q)}">${icon('plus')}Selbst anlegen</button></div></div>`;
   return `<div class="list">${hits.slice(0, 40).map(foodRow).join('')}</div>`;
 }
 function foodRow(f) {
   const per = f.base === 1 ? `pro ${f.u[0][0]}` : isLiquid(f) ? 'pro 100 ml' : 'pro 100 g';
-  return `<button class="row" data-a="food-open" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.custom ? ' <em class="est">eigenes</em>' : ''}</b><small>${fmt(f.v.kcal || 0)} kcal, ${fmt(f.v.p || 0, 1)} g Protein ${per}</small></span>${icon('plus', 'row-ic')}</button>`;
+  return `<button class="row" data-a="food-open" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.custom ? ` <em class="est">${f.frank ? 'Frank' : 'eigenes'}</em>` : ''}</b><small>${fmt(f.v.kcal || 0)} kcal, ${fmt(f.v.p || 0, 1)} g Protein ${per}</small></span>${icon('plus', 'row-ic')}</button>`;
 }
 function recentFoods(n) {
   const seen = new Map();
@@ -526,6 +526,7 @@ function renderFoodSheet() {
   const blocked = phaseBlocks(s.k, food);
   openSheet(`<h3 class="sheet-title">${esc(food.n)}</h3>
     ${food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
+    ${food.frank ? `<p class="hint">Von Frank recherchiert${food.frank.est && food.frank.est.length ? ', ein Teil geschätzt' : ''}${food.frank.src && food.frank.src.length ? `. Quellen: ${frankSrcLinks(food.frank.src)}` : ''}</p>` : ''}
     ${blocked ? `<div class="banner is-warn">${icon('triangle-alert')}<div><b>${esc(blocked.n)} im Haut-Protokoll</b><span>${esc(blocked.rules.join(', '))}</span></div></div>` : ''}
     <div class="amount-row"><button class="step" data-a="sheet-step" data-d="-1" aria-label="Weniger">${icon('minus')}</button>
       <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(s.amt, 2)}" data-i="sheet-amt"></label>
