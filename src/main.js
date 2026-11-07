@@ -1,0 +1,51 @@
+/* ============================================================
+   START
+   ============================================================ */
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  if (location.protocol !== 'https:' && !local) return;
+  navigator.serviceWorker.register('./sw.js').then((reg) => {
+    if (reg.waiting && navigator.serviceWorker.controller) { ui.updateReady = true; if (ui.tab === 'heute') render(); }
+    reg.addEventListener('updatefound', () => {
+      const nw = reg.installing;
+      if (!nw) return;
+      nw.addEventListener('statechange', () => {
+        if (nw.state === 'installed' && navigator.serviceWorker.controller) { ui.updateReady = true; if (ui.tab === 'heute' && !ui.sheet) render(); }
+      });
+    });
+  }).catch(() => { /* offline oder file:// */ });
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (ui.reloadRequested) location.reload(); });
+}
+
+(async function init() {
+  try {
+    await loadState();
+  } catch (e) {
+    S.settings = defaultSettings();
+    S.meta = { schema: 1, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
+    S.foods = { custom: [], over: {} };
+    S.days = {};
+    buildFoodIndex();
+  }
+  setupEvents();
+  render(false);
+  if (S.meta.version !== APP_VERSION) {
+    if (S.meta.version) setTimeout(() => toast(`Protokoll wurde auf Version ${APP_VERSION} aktualisiert`), 600);
+    S.meta.version = APP_VERSION; markDirty('meta');
+  }
+  document.body.classList.add('ready');
+  registerSW();
+  setInterval(() => {
+    if (document.hidden) return;
+    const t = todayKey();
+    if (t !== ui.lastToday) {
+      if (ui.date === ui.lastToday) ui.date = t;
+      ui.lastToday = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7);
+      invalidate();
+      if (!ui.sheet) render();
+      return;
+    }
+    if (ui.tab === 'heute' && !ui.sheet) { const a = $('#arc'); if (a) a.innerHTML = arcInner(); }
+  }, 30000);
+})();
