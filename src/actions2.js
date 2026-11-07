@@ -342,7 +342,7 @@ Object.assign(A, {
     if (!v) { if (inp) inp.focus(); return; }
     const cat = $('#shop-cat') ? $('#shop-cat').value : 'Vorrat';
     ui.shopCat = cat;
-    S.shop.items.push({ id: uid(), n: v, q: '', cat, list: getSub('einkauf', 'buy') });
+    S.shop.items.push({ id: uid(), n: v, q: '', cat, store: CAT_STORE[cat] || 'other', tip: '', list: getSub('einkauf', 'buy') });
     saveStore('shop');
     requestAnimationFrame(() => { const i = $('#shop-new'); if (i) i.focus(); });
   },
@@ -353,7 +353,14 @@ Object.assign(A, {
   },
   'shop-back': (el) => { const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return; it.list = 'buy'; saveStore('shop'); toast(`${it.n} steht wieder auf der Liste`); },
   'shop-edit': (el) => sheetShopItem(el.dataset.id),
-  'shop-save': () => { const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return; it.n = $('#si-n').value.trim() || it.n; it.q = $('#si-q').value.trim(); it.cat = $('#si-cat').value; closeSheet(); saveStore('shop'); },
+  'shop-group': (el) => { ui.shopGroup = ui.shopGroup || {}; ui.shopGroup[getSub('einkauf', 'buy')] = el.dataset.v; render(); },
+  'shop-store': (el) => { if (!ui.sheet) return; ui.sheet.store = el.dataset.v; $$('#si-store .chip').forEach((b) => b.classList.toggle('is-on', b.dataset.v === el.dataset.v)); },
+  'shop-save': () => {
+    const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return;
+    it.n = $('#si-n').value.trim() || it.n; it.q = $('#si-q').value.trim(); it.tip = $('#si-tip').value.trim(); it.cat = $('#si-cat').value;
+    it.store = ui.sheet.store || itemStore(it);
+    closeSheet(); saveStore('shop');
+  },
   'shop-del': () => { S.shop.items = S.shop.items.filter((x) => x.id !== ui.sheet.id); closeSheet(); saveStore('shop'); },
   'shop-reload-ask': () => {
     ui.sheet = { type: 'shopreload' };

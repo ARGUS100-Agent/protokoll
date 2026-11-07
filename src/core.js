@@ -260,6 +260,8 @@ function itemGrams(it, day, variant) {
   const food = FOOD[itemFoodId(it, day)];
   return itemAmount(it, day, variant) * unitG(food, it.u);
 }
+/* Auswahl-Posten in g/ml: Einheit passend zum gewählten Lebensmittel (Saft in ml, Knolle in g) */
+function itemUnit(it, food) { return it.choice && food && (it.u === 'g' || it.u === 'ml') ? (isLiquid(food) ? 'ml' : 'g') : it.u; }
 function itemLabel(it, day) {
   const fid = itemFoodId(it, day);
   if (it.choice && it.label && it.cg !== 'pmm') return FOOD[fid] ? FOOD[fid].n : it.label;
@@ -803,7 +805,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 2, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
+  return { app: 'protokoll', schema: 3, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
 }
 function backupDue() {
   const n = S.settings.backupDays;

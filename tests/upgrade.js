@@ -1,4 +1,4 @@
-// Update-Test: Version 1.1.0 mit Daten → Version 2.0.0 auf derselben Adresse
+// Update-Test: Version 1.1.0 mit Daten → aktuelle Version auf derselben Adresse
 const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const T = process.argv[2];
@@ -39,8 +39,8 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   await page.reload({ waitUntil: 'load' });
   await page.waitForTimeout(1500);
   let ver = await page.evaluate(() => APP_VERSION);
-  if (ver !== '2.0.0') { await page.reload({ waitUntil: 'load' }); await page.waitForTimeout(1500); ver = await page.evaluate(() => APP_VERSION); }
-  ok(ver === '2.0.0', 'Nach dem Update läuft Version ' + ver);
+  if (ver === '1.1.0') { await page.reload({ waitUntil: 'load' }); await page.waitForTimeout(1500); ver = await page.evaluate(() => APP_VERSION); }
+  ok(ver !== '1.1.0', 'Nach dem Update läuft Version ' + ver);
   const st = await page.evaluate(() => {
     const y = addDays(todayKey(), -1);
     return {
@@ -54,7 +54,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   });
   console.log('     ' + JSON.stringify(st));
   ok(st.days === 3 && st.name === 'Test', 'Alle Tage und Profil erhalten');
-  ok(st.schema === 2, 'Migration auf Schema 2');
+  ok(st.schema === 3, 'Migration auf Schema 3');
   ok(st.tabs.join(',') === 'heute,ern,train,knie', 'Tab-Leiste: Heute · Ernährung · Training · Knie');
   ok(st.knee && st.caf === 6 && st.shop > 40, 'Neue Einstellungen und Einkaufsliste angelegt');
   ok(st.rules[0].includes('OneBlade') && st.rules.includes('Kein Clienzo'), 'Haut-Phase 1 auf neue Regeln aktualisiert');

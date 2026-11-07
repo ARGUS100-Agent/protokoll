@@ -208,6 +208,7 @@ const A = {
     if (el.dataset.mode === 'replace') {
       S.days = data.days || {}; S.settings = mergeDefaults(defaultSettings(), data.settings || null); S.foods = data.foods || { custom: [], over: {} };
       S.shop = data.shop || shopDefault();
+      upgradePlan3(); upgradeShop3();
       for (const key of ['blood', 'knee', 'reviews']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
     } else {
       Object.assign(S.days, data.days || {});
@@ -233,7 +234,7 @@ const A = {
     const v = ($('#wipe-in') || {}).value || '';
     if (v.trim().toUpperCase() !== 'LÖSCHEN') { toast('Bitte LÖSCHEN eingeben'); return; }
     await DB.clear();
-    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 2, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
+    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 3, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
     Object.assign(S, defaultStores()); S.shop = shopDefault();
     try { await PhotoDB.clear(); photoUrls.forEach((u) => URL.revokeObjectURL(u)); photoUrls.clear(); photoIdx.keys = []; } catch (e) { /* egal */ }
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); await flush();

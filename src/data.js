@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -112,7 +112,8 @@ const FOODS = [
   { id: 'espresso', n: 'Espresso', cat: 'Getränke', u: [['Shot (30 ml)', 30], ['ml', 1]], fl: 100, pl: 'Kaffee', pp: 4, v: { kcal: 9, p: 0.1, k: 115, mg: 80, na: 14, caf: 212 } },
   { id: 'o_saft', n: 'Orangensaft (100 %)', cat: 'Getränke', u: [['Glas (250 ml)', 250], ['ml', 1]], fl: 100, pl: 'Orange', pp: 0.4, v: { kcal: 45, p: 0.7, f: 0.2, sf: 0.02, c: 10.4, sug: 8.4, fs: 8.4, fib: 0.2, na: 1, k: 200, ca: 11, mg: 11, fe: 0.2, zn: 0.05, se: 0.1, i: 1, cu: 0.04, vc: 40, va: 10, ve: 0.04, vk: 0.1, fol: 30, b6: 0.04, cho: 6.2 } },
   { id: 'kokoswasser', n: 'Kokoswasser', cat: 'Getränke', u: [['Flasche (330 ml)', 330], ['ml', 1]], fl: 100, pl: 'Kokos', v: { kcal: 19, p: 0.7, f: 0.2, sf: 0.18, c: 3.7, sug: 2.6, na: 25, k: 200, ca: 24, mg: 25, fe: 0.29, zn: 0.1, se: 1, cu: 0.04, vc: 2.4, fol: 3, b6: 0.03, cho: 1.1 } },
-  { id: 'kombucha', n: 'Kombucha', cat: 'Getränke', u: [['Flasche (250 ml)', 250], ['ml', 1]], fl: 100, pl: 'Tee', pp: 0.3, ferm: 150, v: { kcal: 14, c: 3.3, sug: 3, fs: 3, na: 3, k: 10, caf: 2 } },
+  { id: 'kombucha', n: 'Kombucha', cat: 'Getränke', u: [['Flasche (330 ml)', 330], ['Flasche (250 ml)', 250], ['ml', 1]], fl: 100, pl: 'Tee', pp: 0.3, ferm: 150, v: { kcal: 18, p: 0.2, f: 0.1, c: 4.6, sug: 4.6, fs: 4.6, na: 3, k: 10, caf: 3 } },
+  { id: 'rotebete_saft', n: 'Rote-Bete-Saft (milchsauer vergoren)', cat: 'Getränke', est: true, u: [['Glas (200 ml)', 200], ['ml', 1]], fl: 100, pl: 'Rote Bete', pp: 0.5, v: { kcal: 38, p: 1, f: 0.1, c: 7.8, sug: 7, fs: 7, fib: 0.3, na: 40, k: 280, ca: 15, mg: 18, fe: 0.5, zn: 0.2, cu: 0.05, vc: 2, fol: 25, b6: 0.05 } },
   { id: 'kuhmilch', n: 'Milch 1,5 %', cat: 'Eier & Milch', u: [['Glas (250 ml)', 250], ['ml', 1]], fl: 90, v: { kcal: 47, p: 3.4, f: 1.5, sf: 0.9, c: 4.8, sug: 4.8, na: 45, k: 155, ca: 120, mg: 12, fe: 0.03, zn: 0.4, se: 1.5, i: 10, cu: 0.01, vc: 1, vd: 0.03, va: 18, ret: 18, ve: 0.03, vk: 0.3, b12: 0.45, fol: 5, b6: 0.04, cho: 15 } },
   { id: 'haferdrink', n: 'Haferdrink, mit Kalzium', cat: 'Getränke', u: [['Glas (250 ml)', 250], ['ml', 1]], fl: 90, pl: 'Hafer', pre: 0.4, v: { kcal: 46, p: 1, f: 1.5, sf: 0.2, c: 6.7, sug: 4, fs: 4, fib: 0.8, na: 40, k: 40, ca: 120, mg: 5, fe: 0.2, zn: 0.1, se: 1, cu: 0.02, vd: 0.75, ve: 0.2, b12: 0.38, fol: 2, b6: 0.01, cho: 2 } },
   { id: 'bier', n: 'Bier', cat: 'Getränke', u: [['Flasche (0,5 l)', 500], ['ml', 1]], tags: ['alkohol'], v: { kcal: 43, p: 0.5, c: 3.6, sug: 0.1, na: 4, k: 27, mg: 6, fol: 6, b6: 0.05, alk: 3.9 } },
@@ -166,6 +167,7 @@ const FOODS = [
   { id: 'miso', n: 'Miso', cat: 'Hülsenfrüchte & Soja', u: [['EL', 18], ['g', 1]], pl: 'Soja', ferm: 15, v: { kcal: 198, p: 12, f: 6, sf: 1, c: 21, sug: 6, fib: 5.4, na: 3700, k: 210, ca: 57, mg: 48, fe: 2.5, zn: 2.6, se: 7, i: 1, cu: 0.42, vk: 29, fol: 19, b6: 0.2, cho: 72, ala: 0.5 } },
 
   /* Obst */
+  { id: 'kiwi_gold', n: 'Kiwi Gold', cat: 'Obst', u: [['Stück', 90], ['g', 1]], pl: 'Kiwi', pp: 0.3, pre: 0.5, v: { kcal: 63, p: 1, f: 0.3, sf: 0.05, c: 15.8, sug: 12.3, fib: 1.4, na: 3, k: 315, ca: 17, mg: 12, fe: 0.21, zn: 0.08, se: 0.4, i: 1, cu: 0.15, vc: 161, va: 1, ve: 1.49, vk: 6.1, fol: 31, b6: 0.08, cho: 7.8 } },
   { id: 'kiwi', n: 'Kiwi', cat: 'Obst', u: [['Stück', 75], ['g', 1]], pl: 'Kiwi', pp: 0.3, pre: 0.5, v: { kcal: 61, p: 1.1, f: 0.5, sf: 0.03, c: 11.7, sug: 9, fib: 3, na: 3, k: 312, ca: 34, mg: 17, fe: 0.31, zn: 0.14, se: 0.2, i: 1, cu: 0.13, vc: 93, va: 4, ve: 1.46, vk: 40.3, fol: 25, b6: 0.06, cho: 7.8, ala: 0.04 } },
   { id: 'banane', n: 'Banane', cat: 'Obst', u: [['Stück', 120], ['g', 1]], pl: 'Banane', pp: 0.1, pre: 0.6, v: { kcal: 91, p: 1.1, f: 0.3, sf: 0.1, c: 20, sug: 17, fib: 2, na: 1, k: 358, ca: 5, mg: 27, fe: 0.26, zn: 0.15, se: 1, i: 1, cu: 0.08, vc: 8.7, va: 3, ve: 0.1, vk: 0.5, fol: 20, b6: 0.37, cho: 9.8 } },
   { id: 'datteln', n: 'Datteln (getrocknet)', cat: 'Obst', u: [['g', 1], ['Stück (Deglet)', 8], ['Stück (Medjool)', 24]], pl: 'Dattel', pp: 0.5, pre: 0.5, v: { kcal: 286, p: 2.5, f: 0.4, sf: 0.03, c: 64, sug: 63, fib: 8, na: 2, k: 656, ca: 39, mg: 43, fe: 1, zn: 0.29, se: 3, i: 1, cu: 0.21, vc: 0.4, va: 1, ve: 0.05, vk: 2.7, fol: 19, b6: 0.17, cho: 6.3 } },
@@ -240,6 +242,7 @@ const FOODS = [
   /* Öle, Süßes, Gewürze */
   { id: 'olivenoel', n: 'Olivenöl extra vergine', cat: 'Öle & Fette', u: [['EL', 10], ['TL', 4], ['g', 1]], pl: 'Olive', pp: 10, v: { kcal: 884, f: 100, sf: 14, na: 2, k: 1, ca: 1, fe: 0.56, ve: 14.4, vk: 60, ala: 0.76 } },
   { id: 'schokolade85', n: 'Dunkle Schokolade 85 %', cat: 'Süßes & Snacks', u: [['Rippe', 10], ['g', 1]], pl: 'Kakao', pp: 16.6, pre: 1, v: { kcal: 590, p: 12, f: 47, sf: 28, c: 19, sug: 11, fs: 11, fib: 13, na: 10, k: 715, ca: 73, mg: 228, fe: 11.9, zn: 3.3, se: 6.8, i: 2, cu: 1.77, va: 2, ve: 0.6, vk: 7.3, b6: 0.04, cho: 12, caf: 80 } },
+  { id: 'schokolade90', n: 'Dunkle Schokolade 90 %', cat: 'Süßes & Snacks', est: true, u: [['Rippe', 10], ['g', 1]], pl: 'Kakao', pp: 18, pre: 1, v: { kcal: 596, p: 12, f: 51, sf: 31, c: 14, sug: 7, fs: 7, fib: 12, na: 10, k: 750, ca: 70, mg: 240, fe: 12.5, zn: 3.5, se: 7, i: 2, cu: 1.9, va: 2, ve: 0.6, vk: 7.5, b6: 0.04, cho: 12, caf: 90 } },
   { id: 'gummibaerchen', n: 'Gummibärchen', cat: 'Süßes & Snacks', u: [['Handvoll', 30], ['Tüte (200 g)', 200], ['g', 1]], tags: ['upf'], v: { kcal: 343, p: 6.9, f: 0.1, c: 77, sug: 46, fs: 46, na: 20 } },
   { id: 'honig', n: 'Honig', cat: 'Süßes & Snacks', u: [['TL', 8], ['g', 1]], v: { kcal: 320, p: 0.3, c: 80, sug: 80, fs: 80, na: 4, k: 52, ca: 6, mg: 2, fe: 0.42, zn: 0.22, cu: 0.04, vc: 0.5, fol: 2, b6: 0.02 } },
   { id: 'jodsalz', n: 'Jodsalz', cat: 'Kräuter & Gewürze', u: [['g', 1], ['Prise', 0.5], ['TL', 5]], v: { na: 38758, i: 2000 } },
@@ -278,7 +281,7 @@ const DEFAULT_PLAN = [
     { id: 'f_spinat', food: 'spinat', a: 100, u: 'g' },
     { id: 'f_paprika', food: 'paprika_rot', a: 150, u: 'g', hint: 'roh' },
     { id: 'f_oel', food: 'olivenoel', a: 1, u: 'EL' },
-    { id: 'f_kiwi', food: 'kiwi', a: 1, u: 'Stück' },
+    { id: 'f_kiwi', food: 'kiwi_gold', choice: ['kiwi_gold', 'kiwi'], a: 1, u: 'Stück', label: 'Kiwi' },
     { id: 'f_ferm', food: 'sauerkraut', choice: ['sauerkraut', 'kimchi'], a: 40, u: 'g', label: 'Sauerkraut oder Kimchi' },
     { id: 'f_pmm', food: 'prepmymeal', choice: PMM_CHOICES, cg: 'pmm', a: 200, u: 'g', label: '20 % Prepmymeal XL', v: ['prep'] },
     { id: 'f_d3k2', food: 's_d3k2', a: 4, u: 'Tropfen', hint: 'zu den Eiern (fettlöslich)' },
@@ -299,7 +302,7 @@ const DEFAULT_PLAN = [
     { id: 'n_kuerbis', food: 'kuerbiskerne', a: 20, u: 'g' },
     { id: 'n_mandeln', food: 'mandeln', a: 30, u: 'g' },
     { id: 'n_paranuss', food: 'paranuss', a: 1, u: 'Stück' },
-    { id: 'n_schoko', food: 'schokolade85', a: 20, u: 'g', label: 'Dunkle Schokolade (mind. 85 %)' },
+    { id: 'n_schoko', food: 'schokolade90', choice: ['schokolade90', 'schokolade85'], a: 20, u: 'g', label: 'Dunkle Schokolade (85–90 %)' },
     { id: 'n_kefir', food: 'kefir', a: 150, u: 'ml' },
   ] },
   { id: 'training', n: 'Rund ums Training', time: 'training', items: [
@@ -324,7 +327,7 @@ const DEFAULT_PLAN = [
   ] },
   { id: 'vielfalt', n: 'Für Vielfalt (optional)', time: null, items: [
     { id: 'v_brokkoli', food: 'brokkoli', a: 150, u: 'g', opt: true },
-    { id: 'v_rotebete', food: 'rote_bete', a: 100, u: 'g', opt: true },
+    { id: 'v_rotebete', food: 'rotebete_saft', choice: ['rotebete_saft', 'rote_bete'], a: 200, u: 'ml', opt: true, label: 'Rote Bete' },
     { id: 'v_apfel', food: 'apfel', a: 1, u: 'Stück', opt: true },
     { id: 'v_tomate', food: 'tomate', a: 100, u: 'g', opt: true },
     { id: 'v_zwiebel', food: 'zwiebel', a: 50, u: 'g', opt: true },
@@ -429,7 +432,7 @@ const TIP_FOODS = {
   p: [['skyr', 300, 50], ['ei', 110, 55], ['makrele', 120, 120], ['kefir', 300, 150]],
   c: [['haferflocken', 80, 10], ['datteln', 60, 10], ['banane', 240, 120]],
   fib: [['flohsamen', 10, 5], ['leinsamen', 20, 5], ['himbeeren', 150, 50], ['haferflocken', 40, 10]],
-  vc: [['paprika_rot', 150, 50], ['kiwi', 150, 75], ['o_saft', 250, 50], ['brokkoli', 150, 50]],
+  vc: [['paprika_rot', 150, 50], ['kiwi_gold', 180, 90], ['o_saft', 250, 50], ['brokkoli', 150, 50]],
   vd: [['s_d3k2', 4, 2], ['makrele', 120, 120], ['ei', 110, 55]],
   vk: [['spinat', 50, 25], ['brokkoli', 150, 50], ['gruenkohl', 100, 50]],
   va: [['karotten', 150, 50], ['suesskartoffel', 150, 50], ['spinat', 50, 25]],
@@ -448,7 +451,7 @@ const TIP_FOODS = {
   cho: [['ei', 110, 55], ['skyr', 300, 50]],
   o3: [['s_omega3', 2, 1], ['makrele', 120, 120]],
   pre: [['haferflocken', 60, 10], ['zwiebel', 80, 40], ['knoblauch', 8, 4], ['banane', 120, 120]],
-  pp: [['heidelbeeren', 150, 50], ['schokolade85', 20, 10], ['gruener_tee', 500, 250]],
+  pp: [['heidelbeeren', 150, 50], ['schokolade90', 20, 10], ['gruener_tee', 500, 250]],
   ferm: [['sauerkraut', 40, 40], ['kimchi', 40, 40], ['kefir', 150, 150], ['kombucha', 250, 250], ['joghurt', 150, 150]],
   fluid: [['wasser', 1000, 250], ['mineralwasser', 1000, 250]],
 };

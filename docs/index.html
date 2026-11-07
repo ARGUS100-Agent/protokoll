@@ -137,6 +137,7 @@ h1, h2, h3, h4, h5 { font-weight: 700; }
 .pill-btn .ic { width: 16px; height: 16px; }
 .pill-btn.is-accent { background: var(--accent); color: var(--accent-ink); }
 .pill-btn.is-ghost { background: transparent; color: var(--ink-3); }
+a.pill-btn, a.icon-btn { text-decoration: none; }
 .link-btn { color: var(--accent); font-size: 14px; font-weight: 650; padding: 6px 0; min-height: 32px; }
 .more { display: block; margin-top: 6px; }
 .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; padding: 0 16px; border-radius: 15px; background: var(--bg-3); font-size: 16px; font-weight: 650; cursor: pointer; }
@@ -750,6 +751,10 @@ th { color: var(--ink-3); font-weight: 650; }
 .shop-chk { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; min-height: 54px; padding: 8px 4px 8px 14px; text-align: left; }
 .shop-row.is-home { padding-left: 14px; min-height: 54px; }
 .shop-row.is-home .row-main { padding: 8px 0; }
+.shop-tools { display: flex; justify-content: flex-end; margin: 4px 0 -4px; }
+.shop-store-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 16px 2px 8px; }
+.shop-store-h .meal-h { margin: 0; }
+.store-tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--bg-3); color: var(--ink-2); font-size: 11.5px; font-weight: 650; line-height: 18px; vertical-align: 1px; white-space: nowrap; }
 .icon-btn.ghost { background: transparent; color: var(--ink-3); }
 
 /* Einstellungen */
@@ -923,7 +928,9 @@ const ICONS = {
   'history': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></svg>',
   'images': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /> <path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /> <circle cx="13" cy="7" r="1" fill="currentColor" /> <rect x="8" y="2" width="14" height="14" rx="2" /></svg>',
   'info': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg>',
+  'layers': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>',
   'layout-grid': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></svg>',
+  'map-pin': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></svg>',
   'minus': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>',
   'moon': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg>',
   'notebook-pen': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></svg>',
@@ -948,6 +955,7 @@ const ICONS = {
   'sparkles': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></svg>',
   'sprout': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3" /> <path d="M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4" /> <path d="M5 21h14" /></svg>',
   'square-play': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z" /></svg>',
+  'store': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5" /> <path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244" /> <path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05" /></svg>',
   'stretch-horizontal': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="6" x="2" y="4" rx="2" /> <rect width="20" height="6" x="2" y="14" rx="2" /></svg>',
   'sun': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" /> <path d="M12 2v2" /> <path d="M12 20v2" /> <path d="m4.93 4.93 1.41 1.41" /> <path d="m17.66 17.66 1.41 1.41" /> <path d="M2 12h2" /> <path d="M20 12h2" /> <path d="m6.34 17.66-1.41 1.41" /> <path d="m19.07 4.93-1.41 1.41" /></svg>',
   'sunrise': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8" /> <path d="m4.93 10.93 1.41 1.41" /> <path d="M2 18h2" /> <path d="M20 18h2" /> <path d="m19.07 10.93-1.41 1.41" /> <path d="M22 22H2" /> <path d="m8 6 4-4 4 4" /> <path d="M16 18a4 4 0 0 0-8 0" /></svg>',
@@ -970,7 +978,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -1077,7 +1085,8 @@ const FOODS = [
   { id: 'espresso', n: 'Espresso', cat: 'Getränke', u: [['Shot (30 ml)', 30], ['ml', 1]], fl: 100, pl: 'Kaffee', pp: 4, v: { kcal: 9, p: 0.1, k: 115, mg: 80, na: 14, caf: 212 } },
   { id: 'o_saft', n: 'Orangensaft (100 %)', cat: 'Getränke', u: [['Glas (250 ml)', 250], ['ml', 1]], fl: 100, pl: 'Orange', pp: 0.4, v: { kcal: 45, p: 0.7, f: 0.2, sf: 0.02, c: 10.4, sug: 8.4, fs: 8.4, fib: 0.2, na: 1, k: 200, ca: 11, mg: 11, fe: 0.2, zn: 0.05, se: 0.1, i: 1, cu: 0.04, vc: 40, va: 10, ve: 0.04, vk: 0.1, fol: 30, b6: 0.04, cho: 6.2 } },
   { id: 'kokoswasser', n: 'Kokoswasser', cat: 'Getränke', u: [['Flasche (330 ml)', 330], ['ml', 1]], fl: 100, pl: 'Kokos', v: { kcal: 19, p: 0.7, f: 0.2, sf: 0.18, c: 3.7, sug: 2.6, na: 25, k: 200, ca: 24, mg: 25, fe: 0.29, zn: 0.1, se: 1, cu: 0.04, vc: 2.4, fol: 3, b6: 0.03, cho: 1.1 } },
-  { id: 'kombucha', n: 'Kombucha', cat: 'Getränke', u: [['Flasche (250 ml)', 250], ['ml', 1]], fl: 100, pl: 'Tee', pp: 0.3, ferm: 150, v: { kcal: 14, c: 3.3, sug: 3, fs: 3, na: 3, k: 10, caf: 2 } },
+  { id: 'kombucha', n: 'Kombucha', cat: 'Getränke', u: [['Flasche (330 ml)', 330], ['Flasche (250 ml)', 250], ['ml', 1]], fl: 100, pl: 'Tee', pp: 0.3, ferm: 150, v: { kcal: 18, p: 0.2, f: 0.1, c: 4.6, sug: 4.6, fs: 4.6, na: 3, k: 10, caf: 3 } },
+  { id: 'rotebete_saft', n: 'Rote-Bete-Saft (milchsauer vergoren)', cat: 'Getränke', est: true, u: [['Glas (200 ml)', 200], ['ml', 1]], fl: 100, pl: 'Rote Bete', pp: 0.5, v: { kcal: 38, p: 1, f: 0.1, c: 7.8, sug: 7, fs: 7, fib: 0.3, na: 40, k: 280, ca: 15, mg: 18, fe: 0.5, zn: 0.2, cu: 0.05, vc: 2, fol: 25, b6: 0.05 } },
   { id: 'kuhmilch', n: 'Milch 1,5 %', cat: 'Eier & Milch', u: [['Glas (250 ml)', 250], ['ml', 1]], fl: 90, v: { kcal: 47, p: 3.4, f: 1.5, sf: 0.9, c: 4.8, sug: 4.8, na: 45, k: 155, ca: 120, mg: 12, fe: 0.03, zn: 0.4, se: 1.5, i: 10, cu: 0.01, vc: 1, vd: 0.03, va: 18, ret: 18, ve: 0.03, vk: 0.3, b12: 0.45, fol: 5, b6: 0.04, cho: 15 } },
   { id: 'haferdrink', n: 'Haferdrink, mit Kalzium', cat: 'Getränke', u: [['Glas (250 ml)', 250], ['ml', 1]], fl: 90, pl: 'Hafer', pre: 0.4, v: { kcal: 46, p: 1, f: 1.5, sf: 0.2, c: 6.7, sug: 4, fs: 4, fib: 0.8, na: 40, k: 40, ca: 120, mg: 5, fe: 0.2, zn: 0.1, se: 1, cu: 0.02, vd: 0.75, ve: 0.2, b12: 0.38, fol: 2, b6: 0.01, cho: 2 } },
   { id: 'bier', n: 'Bier', cat: 'Getränke', u: [['Flasche (0,5 l)', 500], ['ml', 1]], tags: ['alkohol'], v: { kcal: 43, p: 0.5, c: 3.6, sug: 0.1, na: 4, k: 27, mg: 6, fol: 6, b6: 0.05, alk: 3.9 } },
@@ -1131,6 +1140,7 @@ const FOODS = [
   { id: 'miso', n: 'Miso', cat: 'Hülsenfrüchte & Soja', u: [['EL', 18], ['g', 1]], pl: 'Soja', ferm: 15, v: { kcal: 198, p: 12, f: 6, sf: 1, c: 21, sug: 6, fib: 5.4, na: 3700, k: 210, ca: 57, mg: 48, fe: 2.5, zn: 2.6, se: 7, i: 1, cu: 0.42, vk: 29, fol: 19, b6: 0.2, cho: 72, ala: 0.5 } },
 
   /* Obst */
+  { id: 'kiwi_gold', n: 'Kiwi Gold', cat: 'Obst', u: [['Stück', 90], ['g', 1]], pl: 'Kiwi', pp: 0.3, pre: 0.5, v: { kcal: 63, p: 1, f: 0.3, sf: 0.05, c: 15.8, sug: 12.3, fib: 1.4, na: 3, k: 315, ca: 17, mg: 12, fe: 0.21, zn: 0.08, se: 0.4, i: 1, cu: 0.15, vc: 161, va: 1, ve: 1.49, vk: 6.1, fol: 31, b6: 0.08, cho: 7.8 } },
   { id: 'kiwi', n: 'Kiwi', cat: 'Obst', u: [['Stück', 75], ['g', 1]], pl: 'Kiwi', pp: 0.3, pre: 0.5, v: { kcal: 61, p: 1.1, f: 0.5, sf: 0.03, c: 11.7, sug: 9, fib: 3, na: 3, k: 312, ca: 34, mg: 17, fe: 0.31, zn: 0.14, se: 0.2, i: 1, cu: 0.13, vc: 93, va: 4, ve: 1.46, vk: 40.3, fol: 25, b6: 0.06, cho: 7.8, ala: 0.04 } },
   { id: 'banane', n: 'Banane', cat: 'Obst', u: [['Stück', 120], ['g', 1]], pl: 'Banane', pp: 0.1, pre: 0.6, v: { kcal: 91, p: 1.1, f: 0.3, sf: 0.1, c: 20, sug: 17, fib: 2, na: 1, k: 358, ca: 5, mg: 27, fe: 0.26, zn: 0.15, se: 1, i: 1, cu: 0.08, vc: 8.7, va: 3, ve: 0.1, vk: 0.5, fol: 20, b6: 0.37, cho: 9.8 } },
   { id: 'datteln', n: 'Datteln (getrocknet)', cat: 'Obst', u: [['g', 1], ['Stück (Deglet)', 8], ['Stück (Medjool)', 24]], pl: 'Dattel', pp: 0.5, pre: 0.5, v: { kcal: 286, p: 2.5, f: 0.4, sf: 0.03, c: 64, sug: 63, fib: 8, na: 2, k: 656, ca: 39, mg: 43, fe: 1, zn: 0.29, se: 3, i: 1, cu: 0.21, vc: 0.4, va: 1, ve: 0.05, vk: 2.7, fol: 19, b6: 0.17, cho: 6.3 } },
@@ -1205,6 +1215,7 @@ const FOODS = [
   /* Öle, Süßes, Gewürze */
   { id: 'olivenoel', n: 'Olivenöl extra vergine', cat: 'Öle & Fette', u: [['EL', 10], ['TL', 4], ['g', 1]], pl: 'Olive', pp: 10, v: { kcal: 884, f: 100, sf: 14, na: 2, k: 1, ca: 1, fe: 0.56, ve: 14.4, vk: 60, ala: 0.76 } },
   { id: 'schokolade85', n: 'Dunkle Schokolade 85 %', cat: 'Süßes & Snacks', u: [['Rippe', 10], ['g', 1]], pl: 'Kakao', pp: 16.6, pre: 1, v: { kcal: 590, p: 12, f: 47, sf: 28, c: 19, sug: 11, fs: 11, fib: 13, na: 10, k: 715, ca: 73, mg: 228, fe: 11.9, zn: 3.3, se: 6.8, i: 2, cu: 1.77, va: 2, ve: 0.6, vk: 7.3, b6: 0.04, cho: 12, caf: 80 } },
+  { id: 'schokolade90', n: 'Dunkle Schokolade 90 %', cat: 'Süßes & Snacks', est: true, u: [['Rippe', 10], ['g', 1]], pl: 'Kakao', pp: 18, pre: 1, v: { kcal: 596, p: 12, f: 51, sf: 31, c: 14, sug: 7, fs: 7, fib: 12, na: 10, k: 750, ca: 70, mg: 240, fe: 12.5, zn: 3.5, se: 7, i: 2, cu: 1.9, va: 2, ve: 0.6, vk: 7.5, b6: 0.04, cho: 12, caf: 90 } },
   { id: 'gummibaerchen', n: 'Gummibärchen', cat: 'Süßes & Snacks', u: [['Handvoll', 30], ['Tüte (200 g)', 200], ['g', 1]], tags: ['upf'], v: { kcal: 343, p: 6.9, f: 0.1, c: 77, sug: 46, fs: 46, na: 20 } },
   { id: 'honig', n: 'Honig', cat: 'Süßes & Snacks', u: [['TL', 8], ['g', 1]], v: { kcal: 320, p: 0.3, c: 80, sug: 80, fs: 80, na: 4, k: 52, ca: 6, mg: 2, fe: 0.42, zn: 0.22, cu: 0.04, vc: 0.5, fol: 2, b6: 0.02 } },
   { id: 'jodsalz', n: 'Jodsalz', cat: 'Kräuter & Gewürze', u: [['g', 1], ['Prise', 0.5], ['TL', 5]], v: { na: 38758, i: 2000 } },
@@ -1243,7 +1254,7 @@ const DEFAULT_PLAN = [
     { id: 'f_spinat', food: 'spinat', a: 100, u: 'g' },
     { id: 'f_paprika', food: 'paprika_rot', a: 150, u: 'g', hint: 'roh' },
     { id: 'f_oel', food: 'olivenoel', a: 1, u: 'EL' },
-    { id: 'f_kiwi', food: 'kiwi', a: 1, u: 'Stück' },
+    { id: 'f_kiwi', food: 'kiwi_gold', choice: ['kiwi_gold', 'kiwi'], a: 1, u: 'Stück', label: 'Kiwi' },
     { id: 'f_ferm', food: 'sauerkraut', choice: ['sauerkraut', 'kimchi'], a: 40, u: 'g', label: 'Sauerkraut oder Kimchi' },
     { id: 'f_pmm', food: 'prepmymeal', choice: PMM_CHOICES, cg: 'pmm', a: 200, u: 'g', label: '20 % Prepmymeal XL', v: ['prep'] },
     { id: 'f_d3k2', food: 's_d3k2', a: 4, u: 'Tropfen', hint: 'zu den Eiern (fettlöslich)' },
@@ -1264,7 +1275,7 @@ const DEFAULT_PLAN = [
     { id: 'n_kuerbis', food: 'kuerbiskerne', a: 20, u: 'g' },
     { id: 'n_mandeln', food: 'mandeln', a: 30, u: 'g' },
     { id: 'n_paranuss', food: 'paranuss', a: 1, u: 'Stück' },
-    { id: 'n_schoko', food: 'schokolade85', a: 20, u: 'g', label: 'Dunkle Schokolade (mind. 85 %)' },
+    { id: 'n_schoko', food: 'schokolade90', choice: ['schokolade90', 'schokolade85'], a: 20, u: 'g', label: 'Dunkle Schokolade (85–90 %)' },
     { id: 'n_kefir', food: 'kefir', a: 150, u: 'ml' },
   ] },
   { id: 'training', n: 'Rund ums Training', time: 'training', items: [
@@ -1289,7 +1300,7 @@ const DEFAULT_PLAN = [
   ] },
   { id: 'vielfalt', n: 'Für Vielfalt (optional)', time: null, items: [
     { id: 'v_brokkoli', food: 'brokkoli', a: 150, u: 'g', opt: true },
-    { id: 'v_rotebete', food: 'rote_bete', a: 100, u: 'g', opt: true },
+    { id: 'v_rotebete', food: 'rotebete_saft', choice: ['rotebete_saft', 'rote_bete'], a: 200, u: 'ml', opt: true, label: 'Rote Bete' },
     { id: 'v_apfel', food: 'apfel', a: 1, u: 'Stück', opt: true },
     { id: 'v_tomate', food: 'tomate', a: 100, u: 'g', opt: true },
     { id: 'v_zwiebel', food: 'zwiebel', a: 50, u: 'g', opt: true },
@@ -1394,7 +1405,7 @@ const TIP_FOODS = {
   p: [['skyr', 300, 50], ['ei', 110, 55], ['makrele', 120, 120], ['kefir', 300, 150]],
   c: [['haferflocken', 80, 10], ['datteln', 60, 10], ['banane', 240, 120]],
   fib: [['flohsamen', 10, 5], ['leinsamen', 20, 5], ['himbeeren', 150, 50], ['haferflocken', 40, 10]],
-  vc: [['paprika_rot', 150, 50], ['kiwi', 150, 75], ['o_saft', 250, 50], ['brokkoli', 150, 50]],
+  vc: [['paprika_rot', 150, 50], ['kiwi_gold', 180, 90], ['o_saft', 250, 50], ['brokkoli', 150, 50]],
   vd: [['s_d3k2', 4, 2], ['makrele', 120, 120], ['ei', 110, 55]],
   vk: [['spinat', 50, 25], ['brokkoli', 150, 50], ['gruenkohl', 100, 50]],
   va: [['karotten', 150, 50], ['suesskartoffel', 150, 50], ['spinat', 50, 25]],
@@ -1413,7 +1424,7 @@ const TIP_FOODS = {
   cho: [['ei', 110, 55], ['skyr', 300, 50]],
   o3: [['s_omega3', 2, 1], ['makrele', 120, 120]],
   pre: [['haferflocken', 60, 10], ['zwiebel', 80, 40], ['knoblauch', 8, 4], ['banane', 120, 120]],
-  pp: [['heidelbeeren', 150, 50], ['schokolade85', 20, 10], ['gruener_tee', 500, 250]],
+  pp: [['heidelbeeren', 150, 50], ['schokolade90', 20, 10], ['gruener_tee', 500, 250]],
   ferm: [['sauerkraut', 40, 40], ['kimchi', 40, 40], ['kefir', 150, 150], ['kombucha', 250, 250], ['joghurt', 150, 150]],
   fluid: [['wasser', 1000, 250], ['mineralwasser', 1000, 250]],
 };
@@ -1522,22 +1533,38 @@ const PHOTO_ANGLES = [
   { id: 'frontal', n: 'Frontal' }, { id: 'links', n: 'Links' }, { id: 'rechts', n: 'Rechts' }, { id: 'hals', n: 'Hals von unten' },
 ];
 
-/* ---------- Einkauf ---------- */
+/* ---------- Einkauf ----------
+   Läden nur als Ketten (keine Adressen im Code). Die Karte sucht die nächste Filiale über den Standort des iPhones. */
 const SHOP_CATS = ['Gemüse', 'Obst', 'Kühlregal', 'Vorrat', 'Getränke', 'Drogerie/Haushalt'];
+const SHOP_STORES = [
+  { id: 'lidl', n: 'Lidl', q: 'Lidl' },
+  { id: 'aldi', n: 'Aldi Süd', q: 'ALDI SÜD' },
+  { id: 'dm', n: 'dm', q: 'dm-drogerie markt' },
+  { id: 'edeka', n: 'Edeka', q: 'EDEKA' },
+  { id: 'rewe', n: 'Rewe', q: 'REWE' },
+  { id: 'tegut', n: 'tegut', q: 'tegut' },
+  { id: 'online', n: 'Online', q: null },
+  { id: 'other', n: 'Sonstige', q: null },
+];
+const CAT_STORE = { 'Gemüse': 'lidl', 'Obst': 'lidl', 'Kühlregal': 'lidl', 'Vorrat': 'lidl', 'Getränke': 'dm', 'Drogerie/Haushalt': 'dm' };
+/* [Kategorie, Name, Menge, Laden, Hinweis, alter Name (für stabile IDs)] */
 const SHOP_DEFAULT = {
   buy: [
-    ['Gemüse', 'Spinat', '700 g'], ['Gemüse', 'Paprika', '7'], ['Gemüse', 'Karotten', '1 kg'], ['Gemüse', 'Brokkoli', '2'], ['Gemüse', 'Rote Bete', '500 g'], ['Gemüse', 'Tomaten', '500 g'], ['Gemüse', 'Zwiebeln', ''], ['Gemüse', 'Knoblauch', ''], ['Gemüse', 'Gurke', ''],
-    ['Obst', 'Kiwis', '7'], ['Obst', 'Bananen', '7'], ['Obst', 'Äpfel', '7'], ['Obst', 'TK-Beeren', '1 kg'], ['Obst', 'Datteln', '500 g'],
-    ['Kühlregal', 'Eier', '21'], ['Kühlregal', 'Skyr', '7 × 500 g'], ['Kühlregal', 'Kefir', '1 l'], ['Kühlregal', 'Sauerkraut', ''], ['Kühlregal', 'Kimchi', ''],
-    ['Vorrat', 'Makrele', '5 Dosen'], ['Vorrat', 'Paranüsse', ''], ['Vorrat', 'Dunkle Schokolade 85 %', '2 Tafeln'], ['Vorrat', 'Jodsalz', ''], ['Vorrat', 'Vollkornbrot', ''],
-    ['Getränke', 'O-Saft', '2 l'], ['Getränke', 'Kokoswasser', '3 l'], ['Getränke', 'Kombucha', '2 l'], ['Getränke', 'Mineralwasser', '6 × 1,5 l'],
-    ['Drogerie/Haushalt', 'Feuchttücher', ''], ['Drogerie/Haushalt', 'Küchenrolle', ''], ['Drogerie/Haushalt', 'Philips OneBlade Klingen', ''], ['Drogerie/Haushalt', 'Shampoo (clean, ohne Sulfate/Silikone/Duftstoffe)', ''], ['Drogerie/Haushalt', 'Zahnpasta (clean, ohne SLS/Titandioxid)', ''], ['Drogerie/Haushalt', 'Zahnbürstenkopf', ''], ['Drogerie/Haushalt', 'Müllsäcke', ''],
+    ['Gemüse', 'Spinat', '700 g', 'lidl', 'Bio-Babyspinat'], ['Gemüse', 'Paprika', '7', 'lidl', 'rot'], ['Gemüse', 'Karotten', '1 kg', 'lidl', ''], ['Gemüse', 'Brokkoli', '2', 'lidl', ''],
+    ['Gemüse', 'Rote Bete oder Rote-Bete-Saft', '500 g / 1 l', 'dm', 'Saft milchsauer vergoren', 'Rote Bete'], ['Gemüse', 'Tomaten', '500 g', 'lidl', ''], ['Gemüse', 'Zwiebeln', '', 'lidl', ''], ['Gemüse', 'Knoblauch', '', 'lidl', ''], ['Gemüse', 'Gurke', '', 'lidl', ''],
+    ['Obst', 'Kiwis', '7', 'lidl', 'Gold-Kiwis: doppelt so viel Vitamin C'], ['Obst', 'Bananen', '7', 'lidl', ''], ['Obst', 'Äpfel', '7', 'lidl', ''], ['Obst', 'TK-Beeren', '1 kg', 'lidl', 'ungezuckert'], ['Obst', 'Datteln', '500 g', 'lidl', 'Medjool'],
+    ['Kühlregal', 'Eier', '21', 'lidl', ''], ['Kühlregal', 'Skyr', '7 × 500 g', 'lidl', 'natur'], ['Kühlregal', 'Kefir', '1 l', 'lidl', 'natur, ohne Zucker'], ['Kühlregal', 'Sauerkraut', '', 'rewe', 'frisch, nicht pasteurisiert (Kühlregal)'], ['Kühlregal', 'Kimchi', '', 'rewe', 'mit aktiven Kulturen (Kühlregal)'],
+    ['Vorrat', 'Makrele', '5 Dosen', 'lidl', 'in eigenem Saft'], ['Vorrat', 'Paranüsse', '', 'dm', '1 pro Tag reicht (Selen)'], ['Vorrat', 'Dunkle Schokolade (85–90 %)', '2 Tafeln', 'dm', '', 'Dunkle Schokolade 85 %'], ['Vorrat', 'Jodsalz', '', 'lidl', ''], ['Vorrat', 'Vollkornbrot', '', 'lidl', '100 % Vollkorn'],
+    ['Getränke', 'O-Saft', '2 l', 'dm', 'Direktsaft'], ['Getränke', 'Kokoswasser', '3 l', 'dm', ''], ['Getränke', 'Kombucha', '6 × 0,33 l', 'rewe', 'roh, unpasteurisiert (Kühlregal)'], ['Getränke', 'Mineralwasser', '6 × 1,5 l', 'lidl', 'calciumreich: über 150 mg Calcium pro Liter (Etikett)'],
+    ['Drogerie/Haushalt', 'Feuchttücher', '', 'dm', ''], ['Drogerie/Haushalt', 'Küchenrolle', '', 'dm', ''], ['Drogerie/Haushalt', 'Philips OneBlade Klingen', '', 'dm', 'Ersatzklinge passend zum Gerät'], ['Drogerie/Haushalt', 'Shampoo (clean, ohne Sulfate/Silikone/Duftstoffe)', '', 'dm', ''], ['Drogerie/Haushalt', 'Zahnpasta (clean, ohne SLS/Titandioxid)', '', 'dm', ''], ['Drogerie/Haushalt', 'Zahnbürstenkopf', '', 'dm', ''], ['Drogerie/Haushalt', 'Müllsäcke', '', 'dm', ''],
   ],
   home: [
-    ['Vorrat', 'Prepmymeal', ''], ['Vorrat', 'Flohsamenschalen', ''], ['Vorrat', 'Kreatin', ''], ['Vorrat', 'D3-K2', ''], ['Getränke', 'Grüner Tee', ''], ['Vorrat', 'Olivenöl', ''], ['Vorrat', 'Leinsamen', ''], ['Vorrat', 'Haferflocken', ''],
-    ['Vorrat', 'Mandeln', ''], ['Vorrat', 'Kürbiskerne', ''], ['Vorrat', 'Hanfsamen', ''], ['Vorrat', 'Kakaonibs', ''], ['Vorrat', 'Sonnenblumenkerne', ''], ['Vorrat', 'Dinkelflocken', ''], ['Vorrat', 'Omega-3', ''],
+    ['Vorrat', 'Prepmymeal', '', 'online', 'rechtzeitig nachbestellen'], ['Vorrat', 'Flohsamenschalen', '', 'dm', ''], ['Vorrat', 'Kreatin', '', 'online', 'Monohydrat'], ['Vorrat', 'D3-K2', '', 'online', ''], ['Getränke', 'Grüner Tee', '', 'dm', ''], ['Vorrat', 'Olivenöl', '', 'lidl', 'nativ extra'], ['Vorrat', 'Leinsamen', '', 'dm', ''], ['Vorrat', 'Haferflocken', '', 'lidl', ''],
+    ['Vorrat', 'Mandeln', '', 'lidl', ''], ['Vorrat', 'Kürbiskerne', '', 'lidl', ''], ['Vorrat', 'Hanfsamen', '', 'dm', 'geschält'], ['Vorrat', 'Kakaonibs', '', 'dm', ''], ['Vorrat', 'Sonnenblumenkerne', '', 'lidl', ''], ['Vorrat', 'Dinkelflocken', '', 'dm', ''], ['Vorrat', 'Omega-3', '', 'online', 'Algenöl'], ['Vorrat', 'Magnesium-Threonat', '', 'online', ''],
   ],
 };
+/* Stand nach dem Einkauf vom 07.11.2026: nur diese Standardartikel fehlen noch (alles andere ist zuhause) */
+const SHOP_SYNC_BUY = ['b:Vollkornbrot', 'b:Philips OneBlade Klingen', 'b:Zahnbürstenkopf'];
 
 /* ---------- Blutwerte (übliche Referenzbereiche Erwachsene/Männer; Labore weichen ab) ---------- */
 const BLOOD_MARKERS = [
@@ -2461,6 +2488,8 @@ function itemGrams(it, day, variant) {
   const food = FOOD[itemFoodId(it, day)];
   return itemAmount(it, day, variant) * unitG(food, it.u);
 }
+/* Auswahl-Posten in g/ml: Einheit passend zum gewählten Lebensmittel (Saft in ml, Knolle in g) */
+function itemUnit(it, food) { return it.choice && food && (it.u === 'g' || it.u === 'ml') ? (isLiquid(food) ? 'ml' : 'g') : it.u; }
 function itemLabel(it, day) {
   const fid = itemFoodId(it, day);
   if (it.choice && it.label && it.cg !== 'pmm') return FOOD[fid] ? FOOD[fid].n : it.label;
@@ -3004,7 +3033,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 2, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
+  return { app: 'protokoll', schema: 3, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
 }
 function backupDue() {
   const n = S.settings.backupDays;
@@ -3050,6 +3079,59 @@ function migrate2() {
   for (const r of (S.settings.skin && S.settings.skin.routine) || []) { const def = DEFAULT_SKIN.routine.find((x) => x.id === r.id); if (def && ['Pflege morgens', 'Pflege abends', 'Rasiert (schonend)'].includes(r.n)) r.n = def.n; }
   for (const t of S.settings.todos || []) if (!('date' in t)) t.date = null;
   if (!S.shop) { S.shop = shopDefault(); markDirty('shop'); }
+}
+
+/* Einmalige Umstellung auf Version 2.1: Läden & Hinweise im Einkauf, Einkaufsstand vom 07.11.2026,
+   Auswahl bei Kiwi, Schokolade und Rote Bete (bisherige Tage behalten ihr Lebensmittel) */
+const PLAN_UPD3 = [{ id: 'f_kiwi', old: 'kiwi' }, { id: 'n_schoko', old: 'schokolade85' }, { id: 'v_rotebete', old: 'rote_bete' }];
+function upgradePlan3() {
+  let changed = false;
+  for (const u of PLAN_UPD3) {
+    const def = DEFAULT_PLAN.flatMap((b) => b.items).find((x) => x.id === u.id);
+    const hit = findItem(u.id);
+    if (!def || !hit || hit.it.choice || hit.it.food !== u.old) continue;
+    const it = hit.it, oldFood = FOOD[u.old];
+    for (const [k, d] of Object.entries(S.days)) {
+      if (!d.checks || !d.checks[u.id]) continue;
+      d.choice = d.choice || {};
+      if (!d.choice[u.id]) d.choice[u.id] = u.old;
+      if (def.u !== it.u) {
+        d.amt = d.amt || {};
+        const g = (d.amt[u.id] != null ? d.amt[u.id] : it.a) * unitG(oldFood, it.u);
+        d.amt[u.id] = Math.round(g / unitG(oldFood, def.u) * 10) / 10;
+      }
+      markDirty('day:' + k);
+    }
+    if (def.u !== it.u) { it.u = def.u; it.a = def.a; }
+    it.food = def.food; it.choice = def.choice.slice();
+    if (def.label) it.label = def.label;
+    changed = true;
+  }
+  if (changed) markDirty('settings');
+  return changed;
+}
+function upgradeShop3(opts = {}) {
+  if (!S.shop || !Array.isArray(S.shop.items)) { S.shop = shopDefault(); markDirty('shop'); return; }
+  for (const it of S.shop.items) {
+    const d = shopDef(it.sid);
+    if (d && d.old && it.n === d.old) it.n = d.n;
+    if (d && it.sid === 'b:Kombucha' && it.q === '2 l') it.q = d.q;
+    if (!it.store) it.store = d ? d.store : CAT_STORE[it.cat] || 'other';
+    if (it.tip == null) it.tip = d ? d.tip : '';
+  }
+  /* neue Standardartikel ergänzen (gelöschte bleiben gelöscht) */
+  for (const sid of opts.add || []) { const d = shopDef(sid); if (d && !S.shop.items.some((x) => x.sid === sid)) S.shop.items.push(shopNew(d)); }
+  if (opts.sync) for (const it of S.shop.items) if (shopDef(it.sid)) it.list = SHOP_SYNC_BUY.includes(it.sid) ? 'buy' : 'home';
+  markDirty('shop');
+}
+function migrate3() {
+  if ((S.meta.schema || 1) >= 3) return;
+  /* Einkaufsstand nur übernehmen, wenn die App schon genutzt wurde und der Stand noch aktuell ist */
+  const used = Object.keys(S.days).length > 0;
+  S.meta.schema = 3;
+  markDirty('meta');
+  upgradePlan3();
+  upgradeShop3({ add: ['h:Magnesium-Threonat'], sync: used && todayKey() <= '2026-11-14' });
 }
 
 /* ---------- Bereiche ---------- */
@@ -3499,18 +3581,41 @@ function bloodMarkers() {
 }
 function bloodStatus(m, v) { if (v == null) return 'none'; if (m.lo != null && v < m.lo) return 'low'; if (m.hi != null && v > m.hi) return 'high'; return 'ok'; }
 function bloodSeries(id) { return (S.blood.entries || []).filter((e) => e.v && e.v[id] != null).sort((a, b) => a.date.localeCompare(b.date)).map((e) => ({ date: e.date, v: e.v[id] })); }
-function shopDefault() {
-  const items = [];
-  for (const [cat, n, q] of SHOP_DEFAULT.buy) items.push({ id: uid(), n, q, cat, list: 'buy', sid: 'b:' + n });
-  for (const [cat, n, q] of SHOP_DEFAULT.home) items.push({ id: uid(), n, q, cat, list: 'home', sid: 'h:' + n });
-  return { items };
+/* ---------- Einkauf ---------- */
+function shopDefs() {
+  const out = [];
+  for (const list of ['buy', 'home']) for (const [cat, n, q, store, tip, old] of SHOP_DEFAULT[list]) out.push({ sid: (list === 'buy' ? 'b:' : 'h:') + (old || n), n, old: old || null, q: q || '', cat, store: store || CAT_STORE[cat] || 'other', tip: tip || '', list });
+  return out;
 }
+let shopDefMap = null;
+function shopDef(sid) {
+  if (!shopDefMap) { shopDefMap = {}; for (const d of shopDefs()) shopDefMap[d.sid] = d; }
+  return sid ? shopDefMap[sid] || null : null;
+}
+function shopNew(d, list) { return { id: uid(), n: d.n, q: d.q, cat: d.cat, store: d.store, tip: d.tip, list: list || d.list, sid: d.sid }; }
+function shopDefault() { return { items: shopDefs().map((d) => shopNew(d)) }; }
 function shopReload() {
-  for (const [cat, n, q] of SHOP_DEFAULT.buy) {
-    const it = S.shop.items.find((x) => x.sid === 'b:' + n);
+  for (const d of shopDefs()) {
+    if (d.list !== 'buy') continue;
+    const it = S.shop.items.find((x) => x.sid === d.sid);
     if (it) it.list = 'buy';
-    else S.shop.items.push({ id: uid(), n, q, cat, list: 'buy', sid: 'b:' + n });
+    else S.shop.items.push(shopNew(d, 'buy'));
   }
+}
+function storeById(id) { return SHOP_STORES.find((s) => s.id === id) || SHOP_STORES.find((s) => s.id === 'other'); }
+function itemStore(it) {
+  if (it.store && SHOP_STORES.some((s) => s.id === it.store)) return it.store;
+  const d = shopDef(it.sid);
+  return d ? d.store : CAT_STORE[it.cat] || 'other';
+}
+function itemTip(it) { if (it.tip != null) return it.tip; const d = shopDef(it.sid); return d ? d.tip : ''; }
+/* Karte: sucht die nächste Filiale der Kette über den Standort des iPhones (keine Adresse in der App) */
+function storeMapUrl(id) { const s = storeById(id); return s.q ? 'https://maps.apple.com/?q=' + encodeURIComponent(s.q) : null; }
+/* Läden der offenen Einkaufsliste, sortiert nach Anzahl */
+function shopStoreCounts(list = 'buy') {
+  const c = {};
+  for (const it of (S.shop && S.shop.items) || []) if (it.list === list) { const s = itemStore(it); c[s] = (c[s] || 0) + 1; }
+  return SHOP_STORES.filter((s) => c[s.id]).map((s) => ({ ...s, count: c[s.id] })).sort((x, y) => y.count - x.count);
 }
 function todosOpen() { return (S.settings.todos || []).filter((t) => !t.done); }
 function todosDue(days = 7) {
@@ -4280,7 +4385,7 @@ function itemRow(it, k, d, variant) {
   const amt = itemAmount(it, d, variant);
   const changed = d.amt && d.amt[it.id] != null;
   const blocked = phaseBlocks(k, f);
-  const amtTxt = amountLabel(amt, it.u);
+  const amtTxt = amountLabel(amt, itemUnit(it, f));
   let choice = '';
   if (it.choice) {
     const key = it.cg || it.id;
@@ -4508,9 +4613,9 @@ function sheetItem(id, k) {
   openSheet(`<h3 class="sheet-title">${esc(itemLabel(it, d))}</h3>
     ${food && food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
     <div class="amount-row"><button class="step" data-a="sheet-step" data-d="-1" aria-label="Weniger">${icon('minus')}</button>
-      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(amt, 2)}" data-i="sheet-amt"><span>${esc(it.u)}</span></label>
+      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(amt, 2)}" data-i="sheet-amt"><span>${esc(itemUnit(it, food))}</span></label>
       <button class="step" data-a="sheet-step" data-d="1" aria-label="Mehr">${icon('plus')}</button></div>
-    <p class="hint center">Standardmenge: ${esc(amountLabel(def, it.u))}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
+    <p class="hint center">Standardmenge: ${esc(amountLabel(def, itemUnit(it, food)))}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
     ${food && food.id === 's_ag1' ? `<div class="banner is-soft">${icon('info')}<div><b>Wie viel AG1 heute passt</b><span>${esc(ag1BudgetLong(ag1Budget(k)))}</span></div></div>` : ''}
     <div id="sh-prev">${nutPreview(food, amt * unitG(food, it.u))}</div>
     <div class="sheet-acts">
@@ -5078,7 +5183,7 @@ function areaStatus(id, k = todayKey()) {
       }
       case 'einkauf': {
         const n = S.shop.items.filter((x) => x.list === 'buy').length;
-        return { v: `${n} offen`, s: n ? esc([...new Set(S.shop.items.filter((x) => x.list === 'buy').map((x) => x.cat))].slice(0, 3).join(', ')) : 'alles eingekauft', st: 'none' };
+        return { v: `${n} offen`, s: n ? esc(shopStoreCounts('buy').slice(0, 3).map((x) => `${x.n} ${x.count}`).join(' · ')) : 'alles eingekauft', st: 'none' };
       }
       case 'woche': {
         const ws = weekStart(k), r = weekday(k) === 6;
@@ -5774,30 +5879,52 @@ function vShop() {
   const sub = getSub('einkauf', 'buy');
   const items = S.shop.items;
   const buy = items.filter((x) => x.list === 'buy'), home = items.filter((x) => x.list === 'home');
+  const grp = (ui.shopGroup && ui.shopGroup[sub]) || (sub === 'buy' ? 'store' : 'cat');
   let h = areaHead('einkauf');
   h += `<div class="seg"><button class="${sub === 'buy' ? 'is-on' : ''}" data-a="sub" data-area="einkauf" data-v="buy">Einkaufen (${buy.length})</button><button class="${sub === 'home' ? 'is-on' : ''}" data-a="sub" data-area="einkauf" data-v="home">Zuhause (${home.length})</button></div>`;
   h += `<div class="shop-add"><input type="text" id="shop-new" placeholder="Artikel hinzufügen" enterkeyhint="done" autocomplete="off"><label class="choice-select sm">${icon('chevron-down')}<select id="shop-cat" aria-label="Kategorie">${SHOP_CATS.map((c) => `<option ${c === (ui.shopCat || 'Gemüse') ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label><button class="icon-btn" data-a="shop-add" aria-label="Hinzufügen">${icon('plus')}</button></div>`;
   const list = sub === 'buy' ? buy : home;
-  if (!list.length) h += emptyState(sub === 'buy' ? 'Alles eingekauft.' : 'Nichts als vorrätig markiert.');
-  const cats = SHOP_CATS.concat([...new Set(list.map((x) => x.cat).filter((c) => !SHOP_CATS.includes(c)))]);
-  for (const c of cats) {
-    const its = list.filter((x) => x.cat === c);
-    if (!its.length) continue;
-    h += `<h4 class="meal-h">${esc(c)} <small>${its.length}</small></h4><div class="list">${its.map((it) => sub === 'buy'
-      ? `<div class="shop-row"><button class="shop-chk" data-a="shop-check" data-id="${it.id}"><span class="tgl-box">${icon('check')}</span><span class="row-main"><b>${esc(it.n)}</b>${it.q ? `<small>${esc(it.q)}</small>` : ''}</span></button><button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button></div>`
-      : `<div class="shop-row is-home"><span class="row-main"><b>${esc(it.n)}</b>${it.q ? `<small>${esc(it.q)}</small>` : ''}</span><button class="pill-btn" data-a="shop-back" data-id="${it.id}">${icon('shopping-cart')}Auf die Liste</button><button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button></div>`).join('')}</div>`;
+  if (!list.length) return h + emptyState(sub === 'buy' ? 'Alles eingekauft.' : 'Nichts als vorrätig markiert.') + `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
+  h += `<div class="shop-tools"><div class="chips chips-tight"><button class="chip chip-xs${grp === 'store' ? ' is-on' : ''}" data-a="shop-group" data-v="store">${icon('store')}Nach Laden</button><button class="chip chip-xs${grp === 'cat' ? ' is-on' : ''}" data-a="shop-group" data-v="cat">${icon('layers')}Nach Kategorie</button></div></div>`;
+  const catIdx = (c) => { const i = SHOP_CATS.indexOf(c); return i < 0 ? 99 : i; };
+  const meta = (it) => { const p = [it.q, itemTip(it)].filter(Boolean); return p.length ? `<small>${esc(p.join(' · '))}</small>` : ''; };
+  const tag = (it) => `<span class="store-tag">${esc(storeById(itemStore(it)).n)}</span>`;
+  const row = (it, withStore) => {
+    const name = sub === 'buy' ? `<b>${esc(it.n)}${withStore ? tag(it) : ''}</b>${meta(it)}` : `<b>${esc(it.n)}</b>`;
+    const edit = `<button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button>`;
+    return sub === 'buy'
+      ? `<div class="shop-row"><button class="shop-chk" data-a="shop-check" data-id="${it.id}"><span class="tgl-box">${icon('check')}</span><span class="row-main">${name}</span></button>${edit}</div>`
+      : `<div class="shop-row is-home"><span class="row-main">${name}</span><button class="pill-btn" data-a="shop-back" data-id="${it.id}">${icon('shopping-cart')}Auf die Liste</button>${edit}</div>`;
+  };
+  if (grp === 'store') {
+    for (const st of SHOP_STORES) {
+      const its = list.filter((x) => itemStore(x) === st.id).sort((x, y) => catIdx(x.cat) - catIdx(y.cat));
+      if (!its.length) continue;
+      const url = sub === 'buy' ? storeMapUrl(st.id) : null;
+      h += `<div class="shop-store-h"><h4 class="meal-h">${esc(st.n)} <small>${its.length}</small></h4>${url ? `<a class="pill-btn sm" href="${esc(url)}" target="_blank" rel="noopener">${icon('map-pin')}Nächste Filiale</a>` : ''}</div><div class="list">${its.map((it) => row(it, false)).join('')}</div>`;
+    }
+  } else {
+    const cats = SHOP_CATS.concat([...new Set(list.map((x) => x.cat).filter((c) => !SHOP_CATS.includes(c)))]);
+    for (const c of cats) {
+      const its = list.filter((x) => x.cat === c);
+      if (!its.length) continue;
+      h += `<h4 class="meal-h">${esc(c)} <small>${its.length}</small></h4><div class="list">${its.map((it) => row(it, true)).join('')}</div>`;
+    }
   }
+  if (sub === 'buy' && grp === 'store') h += `<p class="hint">Der Laden ist ein Vorschlag pro Artikel und lässt sich über den Stift ändern. „Nächste Filiale“ öffnet Apple Karten mit der Suche in deiner Nähe.</p>`;
   h += `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
   return h;
 }
 function sheetShopItem(id) {
   const it = S.shop.items.find((x) => x.id === id);
   if (!it) return;
-  ui.sheet = { type: 'shop', id };
+  ui.sheet = { type: 'shop', id, store: itemStore(it) };
   openSheet(`<h3 class="sheet-title">Artikel</h3><div class="form">
     <div class="frow is-wide"><span class="flabel">Name</span><div class="fin"><input type="text" id="si-n" value="${esc(it.n)}"></div></div>
     <div class="frow is-wide"><span class="flabel">Menge</span><div class="fin"><input type="text" id="si-q" value="${esc(it.q || '')}" placeholder="z. B. 500 g"></div></div>
-    <div class="frow is-wide"><span class="flabel">Kategorie</span><div class="fin"><select id="si-cat">${SHOP_CATS.map((c) => `<option ${c === it.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div></div></div>
+    <div class="frow is-wide"><span class="flabel">Hinweis</span><div class="fin"><input type="text" id="si-tip" value="${esc(itemTip(it))}" placeholder="z. B. Bio, ungezuckert"></div></div>
+    <div class="frow is-wide"><span class="flabel">Kategorie</span><div class="fin"><select id="si-cat">${SHOP_CATS.map((c) => `<option ${c === it.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div></div>
+    <div class="frow is-wide"><span class="flabel">Wo kaufen</span><div class="fin"><div class="chips chips-tight" id="si-store">${SHOP_STORES.map((s) => `<button class="chip chip-xs${s.id === ui.sheet.store ? ' is-on' : ''}" data-a="shop-store" data-v="${s.id}">${esc(s.n)}</button>`).join('')}</div></div></div></div>
     <div class="sheet-acts"><button class="btn is-accent" data-a="shop-save">Speichern</button><button class="btn is-danger" data-a="shop-del">Löschen</button></div>`);
 }
 
@@ -6575,6 +6702,7 @@ const A = {
     if (el.dataset.mode === 'replace') {
       S.days = data.days || {}; S.settings = mergeDefaults(defaultSettings(), data.settings || null); S.foods = data.foods || { custom: [], over: {} };
       S.shop = data.shop || shopDefault();
+      upgradePlan3(); upgradeShop3();
       for (const key of ['blood', 'knee', 'reviews']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
     } else {
       Object.assign(S.days, data.days || {});
@@ -6600,7 +6728,7 @@ const A = {
     const v = ($('#wipe-in') || {}).value || '';
     if (v.trim().toUpperCase() !== 'LÖSCHEN') { toast('Bitte LÖSCHEN eingeben'); return; }
     await DB.clear();
-    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 2, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
+    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 3, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
     Object.assign(S, defaultStores()); S.shop = shopDefault();
     try { await PhotoDB.clear(); photoUrls.forEach((u) => URL.revokeObjectURL(u)); photoUrls.clear(); photoIdx.keys = []; } catch (e) { /* egal */ }
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); await flush();
@@ -7181,7 +7309,7 @@ Object.assign(A, {
     if (!v) { if (inp) inp.focus(); return; }
     const cat = $('#shop-cat') ? $('#shop-cat').value : 'Vorrat';
     ui.shopCat = cat;
-    S.shop.items.push({ id: uid(), n: v, q: '', cat, list: getSub('einkauf', 'buy') });
+    S.shop.items.push({ id: uid(), n: v, q: '', cat, store: CAT_STORE[cat] || 'other', tip: '', list: getSub('einkauf', 'buy') });
     saveStore('shop');
     requestAnimationFrame(() => { const i = $('#shop-new'); if (i) i.focus(); });
   },
@@ -7192,7 +7320,14 @@ Object.assign(A, {
   },
   'shop-back': (el) => { const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return; it.list = 'buy'; saveStore('shop'); toast(`${it.n} steht wieder auf der Liste`); },
   'shop-edit': (el) => sheetShopItem(el.dataset.id),
-  'shop-save': () => { const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return; it.n = $('#si-n').value.trim() || it.n; it.q = $('#si-q').value.trim(); it.cat = $('#si-cat').value; closeSheet(); saveStore('shop'); },
+  'shop-group': (el) => { ui.shopGroup = ui.shopGroup || {}; ui.shopGroup[getSub('einkauf', 'buy')] = el.dataset.v; render(); },
+  'shop-store': (el) => { if (!ui.sheet) return; ui.sheet.store = el.dataset.v; $$('#si-store .chip').forEach((b) => b.classList.toggle('is-on', b.dataset.v === el.dataset.v)); },
+  'shop-save': () => {
+    const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return;
+    it.n = $('#si-n').value.trim() || it.n; it.q = $('#si-q').value.trim(); it.tip = $('#si-tip').value.trim(); it.cat = $('#si-cat').value;
+    it.store = ui.sheet.store || itemStore(it);
+    closeSheet(); saveStore('shop');
+  },
   'shop-del': () => { S.shop.items = S.shop.items.filter((x) => x.id !== ui.sheet.id); closeSheet(); saveStore('shop'); },
   'shop-reload-ask': () => {
     ui.sheet = { type: 'shopreload' };
@@ -7328,6 +7463,7 @@ function registerSW() {
     buildFoodIndex();
   }
   try { migrate2(); } catch (e) { /* egal */ }
+  try { migrate3(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);
   if (S.meta.version !== APP_VERSION) {

@@ -267,7 +267,7 @@ function itemRow(it, k, d, variant) {
   const amt = itemAmount(it, d, variant);
   const changed = d.amt && d.amt[it.id] != null;
   const blocked = phaseBlocks(k, f);
-  const amtTxt = amountLabel(amt, it.u);
+  const amtTxt = amountLabel(amt, itemUnit(it, f));
   let choice = '';
   if (it.choice) {
     const key = it.cg || it.id;
@@ -495,9 +495,9 @@ function sheetItem(id, k) {
   openSheet(`<h3 class="sheet-title">${esc(itemLabel(it, d))}</h3>
     ${food && food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
     <div class="amount-row"><button class="step" data-a="sheet-step" data-d="-1" aria-label="Weniger">${icon('minus')}</button>
-      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(amt, 2)}" data-i="sheet-amt"><span>${esc(it.u)}</span></label>
+      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(amt, 2)}" data-i="sheet-amt"><span>${esc(itemUnit(it, food))}</span></label>
       <button class="step" data-a="sheet-step" data-d="1" aria-label="Mehr">${icon('plus')}</button></div>
-    <p class="hint center">Standardmenge: ${esc(amountLabel(def, it.u))}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
+    <p class="hint center">Standardmenge: ${esc(amountLabel(def, itemUnit(it, food)))}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
     ${food && food.id === 's_ag1' ? `<div class="banner is-soft">${icon('info')}<div><b>Wie viel AG1 heute passt</b><span>${esc(ag1BudgetLong(ag1Budget(k)))}</span></div></div>` : ''}
     <div id="sh-prev">${nutPreview(food, amt * unitG(food, it.u))}</div>
     <div class="sheet-acts">

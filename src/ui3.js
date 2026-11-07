@@ -87,7 +87,7 @@ function areaStatus(id, k = todayKey()) {
       }
       case 'einkauf': {
         const n = S.shop.items.filter((x) => x.list === 'buy').length;
-        return { v: `${n} offen`, s: n ? esc([...new Set(S.shop.items.filter((x) => x.list === 'buy').map((x) => x.cat))].slice(0, 3).join(', ')) : 'alles eingekauft', st: 'none' };
+        return { v: `${n} offen`, s: n ? esc(shopStoreCounts('buy').slice(0, 3).map((x) => `${x.n} ${x.count}`).join(' · ')) : 'alles eingekauft', st: 'none' };
       }
       case 'woche': {
         const ws = weekStart(k), r = weekday(k) === 6;

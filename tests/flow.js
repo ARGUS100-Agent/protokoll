@@ -100,6 +100,36 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   await ev(() => { ui.sub.einkauf = 'home'; render(); });
   await page.click(`[data-a="shop-back"][data-id="${firstBuy}"]`);
   ok((await ev((id) => S.shop.items.find((x) => x.id === id).list, firstBuy)) === 'buy', 'Zurück auf die Liste');
+  // Läden
+  await ev(() => { ui.sub.einkauf = 'buy'; render(); });
+  const heads = await page.$$eval('.shop-store-h .meal-h', (els) => els.map((e) => e.textContent.replace(/\s+\d+$/, '').trim()));
+  ok(heads[0] === 'Lidl' && heads.includes('dm') && heads.includes('Rewe') && heads.includes('Sonstige') === false, 'Einkaufsliste nach Läden: ' + heads.join(', '));
+  const maps = await page.$$eval('.shop-store-h a', (els) => els.map((e) => e.getAttribute('href')));
+  ok(maps.length === heads.length && maps.every((h) => h.startsWith('https://maps.apple.com/?q=')) && maps.includes('https://maps.apple.com/?q=dm-drogerie%20markt'), 'Link „Nächste Filiale“ je Laden (Apple Karten)');
+  ok((await page.textContent('#main')).includes('Gold-Kiwis: doppelt so viel Vitamin C'), 'Hinweis beim Artikel sichtbar');
+  ok((await ev(() => S.shop.items.find((x) => x.n === 'Testartikel').store)) === 'lidl', 'Neuer Artikel (Gemüse) → Lidl');
+  ok((await ev(() => areaStatus('einkauf', todayKey()).s)).startsWith('Lidl '), 'Kachel zeigt Läden: ' + (await ev(() => areaStatus('einkauf', todayKey()).s)));
+  const skId = await ev(() => S.shop.items.find((x) => x.sid === "b:Sauerkraut").id);
+  await page.click(`[data-a="shop-edit"][data-id="${skId}"]`);
+  await page.click('#si-store [data-v="aldi"]');
+  await page.fill('#si-tip', 'Bio, Kühlregal');
+  await page.click('[data-a="shop-save"]');
+  const skIt = await ev((id) => S.shop.items.find((x) => x.id === id), skId);
+  ok(skIt.store === 'aldi' && skIt.tip === 'Bio, Kühlregal', 'Laden und Hinweis geändert');
+  ok((await page.$$eval('.shop-store-h .meal-h', (els) => els.map((e) => e.textContent))).some((t) => t.startsWith('Aldi Süd')), 'Artikel steht jetzt unter Aldi Süd');
+  await shot('f05-einkauf-laeden');
+  await page.click('[data-a="shop-group"][data-v="cat"]');
+  ok((await page.$$('.store-tag')).length > 30 && !(await page.$('.shop-store-h')), 'Ansicht nach Kategorie mit Laden-Etikett');
+  await shot('f05-einkauf-kategorie');
+  await page.click('[data-a="shop-group"][data-v="store"]');
+  ok((await ev(() => ui.shopGroup.buy)) === 'store', 'Zurück zur Ansicht nach Laden');
+  // Auswahl Rote Bete: Einheit passt zum Lebensmittel
+  await ev(() => { ui.exp.add('blk:vielfalt'); ui.ernSub = 'plan'; go('ern', { date: todayKey() }); });
+  const rb = () => page.textContent('#b-vielfalt .item:has([data-id="v_rotebete"]) .amt');
+  ok((await rb()).trim() === '200 ml', 'Rote-Bete-Saft in ml: ' + (await rb()).trim());
+  await page.click('#b-vielfalt [data-a="choice"][data-key="v_rotebete"][data-v="rote_bete"]');
+  ok((await rb()).trim() === '200 g', 'Rote Bete (Knolle) in g: ' + (await rb()).trim());
+  ok((await ev(() => getDay(todayKey()).checks.v_rotebete)) === undefined, 'Auswahl hakt nichts ab');
 
   // 7 Blutwerte
   await ev(() => go('blut'));
@@ -219,7 +249,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const bPath = `${OUT}/backup.json`;
   await dl2.saveAs(bPath);
   const bk = JSON.parse(fs.readFileSync(bPath, 'utf8'));
-  ok(bk.schema === 2 && bk.shop && bk.blood.entries.length === 1 && bk.knee.tests.length === 1 && bk.reviews && bk.settings.knee && bk.settings.caf, 'Backup enthält alle neuen Daten');
+  ok(bk.schema === 3 && bk.shop && bk.blood.entries.length === 1 && bk.knee.tests.length === 1 && bk.reviews && bk.settings.knee && bk.settings.caf, 'Backup enthält alle neuen Daten');
   // alles löschen, dann importieren
   await ev(() => { go('set'); ui.setOpen = 'backup'; render(); });
   await page.click('[data-a="wipe-ask"]');
@@ -238,7 +268,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   await page.reload({ waitUntil: 'load' });
   await page.waitForTimeout(800);
   const persisted = await ev((k) => ({ blood: S.blood.entries.length, train: getDay(k).trainings.length, schema: S.meta.schema }), today);
-  ok(persisted.blood === 1 && persisted.train === 2 && persisted.schema === 2, 'Nach Neuladen alles noch da');
+  ok(persisted.blood === 1 && persisted.train === 2 && persisted.schema === 3, 'Nach Neuladen alles noch da');
   await shot('f12-heute-nach-import');
 
   console.log(errors.length ? 'KONSOLENFEHLER:\n' + errors.join('\n') : 'Keine Konsolenfehler');

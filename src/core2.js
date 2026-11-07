@@ -30,6 +30,59 @@ function migrate2() {
   if (!S.shop) { S.shop = shopDefault(); markDirty('shop'); }
 }
 
+/* Einmalige Umstellung auf Version 2.1: Läden & Hinweise im Einkauf, Einkaufsstand vom 07.11.2026,
+   Auswahl bei Kiwi, Schokolade und Rote Bete (bisherige Tage behalten ihr Lebensmittel) */
+const PLAN_UPD3 = [{ id: 'f_kiwi', old: 'kiwi' }, { id: 'n_schoko', old: 'schokolade85' }, { id: 'v_rotebete', old: 'rote_bete' }];
+function upgradePlan3() {
+  let changed = false;
+  for (const u of PLAN_UPD3) {
+    const def = DEFAULT_PLAN.flatMap((b) => b.items).find((x) => x.id === u.id);
+    const hit = findItem(u.id);
+    if (!def || !hit || hit.it.choice || hit.it.food !== u.old) continue;
+    const it = hit.it, oldFood = FOOD[u.old];
+    for (const [k, d] of Object.entries(S.days)) {
+      if (!d.checks || !d.checks[u.id]) continue;
+      d.choice = d.choice || {};
+      if (!d.choice[u.id]) d.choice[u.id] = u.old;
+      if (def.u !== it.u) {
+        d.amt = d.amt || {};
+        const g = (d.amt[u.id] != null ? d.amt[u.id] : it.a) * unitG(oldFood, it.u);
+        d.amt[u.id] = Math.round(g / unitG(oldFood, def.u) * 10) / 10;
+      }
+      markDirty('day:' + k);
+    }
+    if (def.u !== it.u) { it.u = def.u; it.a = def.a; }
+    it.food = def.food; it.choice = def.choice.slice();
+    if (def.label) it.label = def.label;
+    changed = true;
+  }
+  if (changed) markDirty('settings');
+  return changed;
+}
+function upgradeShop3(opts = {}) {
+  if (!S.shop || !Array.isArray(S.shop.items)) { S.shop = shopDefault(); markDirty('shop'); return; }
+  for (const it of S.shop.items) {
+    const d = shopDef(it.sid);
+    if (d && d.old && it.n === d.old) it.n = d.n;
+    if (d && it.sid === 'b:Kombucha' && it.q === '2 l') it.q = d.q;
+    if (!it.store) it.store = d ? d.store : CAT_STORE[it.cat] || 'other';
+    if (it.tip == null) it.tip = d ? d.tip : '';
+  }
+  /* neue Standardartikel ergänzen (gelöschte bleiben gelöscht) */
+  for (const sid of opts.add || []) { const d = shopDef(sid); if (d && !S.shop.items.some((x) => x.sid === sid)) S.shop.items.push(shopNew(d)); }
+  if (opts.sync) for (const it of S.shop.items) if (shopDef(it.sid)) it.list = SHOP_SYNC_BUY.includes(it.sid) ? 'buy' : 'home';
+  markDirty('shop');
+}
+function migrate3() {
+  if ((S.meta.schema || 1) >= 3) return;
+  /* Einkaufsstand nur übernehmen, wenn die App schon genutzt wurde und der Stand noch aktuell ist */
+  const used = Object.keys(S.days).length > 0;
+  S.meta.schema = 3;
+  markDirty('meta');
+  upgradePlan3();
+  upgradeShop3({ add: ['h:Magnesium-Threonat'], sync: used && todayKey() <= '2026-11-14' });
+}
+
 /* ---------- Bereiche ---------- */
 function areaById(id) { return AREAS.find((a) => a.id === id) || (id === 'mehr' ? MORE_TAB : null); }
 function navTabs() {
@@ -477,18 +530,41 @@ function bloodMarkers() {
 }
 function bloodStatus(m, v) { if (v == null) return 'none'; if (m.lo != null && v < m.lo) return 'low'; if (m.hi != null && v > m.hi) return 'high'; return 'ok'; }
 function bloodSeries(id) { return (S.blood.entries || []).filter((e) => e.v && e.v[id] != null).sort((a, b) => a.date.localeCompare(b.date)).map((e) => ({ date: e.date, v: e.v[id] })); }
-function shopDefault() {
-  const items = [];
-  for (const [cat, n, q] of SHOP_DEFAULT.buy) items.push({ id: uid(), n, q, cat, list: 'buy', sid: 'b:' + n });
-  for (const [cat, n, q] of SHOP_DEFAULT.home) items.push({ id: uid(), n, q, cat, list: 'home', sid: 'h:' + n });
-  return { items };
+/* ---------- Einkauf ---------- */
+function shopDefs() {
+  const out = [];
+  for (const list of ['buy', 'home']) for (const [cat, n, q, store, tip, old] of SHOP_DEFAULT[list]) out.push({ sid: (list === 'buy' ? 'b:' : 'h:') + (old || n), n, old: old || null, q: q || '', cat, store: store || CAT_STORE[cat] || 'other', tip: tip || '', list });
+  return out;
 }
+let shopDefMap = null;
+function shopDef(sid) {
+  if (!shopDefMap) { shopDefMap = {}; for (const d of shopDefs()) shopDefMap[d.sid] = d; }
+  return sid ? shopDefMap[sid] || null : null;
+}
+function shopNew(d, list) { return { id: uid(), n: d.n, q: d.q, cat: d.cat, store: d.store, tip: d.tip, list: list || d.list, sid: d.sid }; }
+function shopDefault() { return { items: shopDefs().map((d) => shopNew(d)) }; }
 function shopReload() {
-  for (const [cat, n, q] of SHOP_DEFAULT.buy) {
-    const it = S.shop.items.find((x) => x.sid === 'b:' + n);
+  for (const d of shopDefs()) {
+    if (d.list !== 'buy') continue;
+    const it = S.shop.items.find((x) => x.sid === d.sid);
     if (it) it.list = 'buy';
-    else S.shop.items.push({ id: uid(), n, q, cat, list: 'buy', sid: 'b:' + n });
+    else S.shop.items.push(shopNew(d, 'buy'));
   }
+}
+function storeById(id) { return SHOP_STORES.find((s) => s.id === id) || SHOP_STORES.find((s) => s.id === 'other'); }
+function itemStore(it) {
+  if (it.store && SHOP_STORES.some((s) => s.id === it.store)) return it.store;
+  const d = shopDef(it.sid);
+  return d ? d.store : CAT_STORE[it.cat] || 'other';
+}
+function itemTip(it) { if (it.tip != null) return it.tip; const d = shopDef(it.sid); return d ? d.tip : ''; }
+/* Karte: sucht die nächste Filiale der Kette über den Standort des iPhones (keine Adresse in der App) */
+function storeMapUrl(id) { const s = storeById(id); return s.q ? 'https://maps.apple.com/?q=' + encodeURIComponent(s.q) : null; }
+/* Läden der offenen Einkaufsliste, sortiert nach Anzahl */
+function shopStoreCounts(list = 'buy') {
+  const c = {};
+  for (const it of (S.shop && S.shop.items) || []) if (it.list === list) { const s = itemStore(it); c[s] = (c[s] || 0) + 1; }
+  return SHOP_STORES.filter((s) => c[s.id]).map((s) => ({ ...s, count: c[s.id] })).sort((x, y) => y.count - x.count);
 }
 function todosOpen() { return (S.settings.todos || []).filter((t) => !t.done); }
 function todosDue(days = 7) {

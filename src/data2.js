@@ -101,22 +101,38 @@ const PHOTO_ANGLES = [
   { id: 'frontal', n: 'Frontal' }, { id: 'links', n: 'Links' }, { id: 'rechts', n: 'Rechts' }, { id: 'hals', n: 'Hals von unten' },
 ];
 
-/* ---------- Einkauf ---------- */
+/* ---------- Einkauf ----------
+   Läden nur als Ketten (keine Adressen im Code). Die Karte sucht die nächste Filiale über den Standort des iPhones. */
 const SHOP_CATS = ['Gemüse', 'Obst', 'Kühlregal', 'Vorrat', 'Getränke', 'Drogerie/Haushalt'];
+const SHOP_STORES = [
+  { id: 'lidl', n: 'Lidl', q: 'Lidl' },
+  { id: 'aldi', n: 'Aldi Süd', q: 'ALDI SÜD' },
+  { id: 'dm', n: 'dm', q: 'dm-drogerie markt' },
+  { id: 'edeka', n: 'Edeka', q: 'EDEKA' },
+  { id: 'rewe', n: 'Rewe', q: 'REWE' },
+  { id: 'tegut', n: 'tegut', q: 'tegut' },
+  { id: 'online', n: 'Online', q: null },
+  { id: 'other', n: 'Sonstige', q: null },
+];
+const CAT_STORE = { 'Gemüse': 'lidl', 'Obst': 'lidl', 'Kühlregal': 'lidl', 'Vorrat': 'lidl', 'Getränke': 'dm', 'Drogerie/Haushalt': 'dm' };
+/* [Kategorie, Name, Menge, Laden, Hinweis, alter Name (für stabile IDs)] */
 const SHOP_DEFAULT = {
   buy: [
-    ['Gemüse', 'Spinat', '700 g'], ['Gemüse', 'Paprika', '7'], ['Gemüse', 'Karotten', '1 kg'], ['Gemüse', 'Brokkoli', '2'], ['Gemüse', 'Rote Bete', '500 g'], ['Gemüse', 'Tomaten', '500 g'], ['Gemüse', 'Zwiebeln', ''], ['Gemüse', 'Knoblauch', ''], ['Gemüse', 'Gurke', ''],
-    ['Obst', 'Kiwis', '7'], ['Obst', 'Bananen', '7'], ['Obst', 'Äpfel', '7'], ['Obst', 'TK-Beeren', '1 kg'], ['Obst', 'Datteln', '500 g'],
-    ['Kühlregal', 'Eier', '21'], ['Kühlregal', 'Skyr', '7 × 500 g'], ['Kühlregal', 'Kefir', '1 l'], ['Kühlregal', 'Sauerkraut', ''], ['Kühlregal', 'Kimchi', ''],
-    ['Vorrat', 'Makrele', '5 Dosen'], ['Vorrat', 'Paranüsse', ''], ['Vorrat', 'Dunkle Schokolade 85 %', '2 Tafeln'], ['Vorrat', 'Jodsalz', ''], ['Vorrat', 'Vollkornbrot', ''],
-    ['Getränke', 'O-Saft', '2 l'], ['Getränke', 'Kokoswasser', '3 l'], ['Getränke', 'Kombucha', '2 l'], ['Getränke', 'Mineralwasser', '6 × 1,5 l'],
-    ['Drogerie/Haushalt', 'Feuchttücher', ''], ['Drogerie/Haushalt', 'Küchenrolle', ''], ['Drogerie/Haushalt', 'Philips OneBlade Klingen', ''], ['Drogerie/Haushalt', 'Shampoo (clean, ohne Sulfate/Silikone/Duftstoffe)', ''], ['Drogerie/Haushalt', 'Zahnpasta (clean, ohne SLS/Titandioxid)', ''], ['Drogerie/Haushalt', 'Zahnbürstenkopf', ''], ['Drogerie/Haushalt', 'Müllsäcke', ''],
+    ['Gemüse', 'Spinat', '700 g', 'lidl', 'Bio-Babyspinat'], ['Gemüse', 'Paprika', '7', 'lidl', 'rot'], ['Gemüse', 'Karotten', '1 kg', 'lidl', ''], ['Gemüse', 'Brokkoli', '2', 'lidl', ''],
+    ['Gemüse', 'Rote Bete oder Rote-Bete-Saft', '500 g / 1 l', 'dm', 'Saft milchsauer vergoren', 'Rote Bete'], ['Gemüse', 'Tomaten', '500 g', 'lidl', ''], ['Gemüse', 'Zwiebeln', '', 'lidl', ''], ['Gemüse', 'Knoblauch', '', 'lidl', ''], ['Gemüse', 'Gurke', '', 'lidl', ''],
+    ['Obst', 'Kiwis', '7', 'lidl', 'Gold-Kiwis: doppelt so viel Vitamin C'], ['Obst', 'Bananen', '7', 'lidl', ''], ['Obst', 'Äpfel', '7', 'lidl', ''], ['Obst', 'TK-Beeren', '1 kg', 'lidl', 'ungezuckert'], ['Obst', 'Datteln', '500 g', 'lidl', 'Medjool'],
+    ['Kühlregal', 'Eier', '21', 'lidl', ''], ['Kühlregal', 'Skyr', '7 × 500 g', 'lidl', 'natur'], ['Kühlregal', 'Kefir', '1 l', 'lidl', 'natur, ohne Zucker'], ['Kühlregal', 'Sauerkraut', '', 'rewe', 'frisch, nicht pasteurisiert (Kühlregal)'], ['Kühlregal', 'Kimchi', '', 'rewe', 'mit aktiven Kulturen (Kühlregal)'],
+    ['Vorrat', 'Makrele', '5 Dosen', 'lidl', 'in eigenem Saft'], ['Vorrat', 'Paranüsse', '', 'dm', '1 pro Tag reicht (Selen)'], ['Vorrat', 'Dunkle Schokolade (85–90 %)', '2 Tafeln', 'dm', '', 'Dunkle Schokolade 85 %'], ['Vorrat', 'Jodsalz', '', 'lidl', ''], ['Vorrat', 'Vollkornbrot', '', 'lidl', '100 % Vollkorn'],
+    ['Getränke', 'O-Saft', '2 l', 'dm', 'Direktsaft'], ['Getränke', 'Kokoswasser', '3 l', 'dm', ''], ['Getränke', 'Kombucha', '6 × 0,33 l', 'rewe', 'roh, unpasteurisiert (Kühlregal)'], ['Getränke', 'Mineralwasser', '6 × 1,5 l', 'lidl', 'calciumreich: über 150 mg Calcium pro Liter (Etikett)'],
+    ['Drogerie/Haushalt', 'Feuchttücher', '', 'dm', ''], ['Drogerie/Haushalt', 'Küchenrolle', '', 'dm', ''], ['Drogerie/Haushalt', 'Philips OneBlade Klingen', '', 'dm', 'Ersatzklinge passend zum Gerät'], ['Drogerie/Haushalt', 'Shampoo (clean, ohne Sulfate/Silikone/Duftstoffe)', '', 'dm', ''], ['Drogerie/Haushalt', 'Zahnpasta (clean, ohne SLS/Titandioxid)', '', 'dm', ''], ['Drogerie/Haushalt', 'Zahnbürstenkopf', '', 'dm', ''], ['Drogerie/Haushalt', 'Müllsäcke', '', 'dm', ''],
   ],
   home: [
-    ['Vorrat', 'Prepmymeal', ''], ['Vorrat', 'Flohsamenschalen', ''], ['Vorrat', 'Kreatin', ''], ['Vorrat', 'D3-K2', ''], ['Getränke', 'Grüner Tee', ''], ['Vorrat', 'Olivenöl', ''], ['Vorrat', 'Leinsamen', ''], ['Vorrat', 'Haferflocken', ''],
-    ['Vorrat', 'Mandeln', ''], ['Vorrat', 'Kürbiskerne', ''], ['Vorrat', 'Hanfsamen', ''], ['Vorrat', 'Kakaonibs', ''], ['Vorrat', 'Sonnenblumenkerne', ''], ['Vorrat', 'Dinkelflocken', ''], ['Vorrat', 'Omega-3', ''],
+    ['Vorrat', 'Prepmymeal', '', 'online', 'rechtzeitig nachbestellen'], ['Vorrat', 'Flohsamenschalen', '', 'dm', ''], ['Vorrat', 'Kreatin', '', 'online', 'Monohydrat'], ['Vorrat', 'D3-K2', '', 'online', ''], ['Getränke', 'Grüner Tee', '', 'dm', ''], ['Vorrat', 'Olivenöl', '', 'lidl', 'nativ extra'], ['Vorrat', 'Leinsamen', '', 'dm', ''], ['Vorrat', 'Haferflocken', '', 'lidl', ''],
+    ['Vorrat', 'Mandeln', '', 'lidl', ''], ['Vorrat', 'Kürbiskerne', '', 'lidl', ''], ['Vorrat', 'Hanfsamen', '', 'dm', 'geschält'], ['Vorrat', 'Kakaonibs', '', 'dm', ''], ['Vorrat', 'Sonnenblumenkerne', '', 'lidl', ''], ['Vorrat', 'Dinkelflocken', '', 'dm', ''], ['Vorrat', 'Omega-3', '', 'online', 'Algenöl'], ['Vorrat', 'Magnesium-Threonat', '', 'online', ''],
   ],
 };
+/* Stand nach dem Einkauf vom 07.11.2026: nur diese Standardartikel fehlen noch (alles andere ist zuhause) */
+const SHOP_SYNC_BUY = ['b:Vollkornbrot', 'b:Philips OneBlade Klingen', 'b:Zahnbürstenkopf'];
 
 /* ---------- Blutwerte (übliche Referenzbereiche Erwachsene/Männer; Labore weichen ab) ---------- */
 const BLOOD_MARKERS = [

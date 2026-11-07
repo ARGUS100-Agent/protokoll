@@ -249,30 +249,52 @@ function vShop() {
   const sub = getSub('einkauf', 'buy');
   const items = S.shop.items;
   const buy = items.filter((x) => x.list === 'buy'), home = items.filter((x) => x.list === 'home');
+  const grp = (ui.shopGroup && ui.shopGroup[sub]) || (sub === 'buy' ? 'store' : 'cat');
   let h = areaHead('einkauf');
   h += `<div class="seg"><button class="${sub === 'buy' ? 'is-on' : ''}" data-a="sub" data-area="einkauf" data-v="buy">Einkaufen (${buy.length})</button><button class="${sub === 'home' ? 'is-on' : ''}" data-a="sub" data-area="einkauf" data-v="home">Zuhause (${home.length})</button></div>`;
   h += `<div class="shop-add"><input type="text" id="shop-new" placeholder="Artikel hinzufügen" enterkeyhint="done" autocomplete="off"><label class="choice-select sm">${icon('chevron-down')}<select id="shop-cat" aria-label="Kategorie">${SHOP_CATS.map((c) => `<option ${c === (ui.shopCat || 'Gemüse') ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label><button class="icon-btn" data-a="shop-add" aria-label="Hinzufügen">${icon('plus')}</button></div>`;
   const list = sub === 'buy' ? buy : home;
-  if (!list.length) h += emptyState(sub === 'buy' ? 'Alles eingekauft.' : 'Nichts als vorrätig markiert.');
-  const cats = SHOP_CATS.concat([...new Set(list.map((x) => x.cat).filter((c) => !SHOP_CATS.includes(c)))]);
-  for (const c of cats) {
-    const its = list.filter((x) => x.cat === c);
-    if (!its.length) continue;
-    h += `<h4 class="meal-h">${esc(c)} <small>${its.length}</small></h4><div class="list">${its.map((it) => sub === 'buy'
-      ? `<div class="shop-row"><button class="shop-chk" data-a="shop-check" data-id="${it.id}"><span class="tgl-box">${icon('check')}</span><span class="row-main"><b>${esc(it.n)}</b>${it.q ? `<small>${esc(it.q)}</small>` : ''}</span></button><button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button></div>`
-      : `<div class="shop-row is-home"><span class="row-main"><b>${esc(it.n)}</b>${it.q ? `<small>${esc(it.q)}</small>` : ''}</span><button class="pill-btn" data-a="shop-back" data-id="${it.id}">${icon('shopping-cart')}Auf die Liste</button><button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button></div>`).join('')}</div>`;
+  if (!list.length) return h + emptyState(sub === 'buy' ? 'Alles eingekauft.' : 'Nichts als vorrätig markiert.') + `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
+  h += `<div class="shop-tools"><div class="chips chips-tight"><button class="chip chip-xs${grp === 'store' ? ' is-on' : ''}" data-a="shop-group" data-v="store">${icon('store')}Nach Laden</button><button class="chip chip-xs${grp === 'cat' ? ' is-on' : ''}" data-a="shop-group" data-v="cat">${icon('layers')}Nach Kategorie</button></div></div>`;
+  const catIdx = (c) => { const i = SHOP_CATS.indexOf(c); return i < 0 ? 99 : i; };
+  const meta = (it) => { const p = [it.q, itemTip(it)].filter(Boolean); return p.length ? `<small>${esc(p.join(' · '))}</small>` : ''; };
+  const tag = (it) => `<span class="store-tag">${esc(storeById(itemStore(it)).n)}</span>`;
+  const row = (it, withStore) => {
+    const name = sub === 'buy' ? `<b>${esc(it.n)}${withStore ? tag(it) : ''}</b>${meta(it)}` : `<b>${esc(it.n)}</b>`;
+    const edit = `<button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button>`;
+    return sub === 'buy'
+      ? `<div class="shop-row"><button class="shop-chk" data-a="shop-check" data-id="${it.id}"><span class="tgl-box">${icon('check')}</span><span class="row-main">${name}</span></button>${edit}</div>`
+      : `<div class="shop-row is-home"><span class="row-main">${name}</span><button class="pill-btn" data-a="shop-back" data-id="${it.id}">${icon('shopping-cart')}Auf die Liste</button>${edit}</div>`;
+  };
+  if (grp === 'store') {
+    for (const st of SHOP_STORES) {
+      const its = list.filter((x) => itemStore(x) === st.id).sort((x, y) => catIdx(x.cat) - catIdx(y.cat));
+      if (!its.length) continue;
+      const url = sub === 'buy' ? storeMapUrl(st.id) : null;
+      h += `<div class="shop-store-h"><h4 class="meal-h">${esc(st.n)} <small>${its.length}</small></h4>${url ? `<a class="pill-btn sm" href="${esc(url)}" target="_blank" rel="noopener">${icon('map-pin')}Nächste Filiale</a>` : ''}</div><div class="list">${its.map((it) => row(it, false)).join('')}</div>`;
+    }
+  } else {
+    const cats = SHOP_CATS.concat([...new Set(list.map((x) => x.cat).filter((c) => !SHOP_CATS.includes(c)))]);
+    for (const c of cats) {
+      const its = list.filter((x) => x.cat === c);
+      if (!its.length) continue;
+      h += `<h4 class="meal-h">${esc(c)} <small>${its.length}</small></h4><div class="list">${its.map((it) => row(it, true)).join('')}</div>`;
+    }
   }
+  if (sub === 'buy' && grp === 'store') h += `<p class="hint">Der Laden ist ein Vorschlag pro Artikel und lässt sich über den Stift ändern. „Nächste Filiale“ öffnet Apple Karten mit der Suche in deiner Nähe.</p>`;
   h += `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
   return h;
 }
 function sheetShopItem(id) {
   const it = S.shop.items.find((x) => x.id === id);
   if (!it) return;
-  ui.sheet = { type: 'shop', id };
+  ui.sheet = { type: 'shop', id, store: itemStore(it) };
   openSheet(`<h3 class="sheet-title">Artikel</h3><div class="form">
     <div class="frow is-wide"><span class="flabel">Name</span><div class="fin"><input type="text" id="si-n" value="${esc(it.n)}"></div></div>
     <div class="frow is-wide"><span class="flabel">Menge</span><div class="fin"><input type="text" id="si-q" value="${esc(it.q || '')}" placeholder="z. B. 500 g"></div></div>
-    <div class="frow is-wide"><span class="flabel">Kategorie</span><div class="fin"><select id="si-cat">${SHOP_CATS.map((c) => `<option ${c === it.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div></div></div>
+    <div class="frow is-wide"><span class="flabel">Hinweis</span><div class="fin"><input type="text" id="si-tip" value="${esc(itemTip(it))}" placeholder="z. B. Bio, ungezuckert"></div></div>
+    <div class="frow is-wide"><span class="flabel">Kategorie</span><div class="fin"><select id="si-cat">${SHOP_CATS.map((c) => `<option ${c === it.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div></div>
+    <div class="frow is-wide"><span class="flabel">Wo kaufen</span><div class="fin"><div class="chips chips-tight" id="si-store">${SHOP_STORES.map((s) => `<button class="chip chip-xs${s.id === ui.sheet.store ? ' is-on' : ''}" data-a="shop-store" data-v="${s.id}">${esc(s.n)}</button>`).join('')}</div></div></div></div>
     <div class="sheet-acts"><button class="btn is-accent" data-a="shop-save">Speichern</button><button class="btn is-danger" data-a="shop-del">Löschen</button></div>`);
 }
 
