@@ -466,10 +466,10 @@ function renderGarSheet() {
   openSheet(`<h3 class="sheet-title">${on ? 'Garmin Connect' : 'Garmin Connect verbinden'}</h3>
     <p class="hint">Garmin lässt Web-Apps nicht direkt an deine Daten. Darum läuft der Abruf über deine eigene, kostenlose Weiterleitung bei Cloudflare. Sie speichert nichts.</p>
     <ol class="steps gar-steps">
-      <li><b>Schlüssel bei Garmin erstellen</b> (am besten hier auf dem iPhone): Link öffnen, anmelden, „Create Key“, Bedingungen annehmen, Laufzeit 1 Jahr, „Create“. Der Schlüssel erscheint nur einmal – gleich kopieren. <a class="link-btn" href="${GAR_KEY_URL}" target="_blank" rel="noopener">${icon('external-link')}Garmin Connect öffnen</a></li>
-      <li><b>Weiterleitung anlegen</b> (am Computer bequemer): Gratis-Konto bei Cloudflare, dann „Workers &amp; Pages“ → „Create“ → Worker „Hello World“ → „Deploy“. Danach „Edit code“, alles löschen, den Protokoll-Code einfügen und wieder „Deploy“. Die Adresse (…workers.dev) notieren. Beim ersten Worker fragt Cloudflare nach einem Namen für deine workers.dev-Adresse – frei wählbar.
+      <li><b>Weiterleitung anlegen</b> (am Computer bequemer): Gratis-Konto bei Cloudflare, dann „Workers &amp; Pages“ → „Create“ → Worker „Hello World“ → „Deploy“. Danach „Edit code“, alles löschen, den Protokoll-Code einfügen und wieder „Deploy“. Die Adresse (…workers.dev) unten eintragen. Beim ersten Worker fragt Cloudflare nach einem Namen für deine workers.dev-Adresse – frei wählbar.
         <span class="gar-links"><button class="link-btn" data-a="gar-copy">${icon('copy')}Code kopieren</button><a class="link-btn" href="${GAR_CF_URL}" target="_blank" rel="noopener">${icon('external-link')}Cloudflare öffnen</a><a class="link-btn" href="${GAR_CODE_URL}" target="_blank" rel="noopener">${icon('external-link')}Code auf GitHub</a></span></li>
-      <li><b>Hier eintragen</b> und auf „${on ? 'Speichern & testen' : 'Verbinden'}“ tippen.</li>
+      <li><b>Schlüssel bei Garmin erstellen</b> (erst jetzt, am besten hier auf dem iPhone): Link öffnen, anmelden, „Create Key“, Bedingungen annehmen, Laufzeit 1 Jahr, „Create“. Der Schlüssel erscheint nur einmal – kopieren und gleich unten einfügen. <a class="link-btn" href="${GAR_KEY_URL}" target="_blank" rel="noopener">${icon('external-link')}Garmin Connect öffnen</a></li>
+      <li><b>Verbinden</b> tippen – die App prüft die Weiterleitung und den Schlüssel und holt die letzten 14 Tage.</li>
     </ol>
     ${s.showCode ? `<textarea class="note gar-code" rows="6" readonly>${esc(GAR_RELAY_CODE)}</textarea>` : ''}
     <div class="form">
