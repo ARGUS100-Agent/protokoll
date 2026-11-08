@@ -156,6 +156,15 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(pr.n === 5 && pr.week === '2026-11-16' && pr.tips === 1, 'Skill-Beispiel: 5 Ziele, Woche, Vorschläge');
   ok(pr.rules[0] === 'Letztes Koffein ≤ 14:30 Uhr an 6 von 7 Tagen' && pr.rules[1] === 'Ballaststoffe ≥ 40 g an 5 von 7 Tagen' && pr.rules[2] === 'Sauna in der Woche ≥ 60 Min.' && pr.rules[3] === 'Ø Schlafdauer ≥ 7:30 Std.' && pr.rules[4] === 'Whey/Milchprotein: nein an 7 von 7 Tagen', 'Messregeln aus dem Skill-Beispiel');
   ok(pr.when[0] === '14:00' && pr.when[1] === '19:00' && pr.when[2] === null, 'Erinnerungszeiten übernommen');
+  // Ziele mitten in der Woche (Mittwoch) übernehmen: nur ab heute zählen
+  await page.clock.setFixedTime(new Date('2026-11-18T10:00:00+01:00'));
+  await ev(() => { ui.lastToday = todayKey(); invalidate(); sheetFrank('', todayKey()); });
+  await page.fill('#frank-code', JSON.stringify({ app: 'protokoll-frank', v: 1, type: 'ziele', week: '2026-11-16', goals: [{ area: 'ern', title: 'Protein ab 180 g', metric: 'p', agg: 'days', cmp: '>=', value: 180, need: 6 }, { area: 'sauna', title: '60 Min. Sauna', metric: 'sauna', agg: 'sum', cmp: '>=', value: 60 }] }));
+  await page.waitForSelector('.goal-prev', { timeout: 5000 });
+  ok((await ev(() => ui.sheet.gw)) === '2026-11-16' && (await page.textContent('#sheet')).includes('Protein ≥ 180 g an 5 von 5 Tagen'), 'Mittwoch: Ziel zählt nur die restlichen 5 Tage');
+  await page.click('[data-a="goals-save"]');
+  const mid = await ev(() => weekGoals('2026-11-16').map((g) => ({ from: g.from, e: goalEval(g, '2026-11-16').progress })));
+  ok(mid[0].from === '2026-11-18' && mid[0].e === '0/5 Tage' && mid[1].e.startsWith('0 von 60'), 'Start ab Mittwoch gespeichert: ' + mid.map((x) => x.e).join(', '));
   // Backup enthält Ziele
   const bk = await ev(() => exportData());
   ok(bk.reviews['2026-11-09'].goals.length === 4, 'Backup enthält die Wochenziele');

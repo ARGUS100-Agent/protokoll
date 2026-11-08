@@ -1070,7 +1070,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.4.0';
+const APP_VERSION = '2.4.1';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -8265,22 +8265,29 @@ function goalNorm(g, i) {
   const when = /^([01]?\d|2[0-3]):[0-5]\d$/.test(wt) ? wt.padStart(5, '0') : null;
   return { id: 'g' + (i + 1) + uid().slice(-5), area, title, metric, agg, cmp: metric === 'manual' ? '>=' : cmp, value: metric === 'manual' ? 1 : value, need, when, why: frankText(g.why, 400), tip: frankText(g.tip, 400), example: frankText(g.example, 400) };
 }
+/* Startet ein Ziel mitten in der Woche, zählen nur die Tage ab dem Start */
+function goalSpan(g) {
+  const avail = g.from ? 7 - weekday(g.from) : 7;
+  return { avail, need: g.need != null ? Math.min(g.need, avail) : null };
+}
 function goalRule(g) {
   const m = goalMetric(g.metric) || goalMetric('manual');
-  if (g.metric === 'manual') return `abhaken an ${g.need} von 7 Tagen`;
+  const sp = goalSpan(g), of = `an ${sp.need} von ${sp.avail} Tagen`;
+  if (g.metric === 'manual') return `abhaken ${of}`;
   const sym = g.cmp === '<=' ? '≤' : '≥';
   const val = `${goalFmt(m, g.value)}${goalUnit(m) && m.kind !== 'bool' ? ' ' + goalUnit(m) : ''}`;
-  if (m.kind === 'bool') return `${m.n}: ${g.cmp === '<=' ? 'nein' : 'ja'} an ${g.need} von 7 Tagen`;
-  if (g.agg === 'days') return `${m.n} ${sym} ${val} an ${g.need} von 7 Tagen`;
+  if (m.kind === 'bool') return `${m.n}: ${g.cmp === '<=' ? 'nein' : 'ja'} ${of}`;
+  if (g.agg === 'days') return `${m.n} ${sym} ${val} ${of}`;
   if (g.agg === 'sum') return `${m.n} in der Woche ${sym} ${val}`;
   if (g.agg === 'max') return `${m.n} ${sym} ${val} bis Sonntag`;
   return `Ø ${m.n} ${sym} ${val}`;
 }
 function goalEval(g, ws) {
   const m = goalMetric(g.metric) || goalMetric('manual');
-  const keys = weekKeys(ws), today = todayKey();
-  const hasToday = keys.includes(today), ended = keys[6] < today;
-  const upto = keys.filter((k) => k <= today), past = keys.filter((k) => k < today);
+  const today = todayKey(), all = weekKeys(ws), from = g.from && g.from > ws ? g.from : ws;
+  const keys = all.filter((k) => k >= from), need = goalSpan(g).need;
+  const hasToday = keys.includes(today), ended = all[6] < today;
+  const past = keys.filter((k) => k < today), weekUpto = all.filter((k) => k <= today);
   const future = keys.filter((k) => k > today).length;
   const ticks = (((S.reviews || {})[ws] || {}).ticks || {})[g.id] || {};
   const val = (k) => (g.metric === 'manual' ? (ticks[k] ? 1 : 0) : m.day(k));
@@ -8304,20 +8311,20 @@ function goalEval(g, ws) {
       }
     }
     const remaining = future + (pendingToday ? 1 : 0);
-    if (reached >= g.need) r.status = 'done';
-    else if (ended || reached + remaining < g.need) r.status = 'missed';
-    else if (reached + remaining === g.need && failed > 0) r.status = 'risk';
-    r.progress = `${reached}/${g.need} Tage`;
+    if (reached >= need) r.status = 'done';
+    else if (ended || reached + remaining < need) r.status = 'missed';
+    else if (reached + remaining === need && failed > 0) r.status = 'risk';
+    r.progress = `${reached}/${need} Tage`;
     r.reached = reached;
   } else if (g.agg === 'sum') {
     let total = 0;
-    for (const k of upto) { const v = val(k); if (v != null) total += v; }
+    for (const k of weekUpto) { const v = val(k); if (v != null) total += v; }
     if (g.cmp === '>=') r.status = total >= g.value - 1e-9 ? 'done' : ended ? 'missed' : 'open';
     else r.status = total > g.value + 1e-9 ? 'missed' : ended ? 'done' : 'open';
     r.progress = `${goalFmt(m, total)} von ${goalFmt(m, g.value)}${goalUnit(m) ? ' ' + goalUnit(m) : ''}`;
     r.total = total;
   } else {
-    const vs = upto.map(val).filter((v) => v != null);
+    const vs = weekUpto.map(val).filter((v) => v != null);
     const a = g.agg === 'max' ? (vs.length ? Math.max(...vs) : null) : mean(vs);
     if (a == null) r.status = ended ? 'missed' : 'open';
     else if (ended) r.status = okv(a) ? 'done' : 'missed';
@@ -8729,7 +8736,7 @@ function renderGoalsStep() {
   const old = weekGoals(s.gw).length;
   openSheet(`<h3 class="sheet-title">Ziele von Frank</h3>
     <div class="chips">${opts.map((w) => `<button class="chip chip-sm${w === s.gw ? ' is-on' : ''}" data-a="goals-week" data-v="${w}">${esc(name(w))} · KW ${isoWeek(w)}</button>`).join('')}</div>
-    ${data.goals.map((g) => { const a = GOAL_AREAS[g.area] || GOAL_AREAS.ern; return `<div class="frank-card goal-prev"><div class="frank-head"><b>${icon(a.ic)} ${esc(g.title)}</b><small>${esc(a.n)} · gemessen: ${esc(goalRule(g))}</small></div>${g.why ? `<p class="hint"><b>Warum:</b> ${esc(g.why)}</p>` : ''}${g.tip ? `<p class="hint"><b>So geht's:</b> ${esc(g.tip)}</p>` : ''}${g.example ? `<p class="hint"><b>Beispiel:</b> ${esc(g.example)}</p>` : ''}</div>`; }).join('')}
+    ${data.goals.map((g) => { const a = GOAL_AREAS[g.area] || GOAL_AREAS.ern; return `<div class="frank-card goal-prev"><div class="frank-head"><b>${icon(a.ic)} ${esc(g.title)}</b><small>${esc(a.n)} · gemessen: ${esc(goalRule(s.gw === cur && today > cur ? { ...g, from: today } : g))}</small></div>${g.why ? `<p class="hint"><b>Warum:</b> ${esc(g.why)}</p>` : ''}${g.tip ? `<p class="hint"><b>So geht's:</b> ${esc(g.tip)}</p>` : ''}${g.example ? `<p class="hint"><b>Beispiel:</b> ${esc(g.example)}</p>` : ''}</div>`; }).join('')}
     ${data.review ? frankReviewHTML(data.review, 'Franks Rückblick') : ''}
     ${old ? `<p class="hint warn-txt">Ersetzt die ${old} bisherigen Ziele dieser Woche.</p>` : ''}
     <div class="sheet-acts"><button class="btn is-accent" data-a="goals-save">${data.goals.length} ${data.goals.length === 1 ? 'Ziel' : 'Ziele'} übernehmen</button>
@@ -8739,7 +8746,8 @@ function goalsSave() {
   const s = ui.sheet;
   if (!s || !s.goals) return;
   const gw = s.gw, rw = addDays(gw, -7);
-  S.reviews[gw] = { ...(S.reviews[gw] || {}), goals: s.goals.goals, goalsAt: new Date().toISOString(), ticks: {} };
+  const today = todayKey(), from = gw === weekStart(today) && today > gw ? today : null;
+  S.reviews[gw] = { ...(S.reviews[gw] || {}), goals: s.goals.goals.map((g) => (from ? { ...g, from } : g)), goalsAt: new Date().toISOString(), ticks: {} };
   if (s.goals.review) S.reviews[rw] = { ...(S.reviews[rw] || {}), frank: s.goals.review };
   markDirty('reviews'); invalidate();
   goalSnap = null;
