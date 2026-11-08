@@ -123,6 +123,7 @@ function vHeute() {
     <h1>${greeting()}</h1></header>`;
   h += banners(k);
   h += kneeAlertCards(k);
+  h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin() - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>`;
   h += kneeMorningCard(k, true);
@@ -180,7 +181,8 @@ function todoCard() {
 }
 function reviewReadyCard(k) {
   if (weekday(k) !== 6 || new Date().getHours() < 16) return '';
-  return `<div class="banner">${icon('calendar-check')}<div><b>Dein Wochenrückblick ist fertig</b><span>Was lief gut, was geht besser – plus Platz für eigene Notizen.</span></div><button class="pill-btn" data-a="goto" data-tab="woche" data-sub="rueckblick">Ansehen</button></div>`;
+  const ws = weekStart(k), next = weekGoals(addDays(ws, 7)).length;
+  return `<div class="banner">${icon('calendar-check')}<div><b>Dein Wochenrückblick ist fertig</b><span>${next ? 'Die Ziele für die neue Woche stehen schon.' : 'Schick ihn Frank, er gibt dir 3 Ziele für die neue Woche zurück.'}</span></div><div class="banner-acts">${next ? '' : `<button class="pill-btn is-accent" data-a="report-open" data-ws="${ws}">An Frank</button>`}<button class="pill-btn" data-a="goto" data-tab="woche" data-sub="rueckblick">Ansehen</button></div></div>`;
 }
 
 /* ============================================================
@@ -202,7 +204,7 @@ function vMehr() {
    ============================================================ */
 function vErnOverview(k) {
   const ev = evaluate(k);
-  let h = dayControls(k, true);
+  let h = (k === todayKey() ? goalNotes(['ern']) : '') + dayControls(k, true);
   if (k === todayKey()) {
     const nb = nowBlock(k);
     h += `<section class="block-now">${nb ? blockCard(nb, k, { now: true }) : `<div class="all-done">${icon('check')}<div><b>Standardtag erledigt</b><span>Trink weiter über den Tag verteilt.</span></div></div>`}${openBlocksLine(k, nb)}</section>`;
@@ -268,6 +270,7 @@ function vTrain() {
   const sub = getSub('train', 'heute');
   let h = areaHead('train');
   h += subnav('train', sub, [['heute', 'Heute'], ['woche', 'Woche'], ['gym', 'Gym-Plan'], ['verlauf', 'Verlauf']]);
+  if (sub === 'heute' || sub === 'woche') h += goalNotes(['training', 'sauna']);
   if (sub === 'heute') h += vTrainToday(ui.date);
   else if (sub === 'woche') h += vTrainWeek();
   else if (sub === 'gym') h += vGymPlan();
@@ -451,7 +454,7 @@ function renderTrainSheet() {
    ============================================================ */
 function vLicht() {
   const k = ui.date, d = getDay(k);
-  let h = areaHead('licht') + dateBar(k);
+  let h = areaHead('licht') + (k === todayKey() ? goalNotes(['koffein', 'schlaf']) : '') + dateBar(k);
   /* Licht */
   const lm = !!d.habits.licht_morgen, ln = !!d.habits.licht_nachmittag;
   const lmin = d.hd && d.hd.lightMin;
@@ -477,6 +480,7 @@ function vLicht() {
   h += `<p class="hint">Grenze ${esc(S.settings.caf.cutoff)} Uhr, Schlafenszeit ${esc(S.settings.profile.sleep)} Uhr. Mengen, Halbwertszeit und Getränke änderst du unter ${goBtn('set', 'Einstellungen → Koffein', '', 'link-btn inline')}.</p></section>`;
   /* Weitere Gewohnheiten */
   h += `<section class="sec"><div class="sec-head"><h2>Abend & Schlaf</h2></div>${habitRows(k, ['alkohol', 'mahlzeit', 'bildschirm', 'dimmen', 'nsdr'])}</section>`;
+  h += musterBox(['sleep'], 'Was deinen Schlaf beeinflusst');
   return h;
 }
 function habitRows(k, ids) {

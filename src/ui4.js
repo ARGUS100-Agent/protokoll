@@ -11,7 +11,7 @@ function isoWeek(k) { const d = parseKey(k); const t = new Date(Date.UTC(d.getFu
 function vHaut2() {
   const sub = getSub('haut', 'heute');
   let h = areaHead('haut') + subnav('haut', sub, [['heute', 'Heute'], ['fotos', 'Wochenfotos'], ['verlauf', 'Verlauf']]);
-  if (sub === 'heute') h += dateBar(ui.date) + vHautToday(ui.date);
+  if (sub === 'heute') h += goalNotes(['haut']) + dateBar(ui.date) + vHautToday(ui.date);
   else if (sub === 'fotos') h += vHautFotos();
   else h += vHautVerlauf();
   return h;
@@ -139,6 +139,7 @@ function vHautVerlauf() {
   for (const k of all) for (const a of (S.days[k].skin || {}).areas || []) areas[a] = (areas[a] || 0) + 1;
   const ar = Object.entries(areas).sort((a, b) => b[1] - a[1]);
   if (ar.length) h += `<section class="sec"><div class="sec-head"><h2>Häufigste Stellen</h2></div><div class="chips">${ar.map(([a, n]) => `<span class="chip is-static">${esc(a)} · ${n}×</span>`).join('')}</div></section>`;
+  h += musterBox(['skin'], 'Was deiner Haut schadet oder hilft');
   return h;
 }
 
@@ -231,12 +232,14 @@ function sheetBloodCustom() {
 function vGarminArea() {
   const sub = getSub('garmin', 'eintragen');
   let h = areaHead('garmin') + subnav('garmin', sub, [['eintragen', 'Eintragen'], ['verlauf', 'Verlauf & Zusammenhänge']]);
+  if (sub === 'eintragen') h += goalNotes(['schlaf']);
   if (sub === 'eintragen') h += dateBar(ui.date) + vGarmin(ui.date);
   else {
     const keys = rangeKeys(ui.range);
     h += `<div class="range-row">${seg('range', String(ui.range), [['7', '7 Tage'], ['30', '30 Tage'], ['90', '90 Tage']])}</div>`;
     h += healthChartHTML(keys);
     h += sleepInsight();
+    h += musterBox(['sleep', 'hrv', 'bb'], 'Was deinen Schlaf beeinflusst');
     h += correlationsHTML();
   }
   return h;
@@ -336,8 +339,9 @@ function sheetShopItem(id) {
    ============================================================ */
 function vWoche() {
   const sub = getSub('woche', 'rueckblick');
-  let h = areaHead('woche') + subnav('woche', sub, [['rueckblick', 'Rückblick'], ['kalender', 'Kalender & Serien'], ['archiv', 'Archiv']]);
+  let h = areaHead('woche') + subnav('woche', sub, [['rueckblick', 'Rückblick'], ['muster', 'Muster'], ['kalender', 'Kalender & Serien'], ['archiv', 'Archiv']]);
   if (sub === 'rueckblick') h += reviewHTML(ui.reviewWeek);
+  else if (sub === 'muster') h += vMuster();
   else if (sub === 'kalender') {
     const st = { nutri: streak('nutri'), supp: streak('supp'), habits: streak('habits') };
     h += `<section class="streaks">${[['nutri', 'Ernährung'], ['supp', 'Supplements'], ['habits', 'Gewohnheiten']].map(([k2, l]) => `<div class="streak${st[k2].cur ? ' is-live' : ''}"><span class="streak-ic">${icon('flame')}</span><b>${st[k2].cur}</b><span class="streak-l">${st[k2].cur === 1 ? 'Tag' : 'Tage'} ${l}</span><small>Rekord ${st[k2].best}</small></div>`).join('')}</section>`;
@@ -355,6 +359,11 @@ function reviewHTML(ws) {
   const diff = (a, b, d = 0, inv = false) => (a == null || b == null || Math.abs(a - b) < 0.05 ? '' : `${a - b > 0 ? '+' : ''}${fmt(a - b, d)} zur Vorwoche`);
   let h = weekNav(ws, 'review-week');
   h += `<p class="sec-sub">KW ${isoWeek(ws)} · ${r.complete ? 'abgeschlossen' : 'läuft noch – wird sonntags komplett'} · ${r.daysWithData}/7 Tage mit Einträgen</p>`;
+  if (ws >= addDays(weekStart(todayKey()), -7)) {
+    const nx = addDays(ws, 7), has = weekGoals(nx).length;
+    h += `<div class="banner frank-box">${icon('sparkles')}<div><b>Wochenbericht an Frank</b><span>${has ? `Die Ziele für KW ${isoWeek(nx)} stehen. Du kannst den Bericht erneut schicken.` : `Frank wertet die Woche aus und gibt dir 3 Ziele für KW ${isoWeek(nx)} zurück.`}</span></div><button class="pill-btn${has ? '' : ' is-accent'}" data-a="report-open" data-ws="${ws}">${has ? 'Erneut' : 'Bericht'}</button></div>`;
+  }
+  h += weekGoalsHTML(ws);
   h += `<div class="kv-grid">
     ${kv('Ø Hautscore', r.skin != null ? fmt(r.skin, 1) : '–', diff(r.skin, r.skinPrev, 1))}
     ${kv('Gewicht', r.weight != null ? fmt(r.weight, 1) + ' kg' : '–', r.weight != null && r.weightPrev != null ? `${r.weight - r.weightPrev >= 0 ? '+' : ''}${fmt(r.weight - r.weightPrev, 1)} kg · Start ${r.weightStart != null ? fmt(r.weightStart, 1) : '–'}` : '')}

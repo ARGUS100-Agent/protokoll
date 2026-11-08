@@ -462,6 +462,7 @@ function setupEvents() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { flush(); return; }
     if (ui.timer) { lockScreen(); timerTick(); return; }
+    try { goalNudgeCheck(); } catch (e) { /* egal */ }
     try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then((r) => { if (r) r.update(); }).catch(() => {}); } catch (e) { /* egal */ }
     const t = todayKey();
     if (t !== ui.lastToday) { if (ui.date === ui.lastToday) ui.date = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7); ui.trainWeek = weekStart(t); ui.reviewWeek = weekStart(t); ui.photoWeek = weekStart(t); ui.lastToday = t; invalidate(); if (!ui.sheet) render(); }

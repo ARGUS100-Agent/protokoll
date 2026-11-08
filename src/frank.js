@@ -114,8 +114,9 @@ function frankNormalize(o) {
   const cats = [...new Set(Object.values(FOOD).map((f) => f.cat))];
   return raw.slice(0, 12).map((r) => frankItem(r, cats, parent)).filter(Boolean);
 }
-/* Code aus dem eingefügten Text holen: Codeblock, ganze Antwort oder nur JSON */
-function frankParse(text) {
+/* Code aus dem eingefügten Text holen: Codeblock, ganze Antwort oder nur JSON.
+   Ergebnis: Lebensmittel (kind foods) oder Wochenziele (kind goals) */
+function frankParseAny(text) {
   const t = String(text || '').trim();
   if (!t) return null;
   const cands = [];
@@ -127,11 +128,15 @@ function frankParse(text) {
   for (const c of tries) {
     let o = null;
     try { o = JSON.parse(c); } catch (e) { o = null; }
+    if (!o) continue;
+    const gl = frankGoalsParse(o);
+    if (gl) return { kind: 'goals', data: gl };
     const items = frankNormalize(o);
-    if (items.length) return items;
+    if (items.length) return { kind: 'foods', items };
   }
   return null;
 }
+function frankParse(text) { const r = frankParseAny(text); return r && r.kind === 'foods' ? r.items : null; }
 
 /* ---------- Lebensmittel bauen ---------- */
 function frankTmpFood(it) {
@@ -172,6 +177,8 @@ function renderFrankSheet() {
   const s = ui.sheet;
   if (!s || s.type !== 'frank') return;
   if (s.step === 'preview') { renderFrankPreview(); return; }
+  if (s.step === 'report') { renderReportStep(); return; }
+  if (s.step === 'goals') { renderGoalsStep(); return; }
   openSheet(`<h3 class="sheet-title">Frank</h3>
     <p class="hint">Frank recherchiert im Claude-Chat die Nährwerte (Etikett, Hersteller, Datenbanken) und schätzt, was fehlt. Du bekommst einen Code, den du hier einfügst.</p>
     <div class="frank-step"><span class="frank-n">1</span><div class="frank-body"><b>Frank fragen</b>
@@ -193,11 +200,21 @@ function frankErr(msg) { const el = $('#frank-err'); if (el) { el.textContent = 
 function frankTry(text, loud) {
   const s = ui.sheet;
   if (!s || s.type !== 'frank') return false;
-  const items = frankParse(text);
-  if (!items) {
+  const res = frankParseAny(text);
+  if (!res) {
     if (loud || String(text || '').trim().length > 30) frankErr('Kein Frank-Code erkannt. Kopiere in Claude den ganzen Codeblock (Kopieren-Symbol am Block).');
     return false;
   }
+  if (res.kind === 'goals') {
+    /* Ziele gelten für die Woche aus dem Code, sonst für die Woche nach dem Bericht (frühestens diese Woche) */
+    const cur = weekStart(todayKey()), w = res.data.week;
+    const after = s.ws ? addDays(s.ws, 7) : weekday(todayKey()) === 6 ? addDays(cur, 7) : cur;
+    s.goals = res.data; s.step = 'goals';
+    s.gw = w && w >= cur && w <= addDays(cur, 7) ? w : after < cur ? cur : after;
+    renderFrankSheet();
+    return true;
+  }
+  const items = res.items;
   for (const it of items) { const ex = S.foods.custom.find((x) => frankNorm(x.n) === frankNorm(it.name)); it.exId = ex ? ex.id : null; }
   s.items = items; s.step = 'preview'; s.more = new Set();
   const d0 = items.find((x) => x.date);
@@ -298,7 +315,7 @@ Object.assign(A, {
       frankErr('Einfügen aus der Zwischenablage nicht möglich: Tippe ins Feld und wähle „Einfügen“.');
     }
   },
-  'frank-back': () => { const s = ui.sheet; if (!s) return; s.step = 'ask'; s.items = null; renderFrankSheet(); },
+  'frank-back': () => { const s = ui.sheet; if (!s) return; s.step = s.ws ? 'report' : 'ask'; s.items = null; s.goals = null; renderFrankSheet(); },
   'frank-day': (el) => { ui.sheet.k = el.dataset.v; frankRerender(); },
   'frank-meal': (el) => { ui.sheet.meal = el.dataset.v; $$('[data-a="frank-meal"]').forEach((b) => b.classList.toggle('is-on', b === el)); },
   'frank-step': (el) => {

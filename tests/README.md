@@ -9,6 +9,7 @@ node tests/flow.js /tmp/out      # Abläufe: Koffein, Sauna, Gym-Sätze, Lauf, E
 node tests/clock.js /tmp/out     # simulierte Uhr: Timer-Automatik, Sonntag, Phasenwechsel, Erholung
 node tests/frank.js /tmp/out     # Frank: Code aus dem Claude-Chat einfügen, Vorschau, Eintragen, Ersetzen
 node tests/vorrat.js /tmp/out    # Vorrat: Einkauf, Abzug über Haken und Einträge, automatisch auf die Einkaufsliste
+node tests/ziele.js /tmp/out     # Wochenbericht an Frank, Wochenziele (Messung, „Jetzt dran“, Hinweise), Muster und Gewohnheiten
 ```
 
 `upgrade.js` prüft das Update einer alten Version mit Daten auf die aktuelle (alte `docs/` per `git archive` in einen Ordner, Symlink `cur` darauf, Server auf Port 8768 mit `--directory <ordner>/cur`, dann `node tests/upgrade.js <ordner>`).

@@ -43,6 +43,7 @@ function registerSW() {
   registerSW();
   setInterval(() => {
     if (document.hidden) return;
+    try { goalNudgeCheck(); } catch (e) { /* egal */ }
     const t = todayKey();
     if (t !== ui.lastToday) {
       if (ui.date === ui.lastToday) ui.date = t;

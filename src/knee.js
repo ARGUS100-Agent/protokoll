@@ -8,6 +8,7 @@ function vKnie() {
   const w = kneeWeek();
   let h = areaHead('knie', `<span class="count">${w ? `Woche ${Math.min(w, 99)} von 12` : 'Start ' + fmtDate(kneeCfg().start, { day: 'numeric', month: 'short' })} · ${esc(kneePhase().n)}</span>`);
   h += subnav('knie', sub, KNEE_SUB);
+  if (sub === 'heute') h += goalNotes(['knie']);
   const views = { heute: vKnieToday, routinen: vKnieRoutines, kraft: vKnieKraft, laeufe: vKnieRuns, tests: vKnieTests, uebungen: vKnieEx, infos: vKnieInfos };
   return h + (views[sub] || vKnieToday)();
 }
@@ -48,6 +49,7 @@ function vKnieToday() {
   if (sp.length) h += `<div class="banner is-soft">${icon('trending-up')}<div><b>Dehnungen steigern</b><span>${esc(sp.map((id) => exById(id).n).join(', '))}: seit 2 Wochen unter 5/10 Zug → 45–60 Sek. halten oder die schwierigere Variante.</span></div></div>`;
   const ms = milestones().find((m) => !m.done);
   if (ms) h += `<p class="hint">${icon('flag')} Nächster Meilenstein: ${esc(ms.n)} (${ms.week ? `Woche ${ms.week[0]}${ms.week[1] !== ms.week[0] ? '–' + ms.week[1] : ''}` : esc(ms.sub)}).</p>`;
+  h += musterBox(['knee'], 'Was deinem Knie hilft oder schadet');
   return h;
 }
 function insolesCard(k, ins) {
