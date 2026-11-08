@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.5.2';
+const APP_VERSION = '2.6.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -388,9 +388,13 @@ const HEALTH_FIELDS = [
     { k: 'awake', n: 'Wach', type: 'dur' },
     { k: 'bedTime', n: 'Eingeschlafen', type: 'time' },
     { k: 'wakeTime', n: 'Aufgewacht', type: 'time' },
+    { k: 'sleepNeed', n: 'Schlafbedarf', type: 'dur', g: true },
+    { k: 'sleepStress', n: 'Stress im Schlaf', type: 'num', min: 0, max: 100, g: true },
+    { k: 'bbSleep', n: 'Body Battery im Schlaf', type: 'num', min: -100, max: 100, signed: true, g: true },
   ] },
   { group: 'Herz & Erholung', fields: [
     { k: 'hrv', n: 'HRV (Nacht-Ø)', type: 'num', unit: 'ms', min: 0, max: 300 },
+    { k: 'hrvWeek', n: 'HRV 7-Tage-Ø', type: 'num', unit: 'ms', min: 0, max: 300, g: true },
     { k: 'hrvStatus', n: 'HRV-Status', type: 'choice', options: ['Ausgeglichen', 'Unausgeglichen', 'Niedrig', 'Schlecht'] },
     { k: 'rhr', n: 'Ruhepuls', type: 'num', unit: 'bpm', min: 25, max: 120 },
     { k: 'bbMorning', n: 'Body Battery morgens', type: 'num', min: 0, max: 100 },
@@ -399,19 +403,20 @@ const HEALTH_FIELDS = [
     { k: 'readiness', n: 'Trainingsbereitschaft', type: 'num', min: 0, max: 100 },
     { k: 'resp', n: 'Atemfrequenz', type: 'num', unit: '/min', min: 5, max: 40, dec: 1 },
     { k: 'spo2', n: 'SpO2', type: 'num', unit: '%', min: 70, max: 100 },
-    { k: 'skinTemp', n: 'Hauttemperatur-Abw.', type: 'num', unit: '°C', min: -5, max: 5, dec: 1, signed: true },
+    { k: 'skinTemp', n: 'Hauttemperatur-Abw.', type: 'num', unit: '°C', min: -5, max: 5, dec: 1, signed: true, opt: true },
   ] },
   { group: 'Aktivität', fields: [
     { k: 'steps', n: 'Schritte', type: 'num', min: 0, max: 100000 },
+    { k: 'floors', n: 'Stockwerke', type: 'num', min: 0, max: 1000, g: true },
     { k: 'intensity', n: 'Intensitätsminuten', type: 'num', unit: 'Min.', min: 0, max: 1500 },
+    { k: 'kcalAct', n: 'Aktive Kalorien', type: 'num', unit: 'kcal', min: 0, max: 10000, g: true },
     { k: 'vo2', n: 'VO2max', type: 'num', min: 20, max: 90 },
   ] },
   { group: 'Mehr von Garmin', garmin: true, fields: [
-    { k: 'kcalAct', n: 'Aktive Kalorien', type: 'num', unit: 'kcal', min: 0, max: 10000 },
     { k: 'kcalTot', n: 'Kalorien gesamt', type: 'num', unit: 'kcal', min: 0, max: 15000 },
-    { k: 'sleepStress', n: 'Stress im Schlaf', type: 'num', min: 0, max: 100 },
     { k: 'bbCharged', n: 'Body Battery geladen', type: 'num', min: 0, max: 100 },
     { k: 'bbDrained', n: 'Body Battery verbraucht', type: 'num', min: 0, max: 100 },
+    { k: 'fat', n: 'Körperfett', type: 'num', unit: '%', min: 2, max: 70, dec: 1 },
     { k: 'fitAge', n: 'Fitnessalter', type: 'num', unit: 'Jahre', min: 10, max: 100, dec: 1 },
   ] },
   { group: 'Körper', fields: [
@@ -432,6 +437,7 @@ const HEALTH_METRICS = [
   { k: 'readiness', n: 'Trainingsbereitschaft' }, { k: 'steps', n: 'Schritte' }, { k: 'intensity', n: 'Intensitätsminuten' }, { k: 'vo2', n: 'VO2max' },
   { k: 'resp', n: 'Atemfrequenz' }, { k: 'spo2', n: 'SpO2', u: '%' }, { k: 'skinTemp', n: 'Hauttemperatur' },
   { k: 'kcalAct', n: 'Aktive Kalorien', u: 'kcal' }, { k: 'sleepStress', n: 'Stress im Schlaf' }, { k: 'fitAge', n: 'Fitnessalter' },
+  { k: 'sleepNeed', n: 'Schlafbedarf', fmt: 'dur' }, { k: 'bbSleep', n: 'Body Battery im Schlaf' }, { k: 'hrvWeek', n: 'HRV 7-Tage-Ø', u: 'ms' }, { k: 'floors', n: 'Stockwerke' }, { k: 'fat', n: 'Körperfett', u: '%' },
   { k: 'wellbeing', n: 'Wohlbefinden' }, { k: 'energy', n: 'Energie' }, { k: 'focus', n: 'Fokus' },
 ];
 

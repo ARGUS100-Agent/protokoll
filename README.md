@@ -21,14 +21,14 @@ Tab-Leiste (anpassbar): Heute · Ernährung · Training · Knie · Mehr. Unter �
 - **Garmin & Schlaf**: Werte aus Garmin Connect (siehe unten) oder von Hand; Verlauf und Zusammenhänge
 - **Körper, Blutwerte, Einkauf, Wochenrückblick**
 
-## Garmin Connect (ab 2.5.0)
+## Garmin Connect (ab 2.5.0, alle verfügbaren Werte ab 2.6.0)
 
-Die App holt Schlaf (Score, Dauer, Phasen, Zeiten), HRV und HRV-Status, Ruhepuls, Body Battery morgens/abends, Stress, Atemfrequenz, SpO2, Hauttemperatur, Schritte, Intensitätsminuten, VO2max, Gewicht, Kalorien, Fitnessalter und Aktivitäten (als Training) über die [Garmin Personal API](https://developer.garmin.com/gc-developer-program/personal/personal-api). Garmin erlaubt Web-Apps keinen direkten Zugriff (CORS), deshalb läuft der Abruf über eine eigene, kostenlose Weiterleitung:
+Die App holt über die [Garmin Personal API](https://developer.garmin.com/gc-developer-program/personal/personal-api): Schlaf (Score, Dauer, Phasen, Zeiten, Schlafbedarf, Stress im Schlaf, Body-Battery-Aufladung), HRV mit 7-Tage-Schnitt, Status und Normalbereich, Ruhepuls, Body Battery morgens/abends/geladen/verbraucht, Stress, Atemfrequenz, SpO2, Schritte, Stockwerke, Intensitätsminuten, Kalorien, Gewicht und Körperfett (Waage), Fitnessalter und Aktivitäten als Training (Dauer, km, Pace, Kadenz, Leistung, Schrittlänge, Höhenmeter, Puls und Zonen, Trainingseffekt, Belastung, Anstrengung und Gefühl von der Uhr als Intensität). Meditation/Atemübung (ab 10 Min.) hakt „Meditation / NSDR“ ab, ein Spaziergang ab 30 Min. am Vormittag „Morgenlicht + Spaziergang“ – abgewählte bleiben abgewählt. Nicht in der Personal API: Trainingsbereitschaft, Trainingsstatus, Erholungszeit, akute Belastung, Wettkampfprognosen. Garmin erlaubt Web-Apps keinen direkten Zugriff (CORS), deshalb läuft der Abruf über eine eigene, kostenlose Weiterleitung:
 
-1. Bei Cloudflare einen Worker anlegen und den Inhalt von [`relay/garmin-relay.js`](relay/garmin-relay.js) einfügen (Deploy). Der Worker reicht nur Anfragen der App an Garmin durch, speichert nichts und lässt nur die nötigen Garmin-Pfade zu.
+1. Bei Cloudflare einen Worker anlegen und den Inhalt von [`relay/garmin-relay.js`](relay/garmin-relay.js) einfügen (Deploy). Der Worker reicht nur Anfragen der App an Garmin durch, speichert nichts und erlaubt nur den Token-Tausch und das Lesen (GET) von Garmin-Diensten.
 2. Danach in Garmin Connect (Web) einen Personal API Key erstellen: <https://connect.garmin.com/app/settings/personalApiToken> – er wird nur einmal angezeigt, also direkt weiter zu Schritt 3.
 3. In der App unter Garmin & Schlaf → Einrichten (oder Einstellungen → Garmin Connect) die Worker-Adresse und den Schlüssel eintragen und verbinden.
 
-Schlüssel, Zugang und Worker-Adresse liegen nur auf dem Gerät – nicht im Backup und nicht im Code. Selbst eingetragene oder geänderte Werte überschreibt Garmin nicht; gelöschte Garmin-Trainings werden nicht wieder geholt. Trainingsbereitschaft liefert die Personal API nicht.
+Schlüssel, Zugang und Worker-Adresse liegen nur auf dem Gerät – nicht im Backup und nicht im Code. Selbst eingetragene oder geänderte Werte überschreibt Garmin nicht; gelöschte Garmin-Trainings werden nicht wieder geholt.
 
 Im Code stehen nur allgemeine Inhalte (Übungen, Regeln, Pläne). Persönliches wie Befund, Termine, Messwerte und Fotos liegt ausschließlich lokal auf dem Gerät und im eigenen Backup.

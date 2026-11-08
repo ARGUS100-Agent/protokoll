@@ -507,12 +507,19 @@ function frankReportText(ws) {
   L.push(`Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · Gym ${r.gymDone}/${r.gymPlanned} geplant · Läufe ${r.q.runs} (${f0(r.km, 1)} km, Vorwoche ${f0(r.kmPrev, 1)} km) · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.`);
   const steps = mean(r.past.map((k) => muHealth(k, 'steps')).filter((v) => v != null));
   if (steps != null) L.push(`Schritte Ø ${fmt(steps)}`);
+  const ims = r.past.map((k) => muHealth(k, 'intensity')).filter((v) => v != null);
+  const kact = mean(r.past.map((k) => muHealth(k, 'kcalAct')).filter((v) => v != null));
+  const act = [ims.length ? `Intensitätsminuten ${fmt(ims.reduce((a, b) => a + b, 0))} (Empfehlung: 150 pro Woche)` : '', kact != null ? `aktive Kalorien Ø ${fmt(kact)} kcal/Tag` : ''].filter(Boolean);
+  if (act.length) L.push(act.join(' · '));
   // Schlaf
   const hav = (f) => mean(r.past.map((k) => muHealth(k, f)).filter((v) => v != null));
   const durs = r.past.map((k) => muHealth(k, 'sleepDur')).filter((v) => v != null);
   const beds = r.past.map((k) => { const d = peekDay(k); return d && d.health && d.health.bedTime ? timeVal(d.health.bedTime, true) : null; }).filter((v) => v != null);
   L.push('', `## Schlaf & Erholung`);
   L.push(`Sleep Score Ø ${f0(r.sleep)} (Vorwoche ${f0(r.sleepPrev)}) · Schlafdauer Ø ${durs.length ? goalFmt({ kind: 'dur' }, mean(durs)) : '–'} Std. · Eingeschlafen Ø ${beds.length ? minToTime(Math.round(mean(beds)) % 1440) : '–'} · HRV Ø ${f0(r.hrv)} ms · Ruhepuls Ø ${f0(r.rhr)} · Body Battery morgens Ø ${f0(hav('bbMorning'))} · Stress Ø ${f0(hav('stress'))}`);
+  const needs = r.past.map((k) => muHealth(k, 'sleepNeed')).filter((v) => v != null);
+  const more = [needs.length ? `Schlafbedarf laut Garmin Ø ${goalFmt({ kind: 'dur' }, mean(needs))} Std.` : '', hav('bbSleep') != null ? `Body Battery im Schlaf Ø +${f0(hav('bbSleep'))}` : '', hav('hrvWeek') != null ? `HRV 7-Tage-Ø ${f0(hav('hrvWeek'))} ms` : '', hav('spo2') != null ? `SpO2 Ø ${f0(hav('spo2'))} %` : '', hav('resp') != null ? `Atemfrequenz Ø ${f0(hav('resp'), 1)}/min` : ''].filter(Boolean);
+  if (more.length) L.push(more.join(' · '));
   // Koffein
   const cafs = r.past.filter((k) => peekDay(k)).map((k) => cafInfo(k));
   const lasts = cafs.map((c) => c.last).filter((v) => v != null);

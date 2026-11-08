@@ -170,7 +170,16 @@ const A = {
   'plant-del': (el) => { mutDay(el.dataset.date, (d) => { d.plants = d.plants.filter((x) => x !== el.dataset.v); }); render(); },
 
   /* Gewohnheiten */
-  habit: (el) => { const k = curDate(el); mutDay(k, (d) => { d.habits[el.dataset.id] = !d.habits[el.dataset.id]; if (!d.habits[el.dataset.id]) delete d.habits[el.dataset.id]; }); render(); },
+  habit: (el) => {
+    const k = curDate(el), id = el.dataset.id;
+    mutDay(k, (d) => {
+      d.habits[id] = !d.habits[id];
+      if (d.habits[id]) return;
+      delete d.habits[id];
+      if (d.gh && d.gh[id]) { delete d.gh[id]; d.ghOff = [...new Set([...(d.ghOff || []), id])]; } // Garmin hakt es nicht wieder ab
+    });
+    render();
+  },
   'habit-chip': (el) => {
     const k = curDate(el), v = Number(el.dataset.v), key = el.dataset.k;
     mutDay(k, (d) => {

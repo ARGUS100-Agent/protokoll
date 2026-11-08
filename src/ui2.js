@@ -23,6 +23,8 @@ function vGarmin(k) {
     h += `<section class="sec"><div class="sec-head"><h2>${esc(grp.group)}</h2></div><div class="form">`;
     for (const f of grp.fields) {
       const v = d.health[f.k];
+      if (f.g && !gon && v == null) continue; // nur aus Garmin
+      if (f.opt && gon && v == null && !rangeKeys(14, k).some((x) => { const dd = peekDay(x); return dd && dd.health && dd.health[f.k] != null; })) continue; // misst die Uhr nicht
       const pv = y && y.health ? y.health[f.k] : null;
       const prev = pv != null && v == null ? `<button class="prev-chip" data-a="h-prev" data-k="${f.k}" data-date="${k}" aria-label="Vortag übernehmen: ${esc(healthVal(f, pv))}">${icon('history')}${esc(healthVal(f, pv))}</button>` : '';
       let input = '';
@@ -30,7 +32,8 @@ function vGarmin(k) {
       else if (f.type === 'dur') input = `<input type="time" data-c="health-dur" data-k="${f.k}" data-date="${k}" value="${durToTime(v)}" aria-label="${esc(f.n)} in Stunden und Minuten"><span class="unit">h:min</span>`;
       else if (f.type === 'time') input = `<input type="time" data-c="health" data-k="${f.k}" data-date="${k}" value="${esc(v || '')}" aria-label="${esc(f.n)}">`;
       else if (f.type === 'choice') input = `<div class="chips chips-tight">${f.options.map((o) => `<button class="chip chip-xs${v === o ? ' is-on' : ''}" data-a="h-choice" data-k="${f.k}" data-v="${esc(o)}" data-date="${k}">${esc(o)}</button>`).join('')}</div>`;
-      h += `<div class="frow${f.type === 'choice' ? ' is-wide' : ''}"><span class="flabel">${esc(f.n)}</span><div class="fin">${input}${garMark(d, f.k)}</div>${prev}</div>`;
+      const base = f.k === 'hrv' && d.gx && d.gx.hrvBase ? `<small class="gar-base">normal ${d.gx.hrvBase[0]}–${d.gx.hrvBase[1]} ms</small>` : '';
+      h += `<div class="frow${f.type === 'choice' ? ' is-wide' : ''}"><span class="flabel">${esc(f.n)}${base}</span><div class="fin">${input}${garMark(d, f.k)}</div>${prev}</div>`;
     }
     h += '</div>';
     if (gon && grp.fields.some((f) => f.k === 'readiness')) h += '<p class="hint">Trainingsbereitschaft gibt Garmins Schnittstelle nicht heraus – bei Bedarf selbst eintragen.</p>';
@@ -58,7 +61,7 @@ function vHabits(k) {
       else det = `<div class="hdet"><span>${esc(hb.detail.label)}</span><div class="chips chips-tight">${hb.detail.options.map((o) => `<button class="chip chip-xs${val === o ? ' is-on' : ''}" data-a="habit-chip" data-k="${hb.detail.key}" data-h="${hb.id}" data-v="${o}" data-date="${k}">${o === 90 ? '90+' : o} ${hb.detail.unit}</button>`).join('')}</div></div>`;
     }
     h += `<div class="hrow${on ? ' is-on' : ''}">
-      <button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}</b><small>${esc(hb.when)}</small></span></button>
+      <button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}${garHabitMark(d, hb.id)}</b><small>${esc(hb.when)}</small></span></button>
       <button class="icon-btn" data-a="expand" data-key="h:${hb.id}" aria-label="Erklärung" aria-expanded="${open}">${icon('info')}</button>
       ${det}
       ${open ? `<div class="mrow-detail">${infoHTML(hb.id)}</div>` : ''}

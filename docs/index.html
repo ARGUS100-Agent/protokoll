@@ -993,6 +993,12 @@ th { color: var(--ink-3); font-weight: 650; }
 .gar-links { display: flex; flex-wrap: wrap; }
 .gar-code { margin: 8px 0; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .gar-hint .ic { width: 14px; height: 14px; vertical-align: -2px; }
+.flabel .gar-base { display: block; color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.gar-train .kv-list { display: grid; gap: 4px; margin: 4px 0 12px; font-size: 14px; }
+.gar-train .kv-list div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-top: 1px solid var(--line); }
+.gar-train .kv-list span { color: var(--ink-2); }
+.gar-train .kv-list b { font-weight: 600; text-align: right; }
+.item-txt .gar-mark, .tgl-txt .gar-mark { vertical-align: -2px; }
 
 </style>
 </head>
@@ -1096,7 +1102,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.5.2';
+const APP_VERSION = '2.6.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -1479,9 +1485,13 @@ const HEALTH_FIELDS = [
     { k: 'awake', n: 'Wach', type: 'dur' },
     { k: 'bedTime', n: 'Eingeschlafen', type: 'time' },
     { k: 'wakeTime', n: 'Aufgewacht', type: 'time' },
+    { k: 'sleepNeed', n: 'Schlafbedarf', type: 'dur', g: true },
+    { k: 'sleepStress', n: 'Stress im Schlaf', type: 'num', min: 0, max: 100, g: true },
+    { k: 'bbSleep', n: 'Body Battery im Schlaf', type: 'num', min: -100, max: 100, signed: true, g: true },
   ] },
   { group: 'Herz & Erholung', fields: [
     { k: 'hrv', n: 'HRV (Nacht-Ø)', type: 'num', unit: 'ms', min: 0, max: 300 },
+    { k: 'hrvWeek', n: 'HRV 7-Tage-Ø', type: 'num', unit: 'ms', min: 0, max: 300, g: true },
     { k: 'hrvStatus', n: 'HRV-Status', type: 'choice', options: ['Ausgeglichen', 'Unausgeglichen', 'Niedrig', 'Schlecht'] },
     { k: 'rhr', n: 'Ruhepuls', type: 'num', unit: 'bpm', min: 25, max: 120 },
     { k: 'bbMorning', n: 'Body Battery morgens', type: 'num', min: 0, max: 100 },
@@ -1490,19 +1500,20 @@ const HEALTH_FIELDS = [
     { k: 'readiness', n: 'Trainingsbereitschaft', type: 'num', min: 0, max: 100 },
     { k: 'resp', n: 'Atemfrequenz', type: 'num', unit: '/min', min: 5, max: 40, dec: 1 },
     { k: 'spo2', n: 'SpO2', type: 'num', unit: '%', min: 70, max: 100 },
-    { k: 'skinTemp', n: 'Hauttemperatur-Abw.', type: 'num', unit: '°C', min: -5, max: 5, dec: 1, signed: true },
+    { k: 'skinTemp', n: 'Hauttemperatur-Abw.', type: 'num', unit: '°C', min: -5, max: 5, dec: 1, signed: true, opt: true },
   ] },
   { group: 'Aktivität', fields: [
     { k: 'steps', n: 'Schritte', type: 'num', min: 0, max: 100000 },
+    { k: 'floors', n: 'Stockwerke', type: 'num', min: 0, max: 1000, g: true },
     { k: 'intensity', n: 'Intensitätsminuten', type: 'num', unit: 'Min.', min: 0, max: 1500 },
+    { k: 'kcalAct', n: 'Aktive Kalorien', type: 'num', unit: 'kcal', min: 0, max: 10000, g: true },
     { k: 'vo2', n: 'VO2max', type: 'num', min: 20, max: 90 },
   ] },
   { group: 'Mehr von Garmin', garmin: true, fields: [
-    { k: 'kcalAct', n: 'Aktive Kalorien', type: 'num', unit: 'kcal', min: 0, max: 10000 },
     { k: 'kcalTot', n: 'Kalorien gesamt', type: 'num', unit: 'kcal', min: 0, max: 15000 },
-    { k: 'sleepStress', n: 'Stress im Schlaf', type: 'num', min: 0, max: 100 },
     { k: 'bbCharged', n: 'Body Battery geladen', type: 'num', min: 0, max: 100 },
     { k: 'bbDrained', n: 'Body Battery verbraucht', type: 'num', min: 0, max: 100 },
+    { k: 'fat', n: 'Körperfett', type: 'num', unit: '%', min: 2, max: 70, dec: 1 },
     { k: 'fitAge', n: 'Fitnessalter', type: 'num', unit: 'Jahre', min: 10, max: 100, dec: 1 },
   ] },
   { group: 'Körper', fields: [
@@ -1523,6 +1534,7 @@ const HEALTH_METRICS = [
   { k: 'readiness', n: 'Trainingsbereitschaft' }, { k: 'steps', n: 'Schritte' }, { k: 'intensity', n: 'Intensitätsminuten' }, { k: 'vo2', n: 'VO2max' },
   { k: 'resp', n: 'Atemfrequenz' }, { k: 'spo2', n: 'SpO2', u: '%' }, { k: 'skinTemp', n: 'Hauttemperatur' },
   { k: 'kcalAct', n: 'Aktive Kalorien', u: 'kcal' }, { k: 'sleepStress', n: 'Stress im Schlaf' }, { k: 'fitAge', n: 'Fitnessalter' },
+  { k: 'sleepNeed', n: 'Schlafbedarf', fmt: 'dur' }, { k: 'bbSleep', n: 'Body Battery im Schlaf' }, { k: 'hrvWeek', n: 'HRV 7-Tage-Ø', u: 'ms' }, { k: 'floors', n: 'Stockwerke' }, { k: 'fat', n: 'Körperfett', u: '%' },
   { k: 'wellbeing', n: 'Wohlbefinden' }, { k: 'energy', n: 'Energie' }, { k: 'focus', n: 'Fokus' },
 ];
 
@@ -5013,6 +5025,8 @@ function vGarmin(k) {
     h += `<section class="sec"><div class="sec-head"><h2>${esc(grp.group)}</h2></div><div class="form">`;
     for (const f of grp.fields) {
       const v = d.health[f.k];
+      if (f.g && !gon && v == null) continue; // nur aus Garmin
+      if (f.opt && gon && v == null && !rangeKeys(14, k).some((x) => { const dd = peekDay(x); return dd && dd.health && dd.health[f.k] != null; })) continue; // misst die Uhr nicht
       const pv = y && y.health ? y.health[f.k] : null;
       const prev = pv != null && v == null ? `<button class="prev-chip" data-a="h-prev" data-k="${f.k}" data-date="${k}" aria-label="Vortag übernehmen: ${esc(healthVal(f, pv))}">${icon('history')}${esc(healthVal(f, pv))}</button>` : '';
       let input = '';
@@ -5020,7 +5034,8 @@ function vGarmin(k) {
       else if (f.type === 'dur') input = `<input type="time" data-c="health-dur" data-k="${f.k}" data-date="${k}" value="${durToTime(v)}" aria-label="${esc(f.n)} in Stunden und Minuten"><span class="unit">h:min</span>`;
       else if (f.type === 'time') input = `<input type="time" data-c="health" data-k="${f.k}" data-date="${k}" value="${esc(v || '')}" aria-label="${esc(f.n)}">`;
       else if (f.type === 'choice') input = `<div class="chips chips-tight">${f.options.map((o) => `<button class="chip chip-xs${v === o ? ' is-on' : ''}" data-a="h-choice" data-k="${f.k}" data-v="${esc(o)}" data-date="${k}">${esc(o)}</button>`).join('')}</div>`;
-      h += `<div class="frow${f.type === 'choice' ? ' is-wide' : ''}"><span class="flabel">${esc(f.n)}</span><div class="fin">${input}${garMark(d, f.k)}</div>${prev}</div>`;
+      const base = f.k === 'hrv' && d.gx && d.gx.hrvBase ? `<small class="gar-base">normal ${d.gx.hrvBase[0]}–${d.gx.hrvBase[1]} ms</small>` : '';
+      h += `<div class="frow${f.type === 'choice' ? ' is-wide' : ''}"><span class="flabel">${esc(f.n)}${base}</span><div class="fin">${input}${garMark(d, f.k)}</div>${prev}</div>`;
     }
     h += '</div>';
     if (gon && grp.fields.some((f) => f.k === 'readiness')) h += '<p class="hint">Trainingsbereitschaft gibt Garmins Schnittstelle nicht heraus – bei Bedarf selbst eintragen.</p>';
@@ -5048,7 +5063,7 @@ function vHabits(k) {
       else det = `<div class="hdet"><span>${esc(hb.detail.label)}</span><div class="chips chips-tight">${hb.detail.options.map((o) => `<button class="chip chip-xs${val === o ? ' is-on' : ''}" data-a="habit-chip" data-k="${hb.detail.key}" data-h="${hb.id}" data-v="${o}" data-date="${k}">${o === 90 ? '90+' : o} ${hb.detail.unit}</button>`).join('')}</div></div>`;
     }
     h += `<div class="hrow${on ? ' is-on' : ''}">
-      <button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}</b><small>${esc(hb.when)}</small></span></button>
+      <button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}${garHabitMark(d, hb.id)}</b><small>${esc(hb.when)}</small></span></button>
       <button class="icon-btn" data-a="expand" data-key="h:${hb.id}" aria-label="Erklärung" aria-expanded="${open}">${icon('info')}</button>
       ${det}
       ${open ? `<div class="mrow-detail">${infoHTML(hb.id)}</div>` : ''}
@@ -5707,7 +5722,7 @@ function recoveryCard(k) {
 function trainRow(t, k) {
   const tt = trainType(t);
   const gs = t.gym ? gymProgress(t) : null;
-  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', t.km ? fmt(t.km, 1) + ' km' : '', t.hr ? 'Ø ' + t.hr + ' bpm' : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
+  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', t.km ? fmt(t.km, 1) + ' km' : '', t.g && t.g.pace && (tt.run || tt.light) ? garPace(t.g.pace) + ' /km' : '', t.hr ? 'Ø ' + t.hr + ' bpm' : '', t.g && t.g.tel ? garTE(t.g.tel) : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
   return `<div class="row-wrap"><button class="row" data-a="training-edit" data-id="${t.id}" data-date="${k}"><span class="area-ic">${icon(tt.run ? 'activity' : tt.gym ? 'dumbbell' : tt.light ? 'person-standing' : 'flame')}</span><span class="row-main"><b>${esc(t.type)}${t.gym ? ` <em class="est is-blue">Schedule ${t.gym.sched}</em>` : ''}${t.gid ? ' <em class="est">Garmin</em>' : ''}</b><small>${esc(parts || 'ohne Details')}</small></span>${icon('pencil', 'row-ic')}</button>${t.gym ? `<button class="pill-btn row-act" data-a="gym-open" data-id="${t.id}" data-date="${k}">Sätze</button>` : ''}</div>`;
 }
 function vTrainToday(k) {
@@ -5862,7 +5877,7 @@ function renderTrainSheet() {
     <div class="frow is-wide"><span class="flabel">Einlagen</span><div class="chips chips-tight">${[['1', 'Ja'], ['0', 'Nein']].map(([v, l]) => `<button class="chip chip-xs${(t.ins ? '1' : t.ins === false ? '0' : '') === v ? ' is-on' : ''}" data-a="trs-ins" data-v="${v}">${l}</button>`).join('')}</div></div>
     <div class="frow is-wide"><span class="flabel">Schuh</span><div class="fin"><input type="text" id="trs-shoe" list="shoes" value="${esc(t.shoe || '')}" placeholder="z. B. Modell"><datalist id="shoes">${shoes.map((s) => `<option value="${esc(s)}">`).join('')}</datalist></div></div>` : ''}
     <div class="frow"><span class="flabel">Garmin-Belastung</span><div class="fin"><input type="text" inputmode="numeric" id="trs-load" value="${t.load ?? ''}" placeholder="optional"></div></div></div>
-    ${t.gid ? `<p class="hint gar-hint">${icon('watch')} Von Garmin übernommen${t.hr ? ` · Ø Puls ${t.hr} bpm` : ''}${t.km && !tt.run ? ` · ${fmt(t.km, 1)} km` : ''}. Intensität${tt.run ? ' und Knieschmerz' : ''} trägst du selbst ein.</p>` : ''}
+    ${t.gid ? garTrainInfo(t, tt) : ''}
     ${tt.run ? `<p class="flabel-s">Knieschmerz während des Laufs (0–10)</p>${scale0('trs-pain', t.pain ?? null, ui.sheet.k)}` : ''}
     <p class="flabel-s">Intensität (1–10)</p>${scale10('trs-int', t.int ?? null, ui.sheet.k)}
     <textarea class="note" id="trs-note" rows="2" placeholder="Notiz">${esc(t.note || '')}</textarea>
@@ -5879,7 +5894,7 @@ function vLicht() {
   const lm = !!d.habits.licht_morgen, ln = !!d.habits.licht_nachmittag;
   const lmin = d.hd && d.hd.lightMin;
   h += `<section class="sec"><div class="sec-head"><h2>Licht</h2><span class="count">${S.settings.profile.wake} Uhr aufstehen</span></div><div class="toggle-grid">
-    <button class="tgl${lm ? ' is-on' : ''}" data-a="habit" data-id="licht_morgen" data-date="${k}" aria-pressed="${lm}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Morgenlicht</b><small>10–30 Min. draußen nach dem Aufstehen</small></span></button>
+    <button class="tgl${lm ? ' is-on' : ''}" data-a="habit" data-id="licht_morgen" data-date="${k}" aria-pressed="${lm}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Morgenlicht${garHabitMark(d, 'licht_morgen')}</b><small>10–30 Min. draußen nach dem Aufstehen</small></span></button>
     <button class="tgl${ln ? ' is-on' : ''}" data-a="habit" data-id="licht_nachmittag" data-date="${k}" aria-pressed="${ln}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Nachmittagslicht</b><small>ein paar Minuten im späten Licht</small></span></button></div>
     <div class="chips chips-tight light-min"><span class="hint">Morgens draußen:</span>${[10, 15, 20, 30, 45].map((m) => `<button class="chip chip-xs${lmin === m ? ' is-on' : ''}" data-a="light-min" data-v="${m}" data-date="${k}">${m} Min.</button>`).join('')}</div>
     <div class="mlist">${topicRow('licht_morgen', 'Warum Morgenlicht?')}</div></section>`;
@@ -5915,7 +5930,7 @@ function habitRows(k, ids) {
       if (hb.detail.type === 'time') det = `<label class="hdet"><span>${esc(hb.detail.label)}</span><input type="time" data-c="habit-detail" data-k="${hb.detail.key}" data-h="${hb.id}" data-date="${k}" value="${esc(val || '')}"></label>`;
       else det = `<div class="hdet"><span>${esc(hb.detail.label)}</span><div class="chips chips-tight">${hb.detail.options.map((o) => `<button class="chip chip-xs${val === o ? ' is-on' : ''}" data-a="habit-chip" data-k="${hb.detail.key}" data-h="${hb.id}" data-v="${o}" data-date="${k}">${o === 90 ? '90+' : o} ${hb.detail.unit}</button>`).join('')}</div></div>`;
     }
-    h += `<div class="hrow${on ? ' is-on' : ''}"><button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}</b><small>${esc(hb.when)}</small></span></button>
+    h += `<div class="hrow${on ? ' is-on' : ''}"><button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}${garHabitMark(d, hb.id)}</b><small>${esc(hb.when)}</small></span></button>
       <button class="icon-btn" data-a="expand" data-key="h:${hb.id}" aria-label="Erklärung" aria-expanded="${open}">${icon('info')}</button>${det}${open ? `<div class="mrow-detail">${infoHTML(hb.id)}</div>` : ''}</div>`;
   }
   return h + '</div>';
@@ -7038,7 +7053,16 @@ const A = {
   'plant-del': (el) => { mutDay(el.dataset.date, (d) => { d.plants = d.plants.filter((x) => x !== el.dataset.v); }); render(); },
 
   /* Gewohnheiten */
-  habit: (el) => { const k = curDate(el); mutDay(k, (d) => { d.habits[el.dataset.id] = !d.habits[el.dataset.id]; if (!d.habits[el.dataset.id]) delete d.habits[el.dataset.id]; }); render(); },
+  habit: (el) => {
+    const k = curDate(el), id = el.dataset.id;
+    mutDay(k, (d) => {
+      d.habits[id] = !d.habits[id];
+      if (d.habits[id]) return;
+      delete d.habits[id];
+      if (d.gh && d.gh[id]) { delete d.gh[id]; d.ghOff = [...new Set([...(d.ghOff || []), id])]; } // Garmin hakt es nicht wieder ab
+    });
+    render();
+  },
   'habit-chip': (el) => {
     const k = curDate(el), v = Number(el.dataset.v), key = el.dataset.k;
     mutDay(k, (d) => {
@@ -8710,12 +8734,19 @@ function frankReportText(ws) {
   L.push(`Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · Gym ${r.gymDone}/${r.gymPlanned} geplant · Läufe ${r.q.runs} (${f0(r.km, 1)} km, Vorwoche ${f0(r.kmPrev, 1)} km) · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.`);
   const steps = mean(r.past.map((k) => muHealth(k, 'steps')).filter((v) => v != null));
   if (steps != null) L.push(`Schritte Ø ${fmt(steps)}`);
+  const ims = r.past.map((k) => muHealth(k, 'intensity')).filter((v) => v != null);
+  const kact = mean(r.past.map((k) => muHealth(k, 'kcalAct')).filter((v) => v != null));
+  const act = [ims.length ? `Intensitätsminuten ${fmt(ims.reduce((a, b) => a + b, 0))} (Empfehlung: 150 pro Woche)` : '', kact != null ? `aktive Kalorien Ø ${fmt(kact)} kcal/Tag` : ''].filter(Boolean);
+  if (act.length) L.push(act.join(' · '));
   // Schlaf
   const hav = (f) => mean(r.past.map((k) => muHealth(k, f)).filter((v) => v != null));
   const durs = r.past.map((k) => muHealth(k, 'sleepDur')).filter((v) => v != null);
   const beds = r.past.map((k) => { const d = peekDay(k); return d && d.health && d.health.bedTime ? timeVal(d.health.bedTime, true) : null; }).filter((v) => v != null);
   L.push('', `## Schlaf & Erholung`);
   L.push(`Sleep Score Ø ${f0(r.sleep)} (Vorwoche ${f0(r.sleepPrev)}) · Schlafdauer Ø ${durs.length ? goalFmt({ kind: 'dur' }, mean(durs)) : '–'} Std. · Eingeschlafen Ø ${beds.length ? minToTime(Math.round(mean(beds)) % 1440) : '–'} · HRV Ø ${f0(r.hrv)} ms · Ruhepuls Ø ${f0(r.rhr)} · Body Battery morgens Ø ${f0(hav('bbMorning'))} · Stress Ø ${f0(hav('stress'))}`);
+  const needs = r.past.map((k) => muHealth(k, 'sleepNeed')).filter((v) => v != null);
+  const more = [needs.length ? `Schlafbedarf laut Garmin Ø ${goalFmt({ kind: 'dur' }, mean(needs))} Std.` : '', hav('bbSleep') != null ? `Body Battery im Schlaf Ø +${f0(hav('bbSleep'))}` : '', hav('hrvWeek') != null ? `HRV 7-Tage-Ø ${f0(hav('hrvWeek'))} ms` : '', hav('spo2') != null ? `SpO2 Ø ${f0(hav('spo2'))} %` : '', hav('resp') != null ? `Atemfrequenz Ø ${f0(hav('resp'), 1)}/min` : ''].filter(Boolean);
+  if (more.length) L.push(more.join(' · '));
   // Koffein
   const cafs = r.past.filter((k) => peekDay(k)).map((k) => cafInfo(k));
   const lasts = cafs.map((c) => c.last).filter((v) => v != null);
@@ -8868,6 +8899,7 @@ function garSave() { return DB.putMany([['garmin', GAR ? { ...GAR } : undefined]
 function garErr(kind, msg, fatal = true) { const e = new Error(msg); e.kind = kind; e.fatal = fatal; return e; }
 function garHttpErr(status, txt, isToken) {
   const t = String(txt || '');
+  if (/^Weiterleitung: Pfad nicht erlaubt/.test(t) && !isToken) return garErr('relayPath', 'Weiterleitung veraltet', false);
   if (/^Weiterleitung:/.test(t)) return garErr('relay', t.replace(/^Weiterleitung:\s*/, 'Weiterleitung lehnt ab: ') + '. Ist dort der aktuelle Protokoll-Code gespeichert?');
   if (isToken && status >= 400 && status < 500) return garErr('key', 'Garmin lehnt den Schlüssel ab – abgelaufen oder gelöscht? Neuen Schlüssel in Garmin Connect erstellen und hier eintragen.');
   if (isToken) return garErr('garmin', `Garmin hat die Anmeldung nicht angenommen (Status ${status}). Schlüssel prüfen oder später noch einmal versuchen.`);
@@ -8967,10 +8999,12 @@ function gMs(v) { // GMT-Zeitpunkt in Millisekunden
   const t = Date.parse(/Z$|[+-]\d{2}:?\d{2}$/.test(v) ? v : v.replace(' ', 'T') + 'Z');
   return Number.isFinite(t) ? t : null;
 }
+function gAt(o, path) { let c = o; for (const p of path.split('.')) { if (!c || typeof c !== 'object') return undefined; c = c[p]; } return c; }
+function gPick(o, paths) { for (const p of paths) { const v = gNum(gAt(o, p)); if (v != null) return v; } return null; } // erste Zahl aus mehreren Pfaden
 function garSleep(o, k) {
   if (Array.isArray(o)) o = o.find((x) => gDate(x) === k) || o[0];
   if (!o || typeof o !== 'object') return null;
-  const dto = gObj(o, 'dailySleepDTO') || o;
+  const dto = gObj(o, 'dailySleepDTO') || o; // Personal API: Schlafwerte direkt, Garmin Connect: in dailySleepDTO
   const out = {};
   const min = (key) => { const v = gNum(gVal(dto, [key])); return v == null ? null : Math.round(v / 60); };
   const total = min('sleepTimeSeconds');
@@ -8984,6 +9018,8 @@ function garSleep(o, k) {
     out.resp = gNum(gVal(dto, ['averageRespirationValue', 'avgSleepRespirationValue']));
     out.spo2 = gNum(gVal(dto, ['averageSpO2Value', 'averageSpo2Value']));
     out.sleepStress = gNum(gVal(dto, ['avgSleepStress']));
+    const need = dto.sleepNeed;
+    out.sleepNeed = gNum(need && typeof need === 'object' ? need.actual : need); // schon in Minuten
     out._start = gMs(gVal(dto, ['sleepStartTimestampGMT']));
     out._end = gMs(gVal(dto, ['sleepEndTimestampGMT']));
   }
@@ -8994,37 +9030,42 @@ function garSleep(o, k) {
   if (gVal(o, ['skinTempDataExists']) !== false) out.skinTemp = gNum(gVal(o, ['avgSkinTempDeviationC']));
   return out;
 }
-function garBBPoints(raw) { // Body-Battery-Verlauf als [Zeit (GMT, ms), Wert]
-  const pts = [];
+/* Body Battery: Verlauf [Zeit (GMT, ms), Wert] und je Tag Aufladung im Schlaf, geladen, verbraucht */
+function garBB(raw) {
+  const pts = [], days = {};
   for (const e of gList(raw)) {
     const arr = Array.isArray(e.bodyBatteryValuesArray) ? e.bodyBatteryValuesArray : gObj(e, 'bodyBatteryValuesArray');
-    if (!Array.isArray(arr)) continue;
-    let ti = 0, li = null;
-    const desc = e.bodyBatteryValueDescriptorDTOList || e.bodyBatteryValueDescriptorsDTOList;
-    if (Array.isArray(desc)) {
-      for (const dd of desc) {
-        const key = String(dd.bodyBatteryValueDescriptorKey || dd.key || ''), idx = gNum(dd.bodyBatteryValueDescriptorIndex ?? dd.index);
-        if (idx == null) continue;
-        if (/timestamp/i.test(key)) ti = idx;
-        else if (/level/i.test(key)) li = idx;
+    if (Array.isArray(arr)) {
+      let ti = 0, li = null;
+      const desc = e.bodyBatteryValueDescriptorDTOList || e.bodyBatteryValueDescriptorsDTOList;
+      if (Array.isArray(desc)) {
+        for (const dd of desc) {
+          const key = String(dd.bodyBatteryValueDescriptorKey || dd.key || ''), idx = gNum(dd.bodyBatteryValueDescriptorIndex ?? dd.index);
+          if (idx == null) continue;
+          if (/timestamp/i.test(key)) ti = idx;
+          else if (/level/i.test(key)) li = idx;
+        }
+      }
+      for (const p of arr) {
+        if (!Array.isArray(p)) continue;
+        const t = gNum(p[ti]), v = gNum(li != null ? p[li] : p.length === 2 ? p[1] : p[2]);
+        if (t != null && v != null && v >= 0 && v <= 100) pts.push([t, v]);
       }
     }
-    for (const p of arr) {
-      if (!Array.isArray(p)) continue;
-      const t = gNum(p[ti]), v = gNum(li != null ? p[li] : p.length === 2 ? p[1] : p[2]);
-      if (t != null && v != null && v >= 0 && v <= 100) pts.push([t, v]);
+    const k = gDate(e);
+    if (k) {
+      const ev = (Array.isArray(e.bodyBatteryActivityEvent) ? e.bodyBatteryActivityEvent : []).filter((x) => x && /sleep/i.test(String(x.eventType || '')));
+      const imp = ev.map((x) => gNum(x.bodyBatteryImpact)).filter((v) => v != null);
+      days[k] = { sleep: imp.length ? Math.max(...imp) : null, charged: gNum(e.charged), drained: gNum(e.drained) };
     }
   }
-  return pts.sort((a, b) => a[0] - b[0]);
+  return { pts: pts.sort((a, b) => a[0] - b[0]), days };
 }
-function garBBAt(pts, t) { // letzter Wert bis t (höchstens 3 Std. davor), sonst der erste bis 15 Min. danach
+function garBBAt(pts, t) { // Messpunkt am nächsten an t, höchstens 60 Min. entfernt (Garmin misst nur einige Male am Tag)
   if (t == null) return null;
-  let before = null;
-  for (const [pt, v] of pts) {
-    if (pt <= t) { if (pt >= t - 3 * 3600000) before = v; continue; }
-    return before ?? (pt <= t + 15 * 60000 ? v : null);
-  }
-  return before;
+  let best = null, gap = Infinity;
+  for (const [pt, v] of pts) { const g = Math.abs(pt - t); if (g < gap) { gap = g; best = v; } }
+  return gap <= 3600000 ? best : null;
 }
 function garTypeOf(tk) { for (const [re, t] of GAR_TYPES) if (re.test(tk)) return t; return 'Sonstiges'; }
 function garActs(raw) {
@@ -9034,18 +9075,23 @@ function garActs(raw) {
     if (id == null || typeof st !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(st)) continue;
     const at = a.activityType || {};
     const tk = String((typeof at === 'object' ? at.typeKey || at.key : at) || gVal(a, ['typeKey']) || '').toLowerCase();
-    const type = garTypeOf(tk);
-    if (!type) continue;
-    const dur = gNum(a.duration ?? a.movingDuration ?? a.elapsedDuration), dist = gNum(a.distance);
-    out.push({ gid: String(id), k: st.slice(0, 10), type, time: gClock(st, true), dur: dur > 0 ? Math.round(dur / 60) : null, km: dist > 0 ? Math.round(dist / 10) / 100 : null,
-      cad: gNum(a.averageRunningCadenceInStepsPerMinute), load: gNum(a.activityTrainingLoad), hr: gNum(a.averageHR), vo2: gNum(a.vO2MaxValue) });
+    const sec = gNum(a.duration ?? a.movingDuration ?? a.elapsedDuration), dist = gNum(a.distance), spd = gNum(a.averageSpeed);
+    const r1 = (v) => (v == null ? null : Math.round(v * 10) / 10), r0 = (v) => (v == null ? null : Math.round(v));
+    const zones = [1, 2, 3, 4, 5].map((i) => gNum(a['hrTimeInZone_' + i]));
+    const g = { te: r1(gNum(a.aerobicTrainingEffect)), tan: r1(gNum(a.anaerobicTrainingEffect)), tel: typeof a.trainingEffectLabel === 'string' ? a.trainingEffectLabel : null,
+      pace: spd > 0.3 && dist > 0 ? Math.round(1000 / spd) : null, pw: r0(gNum(a.avgPower)), sl: r0(gNum(a.avgStrideLength)), up: r0(gNum(a.elevationGain)),
+      hrmax: r0(gNum(a.maxHR)), kcal: r0(gNum(a.calories)), bb: r0(gNum(a.differenceBodyBattery)), z: zones.some((v) => v != null) ? zones.map((v) => Math.round(v || 0)) : null };
+    for (const key of Object.keys(g)) if (g[key] == null) delete g[key];
+    out.push({ gid: String(id), k: st.slice(0, 10), type: garTypeOf(tk), tk, time: gClock(st, true), dur: sec > 0 ? Math.round(sec / 60) : null, km: dist > 0 ? Math.round(dist / 10) / 100 : null,
+      cad: gNum(a.averageRunningCadenceInStepsPerMinute), load: gNum(a.activityTrainingLoad), hr: gNum(a.averageHR), vo2: gNum(a.vO2MaxValue), g });
   }
   return out;
 }
-/* Alle Antworten → Werte je Tag. Reihenfolge = Vorrang (erste Quelle gewinnt). */
+/* Alle Antworten → Werte je Tag. Reihenfolge = Vorrang (erste Quelle gewinnt).
+   Personal API (Tageswerte v2) ist verschachtelt (heartRate.restingValue …), Garmin Connect flach (restingHeartRate …). */
 function garParse(keys, raw) {
-  const vals = {};
-  for (const k of keys) vals[k] = {};
+  const vals = {}, ex = {};
+  for (const k of keys) { vals[k] = {}; ex[k] = {}; }
   const set = (k, f, v) => { if (vals[k] && v != null && vals[k][f] == null) vals[k][f] = v; };
   const sleep = {};
   for (const k of keys) sleep[k] = raw.sleep && raw.sleep[k] ? garSleep(raw.sleep[k], k) : null;
@@ -9053,57 +9099,71 @@ function garParse(keys, raw) {
     const k = gDate(e);
     if (!vals[k]) continue;
     set(k, 'hrv', gNum(gVal(e, ['lastNightAvg', 'lastNightAverage'])));
+    set(k, 'hrvWeek', gNum(gVal(e, ['weeklyAvg', 'weeklyAverage'])));
     const st = gVal(e, ['status']);
     if (typeof st === 'string') set(k, 'hrvStatus', GAR_HRV[st.toUpperCase()] || null);
+    const lo = gNum(gAt(e, 'baseline.balancedLow')), hi = gNum(gAt(e, 'baseline.balancedUpper'));
+    if (lo != null && hi != null) ex[k].hrvBase = [Math.round(lo), Math.round(hi)];
   }
   for (const e of gList(raw.sum)) {
     const k = gDate(e);
     if (!vals[k]) continue;
-    set(k, 'steps', gNum(gVal(e, ['totalSteps'])));
-    set(k, 'rhr', gNum(gVal(e, ['restingHeartRate'])));
-    const st = gNum(gVal(e, ['averageStressLevel']));
+    set(k, 'steps', gPick(e, ['movement.steps.value', 'totalSteps']));
+    set(k, 'rhr', gPick(e, ['heartRate.restingValue', 'restingHeartRate']));
+    const st = gPick(e, ['stress.avgLevel', 'averageStressLevel']);
     if (st != null && st >= 0) set(k, 'stress', st);
-    const mi = gNum(gVal(e, ['moderateIntensityMinutes'])), vi = gNum(gVal(e, ['vigorousIntensityMinutes']));
+    const mi = gPick(e, ['intensityMinutes.moderate', 'moderateIntensityMinutes']), vi = gPick(e, ['intensityMinutes.vigorous', 'vigorousIntensityMinutes']);
     if (mi != null || vi != null) set(k, 'intensity', (mi || 0) + 2 * (vi || 0));
-    set(k, 'bbMorning', gNum(gVal(e, ['bodyBatteryAtWakeTime'])));
-    set(k, 'kcalAct', gNum(gVal(e, ['activeKilocalories'])));
-    set(k, 'kcalTot', gNum(gVal(e, ['totalKilocalories'])));
-    set(k, 'bbCharged', gNum(gVal(e, ['bodyBatteryChargedValue'])));
-    set(k, 'bbDrained', gNum(gVal(e, ['bodyBatteryDrainedValue'])));
-    if (sleep[k] && sleep[k].spo2 == null) set(k, 'spo2', gNum(gVal(e, ['averageSpo2', 'averageSpO2'])));
+    set(k, 'bbMorning', gPick(e, ['bodyBattery.atWakeValue', 'bodyBatteryAtWakeTime']));
+    set(k, 'kcalAct', gPick(e, ['calories.burnedActive', 'activeKilocalories']));
+    set(k, 'kcalTot', gPick(e, ['calories.burnedTotal', 'totalKilocalories']));
+    set(k, 'bbCharged', gPick(e, ['bodyBattery.chargedValue', 'bodyBatteryChargedValue']));
+    set(k, 'bbDrained', gPick(e, ['bodyBattery.drainedValue', 'bodyBatteryDrainedValue']));
+    const fl = gPick(e, ['movement.floorsAscended.value', 'floorsAscended']), flm = gPick(e, ['movement.floorsAscended.distanceInMeters', 'floorsAscendedInMeters']);
+    set(k, 'floors', fl != null ? fl : flm != null ? flm / 3.048 : null); // 1 Stockwerk = 3,05 m (10 Fuß)
+    if (!(sleep[k] && sleep[k].spo2 != null)) set(k, 'spo2', gPick(e, ['spo2.avgValue', 'pulseOx.avgValue', 'averageSpo2', 'averageSpO2']));
   }
   for (const k of keys) {
     const s = sleep[k];
     if (!s) continue;
-    for (const f of ['sleepScore', 'sleepDur', 'deep', 'rem', 'light', 'awake', 'bedTime', 'wakeTime', 'hrv', 'hrvStatus', 'rhr', 'resp', 'spo2', 'skinTemp', 'sleepStress']) set(k, f, s[f]);
+    for (const f of ['sleepScore', 'sleepDur', 'deep', 'rem', 'light', 'awake', 'bedTime', 'wakeTime', 'sleepNeed', 'sleepStress', 'hrv', 'hrvStatus', 'rhr', 'resp', 'spo2', 'skinTemp']) set(k, f, s[f]);
   }
   for (const e of gList(raw.stress)) { const k = gDate(e); const v = gNum(gVal(e, ['overallStressLevel', 'averageStressLevel'])); if (vals[k] && v != null && v >= 0) set(k, 'stress', v); }
   for (const e of gList(raw.steps)) { const k = gDate(e); if (vals[k]) set(k, 'steps', gNum(gVal(e, ['totalSteps', 'steps']))); }
-  /* Body Battery: morgens beim Aufwachen, abends beim Einschlafen (Nacht danach) */
-  const pts = garBBPoints(raw.bb);
-  if (pts.length) {
-    for (const k of keys) {
-      if (sleep[k] && sleep[k]._end) set(k, 'bbMorning', garBBAt(pts, sleep[k]._end));
-      const nx = sleep[addDays(k, 1)];
-      if (nx && nx._start) set(k, 'bbEvening', garBBAt(pts, nx._start));
-    }
+  for (const k of keys) if (raw.spo2 && raw.spo2[k]) set(k, 'spo2', gNum(gVal(raw.spo2[k], ['averageSpO2', 'averageSpo2', 'avgSpo2', 'averageSpO2Value', 'averageSPO2'])));
+  /* Body Battery: morgens beim Aufwachen, abends beim Einschlafen (Nacht danach), Aufladung im Schlaf */
+  const bb = garBB(raw.bb);
+  for (const k of keys) {
+    const day = bb.days[k];
+    if (day) { set(k, 'bbSleep', day.sleep); set(k, 'bbCharged', day.charged); set(k, 'bbDrained', day.drained); }
+    if (!bb.pts.length) continue;
+    if (sleep[k] && sleep[k]._end) set(k, 'bbMorning', garBBAt(bb.pts, sleep[k]._end));
+    const nx = sleep[addDays(k, 1)];
+    if (nx && nx._start) set(k, 'bbEvening', garBBAt(bb.pts, nx._start));
   }
+  /* Gewicht und Körperfett: letzte echte Messung des Tages (ohne Profil-Änderungen) */
   for (const e of gList(raw.weight)) {
     const k = gDate(e);
     if (!vals[k]) continue;
-    const w = gNum(gVal(e.latestWeight && typeof e.latestWeight === 'object' ? e.latestWeight : e, ['weight']));
-    if (w) set(k, 'weight', w > 1000 ? w / 1000 : w);
+    const all = (Array.isArray(e.allWeightMetrics) ? e.allWeightMetrics : []).filter((m) => m && typeof m === 'object');
+    const real = all.filter((m) => m.sourceType !== 'CHANGE_LOG');
+    const ts = (m) => gNum(m.timestampGMT) ?? gMs(m.timestampGMT) ?? gNum(m.date) ?? 0;
+    const m = (real.length ? real : all).sort((a, b) => ts(a) - ts(b)).pop() || (e.latestWeight && typeof e.latestWeight === 'object' ? e.latestWeight : e);
+    const w = gNum(gVal(m, ['weight']));
+    if (w) set(k, 'weight', w > 500 ? w / 1000 : w);
+    const fat = gNum(gVal(m, ['bodyFat']));
+    if (fat > 0) set(k, 'fat', fat);
   }
   const acts = garActs(raw.acts).sort((a, b) => String(b.time).localeCompare(String(a.time)));
   for (const a of acts) if (a.vo2 && vals[a.k]) set(a.k, 'vo2', a.vo2);
   const today = keys[keys.length - 1];
   if (raw.fit && vals[today]) set(today, 'fitAge', gNum(gVal(raw.fit, ['fitnessAge'])));
-  return vals;
+  return { vals, ex, sleep };
 }
 
 /* ---------- Übernehmen ---------- */
 /* Garmin überschreibt nur, was leer ist oder schon von Garmin kam. Selbst Eingetragenes bleibt. */
-function garPutDay(k, vals) {
+function garPutDay(k, vals, ex) {
   const d0 = peekDay(k);
   const changes = {};
   let fresh = false;
@@ -9128,12 +9188,14 @@ function garPutDay(k, vals) {
     if (cur == null && (f === 'sleepScore' || f === 'sleepDur')) fresh = true;
     changes[f] = v;
   }
+  const exNew = ex && ex.hrvBase && !(d0 && d0.gx && String(d0.gx.hrvBase) === String(ex.hrvBase));
   const n = Object.keys(changes).length;
-  if (!n) return { n: 0, fresh: false };
+  if (!n && !exNew) return { n: 0, fresh: false };
   mutDay(k, (d) => {
     d.health = d.health || {};
     d.gar = d.gar || {};
     for (const [f, v] of Object.entries(changes)) { d.health[f] = v; d.gar[f] = v; }
+    if (exNew) d.gx = { ...(d.gx || {}), hrvBase: ex.hrvBase };
     if (changes.weight != null && k === todayKey()) { S.settings.profile.weight = changes.weight; markDirty('settings'); }
   });
   return { n, fresh };
@@ -9144,41 +9206,79 @@ function garCat(type) {
   if (tt.gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(tt.id)) return 'gym';
   return tt.id;
 }
+/* Garmin-Werte in ein Training: nur Leeres füllen; Details (t.g) kommen immer von Garmin */
+function garFillTraining(t, a) {
+  if (!t.time && a.time) t.time = a.time;
+  if (t.dur == null && a.dur) t.dur = a.dur;
+  if (t.load == null && a.load != null) t.load = Math.round(a.load);
+  if (t.hr == null && a.hr) t.hr = Math.round(a.hr);
+  if (t.km == null && a.km) t.km = a.km;
+  if (garCat(t.type) === 'run' && t.cad == null && a.cad) t.cad = Math.round(a.cad);
+  if (t.int == null && a.rpe != null) { const v = Math.round(a.rpe / 10); if (v >= 1 && v <= 10) t.int = v; } // Garmin speichert Anstrengung × 10
+  const g = { ...(t.g || {}), ...(a.g || {}) };
+  if (a.feel != null) g.feel = a.feel;
+  if (a.rpe != null) g.rpe = a.rpe;
+  if (a.det) g.det = 1;
+  if (Object.keys(g).length) t.g = g;
+}
+function garTrainingIndex() {
+  const have = new Map(), skip = new Set();
+  for (const [k, d] of Object.entries(S.days)) {
+    for (const t of d.trainings || []) if (t.gid) have.set(String(t.gid), { k, t });
+    for (const g of d.gskip || []) skip.add(String(g));
+  }
+  return { have, skip };
+}
 /* Aktivitäten als Training: passt ein selbst eingetragenes Training (gleiche Art, ±90 Min.), wird es ergänzt */
 function garApplyActs(acts, today) {
-  const known = new Set();
-  for (const d of Object.values(S.days)) {
-    for (const t of d.trainings || []) if (t.gid) known.add(String(t.gid));
-    for (const g of d.gskip || []) known.add(String(g));
-  }
+  const { have, skip } = garTrainingIndex();
   let n = 0, slot = null;
   for (const a of acts.slice().sort((x, y) => (x.k + (x.time || '')).localeCompare(y.k + (y.time || '')))) {
-    if (known.has(a.gid) || a.k > today) continue;
+    if (!a.type || skip.has(a.gid) || a.k > today) continue;
+    const old = have.get(a.gid);
+    if (old) { // schon übernommen: fehlende Details und Anstrengung ergänzen
+      const t0 = old.t;
+      const need = (a.g && Object.keys(a.g).some((key) => !t0.g || t0.g[key] == null)) || (t0.int == null && a.rpe != null) || (a.feel != null && !(t0.g && t0.g.feel != null)) || (a.det && !(t0.g && t0.g.det));
+      if (need) mutDay(old.k, (d) => { const t = (d.trainings || []).find((x) => String(x.gid) === a.gid); if (t) garFillTraining(t, a); });
+      continue;
+    }
     const cat = garCat(a.type), am = timeToMin(a.time);
     mutDay(a.k, (d) => {
       d.trainings = d.trainings || [];
       const m = d.trainings.find((t) => !t.gid && garCat(t.type) === cat && (!t.time || am == null || Math.abs(timeToMin(t.time) - am) <= 90));
-      if (m) {
-        m.gid = a.gid;
-        if (!m.time && a.time) m.time = a.time;
-        if (m.dur == null && a.dur) m.dur = a.dur;
-        if (m.load == null && a.load != null) m.load = Math.round(a.load);
-        if (m.hr == null && a.hr) m.hr = Math.round(a.hr);
-        if (m.km == null && a.km) m.km = a.km;
-        if (cat === 'run' && m.cad == null && a.cad) m.cad = Math.round(a.cad);
-      } else {
-        const t = { id: uid(), type: a.type, time: a.time || '', dur: a.dur, int: null, load: a.load != null ? Math.round(a.load) : null, note: '', gid: a.gid };
-        if (a.km) t.km = a.km;
-        if (cat === 'run' && a.cad) t.cad = Math.round(a.cad);
-        if (a.hr) t.hr = Math.round(a.hr);
-        d.trainings.push(t);
-        if (a.k === today) slot = setSlotFromTraining(d, t) || slot;
-      }
+      if (m) { m.gid = a.gid; garFillTraining(m, a); have.set(a.gid, { k: a.k, t: m }); return; }
+      const t = { id: uid(), type: a.type, time: a.time || '', dur: a.dur, int: null, load: null, note: '', gid: a.gid };
+      garFillTraining(t, a);
+      d.trainings.push(t);
+      have.set(a.gid, { k: a.k, t });
+      if (a.k === today) slot = setSlotFromTraining(d, t) || slot;
     });
-    known.add(a.gid);
     n++;
   }
   return { n, slot };
+}
+/* Gewohnheiten, die die Uhr belegt (Wunsch vom 08.11.2026): nur aufgezeichnete Aktivitäten, abwählbar */
+const GAR_HABITS = [
+  { id: 'nsdr', test: (a) => /meditation|breath/.test(a.tk) && (a.dur || 0) >= 10 },
+  { id: 'licht_morgen', test: (a) => a.type === 'Spaziergang' && (a.dur || 0) >= 30 && !!a.time && a.time < '12:00', light: true },
+];
+function garApplyHabits(acts, keys) {
+  let n = 0;
+  for (const h of GAR_HABITS) {
+    if ((S.settings.habitsOff || []).includes(h.id)) continue;
+    for (const a of acts) {
+      if (!keys.includes(a.k) || !h.test(a)) continue;
+      const d0 = peekDay(a.k);
+      if (d0 && (((d0.ghOff || []).includes(h.id)) || (d0.habits && d0.habits[h.id]))) continue;
+      mutDay(a.k, (d) => {
+        d.habits[h.id] = true;
+        d.gh = { ...(d.gh || {}), [h.id]: a.gid };
+        if (h.light && !(d.hd && d.hd.lightMin != null)) { d.hd = d.hd || {}; d.hd.lightMin = a.dur >= 45 ? 45 : 30; }
+      });
+      n++;
+    }
+  }
+  return n;
 }
 
 /* ---------- Abruf ---------- */
@@ -9190,37 +9290,63 @@ async function garRun(opt) {
   if (from > today) from = today;
   const keys = garKeys(from, today);
   const warn = [];
-  const step = async (name, fn, optional) => { try { return await fn(); } catch (e) { if (e.fatal) throw e; if (!optional && !warn.includes(name)) warn.push(name); return null; } };
+  let relayOld = false;
+  const step = async (name, fn, optional) => {
+    try { return await fn(); } catch (e) {
+      if (e.kind === 'relayPath') { relayOld = true; return null; }
+      if (e.fatal) throw e;
+      if (!optional && !warn.includes(name)) warn.push(name);
+      return null;
+    }
+  };
   try {
     await garToken();
-    const raw = { sleep: {} };
+    const raw = { sleep: {}, spo2: {} };
     raw.sum = await step('Tageswerte', () => garGet(`/usersummary-service/v2/dailysummaries?startDate=${from}&endDate=${today}`));
     raw.hrv = await step('HRV', () => garGet(`/hrv-service/hrv/daily/${from}/${today}`));
     raw.bb = await step('Body Battery', () => garGet(`/wellness-service/wellness/bodyBattery/reports/daily?startDate=${from}&endDate=${today}`));
     raw.weight = await step('Gewicht', () => garGet(`/weight-service/weight/range/${from}/${today}?includeAll=true`));
     raw.acts = await step('Aktivitäten', () => garGet(`/activitylist-service/activities/search/activities?start=0&limit=100&startDate=${from}&endDate=${today}`));
     raw.fit = await step('Fitnessalter', () => garGet(`/fitnessage-service/fitnessage/v2/${today}`), true);
-    for (let i = 0; i < keys.length; i += 3) {
-      const part = keys.slice(i, i + 3);
-      const res = await Promise.all(part.map((k) => step('Schlaf', () => garGet(`/sleep-service/sleep/dailySleep?date=${k}`))));
-      part.forEach((k, j) => { raw.sleep[k] = res[j]; });
-    }
-    let vals = garParse(keys, raw);
-    if (!keys.some((k) => vals[k].steps != null)) {
+    const each = async (ks, name, path, into, optional) => {
+      for (let i = 0; i < ks.length; i += 3) {
+        const part = ks.slice(i, i + 3);
+        const res = await Promise.all(part.map((k) => step(name, () => garGet(path(k)), optional)));
+        part.forEach((k, j) => { into[k] = res[j]; });
+      }
+    };
+    await each(keys, 'Schlaf', (k) => `/sleep-service/sleep/dailySleep?date=${k}`, raw.sleep);
+    let p = garParse(keys, raw);
+    if (!keys.some((k) => p.vals[k].steps != null)) {
       raw.steps = await step('Schritte', () => garGet(`/usersummary-service/stats/steps/daily/${from}/${today}`));
       raw.stress = await step('Stress', () => garGet(`/usersummary-service/stats/stress/daily/${from}/${today}`));
-      vals = garParse(keys, raw);
+    }
+    /* SpO2 eigens holen, wo der Schlaf keinen Wert hat (Pulsoximeter nachts an?) */
+    const noSpo2 = keys.filter((k) => p.vals[k].sleepDur != null && p.vals[k].spo2 == null);
+    if (noSpo2.length) await each(noSpo2, 'SpO2', (k) => `/wellness-service/wellness/daily/spo2acclimation/${k}`, raw.spo2, true);
+    if (raw.steps || raw.stress || noSpo2.length) p = garParse(keys, raw);
+    /* Anstrengung und Gefühl (nach dem Training auf der Uhr) aus den Aktivitätsdetails: nur neue oder noch ohne Intensität */
+    const acts = garActs(raw.acts);
+    const { have, skip } = garTrainingIndex();
+    const needDet = acts.filter((a) => a.type && !skip.has(a.gid) && !(have.get(a.gid) && (have.get(a.gid).t.int != null || (have.get(a.gid).t.g || {}).det))).slice(0, 10);
+    for (const a of needDet) {
+      const det = await step('Aktivitätsdetails', () => garGet(`/activity-service/activity/${encodeURIComponent(a.gid)}`), true);
+      if (relayOld) break;
+      const s = det ? gObj(det, 'summaryDTO') || det : null;
+      if (s) { a.rpe = gNum(gVal(s, ['directWorkoutRpe'])); a.feel = gNum(gVal(s, ['directWorkoutFeel'])); }
+      a.det = 1;
     }
     if (!GAR) return null; // inzwischen getrennt
     let n = 0, fresh = false;
-    for (const k of keys) { const r = garPutDay(k, vals[k]); n += r.n; if (r.fresh && k === today) fresh = true; }
-    const ta = garApplyActs(garActs(raw.acts), today);
+    for (const k of keys) { const r = garPutDay(k, p.vals[k], p.ex[k]); n += r.n; if (r.fresh && k === today) fresh = true; }
+    const ta = garApplyActs(acts, today);
+    const nh = garApplyHabits(acts, keys);
     GAR.last = new Date().toISOString();
     GAR.lastDay = today;
-    GAR.err = null; GAR.errAt = null; GAR.warn = warn;
-    GAR.sum = { n, t: ta.n };
+    GAR.err = null; GAR.errAt = null; GAR.warn = warn; GAR.relayOld = relayOld;
+    GAR.sum = { n, t: ta.n, h: nh };
     await garSave();
-    return { n, t: ta.n, slot: ta.slot, fresh, warn };
+    return { n, t: ta.n, h: nh, slot: ta.slot, fresh, warn };
   } catch (e) {
     if (GAR) { GAR.err = e.message || 'Abruf fehlgeschlagen'; GAR.errAt = Date.now(); await garSave(); }
     throw e;
@@ -9233,8 +9359,8 @@ function garSync(opt = {}) {
   return garBusy;
 }
 function garSumText(r) {
-  if (!r || (!r.n && !r.t)) return 'nichts Neues';
-  return [r.n ? `${r.n} ${r.n === 1 ? 'Wert' : 'Werte'}` : '', r.t ? `${r.t} ${r.t === 1 ? 'Training' : 'Trainings'}` : ''].filter(Boolean).join(', ') + ' übernommen';
+  if (!r || (!r.n && !r.t && !r.h)) return 'nichts Neues';
+  return [r.n ? `${r.n} ${r.n === 1 ? 'Wert' : 'Werte'}` : '', r.t ? `${r.t} ${r.t === 1 ? 'Training' : 'Trainings'}` : '', r.h ? `${r.h} ${r.h === 1 ? 'Gewohnheit' : 'Gewohnheiten'}` : ''].filter(Boolean).join(', ') + ' übernommen';
 }
 function garQuiet() { return !!ui.sheet || !!ui.timer || (document.activeElement && document.activeElement.matches('input, textarea, select')); }
 function garRefresh() { if (!garQuiet()) render(); }
@@ -9243,7 +9369,7 @@ function garDone(res, manual) {
   garRefresh();
   if (!res) return;
   if (res.slot) toast(`Garmin: ${res.t === 1 ? 'Training' : 'Trainings'} übernommen, Ernährung auf ${TRAINING[res.slot].n} umgestellt`);
-  else if (manual || res.t || res.fresh) toast('Garmin: ' + garSumText(res) + (manual && res.warn && res.warn.length ? ` (ohne ${res.warn.join(', ')})` : ''));
+  else if (manual || res.t || res.h || res.fresh) toast('Garmin: ' + garSumText(res) + (manual && res.warn && res.warn.length ? ` (ohne ${res.warn.join(', ')})` : ''));
 }
 function garFail(manual) { garRefresh(); if (manual && GAR && GAR.err) toast('Garmin: ' + GAR.err); }
 function garManual(days) {
@@ -9261,6 +9387,29 @@ function garAuto() {
 }
 
 /* ---------- Oberfläche ---------- */
+const GAR_TE = { RECOVERY: 'Erholung', BASE: 'Grundlage', AEROBIC_BASE: 'Grundlage', TEMPO: 'Tempo', LACTATE_THRESHOLD: 'Schwelle', THRESHOLD: 'Schwelle', VO2MAX: 'VO2max', ANAEROBIC_CAPACITY: 'Anaerob', ANAEROBIC: 'Anaerob', SPEED: 'Sprint', NO_BENEFIT: 'ohne Trainingseffekt' };
+function garTE(l) { const k = String(l || '').toUpperCase(); return GAR_TE[k] || k.toLowerCase().replace(/_/g, ' '); }
+function garPace(sec) { const s = Math.round(sec); return `${Math.floor(s / 60)}:${pad(s % 60)}`; }
+function garFeel(v) { return ['sehr schwach', 'schwach', 'normal', 'stark', 'sehr stark'][Math.max(0, Math.min(4, Math.round(v / 25)))]; }
+function garHabitMark(d, id) { return d && d.gh && d.gh[id] && d.habits && d.habits[id] ? ` <span class="gar-mark" title="laut Garmin erledigt" aria-label="laut Garmin erledigt">${icon('watch')}</span>` : ''; }
+/* Garmin-Details im Trainings-Sheet */
+function garTrainInfo(t, tt) {
+  const g = t.g || {}, rows = [];
+  if (g.te != null || g.tel) rows.push(['Trainingseffekt', [g.te != null ? fmt(g.te, 1) + ' aerob' : '', g.tan != null ? fmt(g.tan, 1) + ' anaerob' : '', g.tel ? garTE(g.tel) : ''].filter(Boolean).join(' · ')]);
+  if (g.pace) rows.push(['Pace', garPace(g.pace) + ' /km']);
+  if (g.pw) rows.push(['Leistung', fmt(g.pw) + ' W']);
+  if (g.sl) rows.push(['Schrittlänge', fmt(g.sl) + ' cm']);
+  if (g.up) rows.push(['Höhenmeter', fmt(g.up) + ' m']);
+  if (t.hr || g.hrmax) rows.push(['Puls', [t.hr ? 'Ø ' + t.hr : '', g.hrmax ? 'max. ' + g.hrmax : ''].filter(Boolean).join(' · ') + ' bpm']);
+  if (g.z) rows.push(['Pulszonen', g.z.map((sec, i) => `Z${i + 1} ${Math.round(sec / 60)}′`).join(' · ')]);
+  if (g.kcal) rows.push(['Kalorien', fmt(g.kcal) + ' kcal']);
+  if (g.bb != null) rows.push(['Body Battery', (g.bb > 0 ? '+' : '') + fmt(g.bb)]);
+  if (g.rpe != null) rows.push(['Anstrengung (Uhr)', fmt(Math.round(g.rpe / 10)) + '/10']);
+  if (g.feel != null) rows.push(['Gefühl (Uhr)', garFeel(g.feel)]);
+  if (t.km && !tt.run) rows.push(['Distanz', fmt(t.km, 1) + ' km']);
+  const tip = g.rpe == null && t.int == null ? ' Die Intensität kommt automatisch, wenn du nach dem Training auf der Uhr die Anstrengung angibst.' : '';
+  return `<div class="gar-train"><p class="hint gar-hint">${icon('watch')} Von Garmin übernommen.${tt.run ? ' Knieschmerz trägst du selbst ein.' : ''}${tip}</p>${rows.length ? `<div class="kv-list">${rows.map(([a, b]) => `<div><span>${esc(a)}</span><b>${esc(b)}</b></div>`).join('')}</div>` : ''}</div>`;
+}
 function garWhen(iso) {
   const dt = new Date(iso);
   if (!Number.isFinite(dt.getTime())) return '–';
@@ -9277,6 +9426,7 @@ function garCard() {
   return `<section class="card gar-card${GAR.err ? ' is-err' : ''}"><div class="gar-head">${icon('watch')}<div><b>Garmin Connect</b><small>${esc(GAR.last || busy ? info : 'Noch nicht abgerufen')}</small></div></div>
     ${GAR.err && !busy ? `<p class="gar-err">${icon('triangle-alert')}<span>${esc(GAR.err)}</span></p>` : ''}
     ${!GAR.err && !busy && GAR.warn && GAR.warn.length ? `<p class="hint">Diesmal nicht geliefert: ${esc(GAR.warn.join(', '))}.</p>` : ''}
+    ${!GAR.err && !busy && GAR.relayOld ? `<p class="hint">${icon('info')} Für Anstrengung und Gefühl aus den Trainings: den neuen Weiterleitungs-Code (Version 2) bei Cloudflare einfügen und „Deploy“ – unter Einstellungen → „Code kopieren“.</p>` : ''}
     <div class="sheet-acts gar-acts"><button class="btn" data-a="gar-sync"${busy ? ' disabled' : ''}>${icon('refresh-cw')}${busy ? 'Läuft …' : 'Jetzt abrufen'}</button><button class="btn is-ghost" data-a="gar-setup">Einstellungen</button></div></section>`;
 }
 function garMark(d, f) {

@@ -289,7 +289,7 @@ function recoveryCard(k) {
 function trainRow(t, k) {
   const tt = trainType(t);
   const gs = t.gym ? gymProgress(t) : null;
-  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', t.km ? fmt(t.km, 1) + ' km' : '', t.hr ? 'Ø ' + t.hr + ' bpm' : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
+  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', t.km ? fmt(t.km, 1) + ' km' : '', t.g && t.g.pace && (tt.run || tt.light) ? garPace(t.g.pace) + ' /km' : '', t.hr ? 'Ø ' + t.hr + ' bpm' : '', t.g && t.g.tel ? garTE(t.g.tel) : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
   return `<div class="row-wrap"><button class="row" data-a="training-edit" data-id="${t.id}" data-date="${k}"><span class="area-ic">${icon(tt.run ? 'activity' : tt.gym ? 'dumbbell' : tt.light ? 'person-standing' : 'flame')}</span><span class="row-main"><b>${esc(t.type)}${t.gym ? ` <em class="est is-blue">Schedule ${t.gym.sched}</em>` : ''}${t.gid ? ' <em class="est">Garmin</em>' : ''}</b><small>${esc(parts || 'ohne Details')}</small></span>${icon('pencil', 'row-ic')}</button>${t.gym ? `<button class="pill-btn row-act" data-a="gym-open" data-id="${t.id}" data-date="${k}">Sätze</button>` : ''}</div>`;
 }
 function vTrainToday(k) {
@@ -444,7 +444,7 @@ function renderTrainSheet() {
     <div class="frow is-wide"><span class="flabel">Einlagen</span><div class="chips chips-tight">${[['1', 'Ja'], ['0', 'Nein']].map(([v, l]) => `<button class="chip chip-xs${(t.ins ? '1' : t.ins === false ? '0' : '') === v ? ' is-on' : ''}" data-a="trs-ins" data-v="${v}">${l}</button>`).join('')}</div></div>
     <div class="frow is-wide"><span class="flabel">Schuh</span><div class="fin"><input type="text" id="trs-shoe" list="shoes" value="${esc(t.shoe || '')}" placeholder="z. B. Modell"><datalist id="shoes">${shoes.map((s) => `<option value="${esc(s)}">`).join('')}</datalist></div></div>` : ''}
     <div class="frow"><span class="flabel">Garmin-Belastung</span><div class="fin"><input type="text" inputmode="numeric" id="trs-load" value="${t.load ?? ''}" placeholder="optional"></div></div></div>
-    ${t.gid ? `<p class="hint gar-hint">${icon('watch')} Von Garmin übernommen${t.hr ? ` · Ø Puls ${t.hr} bpm` : ''}${t.km && !tt.run ? ` · ${fmt(t.km, 1)} km` : ''}. Intensität${tt.run ? ' und Knieschmerz' : ''} trägst du selbst ein.</p>` : ''}
+    ${t.gid ? garTrainInfo(t, tt) : ''}
     ${tt.run ? `<p class="flabel-s">Knieschmerz während des Laufs (0–10)</p>${scale0('trs-pain', t.pain ?? null, ui.sheet.k)}` : ''}
     <p class="flabel-s">Intensität (1–10)</p>${scale10('trs-int', t.int ?? null, ui.sheet.k)}
     <textarea class="note" id="trs-note" rows="2" placeholder="Notiz">${esc(t.note || '')}</textarea>
@@ -461,7 +461,7 @@ function vLicht() {
   const lm = !!d.habits.licht_morgen, ln = !!d.habits.licht_nachmittag;
   const lmin = d.hd && d.hd.lightMin;
   h += `<section class="sec"><div class="sec-head"><h2>Licht</h2><span class="count">${S.settings.profile.wake} Uhr aufstehen</span></div><div class="toggle-grid">
-    <button class="tgl${lm ? ' is-on' : ''}" data-a="habit" data-id="licht_morgen" data-date="${k}" aria-pressed="${lm}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Morgenlicht</b><small>10–30 Min. draußen nach dem Aufstehen</small></span></button>
+    <button class="tgl${lm ? ' is-on' : ''}" data-a="habit" data-id="licht_morgen" data-date="${k}" aria-pressed="${lm}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Morgenlicht${garHabitMark(d, 'licht_morgen')}</b><small>10–30 Min. draußen nach dem Aufstehen</small></span></button>
     <button class="tgl${ln ? ' is-on' : ''}" data-a="habit" data-id="licht_nachmittag" data-date="${k}" aria-pressed="${ln}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Nachmittagslicht</b><small>ein paar Minuten im späten Licht</small></span></button></div>
     <div class="chips chips-tight light-min"><span class="hint">Morgens draußen:</span>${[10, 15, 20, 30, 45].map((m) => `<button class="chip chip-xs${lmin === m ? ' is-on' : ''}" data-a="light-min" data-v="${m}" data-date="${k}">${m} Min.</button>`).join('')}</div>
     <div class="mlist">${topicRow('licht_morgen', 'Warum Morgenlicht?')}</div></section>`;
@@ -497,7 +497,7 @@ function habitRows(k, ids) {
       if (hb.detail.type === 'time') det = `<label class="hdet"><span>${esc(hb.detail.label)}</span><input type="time" data-c="habit-detail" data-k="${hb.detail.key}" data-h="${hb.id}" data-date="${k}" value="${esc(val || '')}"></label>`;
       else det = `<div class="hdet"><span>${esc(hb.detail.label)}</span><div class="chips chips-tight">${hb.detail.options.map((o) => `<button class="chip chip-xs${val === o ? ' is-on' : ''}" data-a="habit-chip" data-k="${hb.detail.key}" data-h="${hb.id}" data-v="${o}" data-date="${k}">${o === 90 ? '90+' : o} ${hb.detail.unit}</button>`).join('')}</div></div>`;
     }
-    h += `<div class="hrow${on ? ' is-on' : ''}"><button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}</b><small>${esc(hb.when)}</small></span></button>
+    h += `<div class="hrow${on ? ' is-on' : ''}"><button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}${garHabitMark(d, hb.id)}</b><small>${esc(hb.when)}</small></span></button>
       <button class="icon-btn" data-a="expand" data-key="h:${hb.id}" aria-label="Erklärung" aria-expanded="${open}">${icon('info')}</button>${det}${open ? `<div class="mrow-detail">${infoHTML(hb.id)}</div>` : ''}</div>`;
   }
   return h + '</div>';

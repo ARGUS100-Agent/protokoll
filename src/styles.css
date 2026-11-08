@@ -974,3 +974,9 @@ th { color: var(--ink-3); font-weight: 650; }
 .gar-links { display: flex; flex-wrap: wrap; }
 .gar-code { margin: 8px 0; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .gar-hint .ic { width: 14px; height: 14px; vertical-align: -2px; }
+.flabel .gar-base { display: block; color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.gar-train .kv-list { display: grid; gap: 4px; margin: 4px 0 12px; font-size: 14px; }
+.gar-train .kv-list div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-top: 1px solid var(--line); }
+.gar-train .kv-list span { color: var(--ink-2); }
+.gar-train .kv-list b { font-weight: 600; text-align: right; }
+.item-txt .gar-mark, .tgl-txt .gar-mark { vertical-align: -2px; }
