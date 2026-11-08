@@ -17,7 +17,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok((await page.evaluate(() => APP_VERSION)) === '2.2.0', 'Version 2.2.0 läuft');
   await page.evaluate(async () => {
     const today = todayKey();
-    // Stand wie bei Dominik: alles zuhause außer drei Artikeln
+    // Einkaufsstand wie nach dem Abgleich vom 07.11.: alles zuhause außer drei Artikeln
     for (const it of S.shop.items) if (it.sid) it.list = SHOP_SYNC_BUY.includes(it.sid) ? 'buy' : 'home';
     markDirty('shop');
     mutDay('2026-11-07', (d) => { d.checks.f_eier = 1; d.ct = { f_eier: '08:00', a_skyr: '20:00' }; d.checks.a_skyr = 1; });
