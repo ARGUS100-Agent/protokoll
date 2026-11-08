@@ -348,18 +348,52 @@ Object.assign(A, {
   },
   'shop-check': (el) => {
     const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return;
-    it.list = 'home'; saveStore('shop');
-    toast(`${it.n} → Zuhause`, () => { it.list = 'buy'; saveStore('shop'); });
+    const prev = { list: it.list, auto: it.auto, inv: it.inv ? { ...it.inv } : null };
+    const s = invState()[it.id];
+    let msg = `${it.n} → Zuhause`;
+    if (s) {
+      const total = s.stock + s.m.buy * s.m.g;
+      it.inv = { ...(it.inv || {}), base: total, since: Date.now() };
+      msg += ` · Vorrat ${invAmt(s.m, total, false)}`;
+    }
+    it.list = 'home'; it.auto = false;
+    saveStore('shop');
+    toast(msg, () => { it.list = prev.list; it.auto = prev.auto; if (prev.inv) it.inv = prev.inv; else delete it.inv; saveStore('shop'); });
   },
-  'shop-back': (el) => { const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return; it.list = 'buy'; saveStore('shop'); toast(`${it.n} steht wieder auf der Liste`); },
+  'shop-back': (el) => { const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return; it.list = 'buy'; it.auto = false; saveStore('shop'); toast(`${it.n} steht wieder auf der Liste`); },
   'shop-edit': (el) => sheetShopItem(el.dataset.id),
   'shop-group': (el) => { ui.shopGroup = ui.shopGroup || {}; ui.shopGroup[getSub('einkauf', 'buy')] = el.dataset.v; render(); },
   'shop-store': (el) => { if (!ui.sheet) return; ui.sheet.store = el.dataset.v; $$('#si-store .chip').forEach((b) => b.classList.toggle('is-on', b.dataset.v === el.dataset.v)); },
   'shop-save': () => {
     const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return;
-    it.n = $('#si-n').value.trim() || it.n; it.q = $('#si-q').value.trim(); it.tip = $('#si-tip').value.trim(); it.cat = $('#si-cat').value;
+    it.n = $('#si-n').value.trim() || it.n; it.tip = $('#si-tip').value.trim(); it.cat = $('#si-cat').value;
+    if ($('#si-q')) it.q = $('#si-q').value.trim();
     it.store = ui.sheet.store || itemStore(it);
+    const m = invMeta(it);
+    if (m && $('#si-stock')) {
+      const raw = $('#si-stock').value.trim(), sv = parseNum(raw), bv = parseNum($('#si-buy').value);
+      if (sv != null && raw !== ui.sheet.stock0) it.inv = { ...(it.inv || {}), base: Math.max(0, sv) * m.g, since: Date.now() };
+      if (bv != null && bv > 0) {
+        if (!m.own && Math.abs(bv - m.defBuy) < 1e-9) { if (it.inv) delete it.inv.buy; } else it.inv = { ...(it.inv || {}), buy: bv };
+      }
+    } else if ($('#si-food') && $('#si-food').value && FOOD[$('#si-food').value]) {
+      /* Packungen (Flasche, Dose, Becher, Stück …) zählen in Stück, Portionsmaße (Glas, EL, Handvoll …) in g bzw. ml */
+      const f = FOOD[$('#si-food').value], u0 = f.u[0], base = isLiquid(f) ? 'ml' : 'g';
+      const plain = u0[0] === 'g' || u0[0] === 'ml' || /^(Glas|Portion|EL|TL|Handvoll|Gabel|Rippe|Tasse|Shot|Prise|Messlöffel|Kugel|Zehe)\b/.test(u0[0]);
+      const link = plain ? { f: [f.id], u: base, g: 1, buy: base === 'ml' ? 1000 : 500 } : { f: [f.id], u: u0[0], g: u0[1], buy: 1 };
+      it.inv = { ...link, base: it.list === 'home' ? link.buy * link.g : 0, since: Date.now() };
+    }
     closeSheet(); saveStore('shop');
+  },
+  'shop-inv': (el) => {
+    const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return;
+    if (el.dataset.v === 'off') { it.inv = { ...(it.inv || {}), off: true }; it.auto = false; }
+    else {
+      it.inv = { ...(it.inv || {}) }; delete it.inv.off;
+      const m = invMeta(it);
+      if (m) { it.inv.base = it.list === 'home' ? m.buy * m.g : 0; it.inv.since = Date.now(); }
+    }
+    saveStore('shop'); sheetShopItem(it.id);
   },
   'shop-del': () => { S.shop.items = S.shop.items.filter((x) => x.id !== ui.sheet.id); closeSheet(); saveStore('shop'); },
   'shop-reload-ask': () => {

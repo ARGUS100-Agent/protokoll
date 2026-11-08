@@ -83,6 +83,16 @@ function migrate3() {
   upgradeShop3({ add: ['h:Magnesium-Threonat'], sync: used && todayKey() <= '2026-11-14' });
 }
 
+/* Einmalige Umstellung auf Version 2.3: Vorrat, der mitzählt.
+   Bisherige Nutzer: Zuhause gilt die Standardmenge ab dem Einkauf vom 07.11.2026 (18 Uhr). */
+function migrate4() {
+  if ((S.meta.schema || 1) >= 4) return;
+  S.meta.schema = 4;
+  markDirty('meta');
+  const used = Object.keys(S.days).length > 0;
+  invInit(used && todayKey() <= '2026-11-21' ? invTs('2026-11-07', '18:00') : Date.now());
+}
+
 /* ---------- Bereiche ---------- */
 function areaById(id) { return AREAS.find((a) => a.id === id) || (id === 'mehr' ? MORE_TAB : null); }
 function navTabs() {
@@ -541,7 +551,12 @@ function shopDef(sid) {
   if (!shopDefMap) { shopDefMap = {}; for (const d of shopDefs()) shopDefMap[d.sid] = d; }
   return sid ? shopDefMap[sid] || null : null;
 }
-function shopNew(d, list) { return { id: uid(), n: d.n, q: d.q, cat: d.cat, store: d.store, tip: d.tip, list: list || d.list, sid: d.sid }; }
+function shopNew(d, list) {
+  const it = { id: uid(), n: d.n, q: d.q, cat: d.cat, store: d.store, tip: d.tip, list: list || d.list, sid: d.sid };
+  const m = SHOP_INV[d.sid];
+  if (m) it.inv = { base: it.list === 'home' ? m.buy * m.g : 0, since: Date.now() };
+  return it;
+}
 function shopDefault() { return { items: shopDefs().map((d) => shopNew(d)) }; }
 function shopReload() {
   for (const d of shopDefs()) {
@@ -565,6 +580,135 @@ function shopStoreCounts(list = 'buy') {
   const c = {};
   for (const it of (S.shop && S.shop.items) || []) if (it.list === list) { const s = itemStore(it); c[s] = (c[s] || 0) + 1; }
   return SHOP_STORES.filter((s) => c[s.id]).map((s) => ({ ...s, count: c[s.id] })).sort((x, y) => y.count - x.count);
+}
+/* ============================================================
+   VORRAT, DER MITZÄHLT (nur Lebensmittel)
+   Bestand = Menge beim Einkauf (base, Zeitpunkt since) minus alles,
+   was seitdem abgehakt oder eingetragen wurde. Wird immer neu
+   berechnet, dadurch stimmen auch Rückgängig, Ändern und Löschen.
+   ============================================================ */
+function invMeta(it) {
+  if (!it || (it.inv && it.inv.off)) return null;
+  const own = it.inv && Array.isArray(it.inv.f) && it.inv.f.length ? it.inv : null;
+  const src = own || SHOP_INV[it.sid];
+  if (!src) return null;
+  const foods = new Set(src.f);
+  if (src.re) { const re = new RegExp(src.re, 'i'); for (const f of Object.values(FOOD)) if (re.test(f.n)) foods.add(f.id); }
+  const buy = it.inv && it.inv.buy > 0 ? it.inv.buy : src.buy;
+  return { foods, u: src.u, g: src.g, buy, defBuy: src.buy, own: !!own };
+}
+function invTs(k, hm) { const [h, m] = String(hm).split(':').map(Number); const d = parseKey(k); d.setHours(h || 0, m || 0, 0, 0); return d.getTime(); }
+/* Verbrauch je Tag: abgehakte Standardposten und Einträge mit Zeitpunkt (falls bekannt) */
+function invEvents(from, to) {
+  const out = [];
+  for (let k = from; k <= to; k = addDays(k, 1)) {
+    const d = S.days[k];
+    if (!d) continue;
+    const variant = dayVariant(k);
+    for (const { it } of allPlanItems()) {
+      if (!d.checks || !d.checks[it.id]) continue;
+      out.push({ k, fid: itemFoodId(it, d), g: itemGrams(it, d, variant), ts: d.ct && d.ct[it.id] ? invTs(k, d.ct[it.id]) : null });
+    }
+    for (const e of d.entries || []) out.push({ k, fid: e.food, g: e.g || 0, ts: e.t || null });
+  }
+  return out;
+}
+/* Geplanter Tagesverbrauch laut Standardtag (Durchschnitt über die Wochentage) */
+function invPlanRate(foods) {
+  let sum = 0;
+  const plan = allPlanItems().filter((x) => x.block && !x.it.opt);
+  for (let wd = 0; wd < 7; wd++) {
+    const variant = (S.settings.weekPlan && S.settings.weekPlan[wd]) || 'prep';
+    for (const { it } of plan) {
+      if (!itemInVariant(it, variant)) continue;
+      const fids = it.choice ? it.choice : [it.food];
+      const hit = fids.filter((f) => foods.has(f));
+      if (!hit.length) continue;
+      const fid = foods.has(it.food) ? it.food : hit[0];
+      sum += itemAmount(it, null, variant) * unitG(FOOD[fid], it.u) * (hit.length / fids.length);
+    }
+  }
+  return sum / 7;
+}
+let invCache = { v: -1, map: null };
+function invState() {
+  if (invCache.v === calcVersion && invCache.map) return invCache.map;
+  const map = {};
+  const list = ((S.shop && S.shop.items) || []).map((it) => ({ it, m: invMeta(it) })).filter((x) => x.m);
+  if (list.length) {
+    const today = todayKey(), win = addDays(today, -14), now = Date.now();
+    let from = win;
+    for (const { it } of list) { const sk = dkey(new Date((it.inv && it.inv.since) || now)); if (sk < from) from = sk; }
+    if (from < addDays(today, -400)) from = addDays(today, -400);
+    const events = invEvents(from, today);
+    let logged = 0;
+    for (let k = win; k < today; k = addDays(k, 1)) if (hasData(S.days[k])) logged++;
+    for (const { it, m } of list) {
+      const since = (it.inv && it.inv.since) || now, sk = dkey(new Date(since)), sinceMin = Math.floor(since / 60000) * 60000;
+      let used = 0, recent = 0;
+      for (const e of events) {
+        if (!m.foods.has(e.fid)) continue;
+        if (e.k >= win && e.k < today) recent += e.g;
+        if (e.k < sk || (e.k === sk && e.ts != null && e.ts < sinceMin)) continue;
+        used += e.g;
+      }
+      const base = (it.inv && it.inv.base) || 0;
+      const stock = Math.max(0, base - used);
+      const rate = Math.max(invPlanRate(m.foods), logged >= 3 ? recent / logged : 0);
+      map[it.id] = { m, base, used, stock, rate, days: rate > 0 ? stock / rate : null };
+    }
+  }
+  invCache = { v: calcVersion, map };
+  return map;
+}
+function invLow(s) { return !!s && ((s.days != null && s.days <= INV_DAYS) || (s.stock <= 0 && s.used > 0)); }
+/* Menge in der Anzeige-Einheit, z. B. „18 Stück“, „1,5 kg“, „4 Becher (500 g)“ */
+function invAmt(m, grams, paren = true) {
+  if (m.u === 'g' || m.u === 'ml') {
+    const big = m.u === 'g' ? 'kg' : 'l';
+    return grams >= 1000 ? `${fmt(grams / 1000, grams % 1000 ? 1 : 0)} ${big}` : `${fmt(grams)} ${m.u}`;
+  }
+  const n = grams / m.g, r = n < 10 ? Math.round(n * 10) / 10 : Math.round(n);
+  return amountLabel(r, m.u, !paren);
+}
+function invDaysText(s) {
+  if (!s) return '';
+  if (s.stock <= 0) return 'aufgebraucht';
+  if (s.days == null) return '';
+  if (s.days < 1) return 'reicht nur noch heute';
+  const n = Math.floor(s.days);
+  return n === 1 ? 'reicht noch 1 Tag' : `reicht noch ${n > 60 ? 'über 60' : n} Tage`;
+}
+/* Vorrat für Artikel ohne Angabe anlegen (Update, Import): zuhause = Standardmenge, sonst leer */
+function invInit(since) {
+  if (!S.shop || !Array.isArray(S.shop.items)) return;
+  for (const it of S.shop.items) {
+    if (it.inv && it.inv.since) continue;
+    const m = SHOP_INV[it.sid];
+    if (!m) continue;
+    it.inv = { ...(it.inv || {}), base: it.list === 'home' ? m.buy * m.g : 0, since };
+  }
+  markDirty('shop');
+}
+/* Fast leer → auf die Einkaufsliste; wieder genug (z. B. Bestand korrigiert) → zurück nach Zuhause */
+function invSync() {
+  if (!S.shop || !Array.isArray(S.shop.items)) return;
+  const st = invState();
+  const moved = [];
+  let changed = false;
+  for (const it of S.shop.items) {
+    const s = st[it.id];
+    if (!s) continue;
+    const low = invLow(s);
+    if (it.list === 'home' && low) { it.list = 'buy'; it.auto = true; moved.push(it.n); changed = true; }
+    else if (it.list === 'buy' && it.auto && !low) { it.list = 'home'; it.auto = false; changed = true; }
+  }
+  if (changed) markDirty('shop');
+  if (moved.length) {
+    const msg = `Auf die Einkaufsliste: ${moved.slice(0, 3).join(', ')}${moved.length > 3 ? ` und ${moved.length - 3} weitere` : ''}`;
+    const t = $('#toast');
+    setTimeout(() => toast(msg), t && t.classList.contains('show') ? 2800 : 0);
+  }
 }
 function todosOpen() { return (S.settings.todos || []).filter((t) => !t.done); }
 function todosDue(days = 7) {

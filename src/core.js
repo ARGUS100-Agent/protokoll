@@ -181,7 +181,7 @@ function unitG(food, u) {
   return e ? e[1] : 1;
 }
 const isLiquid = (food) => !!food && !!food.fl;
-const PLURAL = { Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
+const PLURAL = { Tafel: 'Tafeln', Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
 function unitLabel(u, n) { if (n === 1 || u === 'g' || u === 'ml') return u; return String(u).replace(/^([A-Za-zÄÖÜäöüß]+)/, (w) => PLURAL[w] || w); }
 function amountLabel(n, u, stripParen = false) { const d = n % 1 ? (Math.round(n * 100) % 10 ? 2 : 1) : 0; const ul = unitLabel(u, n); return `${fmt(n, d)} ${stripParen ? ul.replace(/\s*\(.*\)\s*/, '') : ul}`; }
 function fmtAmount(food, g) {
@@ -805,7 +805,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 3, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
+  return { app: 'protokoll', schema: 4, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
 }
 function backupDue() {
   const n = S.settings.backupDays;

@@ -69,10 +69,12 @@ const IDS = ['f_kiwi', 'n_schoko', 'v_rotebete'];
       kombu: (items.find((x) => x.sid === 'b:Kombucha') || {}),
       mg: (items.find((x) => x.sid === 'h:Magnesium-Threonat') || {}).list,
       tile: areaStatus('einkauf', k),
+      eier: (() => { const it = items.find((x) => x.sid === 'b:Eier'); const s = invState()[it.id]; return { since: it.inv && it.inv.since, stock: s && Math.round(s.stock) }; })(),
+      tracked: items.filter((x) => SHOP_INV[x.sid]).every((x) => x.inv && x.inv.since),
     };
   });
   console.log('     ' + JSON.stringify(st));
-  ok(st.schema === 3, 'Migration auf Schema 3');
+  ok(st.schema === 4, 'Migration auf Schema 4');
   ok(/aktualisiert/.test(st.toast), 'Hinweis „aktualisiert“ erscheint');
   ok(st.kiwi.join('|') === 'kiwi_gold|kiwi_gold/kiwi|kiwi_gold', 'Kiwi: ab jetzt Gold-Kiwi, grüne Kiwi wählbar');
   ok(st.schoko[0] === 'schokolade90' && st.schoko[1] === 'schokolade90/schokolade85' && st.schoko[2] === 'Dunkle Schokolade 90 %', 'Schokolade: ab jetzt 90 %, 85 % wählbar');
@@ -84,6 +86,8 @@ const IDS = ['f_kiwi', 'n_schoko', 'v_rotebete'];
   ok(st.own.store === 'dm' && st.own.list === 'buy', 'Eigener Artikel behält Liste, Laden nach Kategorie');
   ok(st.rbName === 'Rote Bete oder Rote-Bete-Saft' && st.schokoName === 'Dunkle Schokolade (85–90 %)' && st.kombu.q === '6 × 0,33 l' && st.kombu.store === 'rewe', 'Artikel umbenannt, Kombucha-Menge und Laden angepasst');
   ok(st.tile.v === '4 offen' && st.tile.s === 'dm 3 · Lidl 1', 'Kachel: ' + st.tile.v + ' – ' + st.tile.s);
+  ok(st.tracked && st.eier.since === new Date('2026-11-07T18:00:00+01:00').getTime(), 'Vorrat ab dem Einkauf am 07.11. (18 Uhr) angelegt');
+  ok(st.eier.stock === 21 * 55 - (new Date().toISOString().slice(0, 10) >= '2026-11-08' ? 165 : 0), 'Eier: 21 minus 3 abgehakte = ' + st.eier.stock / 55);
   // Bereiche rendern
   for (const a of ['heute', 'ern', 'einkauf', 'set']) { await page.evaluate((a) => go(a, { scrollTop: true }), a); await page.waitForTimeout(150); }
   await page.evaluate(() => go('einkauf'));

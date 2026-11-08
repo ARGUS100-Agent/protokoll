@@ -54,7 +54,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   });
   console.log('     ' + JSON.stringify(st));
   ok(st.days === 3 && st.name === 'Test', 'Alle Tage und Profil erhalten');
-  ok(st.schema === 3, 'Migration auf Schema 3');
+  ok(st.schema === 4, 'Migration auf Schema 4');
   ok(st.tabs.join(',') === 'heute,ern,train,knie', 'Tab-Leiste: Heute · Ernährung · Training · Knie');
   ok(st.knee && st.caf === 6 && st.shop > 40, 'Neue Einstellungen und Einkaufsliste angelegt');
   ok(st.rules[0].includes('OneBlade') && st.rules.includes('Kein Clienzo'), 'Haut-Phase 1 auf neue Regeln aktualisiert');

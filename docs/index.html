@@ -920,6 +920,13 @@ th { color: var(--ink-3); font-weight: 650; }
 .frank-src a { color: var(--accent); }
 .frank-meals { margin-top: 8px; }
 
+/* Vorrat */
+.inv-line { display: block; color: var(--ink-3); font-size: 13px; }
+.inv-line.is-low { color: var(--st-under); }
+.inv-in { display: flex; align-items: center; gap: 8px; }
+.inv-in input { flex: 1; min-width: 0; }
+.inv-in span { color: var(--ink-3); font-size: 14px; white-space: nowrap; }
+
 </style>
 </head>
 <body>
@@ -962,6 +969,7 @@ const ICONS = {
   'moon': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg>',
   'notebook-pen': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></svg>',
   'octagon-alert': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16h.01" /> <path d="M12 8v4" /> <path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z" /></svg>',
+  'package': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /> <path d="M12 22V12" /> <polyline points="3.29 7 12 12 20.71 7" /> <path d="m7.5 4.27 9 5.15" /></svg>',
   'pause': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="3" width="5" height="18" rx="1" /> <rect x="5" y="3" width="5" height="18" rx="1" /></svg>',
   'pencil': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg>',
   'person-standing': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1" /> <path d="m9 20 3-6 3 6" /> <path d="m6 8 6 2 6-2" /> <path d="M12 10v4" /></svg>',
@@ -1005,7 +1013,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.3.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -1590,6 +1598,49 @@ const SHOP_DEFAULT = {
     ['Vorrat', 'Mandeln', '', 'lidl', ''], ['Vorrat', 'Kürbiskerne', '', 'lidl', ''], ['Vorrat', 'Hanfsamen', '', 'dm', 'geschält'], ['Vorrat', 'Kakaonibs', '', 'dm', ''], ['Vorrat', 'Sonnenblumenkerne', '', 'lidl', ''], ['Vorrat', 'Dinkelflocken', '', 'dm', ''], ['Vorrat', 'Omega-3', '', 'online', 'Algenöl'], ['Vorrat', 'Magnesium-Threonat', '', 'online', ''],
   ],
 };
+/* Vorrat, der mitzählt (nur Lebensmittel): welche Lebensmittel der Artikel liefert (f, re = Namensmuster für eigene),
+   Anzeige-Einheit u mit g Gramm bzw. ml je Einheit und Standard-Einkaufsmenge buy in dieser Einheit */
+const SHOP_INV = {
+  'b:Spinat': { f: ['spinat'], u: 'g', g: 1, buy: 700 },
+  'b:Paprika': { f: ['paprika_rot'], u: 'Stück', g: 150, buy: 7 },
+  'b:Karotten': { f: ['karotten'], u: 'g', g: 1, buy: 1000 },
+  'b:Brokkoli': { f: ['brokkoli'], u: 'Stück', g: 400, buy: 2 },
+  'b:Rote Bete': { f: ['rotebete_saft', 'rote_bete'], u: 'ml', g: 1, buy: 1000 },
+  'b:Tomaten': { f: ['tomate'], u: 'g', g: 1, buy: 500 },
+  'b:Gurke': { f: ['gurke'], u: 'Stück', g: 400, buy: 1 },
+  'b:Kiwis': { f: ['kiwi_gold', 'kiwi'], u: 'Stück', g: 90, buy: 7 },
+  'b:Bananen': { f: ['banane'], u: 'Stück', g: 120, buy: 7 },
+  'b:Äpfel': { f: ['apfel'], u: 'Stück', g: 150, buy: 7 },
+  'b:TK-Beeren': { f: ['heidelbeeren', 'himbeeren', 'brombeeren', 'beerenmix'], u: 'g', g: 1, buy: 1000 },
+  'b:Datteln': { f: ['datteln'], u: 'g', g: 1, buy: 500 },
+  'b:Eier': { f: ['ei'], u: 'Stück', g: 55, buy: 21 },
+  'b:Skyr': { f: ['skyr'], u: 'Becher (500 g)', g: 500, buy: 7 },
+  'b:Kefir': { f: ['kefir'], u: 'ml', g: 1, buy: 1000 },
+  'b:Sauerkraut': { f: ['sauerkraut'], u: 'g', g: 1, buy: 500 },
+  'b:Kimchi': { f: ['kimchi'], u: 'g', g: 1, buy: 400 },
+  'b:Makrele': { f: ['makrele'], u: 'Dose', g: 120, buy: 5 },
+  'b:Paranüsse': { f: ['paranuss'], u: 'Stück', g: 5, buy: 40 },
+  'b:Dunkle Schokolade 85 %': { f: ['schokolade90', 'schokolade85'], u: 'Tafel (100 g)', g: 100, buy: 2 },
+  'b:Jodsalz': { f: ['jodsalz'], u: 'g', g: 1, buy: 500 },
+  'b:Vollkornbrot': { f: ['vollkornbrot'], u: 'Scheibe', g: 50, buy: 10 },
+  'b:O-Saft': { f: ['o_saft'], u: 'ml', g: 1, buy: 2000 },
+  'b:Kokoswasser': { f: ['kokoswasser'], u: 'ml', g: 1, buy: 3000 },
+  'b:Kombucha': { f: ['kombucha'], u: 'Flasche (330 ml)', g: 330, buy: 6 },
+  'b:Mineralwasser': { f: ['mineralwasser'], u: 'Flasche (1,5 l)', g: 1500, buy: 6 },
+  'h:Prepmymeal': { f: PMM_CHOICES, re: '^prepmymeal', u: 'Beutel (1 kg)', g: 1000, buy: 7 },
+  'h:Flohsamenschalen': { f: ['flohsamen'], u: 'g', g: 1, buy: 300 },
+  'h:Grüner Tee': { f: ['gruener_tee'], u: 'Beutel', g: 250, buy: 20 },
+  'h:Olivenöl': { f: ['olivenoel'], u: 'Flasche (750 ml)', g: 690, buy: 1 },
+  'h:Leinsamen': { f: ['leinsamen'], u: 'g', g: 1, buy: 500 },
+  'h:Haferflocken': { f: ['haferflocken'], u: 'g', g: 1, buy: 1000 },
+  'h:Mandeln': { f: ['mandeln'], u: 'g', g: 1, buy: 400 },
+  'h:Kürbiskerne': { f: ['kuerbiskerne'], u: 'g', g: 1, buy: 200 },
+  'h:Hanfsamen': { f: ['hanfsamen'], u: 'g', g: 1, buy: 250 },
+  'h:Kakaonibs': { f: ['kakaonibs'], u: 'g', g: 1, buy: 250 },
+  'h:Sonnenblumenkerne': { f: ['sonnenblumenkerne'], u: 'g', g: 1, buy: 250 },
+  'h:Dinkelflocken': { f: ['dinkelflocken'], u: 'g', g: 1, buy: 500 },
+};
+const INV_DAYS = 2; // so viele Tage vorher kommt ein Lebensmittel automatisch auf die Einkaufsliste
 /* Stand nach dem Einkauf vom 07.11.2026: nur diese Standardartikel fehlen noch (alles andere ist zuhause) */
 const SHOP_SYNC_BUY = ['b:Vollkornbrot', 'b:Philips OneBlade Klingen', 'b:Zahnbürstenkopf'];
 
@@ -2436,7 +2487,7 @@ function unitG(food, u) {
   return e ? e[1] : 1;
 }
 const isLiquid = (food) => !!food && !!food.fl;
-const PLURAL = { Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
+const PLURAL = { Tafel: 'Tafeln', Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
 function unitLabel(u, n) { if (n === 1 || u === 'g' || u === 'ml') return u; return String(u).replace(/^([A-Za-zÄÖÜäöüß]+)/, (w) => PLURAL[w] || w); }
 function amountLabel(n, u, stripParen = false) { const d = n % 1 ? (Math.round(n * 100) % 10 ? 2 : 1) : 0; const ul = unitLabel(u, n); return `${fmt(n, d)} ${stripParen ? ul.replace(/\s*\(.*\)\s*/, '') : ul}`; }
 function fmtAmount(food, g) {
@@ -3060,7 +3111,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 3, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
+  return { app: 'protokoll', schema: 4, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
 }
 function backupDue() {
   const n = S.settings.backupDays;
@@ -3159,6 +3210,16 @@ function migrate3() {
   markDirty('meta');
   upgradePlan3();
   upgradeShop3({ add: ['h:Magnesium-Threonat'], sync: used && todayKey() <= '2026-11-14' });
+}
+
+/* Einmalige Umstellung auf Version 2.3: Vorrat, der mitzählt.
+   Bisherige Nutzer: Zuhause gilt die Standardmenge ab dem Einkauf vom 07.11.2026 (18 Uhr). */
+function migrate4() {
+  if ((S.meta.schema || 1) >= 4) return;
+  S.meta.schema = 4;
+  markDirty('meta');
+  const used = Object.keys(S.days).length > 0;
+  invInit(used && todayKey() <= '2026-11-21' ? invTs('2026-11-07', '18:00') : Date.now());
 }
 
 /* ---------- Bereiche ---------- */
@@ -3619,7 +3680,12 @@ function shopDef(sid) {
   if (!shopDefMap) { shopDefMap = {}; for (const d of shopDefs()) shopDefMap[d.sid] = d; }
   return sid ? shopDefMap[sid] || null : null;
 }
-function shopNew(d, list) { return { id: uid(), n: d.n, q: d.q, cat: d.cat, store: d.store, tip: d.tip, list: list || d.list, sid: d.sid }; }
+function shopNew(d, list) {
+  const it = { id: uid(), n: d.n, q: d.q, cat: d.cat, store: d.store, tip: d.tip, list: list || d.list, sid: d.sid };
+  const m = SHOP_INV[d.sid];
+  if (m) it.inv = { base: it.list === 'home' ? m.buy * m.g : 0, since: Date.now() };
+  return it;
+}
 function shopDefault() { return { items: shopDefs().map((d) => shopNew(d)) }; }
 function shopReload() {
   for (const d of shopDefs()) {
@@ -3643,6 +3709,135 @@ function shopStoreCounts(list = 'buy') {
   const c = {};
   for (const it of (S.shop && S.shop.items) || []) if (it.list === list) { const s = itemStore(it); c[s] = (c[s] || 0) + 1; }
   return SHOP_STORES.filter((s) => c[s.id]).map((s) => ({ ...s, count: c[s.id] })).sort((x, y) => y.count - x.count);
+}
+/* ============================================================
+   VORRAT, DER MITZÄHLT (nur Lebensmittel)
+   Bestand = Menge beim Einkauf (base, Zeitpunkt since) minus alles,
+   was seitdem abgehakt oder eingetragen wurde. Wird immer neu
+   berechnet, dadurch stimmen auch Rückgängig, Ändern und Löschen.
+   ============================================================ */
+function invMeta(it) {
+  if (!it || (it.inv && it.inv.off)) return null;
+  const own = it.inv && Array.isArray(it.inv.f) && it.inv.f.length ? it.inv : null;
+  const src = own || SHOP_INV[it.sid];
+  if (!src) return null;
+  const foods = new Set(src.f);
+  if (src.re) { const re = new RegExp(src.re, 'i'); for (const f of Object.values(FOOD)) if (re.test(f.n)) foods.add(f.id); }
+  const buy = it.inv && it.inv.buy > 0 ? it.inv.buy : src.buy;
+  return { foods, u: src.u, g: src.g, buy, defBuy: src.buy, own: !!own };
+}
+function invTs(k, hm) { const [h, m] = String(hm).split(':').map(Number); const d = parseKey(k); d.setHours(h || 0, m || 0, 0, 0); return d.getTime(); }
+/* Verbrauch je Tag: abgehakte Standardposten und Einträge mit Zeitpunkt (falls bekannt) */
+function invEvents(from, to) {
+  const out = [];
+  for (let k = from; k <= to; k = addDays(k, 1)) {
+    const d = S.days[k];
+    if (!d) continue;
+    const variant = dayVariant(k);
+    for (const { it } of allPlanItems()) {
+      if (!d.checks || !d.checks[it.id]) continue;
+      out.push({ k, fid: itemFoodId(it, d), g: itemGrams(it, d, variant), ts: d.ct && d.ct[it.id] ? invTs(k, d.ct[it.id]) : null });
+    }
+    for (const e of d.entries || []) out.push({ k, fid: e.food, g: e.g || 0, ts: e.t || null });
+  }
+  return out;
+}
+/* Geplanter Tagesverbrauch laut Standardtag (Durchschnitt über die Wochentage) */
+function invPlanRate(foods) {
+  let sum = 0;
+  const plan = allPlanItems().filter((x) => x.block && !x.it.opt);
+  for (let wd = 0; wd < 7; wd++) {
+    const variant = (S.settings.weekPlan && S.settings.weekPlan[wd]) || 'prep';
+    for (const { it } of plan) {
+      if (!itemInVariant(it, variant)) continue;
+      const fids = it.choice ? it.choice : [it.food];
+      const hit = fids.filter((f) => foods.has(f));
+      if (!hit.length) continue;
+      const fid = foods.has(it.food) ? it.food : hit[0];
+      sum += itemAmount(it, null, variant) * unitG(FOOD[fid], it.u) * (hit.length / fids.length);
+    }
+  }
+  return sum / 7;
+}
+let invCache = { v: -1, map: null };
+function invState() {
+  if (invCache.v === calcVersion && invCache.map) return invCache.map;
+  const map = {};
+  const list = ((S.shop && S.shop.items) || []).map((it) => ({ it, m: invMeta(it) })).filter((x) => x.m);
+  if (list.length) {
+    const today = todayKey(), win = addDays(today, -14), now = Date.now();
+    let from = win;
+    for (const { it } of list) { const sk = dkey(new Date((it.inv && it.inv.since) || now)); if (sk < from) from = sk; }
+    if (from < addDays(today, -400)) from = addDays(today, -400);
+    const events = invEvents(from, today);
+    let logged = 0;
+    for (let k = win; k < today; k = addDays(k, 1)) if (hasData(S.days[k])) logged++;
+    for (const { it, m } of list) {
+      const since = (it.inv && it.inv.since) || now, sk = dkey(new Date(since)), sinceMin = Math.floor(since / 60000) * 60000;
+      let used = 0, recent = 0;
+      for (const e of events) {
+        if (!m.foods.has(e.fid)) continue;
+        if (e.k >= win && e.k < today) recent += e.g;
+        if (e.k < sk || (e.k === sk && e.ts != null && e.ts < sinceMin)) continue;
+        used += e.g;
+      }
+      const base = (it.inv && it.inv.base) || 0;
+      const stock = Math.max(0, base - used);
+      const rate = Math.max(invPlanRate(m.foods), logged >= 3 ? recent / logged : 0);
+      map[it.id] = { m, base, used, stock, rate, days: rate > 0 ? stock / rate : null };
+    }
+  }
+  invCache = { v: calcVersion, map };
+  return map;
+}
+function invLow(s) { return !!s && ((s.days != null && s.days <= INV_DAYS) || (s.stock <= 0 && s.used > 0)); }
+/* Menge in der Anzeige-Einheit, z. B. „18 Stück“, „1,5 kg“, „4 Becher (500 g)“ */
+function invAmt(m, grams, paren = true) {
+  if (m.u === 'g' || m.u === 'ml') {
+    const big = m.u === 'g' ? 'kg' : 'l';
+    return grams >= 1000 ? `${fmt(grams / 1000, grams % 1000 ? 1 : 0)} ${big}` : `${fmt(grams)} ${m.u}`;
+  }
+  const n = grams / m.g, r = n < 10 ? Math.round(n * 10) / 10 : Math.round(n);
+  return amountLabel(r, m.u, !paren);
+}
+function invDaysText(s) {
+  if (!s) return '';
+  if (s.stock <= 0) return 'aufgebraucht';
+  if (s.days == null) return '';
+  if (s.days < 1) return 'reicht nur noch heute';
+  const n = Math.floor(s.days);
+  return n === 1 ? 'reicht noch 1 Tag' : `reicht noch ${n > 60 ? 'über 60' : n} Tage`;
+}
+/* Vorrat für Artikel ohne Angabe anlegen (Update, Import): zuhause = Standardmenge, sonst leer */
+function invInit(since) {
+  if (!S.shop || !Array.isArray(S.shop.items)) return;
+  for (const it of S.shop.items) {
+    if (it.inv && it.inv.since) continue;
+    const m = SHOP_INV[it.sid];
+    if (!m) continue;
+    it.inv = { ...(it.inv || {}), base: it.list === 'home' ? m.buy * m.g : 0, since };
+  }
+  markDirty('shop');
+}
+/* Fast leer → auf die Einkaufsliste; wieder genug (z. B. Bestand korrigiert) → zurück nach Zuhause */
+function invSync() {
+  if (!S.shop || !Array.isArray(S.shop.items)) return;
+  const st = invState();
+  const moved = [];
+  let changed = false;
+  for (const it of S.shop.items) {
+    const s = st[it.id];
+    if (!s) continue;
+    const low = invLow(s);
+    if (it.list === 'home' && low) { it.list = 'buy'; it.auto = true; moved.push(it.n); changed = true; }
+    else if (it.list === 'buy' && it.auto && !low) { it.list = 'home'; it.auto = false; changed = true; }
+  }
+  if (changed) markDirty('shop');
+  if (moved.length) {
+    const msg = `Auf die Einkaufsliste: ${moved.slice(0, 3).join(', ')}${moved.length > 3 ? ` und ${moved.length - 3} weitere` : ''}`;
+    const t = $('#toast');
+    setTimeout(() => toast(msg), t && t.classList.contains('show') ? 2800 : 0);
+  }
 }
 function todosOpen() { return (S.settings.todos || []).filter((t) => !t.done); }
 function todosDue(days = 7) {
@@ -4164,6 +4359,7 @@ const VIEWS = { heute: () => vHeute(), ern: () => vErn(), supp: () => vSupp(), t
 function render(keepScroll = true) {
   const y = window.scrollY;
   if (!VIEWS[ui.tab]) ui.tab = 'heute';
+  try { invSync(); } catch (e) { /* egal */ }
   $('#main').innerHTML = VIEWS[ui.tab]();
   renderTabbar();
   if (keepScroll) window.scrollTo(0, y);
@@ -5211,6 +5407,8 @@ function areaStatus(id, k = todayKey()) {
       }
       case 'einkauf': {
         const n = S.shop.items.filter((x) => x.list === 'buy').length;
+        const low = S.shop.items.filter((x) => x.list === 'buy' && x.auto).map((x) => x.n);
+        if (low.length) return { v: `${n} offen`, s: esc(`Fast leer: ${low.slice(0, 2).join(', ')}${low.length > 2 ? ` +${low.length - 2}` : ''}`), st: 'under' };
         return { v: `${n} offen`, s: n ? esc(shopStoreCounts('buy').slice(0, 3).map((x) => `${x.n} ${x.count}`).join(' · ')) : 'alles eingekauft', st: 'none' };
       }
       case 'woche': {
@@ -5915,10 +6113,22 @@ function vShop() {
   if (!list.length) return h + emptyState(sub === 'buy' ? 'Alles eingekauft.' : 'Nichts als vorrätig markiert.') + `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
   h += `<div class="shop-tools"><div class="chips chips-tight"><button class="chip chip-xs${grp === 'store' ? ' is-on' : ''}" data-a="shop-group" data-v="store">${icon('store')}Nach Laden</button><button class="chip chip-xs${grp === 'cat' ? ' is-on' : ''}" data-a="shop-group" data-v="cat">${icon('layers')}Nach Kategorie</button></div></div>`;
   const catIdx = (c) => { const i = SHOP_CATS.indexOf(c); return i < 0 ? 99 : i; };
-  const meta = (it) => { const p = [it.q, itemTip(it)].filter(Boolean); return p.length ? `<small>${esc(p.join(' · '))}</small>` : ''; };
+  const inv = invState();
+  const meta = (it) => {
+    const s = inv[it.id];
+    const p = [s ? invAmt(s.m, s.m.buy * s.m.g) : it.q, itemTip(it)].filter(Boolean);
+    const low = s && it.auto ? `<small class="inv-line is-low">Fast leer: noch ${esc(invAmt(s.m, s.stock, false))}${s.days != null ? `, ${esc(invDaysText(s))}` : ''}</small>` : '';
+    return (p.length ? `<small>${esc(p.join(' · '))}</small>` : '') + low;
+  };
+  const stockLine = (it) => {
+    const s = inv[it.id];
+    if (!s) return '';
+    const dt = invDaysText(s);
+    return `<small class="inv-line${s.days != null && s.days <= 4 ? ' is-low' : ''}">noch ${esc(invAmt(s.m, s.stock, false))}${dt && s.stock > 0 ? ` · ${esc(dt)}` : ''}</small>`;
+  };
   const tag = (it) => `<span class="store-tag">${esc(storeById(itemStore(it)).n)}</span>`;
   const row = (it, withStore) => {
-    const name = sub === 'buy' ? `<b>${esc(it.n)}${withStore ? tag(it) : ''}</b>${meta(it)}` : `<b>${esc(it.n)}</b>`;
+    const name = sub === 'buy' ? `<b>${esc(it.n)}${withStore ? tag(it) : ''}</b>${meta(it)}` : `<b>${esc(it.n)}</b>${stockLine(it)}`;
     const edit = `<button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button>`;
     return sub === 'buy'
       ? `<div class="shop-row"><button class="shop-chk" data-a="shop-check" data-id="${it.id}"><span class="tgl-box">${icon('check')}</span><span class="row-main">${name}</span></button>${edit}</div>`
@@ -5940,19 +6150,40 @@ function vShop() {
     }
   }
   if (sub === 'buy' && grp === 'store') h += `<p class="hint">Der Laden ist ein Vorschlag pro Artikel und lässt sich über den Stift ändern. „Nächste Filiale“ öffnet Apple Karten mit der Suche in deiner Nähe.</p>`;
+  if (sub === 'home') h += `<p class="hint">Lebensmittel zählen mit: Haken im Standardtag und Einträge ziehen vom Vorrat ab. Reicht etwas nur noch ${INV_DAYS} Tage, kommt es von selbst auf die Einkaufsliste. Bestand und Einkaufsmenge änderst du über den Stift.</p>`;
   h += `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
   return h;
 }
 function sheetShopItem(id) {
   const it = S.shop.items.find((x) => x.id === id);
   if (!it) return;
-  ui.sheet = { type: 'shop', id, store: itemStore(it) };
+  const st = invState()[it.id] || null;
+  const num = (m, grams) => numIn(m.u === 'g' || m.u === 'ml' ? Math.round(grams) : grams / m.g, 1);
+  ui.sheet = { type: 'shop', id, store: (ui.sheet && ui.sheet.type === 'shop' && ui.sheet.id === id && ui.sheet.store) || itemStore(it), stock0: st ? num(st.m, st.stock) : null };
+  let invH = '';
+  if (st) {
+    const m = st.m, perDay = st.rate > 0 ? invAmt(m, st.rate, false) : null;
+    invH = `<h5>Vorrat</h5><div class="form">
+      <div class="frow is-wide"><span class="flabel">Gerade zuhause</span><div class="fin inv-in"><input type="text" inputmode="decimal" id="si-stock" value="${ui.sheet.stock0}"><span>${esc(m.u)}</span></div></div>
+      <div class="frow is-wide"><span class="flabel">Menge pro Einkauf</span><div class="fin inv-in"><input type="text" inputmode="decimal" id="si-buy" value="${numIn(m.buy, 1)}"><span>${esc(m.u)}</span></div></div></div>
+      <p class="hint">${perDay ? `Verbrauch ca. ${esc(perDay)} pro Tag${invDaysText(st) ? `, ${esc(invDaysText(st))}` : ''}. ` : 'Noch kein Verbrauch im Standardtag oder in den letzten Tagen. '}Haken und Einträge ziehen automatisch ab; „Eingekauft“ legt die Menge pro Einkauf dazu.</p>
+      <button class="link-btn" data-a="shop-inv" data-v="off">Vorrat für diesen Artikel nicht zählen</button>`;
+  } else if (it.cat !== 'Drogerie/Haushalt') {
+    if (it.inv && it.inv.off && (SHOP_INV[it.sid] || (it.inv.f && it.inv.f.length))) invH = `<h5>Vorrat</h5><button class="pill-btn" data-a="shop-inv" data-v="on">${icon('package')}Vorrat wieder zählen</button>`;
+    else {
+      const foods = Object.values(FOOD).filter((f) => f.cat !== 'Supplements' && !f.base).sort((x, y) => x.n.localeCompare(y.n, 'de'));
+      const cats = [...new Set(foods.map((f) => f.cat))].sort((x, y) => x.localeCompare(y, 'de'));
+      invH = `<h5>Vorrat zählen</h5><div class="form"><div class="frow is-wide"><span class="flabel">Lebensmittel</span><div class="fin"><select id="si-food"><option value="">Nicht zählen</option>${cats.map((c) => `<optgroup label="${esc(c)}">${foods.filter((f) => f.cat === c).map((f) => `<option value="${esc(f.id)}">${esc(f.n)}</option>`).join('')}</optgroup>`).join('')}</select></div></div></div>
+        <p class="hint">Mit einem Lebensmittel verknüpft, zählt der Artikel wie Eier oder Skyr mit: Haken und Einträge ziehen ab, fast leer kommt er auf die Einkaufsliste.</p>`;
+    }
+  }
   openSheet(`<h3 class="sheet-title">Artikel</h3><div class="form">
     <div class="frow is-wide"><span class="flabel">Name</span><div class="fin"><input type="text" id="si-n" value="${esc(it.n)}"></div></div>
-    <div class="frow is-wide"><span class="flabel">Menge</span><div class="fin"><input type="text" id="si-q" value="${esc(it.q || '')}" placeholder="z. B. 500 g"></div></div>
+    ${st ? '' : `<div class="frow is-wide"><span class="flabel">Menge</span><div class="fin"><input type="text" id="si-q" value="${esc(it.q || '')}" placeholder="z. B. 500 g"></div></div>`}
     <div class="frow is-wide"><span class="flabel">Hinweis</span><div class="fin"><input type="text" id="si-tip" value="${esc(itemTip(it))}" placeholder="z. B. Bio, ungezuckert"></div></div>
     <div class="frow is-wide"><span class="flabel">Kategorie</span><div class="fin"><select id="si-cat">${SHOP_CATS.map((c) => `<option ${c === it.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div></div>
     <div class="frow is-wide"><span class="flabel">Wo kaufen</span><div class="fin"><div class="chips chips-tight" id="si-store">${SHOP_STORES.map((s) => `<button class="chip chip-xs${s.id === ui.sheet.store ? ' is-on' : ''}" data-a="shop-store" data-v="${s.id}">${esc(s.n)}</button>`).join('')}</div></div></div></div>
+    ${invH}
     <div class="sheet-acts"><button class="btn is-accent" data-a="shop-save">Speichern</button><button class="btn is-danger" data-a="shop-del">Löschen</button></div>`);
 }
 
@@ -6730,7 +6961,7 @@ const A = {
     if (el.dataset.mode === 'replace') {
       S.days = data.days || {}; S.settings = mergeDefaults(defaultSettings(), data.settings || null); S.foods = data.foods || { custom: [], over: {} };
       S.shop = data.shop || shopDefault();
-      upgradePlan3(); upgradeShop3();
+      upgradePlan3(); upgradeShop3(); invInit(Date.now());
       for (const key of ['blood', 'knee', 'reviews']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
     } else {
       Object.assign(S.days, data.days || {});
@@ -6756,7 +6987,7 @@ const A = {
     const v = ($('#wipe-in') || {}).value || '';
     if (v.trim().toUpperCase() !== 'LÖSCHEN') { toast('Bitte LÖSCHEN eingeben'); return; }
     await DB.clear();
-    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 3, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
+    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 4, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
     Object.assign(S, defaultStores()); S.shop = shopDefault();
     try { await PhotoDB.clear(); photoUrls.forEach((u) => URL.revokeObjectURL(u)); photoUrls.clear(); photoIdx.keys = []; } catch (e) { /* egal */ }
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); await flush();
@@ -7343,18 +7574,52 @@ Object.assign(A, {
   },
   'shop-check': (el) => {
     const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return;
-    it.list = 'home'; saveStore('shop');
-    toast(`${it.n} → Zuhause`, () => { it.list = 'buy'; saveStore('shop'); });
+    const prev = { list: it.list, auto: it.auto, inv: it.inv ? { ...it.inv } : null };
+    const s = invState()[it.id];
+    let msg = `${it.n} → Zuhause`;
+    if (s) {
+      const total = s.stock + s.m.buy * s.m.g;
+      it.inv = { ...(it.inv || {}), base: total, since: Date.now() };
+      msg += ` · Vorrat ${invAmt(s.m, total, false)}`;
+    }
+    it.list = 'home'; it.auto = false;
+    saveStore('shop');
+    toast(msg, () => { it.list = prev.list; it.auto = prev.auto; if (prev.inv) it.inv = prev.inv; else delete it.inv; saveStore('shop'); });
   },
-  'shop-back': (el) => { const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return; it.list = 'buy'; saveStore('shop'); toast(`${it.n} steht wieder auf der Liste`); },
+  'shop-back': (el) => { const it = S.shop.items.find((x) => x.id === el.dataset.id); if (!it) return; it.list = 'buy'; it.auto = false; saveStore('shop'); toast(`${it.n} steht wieder auf der Liste`); },
   'shop-edit': (el) => sheetShopItem(el.dataset.id),
   'shop-group': (el) => { ui.shopGroup = ui.shopGroup || {}; ui.shopGroup[getSub('einkauf', 'buy')] = el.dataset.v; render(); },
   'shop-store': (el) => { if (!ui.sheet) return; ui.sheet.store = el.dataset.v; $$('#si-store .chip').forEach((b) => b.classList.toggle('is-on', b.dataset.v === el.dataset.v)); },
   'shop-save': () => {
     const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return;
-    it.n = $('#si-n').value.trim() || it.n; it.q = $('#si-q').value.trim(); it.tip = $('#si-tip').value.trim(); it.cat = $('#si-cat').value;
+    it.n = $('#si-n').value.trim() || it.n; it.tip = $('#si-tip').value.trim(); it.cat = $('#si-cat').value;
+    if ($('#si-q')) it.q = $('#si-q').value.trim();
     it.store = ui.sheet.store || itemStore(it);
+    const m = invMeta(it);
+    if (m && $('#si-stock')) {
+      const raw = $('#si-stock').value.trim(), sv = parseNum(raw), bv = parseNum($('#si-buy').value);
+      if (sv != null && raw !== ui.sheet.stock0) it.inv = { ...(it.inv || {}), base: Math.max(0, sv) * m.g, since: Date.now() };
+      if (bv != null && bv > 0) {
+        if (!m.own && Math.abs(bv - m.defBuy) < 1e-9) { if (it.inv) delete it.inv.buy; } else it.inv = { ...(it.inv || {}), buy: bv };
+      }
+    } else if ($('#si-food') && $('#si-food').value && FOOD[$('#si-food').value]) {
+      /* Packungen (Flasche, Dose, Becher, Stück …) zählen in Stück, Portionsmaße (Glas, EL, Handvoll …) in g bzw. ml */
+      const f = FOOD[$('#si-food').value], u0 = f.u[0], base = isLiquid(f) ? 'ml' : 'g';
+      const plain = u0[0] === 'g' || u0[0] === 'ml' || /^(Glas|Portion|EL|TL|Handvoll|Gabel|Rippe|Tasse|Shot|Prise|Messlöffel|Kugel|Zehe)\b/.test(u0[0]);
+      const link = plain ? { f: [f.id], u: base, g: 1, buy: base === 'ml' ? 1000 : 500 } : { f: [f.id], u: u0[0], g: u0[1], buy: 1 };
+      it.inv = { ...link, base: it.list === 'home' ? link.buy * link.g : 0, since: Date.now() };
+    }
     closeSheet(); saveStore('shop');
+  },
+  'shop-inv': (el) => {
+    const it = S.shop.items.find((x) => x.id === ui.sheet.id); if (!it) return;
+    if (el.dataset.v === 'off') { it.inv = { ...(it.inv || {}), off: true }; it.auto = false; }
+    else {
+      it.inv = { ...(it.inv || {}) }; delete it.inv.off;
+      const m = invMeta(it);
+      if (m) { it.inv.base = it.list === 'home' ? m.buy * m.g : 0; it.inv.since = Date.now(); }
+    }
+    saveStore('shop'); sheetShopItem(it.id);
   },
   'shop-del': () => { S.shop.items = S.shop.items.filter((x) => x.id !== ui.sheet.id); closeSheet(); saveStore('shop'); },
   'shop-reload-ask': () => {
@@ -7826,6 +8091,7 @@ function registerSW() {
   }
   try { migrate2(); } catch (e) { /* egal */ }
   try { migrate3(); } catch (e) { /* egal */ }
+  try { migrate4(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);
   if (S.meta.version !== APP_VERSION) {

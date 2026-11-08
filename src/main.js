@@ -31,6 +31,7 @@ function registerSW() {
   }
   try { migrate2(); } catch (e) { /* egal */ }
   try { migrate3(); } catch (e) { /* egal */ }
+  try { migrate4(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);
   if (S.meta.version !== APP_VERSION) {

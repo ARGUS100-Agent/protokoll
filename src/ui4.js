@@ -257,10 +257,22 @@ function vShop() {
   if (!list.length) return h + emptyState(sub === 'buy' ? 'Alles eingekauft.' : 'Nichts als vorrätig markiert.') + `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
   h += `<div class="shop-tools"><div class="chips chips-tight"><button class="chip chip-xs${grp === 'store' ? ' is-on' : ''}" data-a="shop-group" data-v="store">${icon('store')}Nach Laden</button><button class="chip chip-xs${grp === 'cat' ? ' is-on' : ''}" data-a="shop-group" data-v="cat">${icon('layers')}Nach Kategorie</button></div></div>`;
   const catIdx = (c) => { const i = SHOP_CATS.indexOf(c); return i < 0 ? 99 : i; };
-  const meta = (it) => { const p = [it.q, itemTip(it)].filter(Boolean); return p.length ? `<small>${esc(p.join(' · '))}</small>` : ''; };
+  const inv = invState();
+  const meta = (it) => {
+    const s = inv[it.id];
+    const p = [s ? invAmt(s.m, s.m.buy * s.m.g) : it.q, itemTip(it)].filter(Boolean);
+    const low = s && it.auto ? `<small class="inv-line is-low">Fast leer: noch ${esc(invAmt(s.m, s.stock, false))}${s.days != null ? `, ${esc(invDaysText(s))}` : ''}</small>` : '';
+    return (p.length ? `<small>${esc(p.join(' · '))}</small>` : '') + low;
+  };
+  const stockLine = (it) => {
+    const s = inv[it.id];
+    if (!s) return '';
+    const dt = invDaysText(s);
+    return `<small class="inv-line${s.days != null && s.days <= 4 ? ' is-low' : ''}">noch ${esc(invAmt(s.m, s.stock, false))}${dt && s.stock > 0 ? ` · ${esc(dt)}` : ''}</small>`;
+  };
   const tag = (it) => `<span class="store-tag">${esc(storeById(itemStore(it)).n)}</span>`;
   const row = (it, withStore) => {
-    const name = sub === 'buy' ? `<b>${esc(it.n)}${withStore ? tag(it) : ''}</b>${meta(it)}` : `<b>${esc(it.n)}</b>`;
+    const name = sub === 'buy' ? `<b>${esc(it.n)}${withStore ? tag(it) : ''}</b>${meta(it)}` : `<b>${esc(it.n)}</b>${stockLine(it)}`;
     const edit = `<button class="icon-btn sm ghost" data-a="shop-edit" data-id="${it.id}" aria-label="Bearbeiten">${icon('pencil')}</button>`;
     return sub === 'buy'
       ? `<div class="shop-row"><button class="shop-chk" data-a="shop-check" data-id="${it.id}"><span class="tgl-box">${icon('check')}</span><span class="row-main">${name}</span></button>${edit}</div>`
@@ -282,19 +294,40 @@ function vShop() {
     }
   }
   if (sub === 'buy' && grp === 'store') h += `<p class="hint">Der Laden ist ein Vorschlag pro Artikel und lässt sich über den Stift ändern. „Nächste Filiale“ öffnet Apple Karten mit der Suche in deiner Nähe.</p>`;
+  if (sub === 'home') h += `<p class="hint">Lebensmittel zählen mit: Haken im Standardtag und Einträge ziehen vom Vorrat ab. Reicht etwas nur noch ${INV_DAYS} Tage, kommt es von selbst auf die Einkaufsliste. Bestand und Einkaufsmenge änderst du über den Stift.</p>`;
   h += `<button class="btn is-ghost" data-a="shop-reload-ask">${icon('rotate-ccw')}Wocheneinkauf neu laden</button>`;
   return h;
 }
 function sheetShopItem(id) {
   const it = S.shop.items.find((x) => x.id === id);
   if (!it) return;
-  ui.sheet = { type: 'shop', id, store: itemStore(it) };
+  const st = invState()[it.id] || null;
+  const num = (m, grams) => numIn(m.u === 'g' || m.u === 'ml' ? Math.round(grams) : grams / m.g, 1);
+  ui.sheet = { type: 'shop', id, store: (ui.sheet && ui.sheet.type === 'shop' && ui.sheet.id === id && ui.sheet.store) || itemStore(it), stock0: st ? num(st.m, st.stock) : null };
+  let invH = '';
+  if (st) {
+    const m = st.m, perDay = st.rate > 0 ? invAmt(m, st.rate, false) : null;
+    invH = `<h5>Vorrat</h5><div class="form">
+      <div class="frow is-wide"><span class="flabel">Gerade zuhause</span><div class="fin inv-in"><input type="text" inputmode="decimal" id="si-stock" value="${ui.sheet.stock0}"><span>${esc(m.u)}</span></div></div>
+      <div class="frow is-wide"><span class="flabel">Menge pro Einkauf</span><div class="fin inv-in"><input type="text" inputmode="decimal" id="si-buy" value="${numIn(m.buy, 1)}"><span>${esc(m.u)}</span></div></div></div>
+      <p class="hint">${perDay ? `Verbrauch ca. ${esc(perDay)} pro Tag${invDaysText(st) ? `, ${esc(invDaysText(st))}` : ''}. ` : 'Noch kein Verbrauch im Standardtag oder in den letzten Tagen. '}Haken und Einträge ziehen automatisch ab; „Eingekauft“ legt die Menge pro Einkauf dazu.</p>
+      <button class="link-btn" data-a="shop-inv" data-v="off">Vorrat für diesen Artikel nicht zählen</button>`;
+  } else if (it.cat !== 'Drogerie/Haushalt') {
+    if (it.inv && it.inv.off && (SHOP_INV[it.sid] || (it.inv.f && it.inv.f.length))) invH = `<h5>Vorrat</h5><button class="pill-btn" data-a="shop-inv" data-v="on">${icon('package')}Vorrat wieder zählen</button>`;
+    else {
+      const foods = Object.values(FOOD).filter((f) => f.cat !== 'Supplements' && !f.base).sort((x, y) => x.n.localeCompare(y.n, 'de'));
+      const cats = [...new Set(foods.map((f) => f.cat))].sort((x, y) => x.localeCompare(y, 'de'));
+      invH = `<h5>Vorrat zählen</h5><div class="form"><div class="frow is-wide"><span class="flabel">Lebensmittel</span><div class="fin"><select id="si-food"><option value="">Nicht zählen</option>${cats.map((c) => `<optgroup label="${esc(c)}">${foods.filter((f) => f.cat === c).map((f) => `<option value="${esc(f.id)}">${esc(f.n)}</option>`).join('')}</optgroup>`).join('')}</select></div></div></div>
+        <p class="hint">Mit einem Lebensmittel verknüpft, zählt der Artikel wie Eier oder Skyr mit: Haken und Einträge ziehen ab, fast leer kommt er auf die Einkaufsliste.</p>`;
+    }
+  }
   openSheet(`<h3 class="sheet-title">Artikel</h3><div class="form">
     <div class="frow is-wide"><span class="flabel">Name</span><div class="fin"><input type="text" id="si-n" value="${esc(it.n)}"></div></div>
-    <div class="frow is-wide"><span class="flabel">Menge</span><div class="fin"><input type="text" id="si-q" value="${esc(it.q || '')}" placeholder="z. B. 500 g"></div></div>
+    ${st ? '' : `<div class="frow is-wide"><span class="flabel">Menge</span><div class="fin"><input type="text" id="si-q" value="${esc(it.q || '')}" placeholder="z. B. 500 g"></div></div>`}
     <div class="frow is-wide"><span class="flabel">Hinweis</span><div class="fin"><input type="text" id="si-tip" value="${esc(itemTip(it))}" placeholder="z. B. Bio, ungezuckert"></div></div>
     <div class="frow is-wide"><span class="flabel">Kategorie</span><div class="fin"><select id="si-cat">${SHOP_CATS.map((c) => `<option ${c === it.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div></div>
     <div class="frow is-wide"><span class="flabel">Wo kaufen</span><div class="fin"><div class="chips chips-tight" id="si-store">${SHOP_STORES.map((s) => `<button class="chip chip-xs${s.id === ui.sheet.store ? ' is-on' : ''}" data-a="shop-store" data-v="${s.id}">${esc(s.n)}</button>`).join('')}</div></div></div></div>
+    ${invH}
     <div class="sheet-acts"><button class="btn is-accent" data-a="shop-save">Speichern</button><button class="btn is-danger" data-a="shop-del">Löschen</button></div>`);
 }
 

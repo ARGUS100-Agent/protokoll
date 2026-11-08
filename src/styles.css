@@ -900,3 +900,10 @@ th { color: var(--ink-3); font-weight: 650; }
 .frank-tr b { font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .frank-src a { color: var(--accent); }
 .frank-meals { margin-top: 8px; }
+
+/* Vorrat */
+.inv-line { display: block; color: var(--ink-3); font-size: 13px; }
+.inv-line.is-low { color: var(--st-under); }
+.inv-in { display: flex; align-items: center; gap: 8px; }
+.inv-in input { flex: 1; min-width: 0; }
+.inv-in span { color: var(--ink-3); font-size: 14px; white-space: nowrap; }

@@ -19,6 +19,7 @@ const VIEWS = { heute: () => vHeute(), ern: () => vErn(), supp: () => vSupp(), t
 function render(keepScroll = true) {
   const y = window.scrollY;
   if (!VIEWS[ui.tab]) ui.tab = 'heute';
+  try { invSync(); } catch (e) { /* egal */ }
   $('#main').innerHTML = VIEWS[ui.tab]();
   renderTabbar();
   if (keepScroll) window.scrollTo(0, y);

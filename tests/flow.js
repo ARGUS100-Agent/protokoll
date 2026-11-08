@@ -156,6 +156,8 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
 
   // 9 Timer komplett
   await ev(() => { ui.sub.knie = 'heute'; render(); });
+  // „Vor dem Lauf“ steht nur an Lauftagen auf Heute, sonst unter Läufe
+  if (!(await page.$('[data-a="timer-start"][data-r="vorlauf"]'))) await ev(() => { ui.sub.knie = 'laeufe'; render(); });
   await page.click('[data-a="timer-start"][data-r="vorlauf"]');
   ok(await page.isVisible('#overlay.open'), 'Timer-Overlay offen');
   const nSteps = await ev(() => ui.timer.steps.length);
@@ -201,7 +203,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const pk = await ev(() => photoIdx.keys.slice());
   ok(pk.length === 1, 'Foto gespeichert ' + JSON.stringify(pk));
   await page.setInputFiles('input[data-c="photo-up"][data-angle="links"]', img);
-  await page.waitForTimeout(1000);
+  for (let i = 0; i < 40 && (await ev(() => photoIdx.keys.length)) < 2; i++) await page.waitForTimeout(200);
   await shot('f09-fotos');
   const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), ev(() => A['photos-export']())]);
   const zipPath = `${OUT}/fotos.zip`;
@@ -249,7 +251,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const bPath = `${OUT}/backup.json`;
   await dl2.saveAs(bPath);
   const bk = JSON.parse(fs.readFileSync(bPath, 'utf8'));
-  ok(bk.schema === 3 && bk.shop && bk.blood.entries.length === 1 && bk.knee.tests.length === 1 && bk.reviews && bk.settings.knee && bk.settings.caf, 'Backup enthält alle neuen Daten');
+  ok(bk.schema === 4 && bk.shop && bk.blood.entries.length === 1 && bk.knee.tests.length === 1 && bk.reviews && bk.settings.knee && bk.settings.caf, 'Backup enthält alle neuen Daten');
   // alles löschen, dann importieren
   await ev(() => { go('set'); ui.setOpen = 'backup'; render(); });
   await page.click('[data-a="wipe-ask"]');
@@ -268,7 +270,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   await page.reload({ waitUntil: 'load' });
   await page.waitForTimeout(800);
   const persisted = await ev((k) => ({ blood: S.blood.entries.length, train: getDay(k).trainings.length, schema: S.meta.schema }), today);
-  ok(persisted.blood === 1 && persisted.train === 2 && persisted.schema === 3, 'Nach Neuladen alles noch da');
+  ok(persisted.blood === 1 && persisted.train === 2 && persisted.schema === 4, 'Nach Neuladen alles noch da');
   await shot('f12-heute-nach-import');
 
   console.log(errors.length ? 'KONSOLENFEHLER:\n' + errors.join('\n') : 'Keine Konsolenfehler');
