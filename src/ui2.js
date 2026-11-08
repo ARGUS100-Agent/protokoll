@@ -15,9 +15,11 @@ function healthVal(f, v) {
 function durToTime(min) { return min == null ? '' : `${pad(Math.floor(min / 60))}:${pad(min % 60)}`; }
 function vGarmin(k) {
   const d = getDay(k), y = peekDay(addDays(k, -1));
-  let h = '<p class="sec-sub">Werte aus Garmin Connect übertragen. Der Vortag steht als Vorschlag daneben; ein Tipp darauf übernimmt ihn.</p>';
+  const gon = garOn();
+  let h = garCard() + (gon ? `<p class="sec-sub gar-sub">Werte mit ${icon('watch')} kommen automatisch aus Garmin Connect. Was du selbst einträgst oder änderst, bleibt so.</p>` : '<p class="sec-sub">Werte aus Garmin Connect übertragen. Der Vortag steht als Vorschlag daneben; ein Tipp darauf übernimmt ihn.</p>');
   for (const grp of HEALTH_FIELDS) {
     if (grp.group === 'Körper') continue;
+    if (grp.garmin && !gon && !grp.fields.some((f) => d.health[f.k] != null)) continue;
     h += `<section class="sec"><div class="sec-head"><h2>${esc(grp.group)}</h2></div><div class="form">`;
     for (const f of grp.fields) {
       const v = d.health[f.k];
@@ -28,9 +30,11 @@ function vGarmin(k) {
       else if (f.type === 'dur') input = `<input type="time" data-c="health-dur" data-k="${f.k}" data-date="${k}" value="${durToTime(v)}" aria-label="${esc(f.n)} in Stunden und Minuten"><span class="unit">h:min</span>`;
       else if (f.type === 'time') input = `<input type="time" data-c="health" data-k="${f.k}" data-date="${k}" value="${esc(v || '')}" aria-label="${esc(f.n)}">`;
       else if (f.type === 'choice') input = `<div class="chips chips-tight">${f.options.map((o) => `<button class="chip chip-xs${v === o ? ' is-on' : ''}" data-a="h-choice" data-k="${f.k}" data-v="${esc(o)}" data-date="${k}">${esc(o)}</button>`).join('')}</div>`;
-      h += `<div class="frow${f.type === 'choice' ? ' is-wide' : ''}"><span class="flabel">${esc(f.n)}</span><div class="fin">${input}</div>${prev}</div>`;
+      h += `<div class="frow${f.type === 'choice' ? ' is-wide' : ''}"><span class="flabel">${esc(f.n)}</span><div class="fin">${input}${garMark(d, f.k)}</div>${prev}</div>`;
     }
-    h += '</div></section>';
+    h += '</div>';
+    if (gon && grp.fields.some((f) => f.k === 'readiness')) h += '<p class="hint">Trainingsbereitschaft gibt Garmins Schnittstelle nicht heraus – bei Bedarf selbst eintragen.</p>';
+    h += '</section>';
   }
   const tr = d.trainings || [];
   h += `<section class="sec"><div class="sec-head"><h2>Training</h2><button class="link-btn" data-a="goto" data-tab="train" data-sub="heute">Training & Sauna</button></div>
@@ -229,7 +233,7 @@ function healthChartHTML(keys) {
   const hm = HEALTH_METRICS.find((x) => x.k === ui.hMetric) || HEALTH_METRICS[0];
   const vals = keys.map((k) => { const d = peekDay(k); if (!d) return null; if (['wellbeing', 'energy', 'focus'].includes(hm.k)) return d.mood ? d.mood[hm.k] ?? null : null; return d.health[hm.k] ?? null; });
   const isDur = hm.fmt === 'dur';
-  const body = lineChart({ keys, series: [{ name: hm.n, color: SERIES.one, vals, dots: true }], unit: isDur ? '' : hm.u || '', fmtY: isDur ? (v) => fmtDur(v) : (v) => fmt(v, hm.k === 'resp' || hm.k === 'skinTemp' ? 1 : 0) });
+  const body = lineChart({ keys, series: [{ name: hm.n, color: SERIES.one, vals, dots: true }], unit: isDur ? '' : hm.u || '', fmtY: isDur ? (v) => fmtDur(v) : (v) => fmt(v, ['resp', 'skinTemp', 'fitAge'].includes(hm.k) ? 1 : 0) });
   const chips = `<div class="chips chips-scroll">${HEALTH_METRICS.map((x) => `<button class="chip chip-sm${x.k === hm.k ? ' is-on' : ''}" data-a="h-metric" data-v="${x.k}">${esc(x.n)}</button>`).join('')}</div>`;
   const table = `<tr><th>Tag</th><th>${esc(hm.n)}</th></tr>` + keys.map((k, i) => (vals[i] != null ? `<tr><td>${shortDate(k)}</td><td>${isDur ? fmtDur(vals[i]) : fmt(vals[i], 1)}</td></tr>` : '')).join('');
   return chartCard('hm', 'Garmin-Werte', chips, body, vals.some((v) => v != null) ? table : null);
@@ -281,7 +285,7 @@ function skinProgressHTML(keys) {
    EINSTELLUNGEN
    ============================================================ */
 const SET_SECTIONS = [
-  ['profil', 'Profil & Schlafzeiten'], ['nav', 'Tab-Leiste'], ['backup', 'Backup & Daten'], ['ziele', 'Tagesziele'], ['plan', 'Standardtag bearbeiten'], ['woche', 'Tagesvarianten pro Wochentag'],
+  ['profil', 'Profil & Schlafzeiten'], ['nav', 'Tab-Leiste'], ['backup', 'Backup & Daten'], ['garmin', 'Garmin Connect'], ['ziele', 'Tagesziele'], ['plan', 'Standardtag bearbeiten'], ['woche', 'Tagesvarianten pro Wochentag'],
   ['training', 'Training, Wochenstruktur & Sauna'], ['knie', 'Knie-Programm'], ['koffein', 'Koffein'],
   ['foods', 'Lebensmittel & Supplements'], ['haut', 'Haut-Protokoll'], ['habits', 'Gewohnheiten'], ['todos', 'Termine & To-dos'],
   ['about', 'Installation & Hinweise'],

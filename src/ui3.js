@@ -77,7 +77,8 @@ function areaStatus(id, k = todayKey()) {
       }
       case 'garmin': {
         const h = d.health || {};
-        return { v: h.sleepScore != null ? `Sleep ${fmt(h.sleepScore)}` : 'Werte eintragen', s: [h.hrv != null ? `HRV ${fmt(h.hrv)}` : '', h.rhr != null ? `Ruhepuls ${fmt(h.rhr)}` : '', h.bbMorning != null ? `Body Battery ${fmt(h.bbMorning)}` : ''].filter(Boolean).join(' · ') || 'Schlaf, HRV, Body Battery', st: h.sleepScore != null ? (h.sleepScore >= 80 ? 'ok' : h.sleepScore >= 60 ? 'under' : 'over') : 'none' };
+        if (garOn() && GAR.err && h.sleepScore == null) return { v: 'Abruf klappt nicht', s: 'Garmin öffnen und Verbindung prüfen', st: 'under' };
+        return { v: h.sleepScore != null ? `Sleep ${fmt(h.sleepScore)}` : garOn() ? 'Noch keine Werte' : 'Werte eintragen', s: [h.hrv != null ? `HRV ${fmt(h.hrv)}` : '', h.rhr != null ? `Ruhepuls ${fmt(h.rhr)}` : '', h.bbMorning != null ? `Body Battery ${fmt(h.bbMorning)}` : ''].filter(Boolean).join(' · ') || 'Schlaf, HRV, Body Battery', st: h.sleepScore != null ? (h.sleepScore >= 80 ? 'ok' : h.sleepScore >= 60 ? 'under' : 'over') : 'none' };
       }
       case 'blut': {
         const es = (S.blood.entries || []).slice().sort((a, b) => a.date.localeCompare(b.date));
@@ -288,8 +289,8 @@ function recoveryCard(k) {
 function trainRow(t, k) {
   const tt = trainType(t);
   const gs = t.gym ? gymProgress(t) : null;
-  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', tt.run && t.km ? fmt(t.km, 1) + ' km' : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
-  return `<div class="row-wrap"><button class="row" data-a="training-edit" data-id="${t.id}" data-date="${k}"><span class="area-ic">${icon(tt.run ? 'activity' : tt.gym ? 'dumbbell' : tt.light ? 'person-standing' : 'flame')}</span><span class="row-main"><b>${esc(t.type)}${t.gym ? ` <em class="est is-blue">Schedule ${t.gym.sched}</em>` : ''}</b><small>${esc(parts || 'ohne Details')}</small></span>${icon('pencil', 'row-ic')}</button>${t.gym ? `<button class="pill-btn row-act" data-a="gym-open" data-id="${t.id}" data-date="${k}">Sätze</button>` : ''}</div>`;
+  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', t.km ? fmt(t.km, 1) + ' km' : '', t.hr ? 'Ø ' + t.hr + ' bpm' : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
+  return `<div class="row-wrap"><button class="row" data-a="training-edit" data-id="${t.id}" data-date="${k}"><span class="area-ic">${icon(tt.run ? 'activity' : tt.gym ? 'dumbbell' : tt.light ? 'person-standing' : 'flame')}</span><span class="row-main"><b>${esc(t.type)}${t.gym ? ` <em class="est is-blue">Schedule ${t.gym.sched}</em>` : ''}${t.gid ? ' <em class="est">Garmin</em>' : ''}</b><small>${esc(parts || 'ohne Details')}</small></span>${icon('pencil', 'row-ic')}</button>${t.gym ? `<button class="pill-btn row-act" data-a="gym-open" data-id="${t.id}" data-date="${k}">Sätze</button>` : ''}</div>`;
 }
 function vTrainToday(k) {
   const d = getDay(k);
@@ -443,6 +444,7 @@ function renderTrainSheet() {
     <div class="frow is-wide"><span class="flabel">Einlagen</span><div class="chips chips-tight">${[['1', 'Ja'], ['0', 'Nein']].map(([v, l]) => `<button class="chip chip-xs${(t.ins ? '1' : t.ins === false ? '0' : '') === v ? ' is-on' : ''}" data-a="trs-ins" data-v="${v}">${l}</button>`).join('')}</div></div>
     <div class="frow is-wide"><span class="flabel">Schuh</span><div class="fin"><input type="text" id="trs-shoe" list="shoes" value="${esc(t.shoe || '')}" placeholder="z. B. Modell"><datalist id="shoes">${shoes.map((s) => `<option value="${esc(s)}">`).join('')}</datalist></div></div>` : ''}
     <div class="frow"><span class="flabel">Garmin-Belastung</span><div class="fin"><input type="text" inputmode="numeric" id="trs-load" value="${t.load ?? ''}" placeholder="optional"></div></div></div>
+    ${t.gid ? `<p class="hint gar-hint">${icon('watch')} Von Garmin übernommen${t.hr ? ` · Ø Puls ${t.hr} bpm` : ''}${t.km && !tt.run ? ` · ${fmt(t.km, 1)} km` : ''}. Intensität${tt.run ? ' und Knieschmerz' : ''} trägst du selbst ein.</p>` : ''}
     ${tt.run ? `<p class="flabel-s">Knieschmerz während des Laufs (0–10)</p>${scale0('trs-pain', t.pain ?? null, ui.sheet.k)}` : ''}
     <p class="flabel-s">Intensität (1–10)</p>${scale10('trs-int', t.int ?? null, ui.sheet.k)}
     <textarea class="note" id="trs-note" rows="2" placeholder="Notiz">${esc(t.note || '')}</textarea>

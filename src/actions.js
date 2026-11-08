@@ -234,6 +234,7 @@ const A = {
     const v = ($('#wipe-in') || {}).value || '';
     if (v.trim().toUpperCase() !== 'LÖSCHEN') { toast('Bitte LÖSCHEN eingeben'); return; }
     await DB.clear();
+    GAR = null;
     S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 4, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
     Object.assign(S, defaultStores()); S.shop = shopDefault();
     try { await PhotoDB.clear(); photoUrls.forEach((u) => URL.revokeObjectURL(u)); photoUrls.clear(); photoIdx.keys = []; } catch (e) { /* egal */ }
@@ -463,6 +464,7 @@ function setupEvents() {
     if (document.hidden) { flush(); return; }
     if (ui.timer) { lockScreen(); timerTick(); return; }
     try { goalNudgeCheck(); } catch (e) { /* egal */ }
+    try { garAuto(); } catch (e) { /* egal */ }
     try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then((r) => { if (r) r.update(); }).catch(() => {}); } catch (e) { /* egal */ }
     const t = todayKey();
     if (t !== ui.lastToday) { if (ui.date === ui.lastToday) ui.date = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7); ui.trainWeek = weekStart(t); ui.reviewWeek = weekStart(t); ui.photoWeek = weekStart(t); ui.lastToday = t; invalidate(); if (!ui.sheet) render(); }

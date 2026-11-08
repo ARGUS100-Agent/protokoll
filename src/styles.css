@@ -953,3 +953,24 @@ th { color: var(--ink-3); font-weight: 650; }
 .mu-tip { display: flex; gap: 6px; align-items: flex-start; margin-top: 6px; color: var(--ink-2); font-size: 13px; }
 .mu-tip .ic { width: 15px; height: 15px; flex: none; margin-top: 2px; color: var(--accent); }
 .mu.is-hab > .ic { color: var(--accent); }
+
+/* ---------- Garmin Connect ---------- */
+.gar-card .gar-head { display: flex; align-items: flex-start; gap: 12px; }
+.gar-card .gar-head > .ic { flex: none; width: 22px; height: 22px; margin-top: 2px; color: var(--accent); }
+.gar-card .gar-head b { display: block; font-size: 16px; }
+.gar-card .gar-head small { display: block; color: var(--ink-2); font-size: 13.5px; }
+.gar-card .sheet-acts { margin-top: 10px; }
+.gar-card .btn { min-height: 44px; font-size: 15px; }
+.gar-acts { grid-template-columns: 1fr auto; }
+.gar-card.is-err .gar-head > .ic { color: var(--st-under); }
+.gar-err { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 0; color: var(--st-over); font-size: 13.5px; line-height: 1.4; }
+.gar-err .ic { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+.gar-mark { display: inline-flex; color: var(--accent); }
+.gar-mark .ic { width: 15px; height: 15px; }
+.gar-sub .ic { width: 14px; height: 14px; vertical-align: -2px; color: var(--accent); }
+.gar-steps li { margin-bottom: 8px; }
+.gar-steps .link-btn { display: inline-flex; align-items: center; gap: 4px; margin-right: 12px; }
+.gar-steps .link-btn .ic { width: 14px; height: 14px; }
+.gar-links { display: flex; flex-wrap: wrap; }
+.gar-code { margin: 8px 0; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.gar-hint .ic { width: 14px; height: 14px; vertical-align: -2px; }

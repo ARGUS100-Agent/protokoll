@@ -160,6 +160,7 @@ async function loadState() {
   for (const key of STORE_KEYS) S[key] = all[key] ? mergeDefaults(st[key] || {}, all[key]) : st[key];
   if (!S.shop) { S.shop = shopDefault(); markDirty('shop'); }
   if (!all.meta) markDirty('meta');
+  try { garLoad(all); } catch (e) { /* egal */ }
   buildFoodIndex();
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* egal */ }
 }

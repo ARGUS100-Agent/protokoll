@@ -191,7 +191,15 @@ Object.assign(A, {
     else if (slot) toast(`Ernährung auf ${TRAINING[slot].n} umgestellt (${TRAINING[slot].hint.split(':')[0]})`);
     else toast('Training gespeichert');
   },
-  'trs-del': () => { const s = ui.sheet; mutDay(s.k, (d) => { d.trainings = (d.trainings || []).filter((x) => x.id !== s.t.id); }); closeSheet(); render(); },
+  'trs-del': () => {
+    const s = ui.sheet;
+    mutDay(s.k, (d) => {
+      const t = (d.trainings || []).find((x) => x.id === s.t.id);
+      if (t && t.gid) { d.gskip = d.gskip || []; if (!d.gskip.includes(String(t.gid))) d.gskip.push(String(t.gid)); } // Garmin holt es nicht wieder
+      d.trainings = (d.trainings || []).filter((x) => x.id !== s.t.id);
+    });
+    closeSheet(); render();
+  },
   'train-week': (el) => { const n = addDays(ui.trainWeek, Number(el.dataset.d)); if (n <= addDays(weekStart(todayKey()), 7)) { ui.trainWeek = n; render(); } },
   'gym-day': (el) => { ui.gymDay = Number(el.dataset.v); render(); },
   'gym-sched': (el) => { const g = S.settings.gym; g.anchor = weekStart(todayKey()); g.first = el.dataset.v; saveSettings(); },

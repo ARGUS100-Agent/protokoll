@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.4.1';
+const APP_VERSION = '2.5.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -406,6 +406,14 @@ const HEALTH_FIELDS = [
     { k: 'intensity', n: 'Intensitätsminuten', type: 'num', unit: 'Min.', min: 0, max: 1500 },
     { k: 'vo2', n: 'VO2max', type: 'num', min: 20, max: 90 },
   ] },
+  { group: 'Mehr von Garmin', garmin: true, fields: [
+    { k: 'kcalAct', n: 'Aktive Kalorien', type: 'num', unit: 'kcal', min: 0, max: 10000 },
+    { k: 'kcalTot', n: 'Kalorien gesamt', type: 'num', unit: 'kcal', min: 0, max: 15000 },
+    { k: 'sleepStress', n: 'Stress im Schlaf', type: 'num', min: 0, max: 100 },
+    { k: 'bbCharged', n: 'Body Battery geladen', type: 'num', min: 0, max: 100 },
+    { k: 'bbDrained', n: 'Body Battery verbraucht', type: 'num', min: 0, max: 100 },
+    { k: 'fitAge', n: 'Fitnessalter', type: 'num', unit: 'Jahre', min: 10, max: 100, dec: 1 },
+  ] },
   { group: 'Körper', fields: [
     { k: 'weight', n: 'Körpergewicht', type: 'num', unit: 'kg', min: 30, max: 250, dec: 1 },
     { k: 'waist', n: 'Bauchumfang', type: 'num', unit: 'cm', min: 40, max: 200, dec: 1 },
@@ -423,6 +431,7 @@ const HEALTH_METRICS = [
   { k: 'hrv', n: 'HRV', u: 'ms' }, { k: 'rhr', n: 'Ruhepuls', u: 'bpm' }, { k: 'bbMorning', n: 'Body Battery morgens' }, { k: 'stress', n: 'Stress' },
   { k: 'readiness', n: 'Trainingsbereitschaft' }, { k: 'steps', n: 'Schritte' }, { k: 'intensity', n: 'Intensitätsminuten' }, { k: 'vo2', n: 'VO2max' },
   { k: 'resp', n: 'Atemfrequenz' }, { k: 'spo2', n: 'SpO2', u: '%' }, { k: 'skinTemp', n: 'Hauttemperatur' },
+  { k: 'kcalAct', n: 'Aktive Kalorien', u: 'kcal' }, { k: 'sleepStress', n: 'Stress im Schlaf' }, { k: 'fitAge', n: 'Fitnessalter' },
   { k: 'wellbeing', n: 'Wohlbefinden' }, { k: 'energy', n: 'Energie' }, { k: 'focus', n: 'Fokus' },
 ];
 

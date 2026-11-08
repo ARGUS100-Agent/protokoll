@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Baut die App nach docs/: eine index.html (alles inline) + PWA-Dateien. Vorher einmal: npm install"""
-import base64, hashlib, os, re, shutil, subprocess, sys, zipfile
+import base64, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, 'src')
@@ -8,7 +8,8 @@ DIST = os.path.join(ROOT, 'docs')
 NM = os.path.join(ROOT, 'node_modules')
 ICON_DIR = os.path.join(NM, 'lucide-static/icons')
 FONT = os.path.join(NM, '@fontsource-variable/big-shoulders-display/files/big-shoulders-display-latin-wght-normal.woff2')
-JS_ORDER = ['data.js', 'data2.js', 'info.js', 'core.js', 'core2.js', 'charts.js', 'ui.js', 'ui2.js', 'ui3.js', 'ui4.js', 'knee.js', 'actions.js', 'actions2.js', 'frank.js', 'ziele.js', 'main.js']
+JS_ORDER = ['data.js', 'data2.js', 'info.js', 'core.js', 'core2.js', 'charts.js', 'ui.js', 'ui2.js', 'ui3.js', 'ui4.js', 'knee.js', 'actions.js', 'actions2.js', 'frank.js', 'ziele.js', 'garmin.js', 'main.js']
+RELAY = os.path.join(ROOT, 'relay', 'garmin-relay.js')
 
 
 def read(p):
@@ -38,6 +39,10 @@ def icons_js(js):
 
 def main():
     js = '\n'.join(f'/* ---- {name} ---- */\n' + read(os.path.join(SRC, name)) for name in JS_ORDER)
+    # Code der Garmin-Weiterleitung (relay/garmin-relay.js) zum Kopieren in der App
+    if "'__RELAY_CODE__'" not in js:
+        print('FEHLT Platzhalter __RELAY_CODE__'); sys.exit(1)
+    js = js.replace("'__RELAY_CODE__'", json.dumps(read(RELAY), ensure_ascii=False).replace('</', '<\\/'))
     icons, n_icons = icons_js(js)
     js = "'use strict';\n" + icons + js
     css = read(os.path.join(SRC, 'styles.css'))
