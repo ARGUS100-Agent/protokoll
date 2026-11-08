@@ -26,6 +26,19 @@ function toggleItem(id, k) {
   render();
   if (on) { const btn = $(`[data-a="toggle-item"][data-id="${id}"]`); if (btn) { const row = btn.closest('.item, .tgl'); if (row) row.classList.add('just'); } }
 }
+/* Eintrag löschen, mit Rückgängig (stellt ihn an derselben Stelle wieder her) */
+function delEntry(k, id) {
+  const list = getDay(k).entries || [];
+  const i = list.findIndex((x) => x.id === id);
+  if (i < 0) return;
+  const e = clone(list[i]), f = FOOD[e.food], caf = !!(f && f.v && f.v.caf);
+  mutDay(k, (d) => { d.entries = d.entries.filter((x) => x.id !== id); if (caf) syncCafHabit(k); });
+  render();
+  toast(`${f ? f.n : 'Eintrag'} gelöscht`, () => {
+    mutDay(k, (d) => { d.entries = d.entries || []; if (!d.entries.some((x) => x.id === id)) d.entries.splice(Math.min(i, d.entries.length), 0, e); if (caf) syncCafHabit(k); });
+    render();
+  });
+}
 function addEntry(k, food, g, meal) {
   const id = uid();
   mutDay(k, (d) => { d.entries.push({ id, food, g, meal, t: Date.now() }); });
@@ -154,7 +167,8 @@ const A = {
     if (ph) toast(`${ph.n} im Haut-Protokoll: ${ph.rules.join(', ')}`);
     else if (newId) toast(`${food.n} eingetragen`, () => { mutDay(k, (d) => { d.entries = d.entries.filter((e) => e.id !== newId); }); render(); });
   },
-  'entry-del': () => { const s = ui.sheet; mutDay(s.k, (d) => { d.entries = d.entries.filter((e) => e.id !== s.entryId); }); closeSheet(); render(); toast('Eintrag gelöscht'); },
+  'entry-del': () => { const s = ui.sheet; delEntry(s.k, s.entryId); closeSheet(); },
+  'entry-del-now': (el) => delEntry(curDate(el), el.dataset.id),
   'plant-pick': (el) => sheetPlants(curDate(el)),
   'plant-toggle': (el) => {
     const k = el.dataset.date, p = el.dataset.v;

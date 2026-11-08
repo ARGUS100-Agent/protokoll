@@ -46,6 +46,18 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok((await item('b:Eier')).stock === 1045, 'Eintrag mit 2 Eiern → 19 übrig');
   await ev((id) => { mutDay(todayKey(), (d) => { d.entries = d.entries.filter((x) => x.id !== id); }); render(); }, entryId);
   ok((await item('b:Eier')).stock === 1155, 'Eintrag gelöscht → wieder 21');
+  // Löschen direkt in der Liste „Eingetragen heute“, mit Rückgängig
+  const e2 = await ev(() => { const id = addEntry(todayKey(), 'ei', 110, 'snack'); ui.ernSub = 'detail'; ui.date = todayKey(); go('ern'); return id; });
+  ok((await item('b:Eier')).stock === 1045, 'Neuer Eintrag mit 2 Eiern → 19 übrig');
+  await page.click(`[data-a="entry-del-now"][data-id="${e2}"]`);
+  ok((await item('b:Eier')).stock === 1155 && (await page.$(`[data-a="entry-edit"][data-id="${e2}"]`)) === null, 'Löschen-Knopf in der Liste: Eintrag weg, Vorrat wieder 21');
+  ok((await page.textContent('#toast')).includes('gelöscht'), 'Hinweis „… gelöscht“ mit Rückgängig');
+  await page.screenshot({ path: `${OUT}/v0-liste.png` });
+  await page.click('#toast [data-a="undo"]');
+  ok((await item('b:Eier')).stock === 1045 && (await page.$(`[data-a="entry-edit"][data-id="${e2}"]`)) !== null, 'Rückgängig: Eintrag wieder da');
+  await page.click(`[data-a="entry-del-now"][data-id="${e2}"]`);
+  ok((await item('b:Eier')).stock === 1155, 'Wieder gelöscht');
+  await ev(() => { ui.sub.einkauf = 'buy'; go('einkauf'); });
   // Was vor dem Einkauf abgehakt war, zählt nicht
   await ev(() => { const it = S.shop.items.find((x) => x.sid === 'b:Skyr'); it.list = 'buy'; it.inv = { base: 0, since: Date.now() }; mutDay(todayKey(), (d) => { d.checks.a_skyr = 1; d.ct = { ...(d.ct || {}), a_skyr: '09:00' }; }); saveStore('shop'); });
   await page.click(`[data-a="shop-check"][data-id="${(await item('b:Skyr')).id}"]`);

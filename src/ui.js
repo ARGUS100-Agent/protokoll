@@ -344,7 +344,7 @@ function vDetail(k) {
     for (const [mid, mn] of MEALS) {
       const es = entries.filter((e) => (e.meal || 'snack') === mid);
       if (!es.length) continue;
-      h += `<h4 class="meal-h">${mn}</h4><div class="list">${es.map((e) => { const f = FOOD[e.food]; const kc = f ? (f.v.kcal || 0) * e.g / (f.base || 100) : 0; return `<button class="row" data-a="entry-edit" data-id="${e.id}" data-date="${k}"><span class="row-main"><b>${esc(f ? f.n : e.food)}</b><small>${esc(fmtAmount(f, e.g))}</small></span><span class="row-side">${fmt(kc)} kcal</span></button>`; }).join('')}</div>`;
+      h += `<h4 class="meal-h">${mn}</h4><div class="list">${es.map((e) => { const f = FOOD[e.food]; const kc = f ? (f.v.kcal || 0) * e.g / (f.base || 100) : 0; return `<div class="row-wrap"><button class="row" data-a="entry-edit" data-id="${e.id}" data-date="${k}"><span class="row-main"><b>${esc(f ? f.n : e.food)}</b><small>${esc(fmtAmount(f, e.g))}</small></span><span class="row-side">${fmt(kc)} kcal</span></button><button class="icon-btn sm ghost row-act" data-a="entry-del-now" data-id="${e.id}" data-date="${k}" aria-label="${esc(f ? f.n : e.food)} löschen">${icon('trash-2')}</button></div>`; }).join('')}</div>`;
     }
   }
   h += '</section>';
