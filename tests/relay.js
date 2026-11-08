@@ -18,7 +18,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const hdr = (h) => ({ Origin: APP, ...h });
 
   let r = await req('/');
-  ok(r.status === 200 && (await r.text()).startsWith('Protokoll-Weiterleitung läuft') && r.headers.get('Access-Control-Allow-Origin') === APP, 'Startseite: läuft, mit CORS-Kopf');
+  ok(r.status === 200 && (await r.text()) === 'Protokoll-Weiterleitung läuft (v2)' && r.headers.get('Access-Control-Allow-Origin') === APP, 'Startseite: läuft (v2), mit CORS-Kopf');
   r = await req('/sleep-service/sleep/dailySleep?date=2026-11-07', { method: 'OPTIONS', headers: hdr({ 'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'authorization' }) });
   ok(r.status === 204 && /Authorization/.test(r.headers.get('Access-Control-Allow-Headers')), 'Vorabanfrage (OPTIONS) erlaubt Authorization');
   r = await req('/sleep-service/sleep/dailySleep?date=2026-11-07', { headers: { Authorization: 'Bearer x' } });
@@ -36,18 +36,23 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(r.status === 200 && c2.url === 'https://personal.connectapi.garmin.com/usersummary-service/v2/dailysummaries?startDate=2026-11-01&endDate=2026-11-07' && c2.init.headers.Authorization === 'Bearer abc.def.ghi' && c2.init.method === 'GET', 'Datenabruf mit Bearer und Suchparametern');
 
   const n = calls.length;
-  r = await req('/download-service/files/activity/1', { headers: hdr({ Authorization: 'Bearer x' }) });
-  ok(r.status === 403 && calls.length === n, 'Nicht freigegebener Pfad (Download): abgelehnt');
+  r = await req('/activity-service/activity/9001', { headers: hdr({ Authorization: 'Bearer x' }) });
+  ok(r.status === 200 && calls.length === n + 1 && calls[n].url.endsWith('/activity-service/activity/9001'), 'Lesen weiterer Garmin-Dienste (Aktivitätsdetails) erlaubt');
+  r = await req('/irgendwas/geheim', { headers: hdr({ Authorization: 'Bearer x' }) });
+  ok(r.status === 403 && calls.length === n + 1, 'Pfad außerhalb der Garmin-Dienste: abgelehnt');
+  r = await req('/activity-service/activity/9001', { method: 'DELETE', headers: hdr({ Authorization: 'Bearer x' }) });
+  ok(r.status === 403 && calls.length === n + 1, 'Löschen/Ändern (DELETE): abgelehnt');
+  const n2 = calls.length;
   r = await req('/sleep-service/sleep/dailySleep', { method: 'POST', headers: hdr({ Authorization: 'Bearer x' }) });
-  ok(r.status === 403 && calls.length === n, 'POST auf Datenpfad: abgelehnt');
+  ok(r.status === 403 && calls.length === n2, 'POST auf Datenpfad: abgelehnt');
   r = await req('/personalapitoken-service/personal-api/personal-api-key/token', { method: 'GET', headers: hdr({ Authorization: 'ApiKey x' }) });
-  ok(r.status === 403 && calls.length === n, 'GET auf Token-Pfad: abgelehnt');
-  r = await req('/sleep-service/../userprofile-service/userprofile/settings', { headers: hdr({ Authorization: 'Bearer x' }) });
-  ok(r.status === 403 && calls.length === n, 'Pfad mit .. führt nicht aus der Freigabe heraus');
+  ok(r.status === 401 && calls.length === n2, 'GET auf Token-Pfad nur mit Bearer, ApiKey wird nicht durchgereicht');
+  r = await req('/sleep-service/../irgendwas/geheim', { headers: hdr({ Authorization: 'Bearer x' }) });
+  ok(r.status === 403 && calls.length === n2, 'Pfad mit .. führt nicht aus der Freigabe heraus');
   r = await req('/sleep-service/sleep/dailySleep?date=2026-11-07', { headers: hdr({}) });
-  ok(r.status === 401 && calls.length === n, 'Ohne Anmeldung: 401, nichts weitergeleitet');
+  ok(r.status === 401 && calls.length === n2, 'Ohne Anmeldung: 401, nichts weitergeleitet');
   r = await req('/personalapitoken-service/personal-api/personal-api-key/token', { method: 'POST', headers: hdr({ Authorization: 'Bearer x' }) });
-  ok(r.status === 401 && calls.length === n, 'Token-Tausch nur mit ApiKey');
+  ok(r.status === 401 && calls.length === n2, 'Token-Tausch nur mit ApiKey');
   r = await req('/wellness-service/kaputt', { headers: hdr({ Authorization: 'Bearer x' }) });
   ok(r.status === 502 && r.headers.get('Access-Control-Allow-Origin') === APP, 'Garmin nicht erreichbar: 502 mit CORS-Kopf');
 })().catch((e) => { console.error('ABBRUCH', e); process.exit(1); });

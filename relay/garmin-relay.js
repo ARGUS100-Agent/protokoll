@@ -13,8 +13,8 @@
 const APP_ORIGIN = 'https://argus100-agent.github.io';
 const GARMIN = 'https://personal.connectapi.garmin.com';
 const TOKEN_PATH = '/personalapitoken-service/personal-api/personal-api-key/token';
-const DATA_PATH = /^\/(sleep-service|hrv-service|wellness-service|usersummary-service|weight-service|activitylist-service|fitnessage-service|wellnessactivity-service)\/[A-Za-z0-9/_.-]+$/;
-const VERSION = 1;
+const DATA_PATH = /^\/[a-z][a-z0-9-]*-service\/[A-Za-z0-9/_.-]+$/; // nur Lesen (GET) von Garmin-Diensten
+const VERSION = 2;
 
 export default {
   async fetch(request) {
