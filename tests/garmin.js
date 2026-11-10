@@ -284,6 +284,19 @@ function fixtures(path, q) {
   await syncDone();
   ok(state.calls.some((c) => c.path === '/usersummary-service/v2/dailysummaries'), 'Automatik: nach 31 Minuten neuer Abruf');
 
+  // Nach einem Update mit neuen Feldern: einmal 30 Tage neu holen, danach wieder normal
+  state.calls = [];
+  await ev(() => { delete GAR.full; });
+  await ev(() => garAuto());
+  await syncDone();
+  ok(state.calls.filter((c) => c.path === '/sleep-service/sleep/dailySleep').length === 30 && (await ev(() => GAR.full)) === 2, 'Neue Auswertung: einmal 30 Tage nachgeholt');
+  state.calls = [];
+  await ev(() => garAuto());
+  ok(state.calls.length === 0, 'Danach wieder höchstens alle 30 Minuten');
+  // Wochenrückblick zählt auch Krafttraining von Garmin („Gym (frei)“)
+  const gymWeek = await ev(() => { mutDay('2026-11-04', (d) => { d.trainings.push({ id: 'gfrei', type: 'Gym (frei)', time: '15:17', dur: 109, gid: 'x1' }); }); return weekReview('2026-11-02').gymDone; });
+  ok(gymWeek === 2, 'Wochenrückblick: Gym (frei) von Garmin zählt als Gym-Einheit (' + gymWeek + ')');
+
   /* ---------- Schlüssel abgelaufen ---------- */
   state.keyOk = false;
   await ev(() => { GAR.token = null; GAR.exp = null; ui.date = todayKey(); go('garmin'); });

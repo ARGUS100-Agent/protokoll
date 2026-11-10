@@ -748,7 +748,7 @@ function weekReview(ws) {
   r.trainings = trs.filter((t) => !trainType(t).light);
   r.trainMin = r.trainings.reduce((a, t) => a + (Number(t.dur) || 0), 0);
   r.gymPlanned = keys.filter((k, i) => weekTpl(i).gym).length;
-  r.gymDone = r.trainings.filter((t) => trainType(t).gym).length;
+  r.gymDone = r.trainings.filter((t) => trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id)).length; // auch Krafttraining von Garmin
   r.sauna = keys.reduce((a, k) => a + saunaMin(peekDay(k)), 0); r.saunaGoal = Number(S.settings.sauna.goal) || 60;
   const caf = past.filter((k) => peekDay(k)).map((k) => cafInfo(k));
   r.cafAvg = caf.length ? mean(caf.map((c) => c.total)) : null;

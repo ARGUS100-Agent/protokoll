@@ -999,6 +999,7 @@ th { color: var(--ink-3); font-weight: 650; }
 .gar-train .kv-list span { color: var(--ink-2); }
 .gar-train .kv-list b { font-weight: 600; text-align: right; }
 .item-txt .gar-mark, .tgl-txt .gar-mark { vertical-align: -2px; }
+.chip.chip-wrap { white-space: normal; text-align: left; line-height: 1.3; border-radius: 14px; max-width: 100%; }
 
 </style>
 </head>
@@ -1102,7 +1103,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.6.1';
+const APP_VERSION = '2.6.2';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -3982,7 +3983,7 @@ function weekReview(ws) {
   r.trainings = trs.filter((t) => !trainType(t).light);
   r.trainMin = r.trainings.reduce((a, t) => a + (Number(t.dur) || 0), 0);
   r.gymPlanned = keys.filter((k, i) => weekTpl(i).gym).length;
-  r.gymDone = r.trainings.filter((t) => trainType(t).gym).length;
+  r.gymDone = r.trainings.filter((t) => trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id)).length; // auch Krafttraining von Garmin
   r.sauna = keys.reduce((a, k) => a + saunaMin(peekDay(k)), 0); r.saunaGoal = Number(S.settings.sauna.goal) || 60;
   const caf = past.filter((k) => peekDay(k)).map((k) => cafInfo(k));
   r.cafAvg = caf.length ? mean(caf.map((c) => c.total)) : null;
@@ -6498,7 +6499,7 @@ function vKnieRoutines() {
     const last = lastSession(rt.id), real = avgReal(rt.id);
     const open = ui.rtOpen === rt.id;
     h += `<section class="card rt-card"><div class="rt-top"><div><h3>${esc(rt.n)}</h3><small>geplant ca. ${Math.round(sec / 60)} Min.${real ? ` · gemessen Ø ${Math.round(real / 60)} Min.` : ''}${last ? ` · zuletzt ${last.k === todayKey() ? 'heute' : fmtDate(last.k, { day: 'numeric', month: 'short' })}` : ''}</small></div><button class="pill-btn is-accent" data-a="timer-start" data-r="${rt.id}">${icon('play')}Start</button></div>
-      ${rt.id === 'lang' ? `<button class="chip chip-xs${short ? ' is-on' : ''}" data-a="knee-longshort">45-Min.-Version (Rollen 30 Sek./Seite, ohne Faden einfädeln)</button>` : ''}
+      ${rt.id === 'lang' ? `<button class="chip chip-xs chip-wrap${short ? ' is-on' : ''}" data-a="knee-longshort">45-Min.-Version (Rollen 30 Sek./Seite, ohne Faden einfädeln)</button>` : ''}
       <div class="row-btns"><button class="link-btn" data-a="rt-open" data-id="${rt.id}">${open ? 'Übungen ausblenden' : `${rt.items.length} Übungen zeigen`}</button><button class="link-btn" data-a="rt-edit" data-id="${rt.id}">${icon('pencil')} Bearbeiten</button></div>
       ${open ? routineList(rt, short) : ''}</section>`;
   }
@@ -9358,6 +9359,7 @@ async function garRun(opt) {
     GAR.last = new Date().toISOString();
     GAR.lastDay = today;
     GAR.err = null; GAR.errAt = null; GAR.warn = warn; GAR.relayOld = relayOld;
+    if (keys.length >= GAR_FIRST) GAR.full = GAR_FULL;
     GAR.sum = { n, t: ta.n, h: nh };
     await garSave();
     return { n, t: ta.n, h: nh, slot: ta.slot, fresh, warn };
@@ -9392,10 +9394,15 @@ function garManual(days) {
   garRefresh();
   p.then((r) => garDone(r, true), () => garFail(true));
 }
+const GAR_FULL = 2; // Version der Auswertung: bei neuer Version einmal 30 Tage neu holen (füllt neue Felder nach)
 function garAuto() {
   if (!garOn() || garBusy || document.hidden || navigator.onLine === false) return;
   const now = Date.now();
   if (GAR.errAt && now - GAR.errAt < GAR_RETRY) return;
+  if (GAR.lastDay && (GAR.full || 0) < GAR_FULL) {
+    garSync({ days: GAR_MAX }).then((r) => { if (r && GAR) { GAR.full = GAR_FULL; garSave(); } garDone(r, false); }, () => garFail(false));
+    return;
+  }
   if (GAR.last && now - Date.parse(GAR.last) < GAR_EVERY && GAR.lastDay === todayKey()) return;
   garSync().then((r) => garDone(r, false), () => garFail(false));
 }

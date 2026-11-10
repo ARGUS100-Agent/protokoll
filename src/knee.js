@@ -86,7 +86,7 @@ function vKnieRoutines() {
     const last = lastSession(rt.id), real = avgReal(rt.id);
     const open = ui.rtOpen === rt.id;
     h += `<section class="card rt-card"><div class="rt-top"><div><h3>${esc(rt.n)}</h3><small>geplant ca. ${Math.round(sec / 60)} Min.${real ? ` · gemessen Ø ${Math.round(real / 60)} Min.` : ''}${last ? ` · zuletzt ${last.k === todayKey() ? 'heute' : fmtDate(last.k, { day: 'numeric', month: 'short' })}` : ''}</small></div><button class="pill-btn is-accent" data-a="timer-start" data-r="${rt.id}">${icon('play')}Start</button></div>
-      ${rt.id === 'lang' ? `<button class="chip chip-xs${short ? ' is-on' : ''}" data-a="knee-longshort">45-Min.-Version (Rollen 30 Sek./Seite, ohne Faden einfädeln)</button>` : ''}
+      ${rt.id === 'lang' ? `<button class="chip chip-xs chip-wrap${short ? ' is-on' : ''}" data-a="knee-longshort">45-Min.-Version (Rollen 30 Sek./Seite, ohne Faden einfädeln)</button>` : ''}
       <div class="row-btns"><button class="link-btn" data-a="rt-open" data-id="${rt.id}">${open ? 'Übungen ausblenden' : `${rt.items.length} Übungen zeigen`}</button><button class="link-btn" data-a="rt-edit" data-id="${rt.id}">${icon('pencil')} Bearbeiten</button></div>
       ${open ? routineList(rt, short) : ''}</section>`;
   }

@@ -487,6 +487,7 @@ async function garRun(opt) {
     GAR.last = new Date().toISOString();
     GAR.lastDay = today;
     GAR.err = null; GAR.errAt = null; GAR.warn = warn; GAR.relayOld = relayOld;
+    if (keys.length >= GAR_FIRST) GAR.full = GAR_FULL;
     GAR.sum = { n, t: ta.n, h: nh };
     await garSave();
     return { n, t: ta.n, h: nh, slot: ta.slot, fresh, warn };
@@ -521,10 +522,15 @@ function garManual(days) {
   garRefresh();
   p.then((r) => garDone(r, true), () => garFail(true));
 }
+const GAR_FULL = 2; // Version der Auswertung: bei neuer Version einmal 30 Tage neu holen (füllt neue Felder nach)
 function garAuto() {
   if (!garOn() || garBusy || document.hidden || navigator.onLine === false) return;
   const now = Date.now();
   if (GAR.errAt && now - GAR.errAt < GAR_RETRY) return;
+  if (GAR.lastDay && (GAR.full || 0) < GAR_FULL) {
+    garSync({ days: GAR_MAX }).then((r) => { if (r && GAR) { GAR.full = GAR_FULL; garSave(); } garDone(r, false); }, () => garFail(false));
+    return;
+  }
   if (GAR.last && now - Date.parse(GAR.last) < GAR_EVERY && GAR.lastDay === todayKey()) return;
   garSync().then((r) => garDone(r, false), () => garFail(false));
 }

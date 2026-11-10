@@ -980,3 +980,4 @@ th { color: var(--ink-3); font-weight: 650; }
 .gar-train .kv-list span { color: var(--ink-2); }
 .gar-train .kv-list b { font-weight: 600; text-align: right; }
 .item-txt .gar-mark, .tgl-txt .gar-mark { vertical-align: -2px; }
+.chip.chip-wrap { white-space: normal; text-align: left; line-height: 1.3; border-radius: 14px; max-width: 100%; }
