@@ -255,8 +255,10 @@ Object.assign(A, {
     const k = curDate(el), m = Number(el.dataset.v);
     mutDay(k, (d) => { d.sauna = d.sauna || []; d.sauna.push({ min: m, t: k === todayKey() ? minToTime(nowMin()) : null }); });
     render();
-    const late = k === todayKey() && nowMin() > sleepMin() - 150;
-    toast(late ? `+ ${m} Min. Sauna – so spät kann das den Schlaf stören` : `+ ${m} Min. Sauna`, () => { mutDay(k, (d) => { d.sauna.pop(); }); render(); });
+    const late = k === todayKey() && nowMin() > sleepMin(k) - 150;
+    const ses = getDay(k).sauna || [], tot = ses.reduce((a, x) => a + (Number(x.min) || 0), 0);
+    const odd = ses.length >= 5 || tot > 90; // ungewöhnlich viel → nachfragen
+    toast(odd ? `${ses.length}. Gang heute (${tot} Min.) – stimmt das?` : late ? `+ ${m} Min. Sauna – so spät kann das den Schlaf stören` : `+ ${m} Min. Sauna`, () => { mutDay(k, (d) => { d.sauna.pop(); }); render(); });
   },
   'sauna-del': (el) => { const k = curDate(el), i = Number(el.dataset.i); mutDay(k, (d) => { (d.sauna || []).splice(i, 1); }); render(); },
 
@@ -271,7 +273,7 @@ Object.assign(A, {
     render();
     const ci = cafInfo(k);
     const undo = () => { mutDay(k, (d) => { d.caf = (d.caf || []).filter((x) => x.id !== id); syncCafHabit(k); }); render(); };
-    if (timeToMin(t) > ci.cut) toast(`Nach ${S.settings.caf.cutoff}: ${p.n} – noch ${fmt(ci.bedLevel)} mg zur Schlafenszeit`, undo);
+    if (timeToMin(t) > ci.cut) toast(`Nach dem Koffein-Stopp (${minToTime(ci.cut)}): ${p.n} – noch ${fmt(ci.bedLevel)} mg zur Schlafenszeit`, undo);
     else if (ci.bedLevel >= 25) toast(`${p.n} eingetragen – zur Schlafenszeit noch ${fmt(ci.bedLevel)} mg`, undo);
     else toast(`${p.n} eingetragen (${fmt(p.mg)} mg)${k === todayKey() ? '' : ' – Uhrzeit unten anpassen'}`, undo);
   },
@@ -496,7 +498,7 @@ Object.assign(C, {
   'rt-item': (el) => { const rt = ensureRoutines().find((r) => r.id === ui.rtEdit); const it = rt && rt.items[Number(el.dataset.i)]; const v = parseNum(el.value); if (!it || v == null || v <= 0) { toast('Wert prüfen'); return; } it[el.dataset.f] = Math.round(v); saveSettings(false); flashSaved(el); },
   'ex-video': (el) => { const c = kneeCfg(); c.video = c.video || {}; const v = el.value.trim(); if (v && !/^https?:\/\//i.test(v)) { toast('Link muss mit https:// beginnen'); return; } if (v) c.video[el.dataset.id] = v; else delete c.video[el.dataset.id]; saveSettings(false); flashSaved(el); },
   'todo-date': (el) => { const t = S.settings.todos.find((x) => x.id === el.dataset.id); if (!t) return; t.date = el.value || null; saveSettings(); },
-  'caf-cfg': (el) => { const c = S.settings.caf, f = el.dataset.f; if (f === 'halfLife') { const v = parseNum(el.value); if (v == null || v < 1 || v > 12) { toast('Halbwertszeit zwischen 1 und 12 Std.'); return; } c.halfLife = v; } else if (el.value) c.cutoff = el.value; saveSettings(false); flashSaved(el); },
+  'caf-cfg': (el) => { const c = S.settings.caf, f = el.dataset.f; if (f === 'halfLife') { const v = parseNum(el.value); if (v == null || v < 1 || v > 12) { toast('Halbwertszeit zwischen 1 und 12 Std.'); return; } c.halfLife = v; } else if (f === 'gapH') { const v = parseNum(el.value); if (v == null || v < 4 || v > 12) { toast('Koffein-Stopp zwischen 4 und 12 Std. vor dem Schlafen'); return; } c.gapH = v; } saveSettings(false); flashSaved(el); },
   'caf-preset': (el) => { const p = S.settings.caf.presets[Number(el.dataset.i)]; if (!p) return; const f = el.dataset.f; if (f === 'n') p.n = el.value.trim() || p.n; else { const v = parseNum(el.value); if (v == null || v < 0) return; p[f] = v; } saveSettings(false); flashSaved(el); },
 });
 

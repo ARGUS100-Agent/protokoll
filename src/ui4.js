@@ -369,7 +369,7 @@ function reviewHTML(ws) {
     ${kv('Gewicht', r.weight != null ? fmt(r.weight, 1) + ' kg' : '–', r.weight != null && r.weightPrev != null ? `${r.weight - r.weightPrev >= 0 ? '+' : ''}${fmt(r.weight - r.weightPrev, 1)} kg · Start ${r.weightStart != null ? fmt(r.weightStart, 1) : '–'}` : '')}
     ${kv('Training', `${r.trainings.length}`, `${fmt(r.trainMin)} Min.${r.gymPlanned ? ` · Gym ${r.gymDone}/${r.gymPlanned}` : ''}`)}
     ${kv('Sauna', `${fmt(r.sauna)} Min.`, `Ziel ${fmt(r.saunaGoal)} Min.`)}
-    ${kv('Ø Koffein', r.cafAvg != null ? fmt(r.cafAvg) + ' mg' : '–', `nach ${esc(S.settings.caf.cutoff)}: ${r.cafLateDays} ${r.cafLateDays === 1 ? 'Tag' : 'Tage'}`)}
+    ${kv('Ø Koffein', r.cafAvg != null ? fmt(r.cafAvg) + ' mg' : '–', `nach dem Stopp: ${r.cafLateDays} ${r.cafLateDays === 1 ? 'Tag' : 'Tage'}`)}
     ${kv('Lichttage', `${r.lightDays}/7`, 'Morgenlicht')}
     ${kv('Supplements', r.supp ? fmt(r.supp.pct) + ' %' : '–', r.supp ? `${r.supp.taken} von ${r.supp.planned}` : '')}
     ${kv('Ernährungs-Abdeckung', r.coverage != null ? `${fmt(r.coverage)} %` : '–', r.nutriDays ? `Mikros im Ziel · Score ${fmt(r.nutriScore)} · Ziele an ${r.nutriGoalDays}/${r.nutriDays} Tagen` : 'keine Daten')}
@@ -426,8 +426,8 @@ Object.assign(SET_VIEWS, {
   koffein() {
     const c = S.settings.caf;
     return `<div class="form"><div class="frow"><span class="flabel">Halbwertszeit</span><div class="fin"><input type="text" inputmode="decimal" data-c="caf-cfg" data-f="halfLife" value="${numIn(c.halfLife, 1)}"><span class="unit">Std.</span></div></div>
-      <div class="frow"><span class="flabel">Kein Koffein nach</span><div class="fin"><input type="time" data-c="caf-cfg" data-f="cutoff" value="${esc(c.cutoff)}"></div></div></div>
-      <p class="hint">Die Halbwertszeit liegt meist bei 4–6 Stunden. Die Kurve nimmt an, dass das Koffein beim Trinken sofort im Körper ist.</p>
+      <div class="frow"><span class="flabel">Koffein-Stopp vor dem Schlafen</span><div class="fin"><input type="text" inputmode="decimal" data-c="caf-cfg" data-f="gapH" value="${numIn(cafGap() / 60, 1)}"><span class="unit">Std.</span></div></div></div>
+      <p class="hint">Die Halbwertszeit liegt meist bei 4–6 Stunden. Die Kurve nimmt an, dass das Koffein beim Trinken sofort im Körper ist. Der Koffein-Stopp wandert mit deiner Schlafenszeit: heute ${minToTime(cafCutoff())} Uhr.</p>
       <h5>Schnellbuttons</h5><div class="caf-edit">${c.presets.map((p, i) => `<div class="pe-block"><div class="pe-head"><input class="pe-name" type="text" data-c="caf-preset" data-i="${i}" data-f="n" value="${esc(p.n)}" aria-label="Name"><button class="icon-btn sm" data-a="caf-preset-del" data-i="${i}" aria-label="Löschen">${icon('trash-2')}</button></div>
         <div class="pe-row">${[['mg', 'mg Koffein'], ['ml', 'ml'], ['kcal', 'kcal'], ['sug', 'g Zucker']].map(([f, l]) => `<label class="pe-av">${l}<input type="text" inputmode="decimal" data-c="caf-preset" data-i="${i}" data-f="${f}" value="${numIn(p[f], 1)}"></label>`).join('')}</div></div>`).join('')}</div>
       <div class="row-btns"><button class="pill-btn" data-a="caf-custom">${icon('plus')}Getränk hinzufügen</button><button class="pill-btn is-ghost" data-a="caf-presets-reset">Standard wiederherstellen</button></div>`;

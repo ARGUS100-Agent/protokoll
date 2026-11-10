@@ -232,11 +232,18 @@ function allPlanItems() {
 }
 function findItem(id) { return allPlanItems().find((x) => x.it.id === id) || null; }
 function itemInVariant(it, variant) { return !it.v || it.v.length === 0 || it.v.includes(variant); }
+/* Auswahl eines Postens; beim Prepmymeal zählen auch eigene Gerichte („prepmymeal …“, z. B. von Frank) */
+function itemChoices(it) {
+  if (!it.choice) return [];
+  if (it.cg !== 'pmm') return it.choice;
+  const own = ((S.foods && S.foods.custom) || []).filter((f) => /^prepmymeal/i.test(f.n || '') && !it.choice.includes(f.id)).map((f) => f.id);
+  return it.choice.concat(own);
+}
 function itemFoodId(it, day) {
   if (!it.choice) return it.food;
   const key = it.cg || it.id;
   const c = day && day.choice ? day.choice[key] : null;
-  if (c && it.choice.includes(c)) return c;
+  if (c && itemChoices(it).includes(c)) return c;
   if (it.rotate && day) return rotateChoice(it, day.date);
   return it.food;
 }
@@ -275,7 +282,7 @@ function resolveBlockTime(b, day) {
     const t = day && day.training;
     return timeToMin((TRAINING[t] || TRAINING.keins).time);
   }
-  return timeToMin(b.time);
+  return rhShift(timeToMin(b.time), day && day.date);
 }
 
 /* ---------- Berechnung eines Tages ---------- */
@@ -297,7 +304,7 @@ function addFood(tot, contrib, food, g, label) {
   if (food.fl) { tot.fluid += food.fl * fct; if (contrib) (contrib.fluid = contrib.fluid || {})[label] = (contrib.fluid[label] || 0) + food.fl * fct; }
   if (food.ferm) tot.ferm[food.id] = (tot.ferm[food.id] || 0) + g;
   if (food.supp && food.v && food.v.mg) tot.mgSupp += food.v.mg * fct;
-  if (food.tags && food.tags.includes('upf') && food.v.kcal) tot.upfKcal += food.v.kcal * fct;
+  if (food.tags && food.tags.includes('upf') && food.v.kcal && !/^prepmymeal/i.test(food.n || '')) tot.upfKcal += food.v.kcal * fct; // Prepmymeal zählt nie als ultraverarbeitet
 }
 function fermPortions(tot) {
   let n = 0;
@@ -757,15 +764,16 @@ function rangeKeys(n, end = todayKey()) { const out = []; for (let i = n - 1; i 
 /* Zusammenhänge: Abendverhalten (Tag X) → Schlaf der folgenden Nacht (eingetragen an Tag X+1) */
 const CORRELATIONS = [
   { id: 'screen', n: 'Bildschirmfrei vor dem Schlafen', y: 'sleepScore', type: 'num', unit: 'Min.', x: (d) => (d.hd && d.hd.screenFree != null ? d.hd.screenFree : null), split: (x) => x >= 60, la: '≥ 60 Min.', lb: '< 60 Min.' , ia: 'Nach Abenden mit mind. 60 Min. ohne Bildschirm', ib: 'bei weniger' },
-  { id: 'caf', n: 'Letztes Koffein', y: 'sleepScore', type: 'time', x: (d) => timeToMin(d.hd && d.hd.caffeineEnd), split: (x) => x <= 14 * 60 + 30, la: 'bis 14:30', lb: 'nach 14:30' , ia: 'Mit letztem Koffein bis 14:30', ib: 'bei späterem Koffein' },
-  { id: 'meal', n: 'Letzte große Mahlzeit', y: 'sleepScore', type: 'time', x: (d) => timeToMin(d.hd && d.hd.lastMeal), split: (x) => x <= sleepMin() - 120, la: '≥ 2 Std. vor dem Schlafen', lb: 'später' , ia: 'Mit der letzten großen Mahlzeit mind. 2 Std. vor dem Schlafen', ib: 'bei späterem Essen' },
+  { id: 'caf', n: 'Letztes Koffein', y: 'sleepScore', type: 'time', x: (d) => timeToMin(d.hd && d.hd.caffeineEnd), split: (x, k) => x <= cafCutoff(k), la: 'vor dem Koffein-Stopp', lb: 'danach' , ia: 'Mit letztem Koffein vor dem Koffein-Stopp', ib: 'bei späterem Koffein' },
+  { id: 'meal', n: 'Letzte große Mahlzeit', y: 'sleepScore', type: 'time', x: (d) => timeToMin(d.hd && d.hd.lastMeal), split: (x, k) => x <= sleepMin(k) - 120, la: '≥ 2 Std. vor dem Schlafen', lb: 'später' , ia: 'Mit der letzten großen Mahlzeit mind. 2 Std. vor dem Schlafen', ib: 'bei späterem Essen' },
   { id: 'train', n: 'Training abends (ab 18 Uhr)', y: 'sleepScore', type: 'bool', x: (d) => trainedEvening(d), split: (x) => x === 1, la: 'mit Abendtraining', lb: 'ohne' , ia: 'Nach Abendtraining (ab 18 Uhr)', ib: 'ohne Abendtraining' },
   { id: 'alk', n: 'Alkohol-Regel eingehalten', y: 'hrv', type: 'bool', x: (d) => (d.habits && 'alkohol' in d.habits ? (d.habits.alkohol ? 1 : 0) : null), split: (x) => x === 1, la: 'eingehalten', lb: 'nicht eingehalten' , ia: 'Mit eingehaltener Alkohol-Regel', ib: 'ohne' },
   { id: 'sauna', n: 'Sauna', y: 'sleepScore', type: 'bool', x: (d) => (hasAnyHabit(d) ? (d.habits.sauna ? 1 : 0) : null), split: (x) => x === 1, la: 'mit Sauna', lb: 'ohne' , ia: 'Nach Sauna-Tagen', ib: 'ohne Sauna' },
   { id: 'licht', n: 'Morgenlicht', y: 'sleepScore', type: 'bool', x: (d) => (hasAnyHabit(d) ? (d.habits.licht_morgen ? 1 : 0) : null), split: (x) => x === 1, la: 'mit Morgenlicht', lb: 'ohne' , ia: 'Nach Tagen mit Morgenlicht', ib: 'ohne' },
   { id: 'steps', n: 'Schritte', y: 'sleepScore', type: 'num', unit: '', x: (d) => (d.health && d.health.steps != null ? d.health.steps : null), split: (x) => x >= 10000, la: '≥ 10.000', lb: '< 10.000' , ia: 'Nach Tagen mit mind. 10.000 Schritten', ib: 'mit weniger' },
 ];
-function sleepMin() { return timeToMin(S.settings.profile.sleep) || 22 * 60 + 30; }
+/* Schlafenszeit des Tages in Minuten ab Mitternacht (nach Mitternacht > 1440), aus dem Tagesrhythmus */
+function sleepMin(k = todayKey()) { return rhythm(k).bed; }
 function hasAnyHabit(d) { return d && d.habits && Object.keys(d.habits).length > 0; }
 function trainedEvening(d) {
   if (!d) return null;
@@ -784,7 +792,7 @@ function correlationData(c, days = 90) {
     if (x == null || y == null) continue;
     pts.push({ x, y, k });
   }
-  const a = pts.filter((p) => c.split(p.x)).map((p) => p.y), b = pts.filter((p) => !c.split(p.x)).map((p) => p.y);
+  const a = pts.filter((p) => c.split(p.x, p.k)).map((p) => p.y), b = pts.filter((p) => !c.split(p.x, p.k)).map((p) => p.y);
   return { pts, r: c.type === 'bool' ? null : pearson(pts), ma: mean(a), mb: mean(b), na: a.length, nb: b.length };
 }
 
@@ -806,7 +814,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 4, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
+  return { app: 'protokoll', schema: 5, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
 }
 function backupDue() {
   const n = S.settings.backupDays;

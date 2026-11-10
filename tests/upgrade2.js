@@ -74,7 +74,7 @@ const IDS = ['f_kiwi', 'n_schoko', 'v_rotebete'];
     };
   });
   console.log('     ' + JSON.stringify(st));
-  ok(st.schema === 4, 'Migration auf Schema 4');
+  ok(st.schema === 5, 'Migration auf Schema 5');
   ok(/aktualisiert/.test(st.toast), 'Hinweis „aktualisiert“ erscheint');
   ok(st.kiwi.join('|') === 'kiwi_gold|kiwi_gold/kiwi|kiwi_gold', 'Kiwi: ab jetzt Gold-Kiwi, grüne Kiwi wählbar');
   ok(st.schoko[0] === 'schokolade90' && st.schoko[1] === 'schokolade90/schokolade85' && st.schoko[2] === 'Dunkle Schokolade 90 %', 'Schokolade: ab jetzt 90 %, 85 % wählbar');

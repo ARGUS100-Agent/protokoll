@@ -28,7 +28,8 @@ function vGarmin(k) {
       const pv = y && y.health ? y.health[f.k] : null;
       const prev = pv != null && v == null ? `<button class="prev-chip" data-a="h-prev" data-k="${f.k}" data-date="${k}" aria-label="Vortag übernehmen: ${esc(healthVal(f, pv))}">${icon('history')}${esc(healthVal(f, pv))}</button>` : '';
       let input = '';
-      if (f.type === 'num') input = `<input type="text" inputmode="decimal" data-c="health" data-k="${f.k}" data-date="${k}" value="${numIn(v, f.dec || 0)}" placeholder="–" aria-label="${esc(f.n)}">${f.signed ? `<button class="sign-btn" data-a="h-sign" data-k="${f.k}" data-date="${k}" aria-label="Vorzeichen wechseln">±</button>` : ''}${f.unit ? `<span class="unit">${esc(f.unit)}</span>` : ''}`;
+      const ph = f.k === 'readiness' && v == null && readinessOf(k) ? fmt(readinessOf(k).own) : '–';
+      if (f.type === 'num') input = `<input type="text" inputmode="decimal" data-c="health" data-k="${f.k}" data-date="${k}" value="${numIn(v, f.dec || 0)}" placeholder="${ph}" aria-label="${esc(f.n)}">${f.signed ? `<button class="sign-btn" data-a="h-sign" data-k="${f.k}" data-date="${k}" aria-label="Vorzeichen wechseln">±</button>` : ''}${f.unit ? `<span class="unit">${esc(f.unit)}</span>` : ''}`;
       else if (f.type === 'dur') input = `<input type="time" data-c="health-dur" data-k="${f.k}" data-date="${k}" value="${durToTime(v)}" aria-label="${esc(f.n)} in Stunden und Minuten"><span class="unit">h:min</span>`;
       else if (f.type === 'time') input = `<input type="time" data-c="health" data-k="${f.k}" data-date="${k}" value="${esc(v || '')}" aria-label="${esc(f.n)}">`;
       else if (f.type === 'choice') input = `<div class="chips chips-tight">${f.options.map((o) => `<button class="chip chip-xs${v === o ? ' is-on' : ''}" data-a="h-choice" data-k="${f.k}" data-v="${esc(o)}" data-date="${k}">${esc(o)}</button>`).join('')}</div>`;
@@ -36,7 +37,7 @@ function vGarmin(k) {
       h += `<div class="frow${f.type === 'choice' ? ' is-wide' : ''}"><span class="flabel">${esc(f.n)}${base}</span><div class="fin">${input}${garMark(d, f.k)}</div>${prev}</div>`;
     }
     h += '</div>';
-    if (gon && grp.fields.some((f) => f.k === 'readiness')) h += '<p class="hint">Trainingsbereitschaft gibt Garmins Schnittstelle nicht heraus – bei Bedarf selbst eintragen.</p>';
+    if (grp.fields.some((f) => f.k === 'readiness')) { const rd = readinessOf(k); h += `<p class="hint">Trainingsbereitschaft gibt Garmins Schnittstelle nicht heraus. Die App rechnet deshalb eine eigene aus Schlaf, HRV, Ruhepuls, Body Battery, Stress und Belastung${rd && rd.own != null ? ` – heute ${fmt(rd.own)} (${readinessLabel(rd.own)})` : ''}. Zeigt deine Uhr einen anderen Wert, trag ihn ein: dann gilt deiner.</p>`; }
     h += '</section>';
   }
   const tr = d.trainings || [];
@@ -61,7 +62,7 @@ function vHabits(k) {
       else det = `<div class="hdet"><span>${esc(hb.detail.label)}</span><div class="chips chips-tight">${hb.detail.options.map((o) => `<button class="chip chip-xs${val === o ? ' is-on' : ''}" data-a="habit-chip" data-k="${hb.detail.key}" data-h="${hb.id}" data-v="${o}" data-date="${k}">${o === 90 ? '90+' : o} ${hb.detail.unit}</button>`).join('')}</div></div>`;
     }
     h += `<div class="hrow${on ? ' is-on' : ''}">
-      <button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}${garHabitMark(d, hb.id)}</b><small>${esc(hb.when)}</small></span></button>
+      <button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb, k))}${garHabitMark(d, hb.id)}</b><small>${esc(habitWhen(hb, k))}</small></span></button>
       <button class="icon-btn" data-a="expand" data-key="h:${hb.id}" aria-label="Erklärung" aria-expanded="${open}">${icon('info')}</button>
       ${det}
       ${open ? `<div class="mrow-detail">${infoHTML(hb.id)}</div>` : ''}
@@ -234,7 +235,7 @@ function weightHTML(keys) {
 }
 function healthChartHTML(keys) {
   const hm = HEALTH_METRICS.find((x) => x.k === ui.hMetric) || HEALTH_METRICS[0];
-  const vals = keys.map((k) => { const d = peekDay(k); if (!d) return null; if (['wellbeing', 'energy', 'focus'].includes(hm.k)) return d.mood ? d.mood[hm.k] ?? null : null; return d.health[hm.k] ?? null; });
+  const vals = keys.map((k) => { const d = peekDay(k); if (!d) return null; if (['wellbeing', 'energy', 'focus'].includes(hm.k)) return d.mood ? d.mood[hm.k] ?? null : null; if (hm.k === 'readiness') { const r = readinessOf(k); return r ? r.score : null; } return d.health[hm.k] ?? null; });
   const isDur = hm.fmt === 'dur';
   const body = lineChart({ keys, series: [{ name: hm.n, color: SERIES.one, vals, dots: true }], unit: isDur ? '' : hm.u || '', fmtY: isDur ? (v) => fmtDur(v) : (v) => fmt(v, ['resp', 'skinTemp', 'fitAge'].includes(hm.k) ? 1 : 0) });
   const chips = `<div class="chips chips-scroll">${HEALTH_METRICS.map((x) => `<button class="chip chip-sm${x.k === hm.k ? ' is-on' : ''}" data-a="h-metric" data-v="${x.k}">${esc(x.n)}</button>`).join('')}</div>`;
@@ -307,7 +308,7 @@ const SET_VIEWS = {
     const p = S.settings.profile;
     const f = (k, l, type = 'text', mode = '') => `<div class="frow"><span class="flabel">${l}</span><div class="fin"><input type="${type}" ${mode ? `inputmode="${mode}"` : ''} data-c="profile" data-k="${k}" value="${esc(p[k] ?? '')}"></div></div>`;
     return `<div class="form">${f('name', 'Name')}${f('age', 'Alter', 'text', 'numeric')}${f('height', 'Größe (cm)', 'text', 'numeric')}${f('weight', 'Gewicht (kg)', 'text', 'decimal')}${f('wake', 'Aufstehen', 'time')}${f('sleep', 'Schlafen', 'time')}</div>
-      <p class="hint">Aufstehen und Schlafen bestimmen den Tagesbogen, das Koffein-Fenster (90 Min. nach dem Aufstehen bis 8 Std. vor dem Schlafen) und die Abend-Gewohnheiten.</p>`;
+      <p class="hint">Aufstehen und Schlafen gelten nur, bis Garmin deine Schlafdaten liefert. Danach nimmt die App jeden Tag dein echtes Aufstehen und rechnet die Schlafenszeit aus dem Aufstehen am nächsten Morgen und deinem Schlafbedarf. Wann du morgen raus musst, stellst du auf „Heute“ unter dem Tagesbogen ein.</p>`;
   },
   ziele() {
     const rows = [

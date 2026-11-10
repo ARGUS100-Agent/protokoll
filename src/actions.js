@@ -105,7 +105,7 @@ const A = {
     const k = curDate(el), ml = Number(el.dataset.ml);
     const id = addEntry(k, el.dataset.food, ml, 'getraenke');
     render();
-    toast(`+ ${ml} ml eingetragen`, () => { mutDay(k, (d) => { d.entries = d.entries.filter((e) => e.id !== id); }); render(); });
+    toast(`+ ${ml >= 1000 ? fmt(ml / 1000, 1) + ' l' : ml + ' ml'} eingetragen`, () => { mutDay(k, (d) => { d.entries = d.entries.filter((e) => e.id !== id); }); render(); });
   },
   undo: () => { if (toast.undo) { toast.undo(); toast.undo = null; $('#toast').classList.remove('show'); } },
   expand: (el) => { const key = el.dataset.key; if (ui.exp.has(key)) ui.exp.delete(key); else ui.exp.add(key); render(); },
@@ -159,16 +159,20 @@ const A = {
     const g = Math.round(s.amt * unitG(food, s.unit) * 100) / 100;
     if (!(g > 0)) { toast('Bitte eine Menge eingeben'); return; }
     let newId = null;
+    const dup = s.entryId ? null : dupEntry(s.k, s.fid);
     if (s.entryId) mutDay(s.k, (d) => { const e = d.entries.find((x) => x.id === s.entryId); if (e) { e.g = g; e.meal = s.meal; } });
     else newId = addEntry(s.k, s.fid, g, s.meal);
     const ph = phaseBlocks(s.k, food);
     const k = s.k;
     closeSheet(); render();
-    if (ph) toast(`${ph.n} im Haut-Protokoll: ${ph.rules.join(', ')}`);
-    else if (newId) toast(`${food.n} eingetragen`, () => { mutDay(k, (d) => { d.entries = d.entries.filter((e) => e.id !== newId); }); render(); });
+    const undoNew = () => { mutDay(k, (d) => { d.entries = d.entries.filter((e) => e.id !== newId); }); render(); };
+    if (dup && newId) toast(`${food.n} hattest du vor ${Math.max(1, Math.round((Date.now() - dup.t) / 60000))} Min. schon eingetragen – doppelt?`, undoNew);
+    else if (ph) toast(`${ph.n} im Haut-Protokoll: ${ph.rules.join(', ')}`);
+    else if (newId) toast(`${food.n} eingetragen`, undoNew);
   },
   'entry-del': () => { const s = ui.sheet; delEntry(s.k, s.entryId); closeSheet(); },
   'entry-del-now': (el) => delEntry(curDate(el), el.dataset.id),
+  'water-type': () => { const ids = WATER_TYPES.map(([id]) => id); const i = ids.indexOf(S.settings.waterFood); S.settings.waterFood = ids[(i + 1) % ids.length]; saveSettings(); toast('Wasser-Knöpfe: ' + WATER_TYPES.find(([id]) => id === S.settings.waterFood)[1]); },
   'plant-pick': (el) => sheetPlants(curDate(el)),
   'plant-toggle': (el) => {
     const k = el.dataset.date, p = el.dataset.v;
@@ -242,7 +246,9 @@ const A = {
       if (data.reviews) S.reviews = { ...S.reviews, ...data.reviews };
       if (data.settings && data.settings.todos) S.settings.todos = byId(S.settings.todos, data.settings.todos);
     }
+    buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia
     await DB.clear();
+    if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); Object.keys(S.days).forEach((k) => markDirty('day:' + k));
     await flush();
     buildFoodIndex(); invalidate(); closeSheet(); render(); toast('Backup importiert');
@@ -258,7 +264,7 @@ const A = {
     if (v.trim().toUpperCase() !== 'LÖSCHEN') { toast('Bitte LÖSCHEN eingeben'); return; }
     await DB.clear();
     GAR = null;
-    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 4, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
+    S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 5, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
     Object.assign(S, defaultStores()); S.shop = shopDefault();
     try { await PhotoDB.clear(); photoUrls.forEach((u) => URL.revokeObjectURL(u)); photoUrls.clear(); photoIdx.keys = []; } catch (e) { /* egal */ }
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); await flush();
@@ -392,8 +398,8 @@ const C = {
       if (v == null) { delete d.hd[key]; return; }
       d.hd[key] = v;
       const m = timeToMin(v);
-      if (h === 'koffein') { if (m <= cafWindow()[1]) d.habits.koffein = true; else delete d.habits.koffein; }
-      if (h === 'mahlzeit') { if (m <= sleepMin() - 120) d.habits.mahlzeit = true; else delete d.habits.mahlzeit; }
+      if (h === 'koffein') { if (m <= cafWindow(k)[1]) d.habits.koffein = true; else delete d.habits.koffein; }
+      if (h === 'mahlzeit') { if (m <= sleepMin(k) - 120) d.habits.mahlzeit = true; else delete d.habits.mahlzeit; }
     });
     render();
   },

@@ -144,8 +144,8 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const rep2 = await ev(() => frankReportText('2026-11-09'));
   ok(rep2.includes('## Wochenziele dieser Woche') && rep2.includes('Protein ab 180 g: 6/6 Tage → geschafft'), 'Nächster Bericht enthält die Bilanz der Ziele');
   await ev(() => { ui.sub.woche = 'muster'; render(); });
-  ok((await page.textContent('#main')).includes('Nach Tagen mit Koffein nach 14:30'), 'Reiter „Muster“ erklärt die Zusammenhänge');
-  ok((await page.textContent('#main')).includes('Letzten Kaffee vor 14:30 trinken'), 'Muster mit konkretem Tipp');
+  ok((await page.textContent('#main')).includes('Nach Tagen mit Koffein nach dem Koffein-Stopp'), 'Reiter „Muster“ erklärt die Zusammenhänge');
+  ok((await page.textContent('#main')).includes('Letzten Kaffee spätestens 8 Std. vor dem Schlafen trinken'), 'Muster mit konkretem Tipp');
   ok((await page.textContent('#main')).includes('Deine Gewohnheiten') && (await ev(() => habitPatterns().length)) > 0, 'Gewohnheiten erkannt: ' + (await ev(() => habitPatterns().slice(0, 2).map((x) => x.text).join(' | '))));
   ok(rep2.includes('## Gewohnheiten der letzten 4 Wochen'), 'Bericht enthält die Gewohnheiten');
   await page.screenshot({ path: `${OUT}/z4-muster.png`, fullPage: true });

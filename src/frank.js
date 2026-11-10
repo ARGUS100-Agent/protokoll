@@ -95,7 +95,7 @@ function frankItem(r, cats, parent) {
     name, base, liquid, fluid, portion, units, amt: Math.round(amt * 100) / 100, unit, guess, values,
     cat: cats.includes(catIn) ? catIn : liquid ? 'Getränke' : 'Eigene',
     est: [...new Set(list(r.estimated).map(frankKey).filter((k) => EDIT_KEYS.includes(k)))],
-    tags: [...new Set(list(r.tags).map((x) => String(x).toLowerCase().trim()).filter((x) => FRANK_TAGS.includes(x)))],
+    tags: [...new Set(list(r.tags).map((x) => String(x).toLowerCase().trim()).filter((x) => FRANK_TAGS.includes(x) && !(x === 'upf' && /^prepmymeal/i.test(String(name)))))], // Prepmymeal nie ultraverarbeitet
     plants: list(r.plants).map((x) => frankText(x, 30)).filter(Boolean).slice(0, 12),
     sources: list(r.sources).map((x) => String(x).trim()).filter((x) => /^https?:\/\/[^\s"'<>]+$/i.test(x)).slice(0, 6),
     pp: Math.min(60, Math.max(0, frankNum(r.pp) || 0)),

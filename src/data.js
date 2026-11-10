@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.6.2';
+const APP_VERSION = '2.7.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -106,6 +106,7 @@ const MICRO_SHORT = { vc: 'Vit. C', vd: 'Vit. D', vk: 'Vit. K', va: 'Vit. A', ve
 const FOODS = [
   /* Getränke */
   { id: 'wasser', n: 'Wasser (Leitung)', cat: 'Getränke', u: [['Glas (250 ml)', 250], ['ml', 1]], fl: 100, v: { ca: 5, mg: 1, na: 1 } },
+  { id: 'saskia', n: 'Saskia Mineralwasser (Lidl)', cat: 'Getränke', est: true, u: [['Glas (250 ml)', 250], ['Flasche (500 ml)', 500], ['Flasche (1,5 l)', 1500], ['ml', 1]], fl: 100, v: { ca: 4, mg: 0.6, na: 2, k: 0.2 } },
   { id: 'mineralwasser', n: 'Mineralwasser, kalziumreich', cat: 'Getränke', u: [['Glas (250 ml)', 250], ['Flasche (1,5 l)', 1500], ['ml', 1]], fl: 100, v: { ca: 35, mg: 10, na: 12, k: 1 } },
   { id: 'gruener_tee', n: 'Grüner Tee', cat: 'Getränke', u: [['Tasse (250 ml)', 250], ['ml', 1]], fl: 100, pl: 'Tee', pp: 0.9, v: { kcal: 1, p: 0.2, k: 8, mg: 1, caf: 12 } },
   { id: 'kaffee', n: 'Kaffee (Filter, schwarz)', cat: 'Getränke', u: [['Tasse (200 ml)', 200], ['ml', 1]], fl: 100, pl: 'Kaffee', pp: 2.1, v: { kcal: 1, p: 0.1, k: 49, mg: 3, na: 2, caf: 40 } },
@@ -270,11 +271,14 @@ const PMM_CHOICES = ['prepmymeal', 'pmm_hrb', 'pmm_fajita', 'pmm_butter', 'pmm_b
 
 const DEFAULT_PLAN = [
   { id: 'morgen', n: 'Direkt nach dem Aufstehen', time: '08:30', items: [
-    { id: 'm_wasser', food: 'wasser', a: 400, u: 'ml', label: 'Wasser', hint: 'gern mit einer Prise Salz' },
+    { id: 'm_wasser', food: 'saskia', a: 400, u: 'ml', label: 'Wasser', hint: 'gern mit einer Prise Salz' },
     { id: 'm_flohsamen', food: 'flohsamen', a: 10, u: 'g' },
     { id: 'm_kreatin', food: 's_kreatin', a: 5, u: 'g' },
-    { id: 'm_wasser2', food: 'wasser', a: 250, u: 'ml', label: 'Noch ein Glas Wasser' },
+    { id: 'm_wasser2', food: 'saskia', a: 250, u: 'ml', label: 'Noch ein Glas Wasser' },
     { id: 'm_ag1', food: 's_ag1', a: 1, u: 'Portion', opt: true, hint: 'alle paar Tage' },
+  ] },
+  { id: 'pmm', n: 'Prepmymeal (über den Tag)', time: null, items: [
+    { id: 'p_beutel', food: 'prepmymeal', choice: PMM_CHOICES, cg: 'pmm', a: 1000, u: 'g', av: { makrele: 600 }, label: 'Prepmymeal-Beutel (1 kg)', v: ['prep', 'makrele'], hint: 'einmal abhaken, dann auf drei Mahlzeiten verteilen' },
   ] },
   { id: 'fruehstueck', n: 'Frühstück', time: '09:00', items: [
     { id: 'f_eier', food: 'ei', a: 3, u: 'Stück', label: 'Eier' },
@@ -283,24 +287,21 @@ const DEFAULT_PLAN = [
     { id: 'f_oel', food: 'olivenoel', a: 1, u: 'EL' },
     { id: 'f_kiwi', food: 'kiwi_gold', choice: ['kiwi_gold', 'kiwi'], a: 1, u: 'Stück', label: 'Kiwi' },
     { id: 'f_ferm', food: 'sauerkraut', choice: ['sauerkraut', 'kimchi'], a: 40, u: 'g', label: 'Sauerkraut oder Kimchi' },
-    { id: 'f_pmm', food: 'prepmymeal', choice: PMM_CHOICES, cg: 'pmm', a: 200, u: 'g', label: '20 % Prepmymeal XL', v: ['prep'] },
     { id: 'f_d3k2', food: 's_d3k2', a: 4, u: 'Tropfen', hint: 'zu den Eiern (fettlöslich)' },
     { id: 'f_omega3', food: 's_omega3', a: 2, u: 'Tagesdosis', av: { doener: 1, makrele: 1 }, hint: 'an Makrele-Tagen 1' },
   ] },
   { id: 'mittag', n: 'Mittag', time: '13:00', items: [
-    { id: 'l_pmm', food: 'prepmymeal', choice: PMM_CHOICES, cg: 'pmm', a: 600, u: 'g', label: '60 % Prepmymeal XL', v: ['prep', 'makrele'] },
     { id: 'l_doener', food: 'doener', a: 1, u: 'Stück', label: 'Döner', v: ['doener'], hint: 'Uni-Tag' },
-    { id: 'l_oel', food: 'olivenoel', a: 1, u: 'EL', v: ['prep', 'makrele'], hint: 'über das Prepmymeal' },
+    { id: 'l_oel', food: 'olivenoel', a: 1, u: 'EL', v: ['prep', 'makrele'], opt: true, hint: 'über das Prepmymeal' },
     { id: 'l_karotten', food: 'karotten', a: 150, u: 'g', hint: 'mit etwas Fett (Nüsse/Öl)' },
-    { id: 'l_tee', food: 'gruener_tee', a: 2, u: 'Tasse (250 ml)', label: 'Grüner Tee', hint: 'ca. 1 Std. Abstand zum Essen, bis 14:30' },
+    { id: 'l_tee', food: 'gruener_tee', a: 2, u: 'Tasse (250 ml)', label: 'Grüner Tee', opt: true, hint: 'ca. 1 Std. Abstand zum Essen, vor dem Koffein-Stopp' },
   ] },
   { id: 'nachmittag', n: 'Nachmittag', time: '16:00', items: [
-    { id: 'n_pmm', food: 'prepmymeal', choice: PMM_CHOICES, cg: 'pmm', a: 200, u: 'g', label: '20 % Prepmymeal XL', v: ['prep'] },
     { id: 'n_makrele', food: 'makrele', a: 1, u: 'Dose', v: ['doener', 'makrele'] },
     { id: 'n_brot', food: 'vollkornbrot', a: 1, u: 'Scheibe', v: ['doener', 'makrele'] },
     { id: 'n_gurke', food: 'gurke', a: 100, u: 'g', v: ['doener', 'makrele'] },
-    { id: 'n_kuerbis', food: 'kuerbiskerne', a: 20, u: 'g' },
-    { id: 'n_mandeln', food: 'mandeln', a: 30, u: 'g' },
+    { id: 'n_kuerbis', food: 'kuerbiskerne', a: 20, u: 'g', hint: 'oder abends in den Shake' },
+    { id: 'n_mandeln', food: 'mandeln', a: 30, u: 'g', hint: 'oder abends in den Shake (eingeweicht oder als Mus)' },
     { id: 'n_paranuss', food: 'paranuss', a: 1, u: 'Stück' },
     { id: 'n_schoko', food: 'schokolade90', choice: ['schokolade90', 'schokolade85'], a: 20, u: 'g', label: 'Dunkle Schokolade (85–90 %)' },
     { id: 'n_kefir', food: 'kefir', a: 150, u: 'ml' },
@@ -311,18 +312,19 @@ const DEFAULT_PLAN = [
   ] },
   { id: 'abend', n: 'Abend', time: '19:30', items: [
     { id: 'a_skyr', food: 'skyr', a: 500, u: 'g' },
-    { id: 'a_hafer', food: 'haferflocken', a: 80, u: 'g', hint: 'als Overnight Oats im Skyr einweichen' },
+    { id: 'a_hafer', food: 'haferflocken', a: 80, u: 'g', hint: 'als Shake mixen oder als Overnight Oats im Skyr einweichen' },
     { id: 'a_beeren', food: 'heidelbeeren', choice: ['heidelbeeren', 'himbeeren', 'brombeeren', 'beerenmix'], rotate: true, a: 150, u: 'g', label: 'TK-Beeren' },
     { id: 'a_lein', food: 'leinsamen', a: 15, u: 'g' },
+    { id: 'a_kokos', food: 'kokoswasser', a: 200, u: 'ml', opt: true, label: 'Kokoswasser für den Shake', hint: 'oder Wasser – 150–250 ml, gleich trinken' },
   ] },
   { id: 'schlaf', n: 'Vor dem Schlafen', time: '21:45', items: [
     { id: 's_mg', food: 's_mg_threonat', a: 1, u: 'Dosis (144 mg Mg)', opt: true, hint: 'nur an Tagen mit wenig Magnesium aus Lebensmitteln' },
   ] },
   { id: 'getraenke', n: 'Getränke über den Tag', time: null, items: [
     { id: 'g_osaft', food: 'o_saft', a: 250, u: 'ml', hint: 'am besten zum Frühstück (Eisenaufnahme)' },
-    { id: 'g_kokos', food: 'kokoswasser', a: 330, u: 'ml' },
-    { id: 'g_kombucha', food: 'kombucha', a: 250, u: 'ml' },
-    { id: 'g_mineral', food: 'mineralwasser', a: 1000, u: 'ml' },
+    { id: 'g_kokos', food: 'kokoswasser', a: 330, u: 'ml', opt: true },
+    { id: 'g_kombucha', food: 'kombucha', a: 250, u: 'ml', opt: true },
+    { id: 'g_mineral', food: 'mineralwasser', a: 1000, u: 'ml', opt: true, hint: 'Wasser trägst du schneller über die Wasser-Knöpfe ein' },
     { id: 'g_jodsalz', food: 'jodsalz', a: 2, u: 'g', label: 'Jodsalz beim Würzen', hint: 'z. B. die Eier' },
   ] },
   { id: 'vielfalt', n: 'Für Vielfalt (optional)', time: null, items: [
@@ -468,5 +470,5 @@ const TIP_FOODS = {
   pre: [['haferflocken', 60, 10], ['zwiebel', 80, 40], ['knoblauch', 8, 4], ['banane', 120, 120]],
   pp: [['heidelbeeren', 150, 50], ['schokolade90', 20, 10], ['gruener_tee', 500, 250]],
   ferm: [['sauerkraut', 40, 40], ['kimchi', 40, 40], ['kefir', 150, 150], ['kombucha', 250, 250], ['joghurt', 150, 150]],
-  fluid: [['wasser', 1000, 250], ['mineralwasser', 1000, 250]],
+  fluid: [['saskia', 1000, 250], ['wasser', 1000, 250]],
 };

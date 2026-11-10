@@ -32,6 +32,8 @@ function registerSW() {
   try { migrate2(); } catch (e) { /* egal */ }
   try { migrate3(); } catch (e) { /* egal */ }
   try { migrate4(); } catch (e) { /* egal */ }
+  try { migrate5(); } catch (e) { /* egal */ }
+  try { energyApply(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);
   if (S.meta.version !== APP_VERSION) {
@@ -49,6 +51,7 @@ function registerSW() {
     const t = todayKey();
     if (t !== ui.lastToday) {
       if (ui.date === ui.lastToday) ui.date = t;
+      try { energyApply(); } catch (e) { /* egal */ }
       ui.lastToday = t; ui.weekOf = weekStart(t); ui.heatMonth = t.slice(0, 7); ui.trainWeek = weekStart(t); ui.reviewWeek = weekStart(t); ui.photoWeek = weekStart(t);
       invalidate();
       if (!ui.sheet) render();

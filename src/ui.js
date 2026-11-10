@@ -76,11 +76,13 @@ function greeting() {
   if (h < 17) return `Hallo${n}`;
   return `Guten Abend${n}`;
 }
-function cafWindow() { const p = S.settings.profile; return [timeToMin(p.wake) + 90, timeToMin(p.sleep) - 480]; }
+/* Koffein-Fenster: 90 Min. nach dem Aufstehen bis zum Koffein-Stopp */
+function cafWindow(k = todayKey()) { return [rhythm(k).wake + 90, cafCutoff(k)]; }
 function arcMessage() {
-  const p = S.settings.profile, now = nowMin(), wake = timeToMin(p.wake), sleep = timeToMin(p.sleep);
+  const r = rhythm(), now = nowMin(), wake = r.wake, sleep = r.bed;
   const [c1, c2] = cafWindow();
-  if (now < wake) return ['Noch Schlafenszeit', ''];
+  if (now < wake && (r.wakeSrc === 'garmin' || r.wakeSrc === 'eingetragen' || now < 4 * 60)) return ['Noch Schlafenszeit', ''];
+  if (now < wake) return ['Guten Morgen', 'Morgenlicht: 10–30 Min. raus'];
   if (now < wake + 60) return ['Morgenlicht', '10–30 Min. raus, dann Frühstück'];
   if (now < c1) return ['Koffein ab ' + minToTime(c1), `noch ${c1 - now} Min.`];
   if (now <= c2) return ['Koffein-Fenster offen', `bis ${minToTime(c2)}`];
@@ -173,12 +175,12 @@ function microSection(k, ev) {
   </section>`;
 }
 function tipsSection(k, limit) {
-  const tips = buildTips(k);
+  const tips = buildTips(k).concat(swapTips(k));
   if (!tips.length) return `<section class="sec"><div class="sec-head"><h2>Tipps</h2></div><p class="sec-sub">Keine Lücken oder Überschreitungen${k === todayKey() ? ', auch nicht mit dem Restplan' : ''}.</p></section>`;
   const shown = limit ? tips.slice(0, limit) : tips;
   return `<section class="sec">
     <div class="sec-head"><h2>Tipps</h2>${limit && tips.length > limit ? `<button class="link-btn" data-a="goto" data-tab="ern" data-sub="eval">Alle ${tips.length}</button>` : ''}</div>
-    <ul class="tips">${shown.map((t) => `<li class="tip tip-${t.kind}"><span class="tip-ic">${icon(t.kind === 'over' ? 'triangle-alert' : 'arrow-down')}</span><div><b>${esc(t.title)}</b><span class="tip-text">${esc(t.text)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</div></li>`).join('')}</ul>
+    <ul class="tips">${shown.map((t) => `<li class="tip tip-${t.kind}"><span class="tip-ic">${icon(t.kind === 'over' ? 'triangle-alert' : t.kind === 'swap' ? 'repeat' : 'arrow-down')}</span><div><b>${esc(t.title)}</b><span class="tip-text">${esc(t.text)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</div></li>`).join('')}</ul>
   </section>`;
 }
 function trendSection(k, limit) {
@@ -238,7 +240,16 @@ function suppSection(k) {
   </section>`;
 }
 function shortSupp(f) { return shortName(f); }
-function habitName(h) { if (h.id === 'koffein') { const [a, b] = cafWindow(); return `Koffein nur ${minToTime(a)}–${minToTime(b)}`; } return h.n; }
+function habitName(h, k) { if (h.id === 'koffein') { const [a, b] = cafWindow(k); return `Koffein nur ${minToTime(a)}–${minToTime(b)}`; } return h.n; }
+/* Zeitangaben der Abend-Gewohnheiten folgen der Schlafenszeit des Tages */
+function habitWhen(h, k) {
+  const bed = sleepMin(k);
+  if (h.id === 'alkohol') return `ab ${minToTime(bed - 480)}`;
+  if (h.id === 'mahlzeit') return `bis ca. ${minToTime(bed - 120)}`;
+  if (h.id === 'bildschirm') return `ab ${minToTime(bed - 60)}, mindestens 30 Min.`;
+  if (h.id === 'koffein') return `90 Min. nach dem Aufstehen bis ${cafStopText()}`;
+  return h.when;
+}
 function scale10(action, val, k, field = '') {
   return `<div class="scale10" role="radiogroup">${Array.from({ length: 10 }, (_, i) => i + 1).map((n) => `<button role="radio" aria-checked="${val === n}" class="${val === n ? 'is-on' : ''}" data-a="${action}" data-v="${n}" data-date="${k}" data-f="${field}">${n}</button>`).join('')}</div>`;
 }
@@ -274,7 +285,7 @@ function itemRow(it, k, d, variant) {
   if (it.choice) {
     const key = it.cg || it.id;
     if (it.choice.length > 4) {
-      choice = `<label class="choice-select">${icon('chevron-down')}<select data-c="choice" data-key="${key}" data-date="${k}" aria-label="Gericht wählen">${it.choice.map((c) => `<option value="${c}" ${c === fid ? 'selected' : ''}>${esc(choiceName(c))}</option>`).join('')}</select></label>`;
+      choice = `<label class="choice-select">${icon('chevron-down')}<select data-c="choice" data-key="${key}" data-date="${k}" aria-label="Gericht wählen">${itemChoices(it).map((c) => `<option value="${c}" ${c === fid ? 'selected' : ''}>${esc(choiceName(c))}</option>`).join('')}</select></label>`;
     } else {
       choice = `<div class="chips chips-tight">${it.choice.map((c) => `<button class="chip chip-xs${c === fid ? ' is-on' : ''}" data-a="choice" data-key="${key}" data-v="${c}" data-date="${k}">${esc(FOOD[c] ? FOOD[c].n.split(' (')[0] : c)}</button>`).join('')}</div>`;
     }
@@ -292,13 +303,16 @@ function choiceName(id) {
   const f = FOOD[id];
   if (!f) return id;
   if (id === 'prepmymeal') return 'Gericht: Durchschnitt (Schätzung)';
-  return 'Gericht: ' + f.n.replace(/^Prepmymeal\s*/, '').replace(/\s*XL\b/, '');
+  return 'Gericht: ' + f.n.replace(/^Prepmymeal\s*/i, '').replace(/\s*XL\b/, '');
 }
+const WATER_TYPES = [['saskia', 'Saskia'], ['wasser', 'Leitungswasser'], ['mineralwasser', 'kalziumreich']];
 function waterQuick(k) {
-  return `<div class="water-quick"><span>${icon('droplet')}Schnell eintragen</span>
-    <button class="pill-btn" data-a="add-water" data-food="wasser" data-ml="250" data-date="${k}">+ 250 ml Wasser</button>
-    <button class="pill-btn" data-a="add-water" data-food="wasser" data-ml="500" data-date="${k}">+ 500 ml</button>
-    <button class="pill-btn" data-a="add-water" data-food="mineralwasser" data-ml="500" data-date="${k}">+ 500 ml Mineral</button></div>`;
+  const wf = WATER_TYPES.some(([id]) => id === S.settings.waterFood) ? S.settings.waterFood : 'saskia';
+  const wn = WATER_TYPES.find(([id]) => id === wf)[1];
+  return `<div class="water-quick"><span>${icon('droplet')}Schnell eintragen</span><button class="link-btn water-type" data-a="water-type" aria-label="Wassersorte wechseln">${esc(wn)} ${icon('repeat')}</button>
+    <button class="pill-btn" data-a="add-water" data-food="${wf}" data-ml="250" data-date="${k}">+ 250 ml</button>
+    <button class="pill-btn" data-a="add-water" data-food="${wf}" data-ml="500" data-date="${k}">+ 500 ml</button>
+    <button class="pill-btn" data-a="add-water" data-food="${wf}" data-ml="1500" data-date="${k}">+ 1,5 l</button></div>`;
 }
 
 /* ============================================================
@@ -337,6 +351,7 @@ function vDetail(k) {
   let h = `<div class="search"><span>${icon('search')}</span><input type="search" placeholder="Lebensmittel suchen" data-i="search" value="${esc(ui.q)}" autocomplete="off" enterkeyhint="search"></div>
   <div class="row-btns"><button class="pill-btn is-accent" data-a="frank-open" data-date="${k}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new">${icon('plus')}Eigenes Lebensmittel</button><button class="pill-btn" data-a="plant-pick" data-date="${k}">${icon('sprout')}Pflanze hinzufügen</button></div>
   <div id="results">${searchResults()}</div>`;
+  h += snacksHTML(k);
   const entries = d.entries || [];
   h += `<section class="sec"><div class="sec-head"><h2>Eingetragen ${k === todayKey() ? 'heute' : 'an diesem Tag'}</h2><span class="count">${entries.length}</span></div>`;
   if (!entries.length) h += `<p class="sec-sub">Noch keine Einzel-Einträge. Suche oben ein Lebensmittel oder nutze den Standardtag.</p>`;
@@ -530,6 +545,7 @@ function renderFoodSheet() {
     ${food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
     ${food.frank ? `<p class="hint">Von Frank recherchiert${food.frank.est && food.frank.est.length ? ', ein Teil geschätzt' : ''}${food.frank.src && food.frank.src.length ? `. Quellen: ${frankSrcLinks(food.frank.src)}` : ''}</p>` : ''}
     ${blocked ? `<div class="banner is-warn">${icon('triangle-alert')}<div><b>${esc(blocked.n)} im Haut-Protokoll</b><span>${esc(blocked.rules.join(', '))}</span></div></div>` : ''}
+    ${s.entryId ? '' : swapHTML(food)}
     <div class="amount-row"><button class="step" data-a="sheet-step" data-d="-1" aria-label="Weniger">${icon('minus')}</button>
       <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(s.amt, 2)}" data-i="sheet-amt"></label>
       <button class="step" data-a="sheet-step" data-d="1" aria-label="Mehr">${icon('plus')}</button></div>

@@ -48,7 +48,7 @@ function areaStatus(id, k = todayKey()) {
         const plan = day.items.filter((x) => ['gym', 'lauf'].includes(x.kind) && !x.done);
         const rec = recovery(k);
         const v = logged.length ? esc(logged.map((t) => t.type).join(', ')) : plan.length ? esc(plan.map((x) => x.n).join(' + ')) : 'Ruhetag';
-        return { v, s: `${logged.length ? 'erledigt' : plan.length ? 'geplant' : 'heute frei'} · Sauna ${fmt(wp.sauna.done)}/${fmt(wp.sauna.goal)} Min.${rec.level !== 'none' ? ` · Erholung ${rec.normal ? 'normal' : ({ green: 'gut', yellow: 'mittel', red: 'schlecht' })[rec.level]}` : ''}`, st: logged.length ? 'ok' : rec.level === 'red' ? 'over' : rec.level === 'yellow' ? 'under' : 'none', small: true };
+        return { v, s: `${logged.length ? 'erledigt' : plan.length ? 'geplant' : 'heute frei'} · Sauna ${fmt(wp.sauna.done)}/${fmt(wp.sauna.goal)} Min.${rec.ready ? ` · Bereitschaft ${fmt(rec.ready.score)}` : rec.level !== 'none' ? ` · Erholung ${rec.normal ? 'normal' : ({ green: 'gut', yellow: 'mittel', red: 'schlecht' })[rec.level]}` : ''}`, st: logged.length ? 'ok' : rec.level === 'red' ? 'over' : rec.level === 'yellow' ? 'under' : 'none', small: true };
       }
       case 'knie': {
         const w = kneeWeek(k), dd = dayDone(k);
@@ -126,7 +126,7 @@ function vHeute() {
   h += kneeAlertCards(k);
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
-    <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin() - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>`;
+    <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
   h += kneeMorningCard(k, true);
   h += sundayCard(k);
   h += todoCard();
@@ -214,6 +214,7 @@ function vErnOverview(k) {
   h += energyBar(ev.act.tot);
   h += microSection(k, ev);
   h += tipsSection(k, 4);
+  if (k === todayKey()) h += energyCard(k);
   h += trendSection(k, 3);
   const caf = getDay(k).caf || [];
   if (caf.length) h += `<p class="hint">Koffein-Getränke aus „Licht & Koffein“ zählen mit: ${esc(caf.map((c) => c.n).join(', '))}.</p>`;
@@ -282,14 +283,17 @@ function recoveryCard(k) {
   const r = recovery(k);
   const lbl = r.normal ? 'Erholung normal' : { green: 'Erholung gut', yellow: 'Erholung mittel', red: 'Erholung schlecht', none: 'Erholung unbekannt' }[r.level];
   const st = { green: 'ok', yellow: 'under', red: 'over', none: 'none' }[r.level];
-  return `<section class="card rec-card st-${st}"><div class="rec-top">${stDot(st)}<b>${lbl}</b>${r.level === 'none' ? goBtn('garmin', 'Garmin eintragen') : ''}</div>
+  const rd = r.ready;
+  const score = rd ? `<span class="rec-score"><b>${fmt(rd.score)}</b><small>Bereitschaft<br>${readinessLabel(rd.score)}</small></span>` : '';
+  const how = !rd ? '' : rd.src === 'eigen' ? `Bereitschaft aus ${rd.parts.map((p) => p.n).join(', ')} – eigene Berechnung, weil Garmin sie nicht herausgibt.` : `Bereitschaft von dir eingetragen${rd.own != null ? ` (die App rechnet ${fmt(rd.own)})` : ''}.`;
+  return `<section class="card rec-card st-${st}"><div class="rec-top">${stDot(st)}<b>${lbl}</b>${r.level === 'none' ? goBtn('garmin', 'Garmin eintragen') : score}</div>
     ${r.sig.length ? `<div class="chips chips-tight">${r.sig.map((x) => `<span class="chip chip-xs is-static sig-${x.s < 0 ? 'bad' : x.s > 0 ? 'good' : 'mid'}">${esc(x.n)} ${esc(x.v)}</span>`).join('')}</div>` : ''}
-    <p>${esc(r.text)}</p>${r.notes.map((n) => `<p class="hint">${icon('info')} ${esc(n)}</p>`).join('')}</section>`;
+    <p>${esc(r.text)}</p>${r.notes.map((n) => `<p class="hint">${icon('info')} ${esc(n)}</p>`).join('')}${how ? `<p class="hint">${esc(how)}</p>` : ''}</section>`;
 }
 function trainRow(t, k) {
   const tt = trainType(t);
   const gs = t.gym ? gymProgress(t) : null;
-  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', t.km ? fmt(t.km, 1) + ' km' : '', t.g && t.g.pace && (tt.run || tt.light) ? garPace(t.g.pace) + ' /km' : '', t.hr ? 'Ø ' + t.hr + ' bpm' : '', t.g && t.g.tel ? garTE(t.g.tel) : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
+  const parts = [t.time ? t.time + ' Uhr' : '', t.dur ? t.dur + ' Min.' : '', t.int ? 'Intensität ' + t.int : '', t.km ? fmt(t.km, 1) + ' km' : '', t.g && t.g.pace && (tt.run || tt.light) ? garPace(t.g.pace) + ' /km' : '', t.hr ? 'Ø ' + t.hr + ' bpm' : '', t.g && t.g.tel ? garTE(t.g.tel) : '', tt.run && t.pain != null ? 'Schmerz ' + t.pain + '/10' : '', gs && (gs.done || !t.gid) ? `${gs.done}/${gs.total} Sätze` : ''].filter(Boolean).join(' · ');
   return `<div class="row-wrap"><button class="row" data-a="training-edit" data-id="${t.id}" data-date="${k}"><span class="area-ic">${icon(tt.run ? 'activity' : tt.gym ? 'dumbbell' : tt.light ? 'person-standing' : 'flame')}</span><span class="row-main"><b>${esc(t.type)}${t.gym ? ` <em class="est is-blue">Schedule ${t.gym.sched}</em>` : ''}${t.gid ? ' <em class="est">Garmin</em>' : ''}</b><small>${esc(parts || 'ohne Details')}</small></span>${icon('pencil', 'row-ic')}</button>${t.gym ? `<button class="pill-btn row-act" data-a="gym-open" data-id="${t.id}" data-date="${k}">Sätze</button>` : ''}</div>`;
 }
 function vTrainToday(k) {
@@ -460,7 +464,7 @@ function vLicht() {
   /* Licht */
   const lm = !!d.habits.licht_morgen, ln = !!d.habits.licht_nachmittag;
   const lmin = d.hd && d.hd.lightMin;
-  h += `<section class="sec"><div class="sec-head"><h2>Licht</h2><span class="count">${S.settings.profile.wake} Uhr aufstehen</span></div><div class="toggle-grid">
+  h += `<section class="sec"><div class="sec-head"><h2>Licht</h2><span class="count">${{ garmin: 'aufgewacht', eingetragen: 'aufgestanden' }[rhythm(k).wakeSrc] || 'aufstehen ~'} ${minToTime(rhythm(k).wake)}</span></div><div class="toggle-grid">
     <button class="tgl${lm ? ' is-on' : ''}" data-a="habit" data-id="licht_morgen" data-date="${k}" aria-pressed="${lm}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Morgenlicht${garHabitMark(d, 'licht_morgen')}</b><small>10–30 Min. draußen nach dem Aufstehen</small></span></button>
     <button class="tgl${ln ? ' is-on' : ''}" data-a="habit" data-id="licht_nachmittag" data-date="${k}" aria-pressed="${ln}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Nachmittagslicht</b><small>ein paar Minuten im späten Licht</small></span></button></div>
     <div class="chips chips-tight light-min"><span class="hint">Morgens draußen:</span>${[10, 15, 20, 30, 45].map((m) => `<button class="chip chip-xs${lmin === m ? ' is-on' : ''}" data-a="light-min" data-v="${m}" data-date="${k}">${m} Min.</button>`).join('')}</div>
@@ -479,7 +483,7 @@ function vLicht() {
     <h5>Schnell eintragen${isT ? ' (jetzt)' : ''}</h5><div class="caf-grid">${S.settings.caf.presets.map((p) => `<button class="caf-btn" data-a="caf-add" data-id="${p.id}" data-date="${k}"><b>${esc(p.n)}</b><small>${fmt(p.mg)} mg</small></button>`).join('')}<button class="caf-btn is-new" data-a="caf-custom" data-date="${k}"><b>${icon('plus')} Eigenes Getränk</b><small>anlegen</small></button></div>`;
   const src = ci.today;
   if (src.length) h += `<div class="list caf-list">${src.map((x) => { const late = x.t > ci.cut; const sub = [x.src === 'caf' ? '' : 'aus Ernährung', late ? 'nach ' + minToTime(ci.cut) : ''].filter(Boolean).join(' · '); return `<div class="caf-row"><span class="row-main"><b>${esc(x.n)}</b>${sub ? `<small${late ? ' class="warn-txt"' : ''}>${sub}</small>` : ''}</span>${x.src === 'caf' ? `<input class="row-time" type="time" value="${minToTime(x.t)}" data-c="caf-time" data-id="${x.id}" data-date="${k}" aria-label="Uhrzeit">` : `<span class="row-side">${minToTime(x.t)}</span>`}<span class="row-side caf-mg">${fmt(x.mg)} mg</span>${x.src === 'caf' ? `<button class="icon-btn sm ghost" data-a="caf-del" data-id="${x.id}" data-date="${k}" aria-label="Löschen">${icon('trash-2')}</button>` : '<span></span>'}</div>`; }).join('')}</div>`;
-  h += `<p class="hint">Grenze ${esc(S.settings.caf.cutoff)} Uhr, Schlafenszeit ${esc(S.settings.profile.sleep)} Uhr. Mengen, Halbwertszeit und Getränke änderst du unter ${goBtn('set', 'Einstellungen → Koffein', '', 'link-btn inline')}.</p></section>`;
+  h += `<p class="hint">Koffein-Stopp ${minToTime(ci.cut)} Uhr (${cafStopText()}), Schlafenszeit ${minToTime(ci.bed)} Uhr. Mengen, Halbwertszeit und Getränke änderst du unter ${goBtn('set', 'Einstellungen → Koffein', '', 'link-btn inline')}.</p></section>`;
   /* Weitere Gewohnheiten */
   h += `<section class="sec"><div class="sec-head"><h2>Abend & Schlaf</h2></div>${habitRows(k, ['alkohol', 'mahlzeit', 'bildschirm', 'dimmen', 'nsdr'])}</section>`;
   h += musterBox(['sleep'], 'Was deinen Schlaf beeinflusst');
@@ -497,7 +501,7 @@ function habitRows(k, ids) {
       if (hb.detail.type === 'time') det = `<label class="hdet"><span>${esc(hb.detail.label)}</span><input type="time" data-c="habit-detail" data-k="${hb.detail.key}" data-h="${hb.id}" data-date="${k}" value="${esc(val || '')}"></label>`;
       else det = `<div class="hdet"><span>${esc(hb.detail.label)}</span><div class="chips chips-tight">${hb.detail.options.map((o) => `<button class="chip chip-xs${val === o ? ' is-on' : ''}" data-a="habit-chip" data-k="${hb.detail.key}" data-h="${hb.id}" data-v="${o}" data-date="${k}">${o === 90 ? '90+' : o} ${hb.detail.unit}</button>`).join('')}</div></div>`;
     }
-    h += `<div class="hrow${on ? ' is-on' : ''}"><button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb))}${garHabitMark(d, hb.id)}</b><small>${esc(hb.when)}</small></span></button>
+    h += `<div class="hrow${on ? ' is-on' : ''}"><button class="item-hit" data-a="habit" data-id="${hb.id}" data-date="${k}" aria-pressed="${on}"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(habitName(hb, k))}${garHabitMark(d, hb.id)}</b><small>${esc(habitWhen(hb, k))}</small></span></button>
       <button class="icon-btn" data-a="expand" data-key="h:${hb.id}" aria-label="Erklärung" aria-expanded="${open}">${icon('info')}</button>${det}${open ? `<div class="mrow-detail">${infoHTML(hb.id)}</div>` : ''}</div>`;
   }
   return h + '</div>';
@@ -505,7 +509,7 @@ function habitRows(k, ids) {
 /* Koffein-Kurve über den Tag */
 function cafChart(k, ci) {
   const W = CH.W, H = 170, pl = 34, pr = 10, pt = 10, pb = 24;
-  const wake = timeToMin(S.settings.profile.wake) || 480;
+  const wake = rhythm(k).wake;
   const x0 = Math.min(wake, ci.today.length ? ci.today[0].t : wake) - 30;
   const x1 = Math.max(ci.bed + 60, ci.last != null ? ci.last + 120 : 0);
   const step = 10;

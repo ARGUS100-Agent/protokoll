@@ -27,8 +27,7 @@ const DEFAULT_TABS = ['heute', 'ern', 'train', 'knie'];
 
 /* ---------- Koffein ---------- */
 const CAF_PRESETS = [
-  { id: 'monster', n: 'Monster Energy 500 ml', ml: 500, mg: 160, kcal: 235, sug: 55 },
-  { id: 'monster_ultra', n: 'Monster Ultra 500 ml', ml: 500, mg: 150, kcal: 5, sug: 0 },
+  { id: 'monster_zero', n: 'Monster Energy Zero 500 ml', ml: 500, mg: 160, kcal: 15, sug: 0, na: 380 },
   { id: 'kaffee', n: 'Kaffee (Tasse)', ml: 200, mg: 90, kcal: 2, sug: 0 },
   { id: 'espresso', n: 'Espresso', ml: 30, mg: 60, kcal: 1, sug: 0 },
   { id: 'gruentee', n: 'Grüner Tee (Tasse)', ml: 250, mg: 30, kcal: 1, sug: 0 },

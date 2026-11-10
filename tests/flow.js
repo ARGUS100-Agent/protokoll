@@ -29,11 +29,11 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   // 2 Koffein
   await ev(() => go('licht', { date: todayKey() }));
   await page.click('[data-a="caf-add"][data-id="kaffee"]');
-  await page.click('[data-a="caf-add"][data-id="monster"]');
+  await page.click('[data-a="caf-add"][data-id="monster_zero"]');
   const caf = await ev((k) => ({ n: getDay(k).caf.length, info: cafInfo(k), kcal: computeTotals(k, false).tot.kcal, fluid: computeTotals(k, false).tot.fluid }), today);
   ok(caf.n === 2, 'Zwei Koffein-Einträge');
   ok(Math.round(caf.info.total) === 250, 'Koffein gesamt 250 mg (' + Math.round(caf.info.total) + ')');
-  ok(caf.kcal >= 237, 'Monster-Kalorien zählen in der Ernährung (' + Math.round(caf.kcal) + ' kcal)');
+  ok(caf.kcal >= 15 && caf.kcal < 60, 'Monster Zero: Kalorien zählen in der Ernährung (' + Math.round(caf.kcal) + ' kcal)');
   ok(caf.fluid >= 700, 'Flüssigkeit aus Getränken (' + Math.round(caf.fluid) + ' ml)');
   ok(caf.info.bedLevel > 0, 'Restkoffein zur Schlafenszeit berechnet: ' + Math.round(caf.info.bedLevel) + ' mg');
   await shot('f02-licht');
@@ -251,7 +251,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const bPath = `${OUT}/backup.json`;
   await dl2.saveAs(bPath);
   const bk = JSON.parse(fs.readFileSync(bPath, 'utf8'));
-  ok(bk.schema === 4 && bk.shop && bk.blood.entries.length === 1 && bk.knee.tests.length === 1 && bk.reviews && bk.settings.knee && bk.settings.caf, 'Backup enthält alle neuen Daten');
+  ok(bk.schema === 5 && bk.shop && bk.blood.entries.length === 1 && bk.knee.tests.length === 1 && bk.reviews && bk.settings.knee && bk.settings.caf, 'Backup enthält alle neuen Daten');
   // alles löschen, dann importieren
   await ev(() => { go('set'); ui.setOpen = 'backup'; render(); });
   await page.click('[data-a="wipe-ask"]');
@@ -270,7 +270,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   await page.reload({ waitUntil: 'load' });
   await page.waitForTimeout(800);
   const persisted = await ev((k) => ({ blood: S.blood.entries.length, train: getDay(k).trainings.length, schema: S.meta.schema }), today);
-  ok(persisted.blood === 1 && persisted.train === 2 && persisted.schema === 4, 'Nach Neuladen alles noch da');
+  ok(persisted.blood === 1 && persisted.train === 2 && persisted.schema === 5, 'Nach Neuladen alles noch da');
   await shot('f12-heute-nach-import');
 
   console.log(errors.length ? 'KONSOLENFEHLER:\n' + errors.join('\n') : 'Keine Konsolenfehler');

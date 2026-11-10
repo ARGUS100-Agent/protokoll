@@ -7,7 +7,8 @@
 function defaultSettings2() {
   return {
     nav: { tabs: DEFAULT_TABS.slice() },
-    caf: { halfLife: 5, cutoff: '14:30', presets: clone(CAF_PRESETS) },
+    caf: { halfLife: 5, presets: clone(CAF_PRESETS) }, // gapH (Koffein-Stopp vor dem Schlafen) fehlt absichtlich: Standard 8 Std., Migration rechnet alte Uhrzeit um
+    waterFood: 'saskia',
     sauna: { goal: 60 },
     week: clone(DEFAULT_WEEK),
     gym: { anchor: '2026-11-02', first: 'A', kneeAlt: true },
@@ -93,6 +94,98 @@ function migrate4() {
   invInit(used && todayKey() <= '2026-11-21' ? invTs('2026-11-07', '18:00') : Date.now());
 }
 
+/* Version 2.7: Standardtag an den Alltag (ein Prepmymeal-Beutel, Saskia, Monster Zero), Prepmymeal nicht ultraverarbeitet.
+   Läuft beim Start und nach einem Import; mehrfach aufrufbar. */
+const PMM_OLD = { f_pmm: [200, 'fruehstueck'], l_pmm: [600, 'mittag'], n_pmm: [200, 'nachmittag'] };
+function upgrade5Days(days) {
+  for (const [k, d] of Object.entries(days || {})) {
+    if (!d || !d.checks) continue;
+    let changed = false;
+    for (const [id, [a, meal]] of Object.entries(PMM_OLD)) {
+      if (!d.checks[id]) continue;
+      const key = d.choice && d.choice.pmm;
+      const fid = key && FOOD[key] ? key : 'prepmymeal';
+      const g = (d.amt && d.amt[id] != null ? d.amt[id] : a) * 1;
+      /* Uhrzeit: abgehakt um …, sonst die Zeit des Mahlzeit-Blocks im Plan */
+      const blk = ((S.settings && S.settings.plan) || DEFAULT_PLAN).find((b) => b.id === meal) || DEFAULT_PLAN.find((b) => b.id === meal);
+      const hm = (d.ct && d.ct[id]) || (blk && /^\d{2}:\d{2}$/.test(blk.time || '') ? blk.time : null);
+      let t = null;
+      if (hm) { const [y, mo, da] = k.split('-').map(Number); const [hh, mm] = hm.split(':').map(Number); t = new Date(y, mo - 1, da, hh, mm).getTime(); }
+      d.entries = d.entries || [];
+      d.entries.push({ id: uid(), food: fid, g, meal, t: t || parseKey(k).getTime() });
+      delete d.checks[id]; if (d.ct) delete d.ct[id]; if (d.amt) delete d.amt[id];
+      changed = true;
+    }
+    for (const c of d.caf || []) {
+      if (c.p !== 'monster' && c.p !== 'monster_ultra') continue;
+      Object.assign(c, { p: 'monster_zero', n: 'Monster Energy Zero 500 ml', mg: 160, ml: 500, kcal: 15, sug: 0, na: 380 });
+      changed = true;
+    }
+    if (changed && S.days === days) markDirty('day:' + k);
+  }
+  /* Garmin-Krafttraining dieser Woche dem geplanten Gym-Tag zuordnen (wie ab jetzt beim Abruf) */
+  if (S.days !== days) return;
+  const ws = weekStart(todayKey());
+  for (const k of Object.keys(days).filter((x) => x >= ws && x <= todayKey()).sort()) {
+    const d = days[k];
+    let changed = false;
+    for (const t of (d && d.trainings) || []) if (t.gid && garAssignGym(t, k)) changed = true;
+    if (changed) markDirty('day:' + k);
+  }
+}
+function upgrade5() {
+  buildFoodIndex();
+  let ch = false;
+  const plan = S.settings.plan || [];
+  const def = (id) => DEFAULT_PLAN.flatMap((b) => b.items).find((x) => x.id === id);
+  /* Prepmymeal: drei Posten → ein Beutel im eigenen Block */
+  for (const b of plan) { const n = b.items.length; b.items = b.items.filter((it) => !PMM_OLD[it.id]); if (b.items.length !== n) ch = true; }
+  if (!plan.some((b) => b.items.some((it) => it.id === 'p_beutel'))) {
+    const blk = clone(DEFAULT_PLAN.find((b) => b.id === 'pmm'));
+    const i = plan.findIndex((b) => b.id === 'morgen');
+    plan.splice(i >= 0 ? i + 1 : 0, 0, blk);
+    ch = true;
+  }
+  /* optional, was im Alltag selten passt; Hinweise; Wasser = Saskia */
+  for (const b of plan) for (const it of b.items) {
+    if (['l_oel', 'l_tee', 'g_kokos', 'g_kombucha', 'g_mineral'].includes(it.id) && !it.opt) { it.opt = true; ch = true; }
+    if (['m_wasser', 'm_wasser2'].includes(it.id) && it.food === 'wasser') { it.food = 'saskia'; ch = true; }
+    const dd = def(it.id);
+    if (dd && dd.hint && ['l_tee', 'g_mineral', 'n_kuerbis', 'n_mandeln', 'a_hafer'].includes(it.id) && it.hint !== dd.hint) { it.hint = dd.hint; ch = true; }
+  }
+  const abend = plan.find((b) => b.id === 'abend');
+  if (abend && !abend.items.some((it) => it.id === 'a_kokos')) { abend.items.push(clone(def('a_kokos'))); ch = true; }
+  /* Koffein: Monster Zero statt Monster mit Zucker und Ultra */
+  const pr = S.settings.caf && S.settings.caf.presets;
+  if (Array.isArray(pr) && pr.some((p) => p.id === 'monster' || p.id === 'monster_ultra')) {
+    const at = pr.findIndex((p) => p.id === 'monster' || p.id === 'monster_ultra');
+    S.settings.caf.presets = pr.filter((p) => p.id !== 'monster' && p.id !== 'monster_ultra');
+    if (!S.settings.caf.presets.some((p) => p.id === 'monster_zero')) S.settings.caf.presets.splice(Math.max(0, at), 0, clone(CAF_PRESETS.find((p) => p.id === 'monster_zero')));
+    ch = true;
+  }
+  if (!S.settings.waterFood) { S.settings.waterFood = 'saskia'; ch = true; }
+  /* Koffein-Stopp: feste Uhrzeit → Abstand vor der (jetzt täglichen) Schlafenszeit */
+  const caf = S.settings.caf;
+  if (caf && caf.gapH == null) {
+    const cut = timeToMin(caf.cutoff), bed = rhProfile().bed;
+    caf.gapH = cut != null ? clamp(Math.round(((bed - cut) / 60) * 2) / 2, 4, 12) : 8;
+    ch = true;
+  }
+  if (ch) markDirty('settings');
+  /* Prepmymeal nie als ultraverarbeitet markiert */
+  let fc = false;
+  for (const f of (S.foods && S.foods.custom) || []) if (/^prepmymeal/i.test(f.n || '') && Array.isArray(f.tags) && f.tags.includes('upf')) { f.tags = f.tags.filter((t) => t !== 'upf'); fc = true; }
+  if (fc) { markDirty('foods'); buildFoodIndex(); }
+  upgrade5Days(S.days);
+  invalidate();
+}
+function migrate5() {
+  if ((S.meta.schema || 1) >= 5) return;
+  upgrade5();
+  S.meta.schema = 5;
+  markDirty('meta');
+}
+
 /* ---------- Bereiche ---------- */
 function areaById(id) { return AREAS.find((a) => a.id === id) || (id === 'mehr' ? MORE_TAB : null); }
 function navTabs() {
@@ -104,9 +197,10 @@ function navTabs() {
    KOFFEIN
    ============================================================ */
 function hlMin() { return Math.max(1, Number(S.settings.caf.halfLife) || 5) * 60; }
-function cafCutoff() { return timeToMin(S.settings.caf.cutoff) ?? 870; }
-function sleepAbs() { const s = sleepMin(); return s < 12 * 60 ? s + 1440 : s; }
-function cafFood(c) { return { id: 'caf_' + (c.p || 'x'), n: c.n, base: 1, fl: c.ml || 0, u: [['Portion', 1]], cat: 'Getränke', v: { kcal: c.kcal || 0, c: c.sug || 0, sug: c.sug || 0, fs: c.sug || 0, caf: c.mg || 0 } }; }
+/* Koffein-Stopp: eingestellter Abstand vor der Schlafenszeit des Tages */
+function cafCutoff(k = todayKey()) { return sleepMin(k) - cafGap(); }
+function sleepAbs(k = todayKey()) { return sleepMin(k); }
+function cafFood(c) { return { id: 'caf_' + (c.p || 'x'), n: c.n, base: 1, fl: c.ml || 0, u: [['Portion', 1]], cat: 'Getränke', v: { kcal: c.kcal || 0, c: c.sug || 0, sug: c.sug || 0, fs: c.sug || 0, na: c.na || 0, caf: c.mg || 0 } }; }
 /* Alle Koffeinquellen eines Tages: Koffein-Rechner, abgehakte Standardposten, Einzel-Einträge */
 function cafSources(k) {
   const d = peekDay(k);
@@ -147,9 +241,9 @@ function cafInfo(k) {
   const last = today.length ? today[today.length - 1].t : null;
   const lLast = last != null ? cafLevel(src, last) : 0;
   const below = (thr) => (last == null ? null : lLast <= thr ? last : last + hlMin() * Math.log2(lLast / thr));
-  const cut = cafCutoff();
+  const cut = cafCutoff(k);
   const late = today.filter((x) => x.t > cut && (x.src === 'caf' || x.mg >= 15));
-  const bed = sleepAbs();
+  const bed = sleepAbs(k);
   return { src, today, total, now, nowLevel: isT ? cafLevel(src, now) : null, last, below50: below(50), below25: below(25), late, bed, bedLevel: cafLevel(src, bed), cut };
 }
 function cafLateWarn(info) {
@@ -164,8 +258,8 @@ function syncCafHabit(k) {
   if (!d) return;
   const src = cafSources(k);
   if (!src.length) return;
-  const [a] = cafWindow();
-  const ok = src.every((x) => x.t >= a - 30 && x.t <= cafCutoff());
+  const [a, b] = cafWindow(k);
+  const ok = src.every((x) => x.t >= a - 30 && x.t <= b);
   d.hd = d.hd || {};
   d.hd.caffeineEnd = minToTime(src[src.length - 1].t);
   if (ok) d.habits.koffein = true; else delete d.habits.koffein;
@@ -233,7 +327,15 @@ function recovery(k) {
   if (h.readiness != null) sig.push({ n: 'Trainingsbereitschaft', v: fmt(h.readiness), s: h.readiness >= 70 ? 1 : h.readiness >= 40 ? 0 : -1 });
   if (h.rhr != null) { const b = baselineOf('rhr', k); if (b) sig.push({ n: 'Ruhepuls', v: `${fmt(h.rhr)} (Ø ${fmt(b)})`, s: h.rhr > b + 5 ? -1 : h.rhr <= b ? 1 : 0 }); }
   const neg = sig.filter((x) => x.s < 0).length, sum = sig.reduce((a, x) => a + x.s, 0);
-  const level = !sig.length ? 'none' : neg >= 2 || sum <= -2 ? 'red' : neg >= 1 || sum < 0 ? 'yellow' : 'green';
+  let level = !sig.length ? 'none' : neg >= 2 || sum <= -2 ? 'red' : neg >= 1 || sum < 0 ? 'yellow' : 'green';
+  let normal = level === 'green' && sum <= 0, sigOut = sig;
+  const ready = readinessOf(k);
+  if (ready) { // eigene Bereitschaft (oder dein Wert von der Uhr) entscheidet
+    level = ready.score >= 50 ? 'green' : ready.score >= 25 ? 'yellow' : 'red';
+    if (level === 'green' && ready.parts.some((p) => (p.id === 'hrv' || p.id === 'sleep') && p.s < 25)) level = 'yellow';
+    normal = level === 'green' && ready.score < 75;
+    if (ready.parts.length) sigOut = ready.parts.map((p) => ({ n: p.n, v: p.v, s: p.s >= 70 ? 1 : p.s >= 40 ? 0 : -1 }));
+  }
   const prev = peekDay(addDays(k, -1));
   const prevHard = prev && (prev.trainings || []).some((t) => (t.int || 0) >= 9);
   const am = kneeAm(k);
@@ -246,7 +348,7 @@ function recovery(k) {
   const notes = [];
   if (prevHard && level !== 'red') notes.push('Gestern sehr harte Einheit (Intensität ≥ 9) – heute nicht wieder bis ans Limit.');
   if (am != null && am > 3) notes.push(`Knie heute ${am}/10 – kein Lauf, Beintraining nur schmerzfrei.`);
-  return { level, sig, text: level === 'green' && sum <= 0 ? 'Normale Erholung – Training wie geplant.' : text, notes, normal: level === 'green' && sum <= 0 };
+  return { level, sig: sigOut, text: normal ? 'Normale Erholung – Training wie geplant.' : text, notes, normal, ready };
 }
 function weekTpl(i) { return (S.settings.week || DEFAULT_WEEK)[i] || {}; }
 function weekKeys(ws) { return Array.from({ length: 7 }, (_, i) => addDays(ws, i)); }
@@ -285,6 +387,11 @@ function weekPlan(ws) {
     if (done.sauna) items.push({ kind: 'sauna', n: `Sauna ${done.sauna} Min.`, done: true });
     return { k, i, tpl, items, done, past: k < today, isToday: k === today };
   });
+  /* vorgezogen: der geplante Gym-Tag wurde schon früher in der Woche trainiert */
+  for (const d of days) for (const it of d.items) {
+    if (it.kind !== 'gym' || it.done || it.extra) continue;
+    if (days.some((x) => x.k < d.k && x.done.gym.includes(it.day) && Number(x.tpl.gym) !== it.day)) { it.done = true; it.n += ' (vorgezogen)'; }
+  }
   const notes = [];
   const runNext = (idx) => (idx + 1 < 7 ? !!days[idx + 1].tpl.lauf : !!weekTpl(0).lauf);
   /* verpasste Gym-Tage nachholen – nur wenn du Trainings auch einträgst */
@@ -782,8 +889,8 @@ function weekReview(ws) {
   else if (r.complete || r.sauna > 0) bad.push(`Sauna: ${fmt(r.sauna)} von ${fmt(r.saunaGoal)} Min. – am besten direkt nach dem Training`);
   if (r.lightDays >= 5) good.push(`Morgenlicht an ${r.lightDays} Tagen`);
   else if (r.daysWithData >= 3) bad.push(`Morgenlicht nur an ${r.lightDays} von ${r.daysWithData} Tagen – 10–30 Min. raus nach dem Aufstehen`);
-  if (r.cafAvg != null && r.cafAvg > 0 && !r.cafLateDays) good.push(`Kein Koffein nach ${S.settings.caf.cutoff}`);
-  if (r.cafLateDays) bad.push(`Koffein nach ${S.settings.caf.cutoff} an ${r.cafLateDays} ${r.cafLateDays === 1 ? 'Tag' : 'Tagen'}`);
+  if (r.cafAvg != null && r.cafAvg > 0 && !r.cafLateDays) good.push(`Kein Koffein nach dem Koffein-Stopp (${cafStopText()})`);
+  if (r.cafLateDays) bad.push(`Koffein nach dem Koffein-Stopp (${cafStopText()}) an ${r.cafLateDays} ${r.cafLateDays === 1 ? 'Tag' : 'Tagen'}`);
   if (r.supp && r.supp.pct >= 90) good.push(`Supplements zu ${fmt(r.supp.pct)} % genommen`);
   else if (r.supp && r.supp.pct < 80) bad.push(`Supplement-Quote ${fmt(r.supp.pct)} %`);
   if (r.sleep != null && (r.sleep >= 80 || (r.sleepPrev != null && r.sleep - r.sleepPrev >= 3))) good.push(`Ø Sleep Score ${fmt(r.sleep)}${r.sleepPrev != null ? ` (${r.sleep - r.sleepPrev >= 0 ? '+' : ''}${fmt(r.sleep - r.sleepPrev)} zur Vorwoche)` : ''}`);

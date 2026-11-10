@@ -12,6 +12,7 @@ node tests/vorrat.js /tmp/out    # Vorrat: Einkauf, Abzug über Haken und Eintr�
 node tests/ziele.js /tmp/out     # Wochenbericht an Frank, Wochenziele (Messung, „Jetzt dran“, Hinweise), Muster und Gewohnheiten
 node tests/garmin.js /tmp/out    # Garmin über eine nachgebaute Weiterleitung: Verbinden, Abruf, Zuordnung, Trainings, Fehler, Datenschutz
 node tests/relay.js              # Garmin-Weiterleitung (Cloudflare Worker) mit nachgebautem Garmin, ohne Browser
+node tests/alltag.js /tmp/out    # 2.7: Update auf Schema 5, Tagesrhythmus, Bereitschaft, Gym-Zuordnung, Alternativen, Snacks, Energiebilanz
 ```
 
 `upgrade.js` prüft das Update einer alten Version mit Daten auf die aktuelle (alte `docs/` per `git archive` in einen Ordner, Symlink `cur` darauf, Server auf Port 8768 mit `--directory <ordner>/cur`, dann `node tests/upgrade.js <ordner>`).

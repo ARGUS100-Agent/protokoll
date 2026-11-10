@@ -37,7 +37,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
     return { schema: S.meta.schema, eier: get('b:Eier'), skyr: get('b:Skyr'), brot: get('b:Vollkornbrot'), hafer: get('h:Haferflocken'), kreatin: get('h:Kreatin'), buy: S.shop.items.filter((x) => x.list === 'buy').map((x) => x.n), toast: document.querySelector('#toast').textContent };
   });
   console.log('     ' + JSON.stringify(st));
-  ok(st.schema === 4, 'Migration auf Schema 4');
+  ok(st.schema === 5, 'Migration auf Schema 5');
   ok(st.eier.list === 'home' && st.eier.txt === (new Date() >= new Date('2026-11-08T00:00:00+01:00') ? '18 Stück' : '21 Stück'), 'Eier: 21 vom Einkauf, Frühstück vor dem Einkauf zählt nicht, heute 3 abgezogen → ' + st.eier.txt);
   ok(st.skyr.txt === '6 Becher', 'Skyr am Abend nach dem Einkauf gegessen → 6 Becher');
   ok(st.brot.list === 'buy' && st.brot.stock === 0, 'Vollkornbrot steht noch auf der Liste (Vorrat 0)');

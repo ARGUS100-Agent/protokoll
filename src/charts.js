@@ -161,14 +161,13 @@ function scatterChart({ pts, xType, yName, xName, height = 170 }) {
 /* ---------- Tagesbogen (Hero auf „Heute“) ---------- */
 function dayArcSVG(k) {
   const W = 360, H = 184, cx = 180, cy = 158, rx = 158, ry = 132;
-  const prof = S.settings.profile;
-  const wake = timeToMin(prof.wake) ?? 510, sleep = timeToMin(prof.sleep) ?? 1350;
+  const r = rhythm(k), wake = r.wake, sleep = r.bed;
   const span = sleep - wake;
   const pos = (t) => { const p = clamp((t - wake) / span, 0, 1); const a = Math.PI * (1 - p); return [cx + rx * Math.cos(a), cy - ry * Math.sin(a)]; };
   const arc = (t1, t2) => { let d = ''; const steps = Math.max(4, Math.round(((t2 - t1) / span) * 60)); for (let i = 0; i <= steps; i++) { const [x, y] = pos(t1 + ((t2 - t1) * i) / steps); d += `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`; } return d; };
   const now = nowMin();
   const isToday = k === todayKey();
-  const cafA = wake + 90, cafB = sleep - 480;
+  const [cafA, cafB] = cafWindow(k);
   let s = `<svg class="arc-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">
     <defs><radialGradient id="sunglow"><stop offset="0" stop-color="var(--sun)" stop-opacity=".55"/><stop offset="1" stop-color="var(--sun)" stop-opacity="0"/></radialGradient></defs>
     <line x1="6" x2="${W - 6}" y1="${cy}" y2="${cy}" class="arc-horizon"/>
@@ -197,7 +196,7 @@ function dayArcSVG(k) {
       s += `<circle cx="${x}" cy="${y}" r="7" class="arc-moon"/><circle cx="${x + 3.5}" cy="${y - 2.5}" r="6" fill="var(--bg)"/>`;
     }
   }
-  s += `<text x="10" y="${cy + 22}" class="arc-end">${esc(prof.wake)}</text><text x="${W - 10}" y="${cy + 22}" class="arc-end" text-anchor="end">${esc(prof.sleep)}</text>`;
+  s += `<text x="10" y="${cy + 22}" class="arc-end">${minToTime(wake)}</text><text x="${W - 10}" y="${cy + 22}" class="arc-end" text-anchor="end">${minToTime(sleep)}</text>`;
   s += '</svg>';
   return s;
 }

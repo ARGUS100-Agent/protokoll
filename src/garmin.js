@@ -163,6 +163,8 @@ function garSleep(o, k) {
     out.sleepStress = gNum(gVal(dto, ['avgSleepStress']));
     const need = dto.sleepNeed;
     out.sleepNeed = gNum(need && typeof need === 'object' ? need.actual : need); // schon in Minuten
+    const nn = dto.nextSleepNeed; // Schlafbedarf für die kommende Nacht (Schlaf-Coach)
+    out._needNext = gNum(nn && typeof nn === 'object' ? nn.actual : nn);
     out._start = gMs(gVal(dto, ['sleepStartTimestampGMT']));
     out._end = gMs(gVal(dto, ['sleepEndTimestampGMT']));
   }
@@ -270,6 +272,7 @@ function garParse(keys, raw) {
     const s = sleep[k];
     if (!s) continue;
     for (const f of ['sleepScore', 'sleepDur', 'deep', 'rem', 'light', 'awake', 'bedTime', 'wakeTime', 'sleepNeed', 'sleepStress', 'hrv', 'hrvStatus', 'rhr', 'resp', 'spo2', 'skinTemp']) set(k, f, s[f]);
+    if (s._needNext >= 300 && s._needNext <= 720) ex[k].needNext = Math.round(s._needNext);
   }
   for (const e of gList(raw.stress)) { const k = gDate(e); const v = gNum(gVal(e, ['overallStressLevel', 'averageStressLevel'])); if (vals[k] && v != null && v >= 0) set(k, 'stress', v); }
   for (const e of gList(raw.steps)) { const k = gDate(e); if (vals[k]) set(k, 'steps', gNum(gVal(e, ['totalSteps', 'steps']))); }
@@ -331,14 +334,17 @@ function garPutDay(k, vals, ex) {
     if (cur == null && (f === 'sleepScore' || f === 'sleepDur')) fresh = true;
     changes[f] = v;
   }
-  const exNew = ex && ex.hrvBase && !(d0 && d0.gx && String(d0.gx.hrvBase) === String(ex.hrvBase));
+  const gx0 = (d0 && d0.gx) || {}, exCh = {};
+  if (ex && ex.hrvBase && String(gx0.hrvBase) !== String(ex.hrvBase)) exCh.hrvBase = ex.hrvBase;
+  if (ex && ex.needNext && gx0.needNext !== ex.needNext) exCh.needNext = ex.needNext;
+  const exNew = Object.keys(exCh).length > 0;
   const n = Object.keys(changes).length;
   if (!n && !exNew) return { n: 0, fresh: false };
   mutDay(k, (d) => {
     d.health = d.health || {};
     d.gar = d.gar || {};
     for (const [f, v] of Object.entries(changes)) { d.health[f] = v; d.gar[f] = v; }
-    if (exNew) d.gx = { ...(d.gx || {}), hrvBase: ex.hrvBase };
+    if (exNew) d.gx = { ...(d.gx || {}), ...exCh };
     if (changes.weight != null && k === todayKey()) { S.settings.profile.weight = changes.weight; markDirty('settings'); }
   });
   return { n, fresh };
@@ -372,10 +378,34 @@ function garTrainingIndex() {
   }
   return { have, skip };
 }
+/* Garmin-Krafttraining → geplanter Gym-Tag (Wunsch vom 10.11.2026): erst der Tag laut Wochenplan,
+   sonst ein ausgefallener Gym-Tag davor, sonst der nächste geplante (vorgezogen) – jeweils in derselben Woche.
+   Hast du selbst eine Einheit gestartet, gilt deine. */
+function garGymDay(k) {
+  const ws = weekStart(k), done = new Set();
+  for (const x of weekKeys(ws)) for (const t of ((peekDay(x) || {}).trainings || [])) { const g = trainType(t).gym; if (g) done.add(Number(g)); }
+  const own = Number(weekTpl(weekday(k)).gym);
+  if (own && gymDay(own) && !done.has(own)) return own;
+  for (const x of weekKeys(ws)) { if (x >= k) break; const g = Number(weekTpl(weekday(x)).gym); if (g && gymDay(g) && !done.has(g)) return g; }
+  for (const x of weekKeys(ws)) { if (x <= k) continue; const g = Number(weekTpl(weekday(x)).gym); if (g && gymDay(g) && !done.has(g)) return g; }
+  return null;
+}
+function garAssignGym(t, k) {
+  if (t.gym || t.type !== 'Gym (frei)') return null;
+  const day = garGymDay(k), gd = day ? gymDay(day) : null;
+  if (!gd) return null;
+  const ex = {};
+  if (gd.legs && S.settings.gym.kneeAlt) for (const e of gd.ex) if (e.alt) ex[e.id] = { s: [], alt: true };
+  t.type = gd.n;
+  t.gym = { day, sched: gymSched(k), ex };
+  t.gauto = 1;
+  return gd.n;
+}
 /* Aktivitäten als Training: passt ein selbst eingetragenes Training (gleiche Art, ±90 Min.), wird es ergänzt */
 function garApplyActs(acts, today) {
   const { have, skip } = garTrainingIndex();
   let n = 0, slot = null;
+  const gym = [];
   for (const a of acts.slice().sort((x, y) => (x.k + (x.time || '')).localeCompare(y.k + (y.time || '')))) {
     if (!a.type || skip.has(a.gid) || a.k > today) continue;
     const old = have.get(a.gid);
@@ -392,13 +422,15 @@ function garApplyActs(acts, today) {
       if (m) { m.gid = a.gid; garFillTraining(m, a); have.set(a.gid, { k: a.k, t: m }); return; }
       const t = { id: uid(), type: a.type, time: a.time || '', dur: a.dur, int: null, load: null, note: '', gid: a.gid };
       garFillTraining(t, a);
+      const gn = garAssignGym(t, a.k);
+      if (gn) gym.push(`${WD_SHORT[weekday(a.k)]} ${gn}`);
       d.trainings.push(t);
       have.set(a.gid, { k: a.k, t });
       if (a.k === today) slot = setSlotFromTraining(d, t) || slot;
     });
     n++;
   }
-  return { n, slot };
+  return { n, slot, gym };
 }
 /* Gewohnheiten, die die Uhr belegt (Wunsch vom 08.11.2026): nur aufgezeichnete Aktivitäten, abwählbar */
 const GAR_HABITS = [
@@ -490,7 +522,7 @@ async function garRun(opt) {
     if (keys.length >= GAR_FIRST) GAR.full = GAR_FULL;
     GAR.sum = { n, t: ta.n, h: nh };
     await garSave();
-    return { n, t: ta.n, h: nh, slot: ta.slot, fresh, warn };
+    return { n, t: ta.n, h: nh, slot: ta.slot, gym: ta.gym, fresh, warn };
   } catch (e) {
     if (GAR) { GAR.err = e.message || 'Abruf fehlgeschlagen'; GAR.errAt = Date.now(); await garSave(); }
     throw e;
@@ -510,9 +542,11 @@ function garQuiet() { return !!ui.sheet || !!ui.timer || (document.activeElement
 function garRefresh() { if (!garQuiet()) render(); }
 function garDone(res, manual) {
   invalidate();
+  try { energyApply(); } catch (e) { /* egal */ }
   garRefresh();
   if (!res) return;
-  if (res.slot) toast(`Garmin: ${res.t === 1 ? 'Training' : 'Trainings'} übernommen, Ernährung auf ${TRAINING[res.slot].n} umgestellt`);
+  if (res.gym && res.gym.length) toast(`Garmin-Krafttraining als ${res.gym.join(', ')} eingetragen${res.slot ? `, Ernährung auf ${TRAINING[res.slot].n}` : ''} – andere Einheit? Antippen und Art ändern.`);
+  else if (res.slot) toast(`Garmin: ${res.t === 1 ? 'Training' : 'Trainings'} übernommen, Ernährung auf ${TRAINING[res.slot].n} umgestellt`);
   else if (manual || res.t || res.h || res.fresh) toast('Garmin: ' + garSumText(res) + (manual && res.warn && res.warn.length ? ` (ohne ${res.warn.join(', ')})` : ''));
 }
 function garFail(manual) { garRefresh(); if (manual && GAR && GAR.err) toast('Garmin: ' + GAR.err); }

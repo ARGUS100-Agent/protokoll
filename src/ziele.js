@@ -40,9 +40,12 @@ function goalMetric(key) {
   if (key === 'caf') return { key, n: 'Koffein', u: 'mg', kind: 'num', area: 'koffein', day: (k) => (D(k) ? cafInfo(k).total : null) };
   if (key === 'caf_last') return { key, n: 'Letztes Koffein', u: 'Uhr', kind: 'time', area: 'koffein', day: (k) => { if (!D(k)) return null; const c = cafInfo(k); return c.last == null ? 0 : c.last; } };
   if (key === 'caf_bed') return { key, n: 'Koffein zur Schlafenszeit', u: 'mg', kind: 'num', area: 'koffein', day: (k) => (D(k) ? cafInfo(k).bedLevel : null) };
+  /* folgen dem Tagesrhythmus: Koffein-Stopp und Schlafenszeit plant die App jeden Tag neu */
+  if (key === 'caf_stop') return { key, n: 'Koffein nach dem Koffein-Stopp', u: 'mal', kind: 'num', area: 'koffein', day: (k) => (D(k) ? cafInfo(k).late.length : null) };
+  if (key === 'bed_delay') return { key, n: 'Später eingeschlafen als geplant', u: 'Min.', kind: 'num', area: 'schlaf', day: (k) => { const nx = D(addDays(k, 1)); const b = nx && nx.health && nx.health.bedTime ? timeVal(nx.health.bedTime, true) : null; return b == null ? null : Math.round(b - sleepMin(k)); } };
   if (GOAL_HEALTH[key]) {
     const [n, u, kind] = GOAL_HEALTH[key];
-    return { key, n, u, kind: kind === 'bed' ? 'time' : kind, bed: kind === 'bed', area: key === 'steps' ? 'training' : 'schlaf', day: (k) => { const d = D(k); const v = d && d.health ? d.health[key] : null; if (v == null || v === '') return null; return kind === 'num' ? Number(v) : kind === 'dur' ? Number(v) : timeVal(v, kind === 'bed'); } };
+    return { key, n, u, kind: kind === 'bed' ? 'time' : kind, bed: kind === 'bed', area: key === 'steps' ? 'training' : 'schlaf', day: (k) => { const d = D(k); const v = key === 'readiness' ? (d ? (readinessOf(k) || {}).score : null) : d && d.health ? d.health[key] : null; if (v == null || v === '') return null; return kind === 'num' ? Number(v) : kind === 'dur' ? Number(v) : timeVal(v, kind === 'bed'); } };
   }
   const dd = (k) => (D(k) ? dayDone(k) : null);
   const T = {
@@ -110,8 +113,8 @@ function goalNorm(g, i) {
   const need = agg === 'days' ? Math.min(7, Math.max(1, Math.round(frankNum(g.need) || 7))) : null;
   const area = GOAL_AREAS[g.area] ? g.area : m.area || 'ern';
   const title = frankText(g.title, 70) || `${m.n} ${cmp === '<=' ? '≤' : '≥'} ${goalFmt(m, value)}`;
-  const wt = String(g.when || g.remind || '').trim();
-  const when = /^([01]?\d|2[0-3]):[0-5]\d$/.test(wt) ? wt.padStart(5, '0') : null;
+  const wt = String(g.when || g.remind || '').trim().toLowerCase().replace(/\s+/g, '');
+  const when = /^([01]?\d|2[0-3]):[0-5]\d$/.test(wt) ? wt.padStart(5, '0') : GOAL_WHEN_REL.test(wt) ? wt : null;
   return { id: 'g' + (i + 1) + uid().slice(-5), area, title, metric, agg, cmp: metric === 'manual' ? '>=' : cmp, value: metric === 'manual' ? 1 : value, need, when, why: frankText(g.why, 400), tip: frankText(g.tip, 400), example: frankText(g.example, 400) };
 }
 /* Startet ein Ziel mitten in der Woche, zählen nur die Tage ab dem Start */
@@ -206,11 +209,19 @@ function goalWatch() {
   if (msgs.length) { const t = $('#toast'); setTimeout(() => toast(msgs[0]), t && t.classList.contains('show') ? 2800 : 0); }
 }
 
+/* Erinnerungszeit: feste Uhrzeit oder relativ zum Tagesrhythmus („wake+30“, „stop-30“, „bed-60“) */
+const GOAL_WHEN_REL = /^(wake|stop|bed)([+-]\d{1,3})?$/;
+function goalWhenMin(g, k = todayKey()) {
+  const m = GOAL_WHEN_REL.exec(g.when || '');
+  if (!m) return timeToMin(g.when);
+  const r = rhythm(k);
+  return (m[1] === 'wake' ? r.wake : m[1] === 'stop' ? cafCutoff(k) : r.bed) + Number(m[2] || 0);
+}
 /* „Jetzt dran“: Ziele mit Uhrzeit melden sich ab dieser Zeit (bis 2 Std. danach), solange heute noch etwas zu tun ist */
 function goalNow(g, e) {
   if (!g.when || !e.hasToday || e.status === 'done' || e.status === 'missed' || e.todayState === 'fail') return false;
   if (g.cmp === '>=' && e.todayState === 'ok') return false;
-  const t = timeToMin(g.when), n = nowMin();
+  const t = goalWhenMin(g), n = nowMin();
   return n >= t && n <= t + 120;
 }
 function goalNudges() {
@@ -237,7 +248,7 @@ function goalRow(g, ws, e, open) {
   const tick = g.metric === 'manual' && e.hasToday ? `<button class="goal-tick${e.todayState === 'ok' ? ' is-on' : ''}" data-a="goal-tick" data-id="${g.id}" data-ws="${ws}" aria-label="Heute abhaken">${icon('check')}</button>` : '';
   const det = open ? `<div class="goal-det">${g.why ? `<p><b>Warum:</b> ${esc(g.why)}</p>` : ''}${g.tip ? `<p><b>So geht's:</b> ${esc(g.tip)}</p>` : ''}${g.example ? `<p><b>Beispiel:</b> ${esc(g.example)}</p>` : ''}<p class="hint">Gemessen: ${esc(goalRule(g))}</p></div>` : '';
   const now = goalNow(g, e);
-  return `<div class="goal ${st[0]}${now ? ' is-now' : ''}"><div class="goal-top"><button class="goal-hit" data-a="expand" data-key="goal:${g.id}">${icon(now ? 'alarm-clock' : a.ic)}<span class="goal-main">${now ? `<em class="goal-now">Jetzt dran${g.tip ? `: ${esc(g.tip)}` : ''}</em>` : ''}<b>${esc(g.title)}</b><small>${esc(e.progress)}${e.todayText ? ` · ${esc(e.todayText)}` : ''}${g.when && !now ? ` · Erinnerung ${esc(g.when)}` : ''}</small></span><span class="goal-st">${icon(st[1])}<small>${st[2]}</small></span></button>${tick}</div>${det}</div>`;
+  return `<div class="goal ${st[0]}${now ? ' is-now' : ''}"><div class="goal-top"><button class="goal-hit" data-a="expand" data-key="goal:${g.id}">${icon(now ? 'alarm-clock' : a.ic)}<span class="goal-main">${now ? `<em class="goal-now">Jetzt dran${g.tip ? `: ${esc(g.tip)}` : ''}</em>` : ''}<b>${esc(g.title)}</b><small>${esc(e.progress)}${e.todayText ? ` · ${esc(e.todayText)}` : ''}${g.when && !now ? ` · Erinnerung ${minToTime(goalWhenMin(g))}` : ''}</small></span><span class="goal-st">${icon(st[1])}<small>${st[2]}</small></span></button>${tick}</div>${det}</div>`;
 }
 function goalsCard(k) {
   const ws = weekStart(k), goals = weekGoals(ws), wd = weekday(k);
@@ -287,7 +298,7 @@ const MU_OUT = {
 function muHealth(k, f) { const d = peekDay(k); const v = d && d.health ? d.health[f] : null; return v == null || v === '' ? null : Number(v); }
 function muTrain(k, f) { const d = peekDay(k); if (!d) return null; return (d.trainings || []).some((t) => !trainType(t).light && f(t)); }
 const MU_FEAT = {
-  cafLate: { n: () => `Koffein nach ${S.settings.caf.cutoff}`, bad: () => `Letzten Kaffee vor ${S.settings.caf.cutoff} trinken, danach entkoffeiniert oder Kräutertee.`, good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).late.length > 0 : null) },
+  cafLate: { n: () => `Koffein nach dem Koffein-Stopp (${cafStopText()})`, bad: () => `Letzten Kaffee spätestens ${cafStopText()} trinken (die App zeigt dir die Uhrzeit), danach entkoffeiniert oder Kräutertee.`, good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).late.length > 0 : null) },
   cafBed: { n: () => 'viel Koffein zur Schlafenszeit (über 50 mg)', bad: () => `Weniger Koffein am Nachmittag: der Rest im Körper zur Schlafenszeit stört den Tiefschlaf.`, good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).bedLevel >= 50 : null) },
   alk: { n: () => 'Alkohol', bad: () => `Alkohol weglassen oder früher am Abend, mindestens 8 Std. vor dem Schlafen.`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? (computeTotals(k, false).tot.alk || 0) > 0 : null) },
   lateMeal: { n: () => 'später letzter Mahlzeit (ab 21 Uhr)', bad: () => `Letzte große Mahlzeit bis ca. 20:30, danach höchstens etwas Leichtes.`, good: () => ``, f: (k) => { const d = peekDay(k); const t = d && d.hd && d.hd.lastMeal ? timeVal(d.hd.lastMeal, true) : null; return t == null ? null : t >= 1260; } },
@@ -405,7 +416,7 @@ function habitPatterns(days = 28) {
     const sport = logged.filter((k) => isSportDay(k)), rest = logged.filter((k) => !isSportDay(k));
     if (sport.length >= 3 && rest.length >= 3) {
       const ls = sport.filter((k) => cafInfo(k).late.length).length / sport.length, lr = rest.filter((k) => cafInfo(k).late.length).length / rest.length;
-      if (ls - lr >= 0.3) out.push({ area: 'koffein', w: ls - lr, text: `An Trainingstagen trinkst du öfter Koffein nach ${S.settings.caf.cutoff} (${pc(ls)} statt ${pc(lr)} der Tage).`, tip: 'Pre-Workout-Koffein nur bei Training vor 14 Uhr, sonst koffeinfrei.' });
+      if (ls - lr >= 0.3) out.push({ area: 'koffein', w: ls - lr, text: `An Trainingstagen trinkst du öfter Koffein nach dem Koffein-Stopp (${pc(ls)} statt ${pc(lr)} der Tage).`, tip: 'Pre-Workout-Koffein nur bei Training vor 14 Uhr, sonst koffeinfrei.' });
     }
   }
   /* Einschlafzeit Werktage gegen Wochenende */
@@ -422,7 +433,7 @@ function habitPatterns(days = 28) {
       if (['sauna', 'gesicht', 'koffein'].includes(hb.id)) continue;
       const done = hk.filter((k) => { const d = peekDay(k); return d.habits && d.habits[hb.id]; }).length;
       const r = done / hk.length;
-      if (done > 0 && r < 0.4) out.push({ area: 'schlaf', w: (0.4 - r) * 0.8, text: `${hb.n}: nur an ${pc(r)} der Tage.`, tip: hb.when ? `Zeitpunkt: ${hb.when}.` : '' });
+      if (done > 0 && r < 0.4) out.push({ area: 'schlaf', w: (0.4 - r) * 0.8, text: `${hb.n}: nur an ${pc(r)} der Tage.`, tip: hb.when ? `Zeitpunkt: ${habitWhen(hb)}.` : '' });
     }
   }
   out.sort((x, y) => y.w - x.w);
@@ -511,6 +522,8 @@ function frankReportText(ws) {
   const kact = mean(r.past.map((k) => muHealth(k, 'kcalAct')).filter((v) => v != null));
   const act = [ims.length ? `Intensitätsminuten ${fmt(ims.reduce((a, b) => a + b, 0))} (Empfehlung: 150 pro Woche)` : '', kact != null ? `aktive Kalorien Ø ${fmt(kact)} kcal/Tag` : ''].filter(Boolean);
   if (act.length) L.push(act.join(' · '));
+  const eb = energyLine(ws);
+  if (eb) L.push(eb + (S.settings.targets.kcal ? ` · Kalorienziel ${fmt(S.settings.targets.kcal.lo)}–${fmt(S.settings.targets.kcal.hi)} kcal` : ''));
   // Schlaf
   const hav = (f) => mean(r.past.map((k) => muHealth(k, f)).filter((v) => v != null));
   const durs = r.past.map((k) => muHealth(k, 'sleepDur')).filter((v) => v != null);
@@ -518,13 +531,17 @@ function frankReportText(ws) {
   L.push('', `## Schlaf & Erholung`);
   L.push(`Sleep Score Ø ${f0(r.sleep)} (Vorwoche ${f0(r.sleepPrev)}) · Schlafdauer Ø ${durs.length ? goalFmt({ kind: 'dur' }, mean(durs)) : '–'} Std. · Eingeschlafen Ø ${beds.length ? minToTime(Math.round(mean(beds)) % 1440) : '–'} · HRV Ø ${f0(r.hrv)} ms · Ruhepuls Ø ${f0(r.rhr)} · Body Battery morgens Ø ${f0(hav('bbMorning'))} · Stress Ø ${f0(hav('stress'))}`);
   const needs = r.past.map((k) => muHealth(k, 'sleepNeed')).filter((v) => v != null);
+  const late = r.past.map((k) => { const nx = peekDay(addDays(k, 1)); const b = nx && nx.health && nx.health.bedTime ? timeVal(nx.health.bedTime, true) : null; return b == null ? null : b - sleepMin(k); }).filter((v) => v != null);
+  const wakes = r.past.map((k) => rhWakeOf(peekDay(k))).filter((v) => v != null);
+  const rds = r.past.map((k) => readinessOf(k)).filter(Boolean).map((x) => x.score);
+  L.push('Tagesrhythmus (die App plant jeden Tag neu: Aufstehen laut Garmin, Schlafenszeit = Aufstehen am nächsten Morgen − Schlafbedarf − 15 Min.): ' + [wakes.length ? `aufgestanden Ø ${minToTime(Math.round(mean(wakes)))} (${minToTime(Math.min(...wakes))}–${minToTime(Math.max(...wakes))})` : '', r.past.length ? `geplante Schlafenszeit Ø ${minToTime(Math.round(mean(r.past.map((k) => sleepMin(k)))))}` : '', late.length ? `eingeschlafen im Schnitt ${fmt(Math.abs(mean(late)))} Min. ${mean(late) >= 0 ? 'später' : 'früher'} als geplant [bed_delay]` : '', rds.length ? `Trainingsbereitschaft Ø ${f0(mean(rds))} (eigene Berechnung)` : ''].filter(Boolean).join(' · '));
   const more = [needs.length ? `Schlafbedarf laut Garmin Ø ${goalFmt({ kind: 'dur' }, mean(needs))} Std.` : '', hav('bbSleep') != null ? `Body Battery im Schlaf Ø +${f0(hav('bbSleep'))}` : '', hav('hrvWeek') != null ? `HRV 7-Tage-Ø ${f0(hav('hrvWeek'))} ms` : '', hav('spo2') != null ? `SpO2 Ø ${f0(hav('spo2'))} %` : '', hav('resp') != null ? `Atemfrequenz Ø ${f0(hav('resp'), 1)}/min` : ''].filter(Boolean);
   if (more.length) L.push(more.join(' · '));
   // Koffein
   const cafs = r.past.filter((k) => peekDay(k)).map((k) => cafInfo(k));
   const lasts = cafs.map((c) => c.last).filter((v) => v != null);
   L.push('', `## Koffein`);
-  L.push(`Ø ${f0(r.cafAvg)} mg/Tag · letztes Koffein Ø ${lasts.length ? minToTime(Math.round(mean(lasts))) : '–'} · nach ${S.settings.caf.cutoff} an ${r.cafLateDays} Tagen · Rest zur Schlafenszeit Ø ${cafs.length ? fmt(mean(cafs.map((c) => c.bedLevel))) : '–'} mg`);
+  L.push(`Ø ${f0(r.cafAvg)} mg/Tag · letztes Koffein Ø ${lasts.length ? minToTime(Math.round(mean(lasts))) : '–'} · nach dem Koffein-Stopp (${cafStopText()}) an ${r.cafLateDays} Tagen [caf_stop] · Rest zur Schlafenszeit Ø ${cafs.length ? fmt(mean(cafs.map((c) => c.bedLevel))) : '–'} mg`);
   // Haut
   const ph = skinPhase(we) || skinPhase(ws);
   const care = (id) => r.past.filter((k) => { const d = peekDay(k); return d && d.skin && d.skin[id]; }).length;

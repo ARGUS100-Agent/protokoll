@@ -8,7 +8,7 @@ DIST = os.path.join(ROOT, 'docs')
 NM = os.path.join(ROOT, 'node_modules')
 ICON_DIR = os.path.join(NM, 'lucide-static/icons')
 FONT = os.path.join(NM, '@fontsource-variable/big-shoulders-display/files/big-shoulders-display-latin-wght-normal.woff2')
-JS_ORDER = ['data.js', 'data2.js', 'info.js', 'core.js', 'core2.js', 'charts.js', 'ui.js', 'ui2.js', 'ui3.js', 'ui4.js', 'knee.js', 'actions.js', 'actions2.js', 'frank.js', 'ziele.js', 'garmin.js', 'main.js']
+JS_ORDER = ['data.js', 'data2.js', 'info.js', 'core.js', 'core2.js', 'charts.js', 'ui.js', 'ui2.js', 'ui3.js', 'ui4.js', 'knee.js', 'actions.js', 'actions2.js', 'frank.js', 'ziele.js', 'garmin.js', 'alltag.js', 'energie.js', 'main.js']
 RELAY = os.path.join(ROOT, 'relay', 'garmin-relay.js')
 
 

@@ -13,10 +13,11 @@ Neu bauen: `npm install && python3 build.py` · Tests: siehe `tests/README.md`
 
 Tab-Leiste (anpassbar): Heute · Ernährung · Training · Knie · Mehr. Unter „Mehr“: Supplements, Licht & Koffein, Haut, Körper, Blutwerte, Garmin & Schlaf, Einkauf, Wochenrückblick, Einstellungen & Backup.
 
-- **Heute**: Kurzinfos aus allen Bereichen, Knie-Morgencheck, Sonntags-Check (Fotos, Gewicht, Hautbild), fällige Termine
-- **Training & Sauna**: Einheiten mit Uhrzeit, Dauer, Intensität; 3er-Split (Schedule A/B) mit Sätzen, Gewichten und Knie-Varianten; automatische Ernährungsvariante A/B/C; Wochenplan-Vorschlag mit Garmin-Erholung, Nachholen und Konflikt-Warnungen; Sauna-Wochenziel mit Vorschlägen
+- **Heute**: Kurzinfos aus allen Bereichen, Tagesbogen mit Schlafenszeit des Tages, Knie-Morgencheck, Sonntags-Check (Fotos, Gewicht, Hautbild), fällige Termine
+- **Ernährung**: Standardtag zum Abhaken (Prepmymeal als ein Beutel über den Tag), Einträge, Alternativen zu süßen oder salzigen Snacks, Snack-Ideen für unterwegs, Energiebilanz mit automatischem Kalorienziel
+- **Training & Sauna**: Einheiten mit Uhrzeit, Dauer, Intensität; 3er-Split (Schedule A/B) mit Sätzen, Gewichten und Knie-Varianten; automatische Ernährungsvariante A/B/C; Wochenplan-Vorschlag mit Trainingsbereitschaft, Nachholen und Konflikt-Warnungen; Garmin-Krafttraining zählt für den geplanten Gym-Tag; Sauna-Wochenziel mit Vorschlägen
 - **Knie & Mobility**: Übungsbibliothek mit Filtern und Video-Links, Routinen mit geführtem Timer (Ton + Sprachansage, Aufschlag für die betroffene Seite), 12-Wochen-Kraftplan mit Phasen-Check, Lauf-Tracking, Einlagen, Tests, Meilensteine, Termine
-- **Licht & Koffein**: Licht-Checks, Koffein-Rechner mit Halbwertszeit, Tageskurve und Warnungen
+- **Licht & Koffein**: Licht-Checks, Koffein-Rechner mit Halbwertszeit, Tageskurve und Warnungen; Koffein-Stopp in Stunden vor der Schlafenszeit des Tages
 - **Haut**: Hautscore, Stellen, Wochenfotos (eigene IndexedDB, Vergleich, ZIP-Export), Phasen-Countdown und -Diagramm
 - **Garmin & Schlaf**: Werte aus Garmin Connect (siehe unten) oder von Hand; Verlauf und Zusammenhänge
 - **Körper, Blutwerte, Einkauf, Wochenrückblick**
@@ -28,6 +29,10 @@ Die App holt über die [Garmin Personal API](https://developer.garmin.com/gc-dev
 1. Bei Cloudflare einen Worker anlegen und den Inhalt von [`relay/garmin-relay.js`](relay/garmin-relay.js) einfügen (Deploy). Der Worker reicht nur Anfragen der App an Garmin durch, speichert nichts und erlaubt nur den Token-Tausch und das Lesen (GET) von Garmin-Diensten.
 2. Danach in Garmin Connect (Web) einen Personal API Key erstellen: <https://connect.garmin.com/app/settings/personalApiToken> – er wird nur einmal angezeigt, also direkt weiter zu Schritt 3.
 3. In der App unter Garmin & Schlaf → Einrichten (oder Einstellungen → Garmin Connect) die Worker-Adresse und den Schlüssel eintragen und verbinden.
+
+**Tagesrhythmus (ab 2.7.0):** Aufstehen kommt jeden Tag aus Garmin (sonst: typischer Wert für den Wochentag, sonst Profil). Die Schlafenszeit rechnet die App aus dem Aufstehen am nächsten Morgen (selbst eingestellt, sonst Wochentags-Muster) minus Schlafbedarf laut Garmin minus 15 Min. zum Einschlafen. Daran hängen Koffein-Fenster, Koffein-Stopp, letzte Mahlzeit, Bildschirm-Pause, die Abend-Blöcke im Plan und Erinnerungen von Wochenzielen (`wake+30`, `stop-30`, `bed-60`).
+
+**Trainingsbereitschaft (ab 2.7.0):** Weil die Personal API sie nicht liefert, rechnet die App eine eigene (0–100) aus Schlaf, Schlaf der letzten Nächte gegen den Bedarf, HRV gegen den Normalbereich, Ruhepuls, Body Battery, Stress und Belastung (Dauer × Anstrengung). Ein Wert von der Uhr, von Hand eingetragen, hat Vorrang.
 
 Schlüssel, Zugang und Worker-Adresse liegen nur auf dem Gerät – nicht im Backup und nicht im Code. Selbst eingetragene oder geänderte Werte überschreibt Garmin nicht; gelöschte Garmin-Trainings werden nicht wieder geholt.
 

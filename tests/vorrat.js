@@ -16,7 +16,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   for (let i = 0; i < 20; i++) { await page.clock.runFor(500); if (await ev(() => !!(S.meta && document.body.classList.contains('ready')))) break; }
   const item = (sid) => ev((s) => { const it = S.shop.items.find((x) => x.sid === s); const st = invState()[it.id]; return { id: it.id, list: it.list, auto: !!it.auto, inv: it.inv, stock: st ? Math.round(st.stock * 10) / 10 : null, days: st && st.days != null ? Math.round(st.days * 10) / 10 : null, rate: st ? Math.round(st.rate) : null }; }, sid);
 
-  ok((await ev(() => S.meta.schema)) === 4, 'Neue Installation: Schema 4');
+  ok((await ev(() => S.meta.schema)) === 5, 'Neue Installation: Schema 5');
   // Zuhause: Vorrat sichtbar
   await ev(() => { ui.sub.einkauf = 'home'; go('einkauf'); });
   const hafer = await item('h:Haferflocken');
@@ -137,7 +137,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
 
   // Backup enthält den Vorrat
   const bk = await ev(() => exportData());
-  ok(bk.schema === 4 && bk.shop.items.find((x) => x.sid === 'b:Eier').inv.buy === 30, 'Backup enthält Vorrat und Einkaufsmengen');
+  ok(bk.schema === 5 && bk.shop.items.find((x) => x.sid === 'b:Eier').inv.buy === 30, 'Backup enthält Vorrat und Einkaufsmengen');
   console.log(errors.length ? 'KONSOLENFEHLER:\n' + errors.join('\n') : 'Keine Konsolenfehler');
   await browser.close();
 })().catch((e) => { console.error('ABBRUCH', e); process.exit(1); });

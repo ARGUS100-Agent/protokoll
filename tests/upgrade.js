@@ -54,9 +54,9 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   });
   console.log('     ' + JSON.stringify(st));
   ok(st.days === 3 && st.name === 'Test', 'Alle Tage und Profil erhalten');
-  ok(st.schema === 4, 'Migration auf Schema 4');
+  ok(st.schema === 5, 'Migration auf Schema 5');
   ok(st.tabs.join(',') === 'heute,ern,train,knie', 'Tab-Leiste: Heute · Ernährung · Training · Knie');
-  ok(st.knee && st.caf === 6 && st.shop > 40, 'Neue Einstellungen und Einkaufsliste angelegt');
+  ok(st.knee && st.caf === 5 && st.shop > 40, 'Neue Einstellungen und Einkaufsliste angelegt (5 Koffein-Knöpfe)');
   ok(st.rules[0].includes('OneBlade') && st.rules.includes('Kein Clienzo'), 'Haut-Phase 1 auf neue Regeln aktualisiert');
   ok(st.routine.some((n) => n.includes('OneBlade')), 'Haut-Routine aktualisiert');
   ok(st.todos.length === 2 && st.todos.every((t) => t.endsWith('|true')), 'To-dos übernommen (mit Datumsfeld)');
