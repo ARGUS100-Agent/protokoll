@@ -10,6 +10,24 @@ self.addEventListener('activate', (e) => {
 });
 self.addEventListener('message', (e) => { if (e.data === 'skipWaiting') self.skipWaiting(); });
 
+/* Mitteilungen (Web Push über die eigene Weiterleitung) */
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { body: e.data ? e.data.text() : '' }; }
+  const opts = { body: d.body || '', icon: './icon-192.png', badge: './icon-192.png', data: { url: d.url || '' } };
+  if (d.tag) opts.tag = d.tag;
+  e.waitUntil(self.registration.showNotification(d.title || 'Protokoll', opts));
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+    const c = list[0];
+    if (c) { c.postMessage({ type: 'nav', url }); return c.focus ? c.focus() : c; }
+    return self.clients.openWindow('./' + url);
+  }));
+});
+
 function timeout(ms) { return new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)); }
 
 self.addEventListener('fetch', (e) => {

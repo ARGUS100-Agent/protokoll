@@ -11,7 +11,8 @@ node tests/frank.js /tmp/out     # Frank: Code aus dem Claude-Chat einfügen, Vo
 node tests/vorrat.js /tmp/out    # Vorrat: Einkauf, Abzug über Haken und Einträge, automatisch auf die Einkaufsliste
 node tests/ziele.js /tmp/out     # Wochenbericht an Frank, Wochenziele (Messung, „Jetzt dran“, Hinweise), Muster und Gewohnheiten
 node tests/garmin.js /tmp/out    # Garmin über eine nachgebaute Weiterleitung: Verbinden, Abruf, Zuordnung, Trainings, Fehler, Datenschutz
-node tests/relay.js              # Garmin-Weiterleitung (Cloudflare Worker) mit nachgebautem Garmin, ohne Browser
+node tests/relay.js              # Weiterleitung (Cloudflare Worker) ohne Browser: Garmin nachgebaut; Mitteilungen mit nachgebautem KV und Push-Dienst (Inhalt mit http_ece entschlüsselt, VAPID geprüft)
+node tests/push.js /tmp/out      # 2.8: Mitteilungen einrichten, Plan, Versand über den echten Worker-Code, Service Worker, Klick, Kategorien, Ausschalten
 node tests/alltag.js /tmp/out    # 2.7: Update auf Schema 5, Tagesrhythmus, Bereitschaft, Gym-Zuordnung, Alternativen, Snacks, Energiebilanz
 ```
 

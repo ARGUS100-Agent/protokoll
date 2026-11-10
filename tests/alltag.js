@@ -160,6 +160,10 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   await ev(() => sheetFood('c_jerky', '2026-11-10'));
   ok((await page.textContent('#sheet')).includes('Jerky ohne Honig'), 'Jerky mit Honig: Tipp für Jerky ohne Honig');
   await ev(() => closeSheet());
+  await ev(() => { S.foods.custom.push({ id: 'c_salz', n: 'Test Salzbrezeln', cat: 'Süßes & Snacks', base: 100, u: [['g', 1]], v: { kcal: 380, p: 10, c: 75, na: 7000 } }); buildFoodIndex(); invalidate(); sheetFood('c_salz', '2026-11-10'); });
+  await page.click('[data-a="entry-save"]');
+  ok(/Test Salzbrezeln eingetragen · Natrium jetzt über dem Maximum \(.+\): Sehr viel Natrium/.test(await page.textContent('#toast')), 'Eintrag hebt Natrium über das Maximum: sofort Hinweis mit Tipp – ' + (await page.textContent('#toast')));
+  await page.click('#toast [data-a="undo"]');
   await ev(() => { ui.ernSub = 'detail'; ui.exp.add('snacks'); go('ern', { date: '2026-11-10' }); });
   const sn = await page.textContent('#snacks');
   ok(sn.includes('Skyr-Becher mit Beeren') && sn.includes('Banane und Mandeln'), 'Snacks für unterwegs mit Nährwerten');

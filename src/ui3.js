@@ -131,6 +131,7 @@ function vHeute() {
   h += sundayCard(k);
   h += todoCard();
   h += reviewReadyCard(k);
+  h += pushHintCard();
   h += `<div class="tiles">${HOME_TILES.map((id) => tileHTML(id, k)).join('')}</div>`;
   h += `<p class="hint center">Tippe auf eine Kachel, um in den Bereich zu wechseln.</p>`;
   return h;
@@ -464,7 +465,7 @@ function vLicht() {
   /* Licht */
   const lm = !!d.habits.licht_morgen, ln = !!d.habits.licht_nachmittag;
   const lmin = d.hd && d.hd.lightMin;
-  h += `<section class="sec"><div class="sec-head"><h2>Licht</h2><span class="count">${{ garmin: 'aufgewacht', eingetragen: 'aufgestanden' }[rhythm(k).wakeSrc] || 'aufstehen ~'} ${minToTime(rhythm(k).wake)}</span></div><div class="toggle-grid">
+  h += `<section class="sec"><div class="sec-head"><h2>Licht</h2><span class="count">${{ garmin: 'aufgewacht', eingetragen: 'aufgestanden', eingestellt: 'aufstehen' }[rhythm(k).wakeSrc] || 'aufstehen ~'} ${minToTime(rhythm(k).wake)}</span></div><div class="toggle-grid">
     <button class="tgl${lm ? ' is-on' : ''}" data-a="habit" data-id="licht_morgen" data-date="${k}" aria-pressed="${lm}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Morgenlicht${garHabitMark(d, 'licht_morgen')}</b><small>10–30 Min. draußen nach dem Aufstehen</small></span></button>
     <button class="tgl${ln ? ' is-on' : ''}" data-a="habit" data-id="licht_nachmittag" data-date="${k}" aria-pressed="${ln}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Nachmittagslicht</b><small>ein paar Minuten im späten Licht</small></span></button></div>
     <div class="chips chips-tight light-min"><span class="hint">Morgens draußen:</span>${[10, 15, 20, 30, 45].map((m) => `<button class="chip chip-xs${lmin === m ? ' is-on' : ''}" data-a="light-min" data-v="${m}" data-date="${k}">${m} Min.</button>`).join('')}</div>

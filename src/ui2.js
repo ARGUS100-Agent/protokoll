@@ -289,7 +289,7 @@ function skinProgressHTML(keys) {
    EINSTELLUNGEN
    ============================================================ */
 const SET_SECTIONS = [
-  ['profil', 'Profil & Schlafzeiten'], ['nav', 'Tab-Leiste'], ['backup', 'Backup & Daten'], ['garmin', 'Garmin Connect'], ['ziele', 'Tagesziele'], ['plan', 'Standardtag bearbeiten'], ['woche', 'Tagesvarianten pro Wochentag'],
+  ['profil', 'Profil & Schlafzeiten'], ['nav', 'Tab-Leiste'], ['backup', 'Backup & Daten'], ['garmin', 'Garmin Connect'], ['push', 'Mitteilungen'], ['ziele', 'Tagesziele'], ['plan', 'Standardtag bearbeiten'], ['woche', 'Tagesvarianten pro Wochentag'],
   ['training', 'Training, Wochenstruktur & Sauna'], ['knie', 'Knie-Programm'], ['koffein', 'Koffein'],
   ['foods', 'Lebensmittel & Supplements'], ['haut', 'Haut-Protokoll'], ['habits', 'Gewohnheiten'], ['todos', 'Termine & To-dos'],
   ['about', 'Installation & Hinweise'],

@@ -637,7 +637,7 @@ function renderGarSheet() {
     </div>
     ${s.err ? `<p class="gar-err">${icon('triangle-alert')}<span>${esc(s.err)}</span></p>` : ''}
     <p class="hint gar-hint">${icon('lock')} Schlüssel und Adresse bleiben nur auf diesem Gerät: nicht im Backup, nicht im Code. Garmin schickt vor Ablauf des Schlüssels eine E-Mail; dann einen neuen erstellen und hier eintragen.</p>
-    ${on ? '<p class="hint">Trainingsbereitschaft gibt Garmins Schnittstelle nicht heraus – die trägst du bei Bedarf selbst ein.</p>' : ''}
+    ${on ? '<p class="hint">Trainingsbereitschaft gibt Garmins Schnittstelle nicht heraus – die App rechnet eine eigene aus Schlaf, HRV, Ruhepuls, Body Battery, Stress und Belastung.</p>' : ''}
     <div class="sheet-acts"><button class="btn is-accent" data-a="gar-connect"${s.busy ? ' disabled' : ''}>${s.busy ? 'Verbinde …' : on ? 'Speichern & testen' : 'Verbinden'}</button>
       ${on ? `<button class="btn" data-a="gar-more">${icon('history')}30 Tage nachladen</button><button class="btn is-danger" data-a="gar-off">${icon('unplug')}${s.offAsk ? 'Wirklich trennen?' : 'Trennen'}</button>` : ''}</div>
     ${s.offAsk ? '<p class="hint">Trennen löscht Schlüssel und Adresse von diesem Gerät. Übernommene Werte bleiben. Den Schlüssel kannst du zusätzlich in Garmin Connect löschen.</p>' : ''}`);
@@ -671,7 +671,7 @@ Object.assign(A, {
   'gar-sync': () => garManual(0),
   'gar-more': () => { closeSheet(); garManual(GAR_MAX); },
   'gar-copy': () => {
-    const fail = () => { if (ui.sheet && ui.sheet.type === 'garmin') { garSheetVals(); ui.sheet.showCode = true; garRerender(); } toast('Kopieren ging nicht – Code unten markieren und kopieren'); };
+    const fail = () => { if (ui.sheet && ui.sheet.type === 'garmin') { garSheetVals(); ui.sheet.showCode = true; garRerender(); } else if (ui.sheet && ui.sheet.type === 'push') { const u = $('#push-url'); if (u) ui.sheet.url = u.value.trim(); ui.sheet.showCode = true; pushRerender(); } toast('Kopieren ging nicht – Code unten markieren und kopieren'); };
     try {
       if (!navigator.clipboard) { fail(); return; }
       navigator.clipboard.writeText(GAR_RELAY_CODE).then(() => toast('Code kopiert – bei Cloudflare einfügen'), fail);

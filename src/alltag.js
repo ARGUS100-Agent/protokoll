@@ -65,6 +65,21 @@ function snacksHTML(k) {
   return h + '</div><p class="hint">Am Abend vorher einpacken: Becher, Obst und eine kleine Dose Nüsse halten einen Arbeitstag ohne Kühlschrank (Skyr und Kefir mit Kühlakku).</p></section>';
 }
 
+/* ---------- Zu viel: sofort sagen, wenn ein Eintrag etwas über das Maximum hebt ---------- */
+function overKeys(k) {
+  try {
+    const ev = evaluate(k), plan = k >= todayKey();
+    return Object.keys(ev.metrics).filter((x) => ev.metrics[x].state === 'over' || (plan && ev.metrics[x].pstate === 'over'));
+  } catch (e) { return []; }
+}
+function overText(k, key) {
+  const ev = evaluate(k), m = ev.metrics[key], meta = metaOf(key);
+  const t = overTip(key, m, ev).text, i = t.indexOf('. ');
+  const now = m.state === 'over', v = now ? m.v : m.pv;
+  const val = m.t && m.t.max != null && !['fatPct', 'upf'].includes(key) ? ` (${now ? '' : 'Prognose '}${fmt(disp(key, v), meta.d)} von max. ${fmt(disp(key, m.t.max), meta.d)} ${meta.u})` : '';
+  return `${meta.n} ${now ? 'jetzt' : 'mit deinem Plan heute'} über dem Maximum${val}: ${i > 0 ? t.slice(0, i + 1) : t}`;
+}
+
 /* ---------- Plausibilität ---------- */
 function dupEntry(k, fid, minutes = 3) {
   const now = Date.now();
@@ -103,6 +118,7 @@ function rhythm(k = todayKey()) {
   if (c.m.has(k)) return c.m.get(k);
   const pr = rhProfile(), d = peekDay(k), nx = peekDay(addDays(k, 1));
   let wake = rhWakeOf(d), wakeSrc = wake == null ? null : d.gar && d.gar.wakeTime === d.health.wakeTime ? 'garmin' : 'eingetragen';
+  if (wake == null) { const pv = peekDay(addDays(k, -1)), w = pv && pv.hd && pv.hd.wakeNext ? timeToMin(pv.hd.wakeNext) : null; if (w != null) { wake = w; wakeSrc = 'eingestellt'; } } // am Vortag „morgen raus um …“
   if (wake == null) { const p = rhPredWake(k); if (p) { wake = p.m; wakeSrc = p.src; } }
   if (wake == null) { wake = pr.wake; wakeSrc = 'profil'; }
   /* Schlafbedarf für die kommende Nacht: Garmin (Nacht danach bzw. „nächster Schlafbedarf“), sonst letzte Nacht, sonst Schnitt */
@@ -134,7 +150,7 @@ function cafStopText() { const h = cafGap() / 60; return `${fmt(h, h % 1 ? 1 : 0
 function rhythmLine(k) {
   const r = rhythm(k), nxt = addDays(k, 1);
   const nw = (t) => `<span class="nw">${esc(t)}</span>`;
-  const wakeTxt = { garmin: `Aufgewacht ${minToTime(r.wake)}`, eingetragen: `Aufgestanden ${minToTime(r.wake)}` }[r.wakeSrc] || `Aufstehen ~${minToTime(r.wake)}`;
+  const wakeTxt = { garmin: `Aufgewacht ${minToTime(r.wake)}`, eingetragen: `Aufgestanden ${minToTime(r.wake)}`, eingestellt: `Aufstehen ${minToTime(r.wake)} (eingestellt)` }[r.wakeSrc] || `Aufstehen ~${minToTime(r.wake)}`;
   const src = { eingestellt: '', garmin: '', wochentag: `wie meist am ${WD_LONG[weekday(nxt)]}`, schnitt: 'dein Schnitt', profil: 'aus dem Profil' }[r.bedSrc];
   const next = `${k === todayKey() ? 'Morgen' : 'Am nächsten Tag'} raus ${minToTime(r.wakeNext ?? rhProfile().wake)}${src ? ` (${src})` : ''}`;
   return `<div class="rhythm"><span class="rh-ic">${icon('moon')}</span><span class="rh-txt"><b>Schlafenszeit ${minToTime(r.bed)}</b><small>${esc(next)}</small><small>${nw(wakeTxt)} · ${nw('Schlafbedarf ' + fmtDur(r.need))}</small></span><button class="pill-btn" data-a="rh-edit" data-date="${k}">Ändern</button></div>`;

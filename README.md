@@ -36,4 +36,10 @@ Die App holt über die [Garmin Personal API](https://developer.garmin.com/gc-dev
 
 Schlüssel, Zugang und Worker-Adresse liegen nur auf dem Gerät – nicht im Backup und nicht im Code. Selbst eingetragene oder geänderte Werte überschreibt Garmin nicht; gelöschte Garmin-Trainings werden nicht wieder geholt.
 
+## Mitteilungen (ab 2.8.0)
+
+Die App plant Mitteilungen für heute und die nächsten zwei Tage aus den eigenen Daten: offene Posten im Standardtag (45 Min. nach der Mahlzeit-Zeit), fällige To-dos, Knie-Morgencheck, Backup, Wochenrückblick, Tagesrhythmus (Morgenlicht, Koffein-Stopp, „Wann musst du morgen raus?“, Bildschirm-Pause, Schlafenszeit), Wochenziele mit Erinnerung, abends Nährstoff-Lücken und Überschreitungen mit konkretem Tipp und „Heute geschafft“. Zwischen Schlafenszeit und Aufstehen kommt nichts. Jede Kategorie ist abwählbar. Den Plan lädt die App zur eigenen Weiterleitung (Worker ab Version 3); deren Zeitplan verschickt jede Mitteilung pünktlich als Web-Push (VAPID, Inhalt aes128gcm-verschlüsselt), auch wenn die App zu ist. Öffnet man die App, rechnet sie den Plan neu.
+
+Einrichten: Worker-Code aus [`relay/garmin-relay.js`](relay/garmin-relay.js) einsetzen (Version 3, Garmin läuft weiter), einen KV-Namespace anlegen und im Worker als `PUSH` binden, einen Cron-Trigger `* * * * *` hinzufügen. Dann in der App (vom Home-Bildschirm, iOS 16.4 oder neuer) unter Einstellungen → Mitteilungen „Verbinden“ und „Erlauben“. Der Worker gehört danach zu diesem Gerät (Prüfwert eines zufälligen Geräte-Schlüssels im KV); im KV liegen außerdem der Signier-Schlüssel, das Abo und die geplanten Texte bis zum Versand.
+
 Im Code stehen nur allgemeine Inhalte (Übungen, Regeln, Pläne). Persönliches wie Befund, Termine, Messwerte und Fotos liegt ausschließlich lokal auf dem Gerät und im eigenen Backup.

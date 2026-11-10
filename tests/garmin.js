@@ -131,7 +131,7 @@ function fixtures(path, q) {
   const shown = await ev(() => { const t = document.querySelector('.gar-code'); return t ? t.value : null; });
   const copied = await ev(() => document.querySelector('#toast').textContent);
   ok((shown && shown.includes("APP_ORIGIN = 'https://argus100-agent.github.io'") && shown.includes('export default')) || copied.includes('Code kopiert'), 'Code der Weiterleitung kopierbar oder sichtbar');
-  ok(await ev(() => GAR_RELAY_CODE.includes('personal.connectapi.garmin.com') && GAR_RELAY_CODE.includes('VERSION = 2') && !/ApiKey [A-Za-z0-9]{8,}/.test(GAR_RELAY_CODE)), 'Eingebetteter Code: Version 2, Garmin-Adresse, kein Schlüssel');
+  ok(await ev(() => GAR_RELAY_CODE.includes('personal.connectapi.garmin.com') && GAR_RELAY_CODE.includes('VERSION = 3') && GAR_RELAY_CODE.includes('async scheduled(') && !/ApiKey [A-Za-z0-9]{8,}/.test(GAR_RELAY_CODE)), 'Eingebetteter Code: Version 3 (Garmin + Mitteilungen), Garmin-Adresse, kein Schlüssel');
 
   // Falsche Adresse
   await page.fill('#gar-url', 'https://falsch.test');

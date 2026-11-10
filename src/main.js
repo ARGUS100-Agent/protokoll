@@ -43,11 +43,13 @@ function registerSW() {
   document.body.classList.add('ready');
   loadPhotoIndex().then(() => { if (!ui.sheet && (ui.tab === 'heute' || ui.tab === 'haut')) render(); });
   registerSW();
+  try { pushInit(); } catch (e) { /* egal */ }
   setTimeout(() => { try { garAuto(); } catch (e) { /* egal */ } }, 1200);
   setInterval(() => {
     if (document.hidden) return;
     try { goalNudgeCheck(); } catch (e) { /* egal */ }
     try { garAuto(); } catch (e) { /* egal */ }
+    try { pushTick(); } catch (e) { /* egal */ }
     const t = todayKey();
     if (t !== ui.lastToday) {
       if (ui.date === ui.lastToday) ui.date = t;

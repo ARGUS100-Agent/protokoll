@@ -122,7 +122,7 @@ function flush() {
     else if (key.startsWith('day:')) entries.push([key, S.days[key.slice(4)]]);
   }
   dirty.clear();
-  return DB.putMany(entries);
+  return DB.putMany(entries).then((r) => { try { pushSoon(); } catch (e) { /* egal */ } return r; });
 }
 
 function defaultSettings() {
@@ -161,6 +161,7 @@ async function loadState() {
   if (!S.shop) { S.shop = shopDefault(); markDirty('shop'); }
   if (!all.meta) markDirty('meta');
   try { garLoad(all); } catch (e) { /* egal */ }
+  try { pushLoad(all); } catch (e) { /* egal */ }
   buildFoodIndex();
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* egal */ }
 }

@@ -160,14 +160,17 @@ const A = {
     if (!(g > 0)) { toast('Bitte eine Menge eingeben'); return; }
     let newId = null;
     const dup = s.entryId ? null : dupEntry(s.k, s.fid);
+    const overBefore = overKeys(s.k);
     if (s.entryId) mutDay(s.k, (d) => { const e = d.entries.find((x) => x.id === s.entryId); if (e) { e.g = g; e.meal = s.meal; } });
     else newId = addEntry(s.k, s.fid, g, s.meal);
     const ph = phaseBlocks(s.k, food);
     const k = s.k;
     closeSheet(); render();
     const undoNew = () => { mutDay(k, (d) => { d.entries = d.entries.filter((e) => e.id !== newId); }); render(); };
+    const overNew = overKeys(k).filter((x) => !overBefore.includes(x));
     if (dup && newId) toast(`${food.n} hattest du vor ${Math.max(1, Math.round((Date.now() - dup.t) / 60000))} Min. schon eingetragen – doppelt?`, undoNew);
     else if (ph) toast(`${ph.n} im Haut-Protokoll: ${ph.rules.join(', ')}`);
+    else if (newId && overNew.length) toast(`${food.n} eingetragen · ${overText(k, overNew[0])}`, undoNew);
     else if (newId) toast(`${food.n} eingetragen`, undoNew);
   },
   'entry-del': () => { const s = ui.sheet; delEntry(s.k, s.entryId); closeSheet(); },
@@ -249,6 +252,7 @@ const A = {
     buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia
     await DB.clear();
     if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
+    if (PUSH) await pushSave(); // Mitteilungen ebenso
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); Object.keys(S.days).forEach((k) => markDirty('day:' + k));
     await flush();
     buildFoodIndex(); invalidate(); closeSheet(); render(); toast('Backup importiert');
@@ -262,6 +266,7 @@ const A = {
   'wipe-do': async () => {
     const v = ($('#wipe-in') || {}).value || '';
     if (v.trim().toUpperCase() !== 'LÖSCHEN') { toast('Bitte LÖSCHEN eingeben'); return; }
+    if (PUSH) { try { await pushCall('off', {}); } catch (e) { /* egal */ } PUSH = null; }
     await DB.clear();
     GAR = null;
     S.days = {}; S.settings = defaultSettings(); S.foods = { custom: [], over: {} }; S.meta = { schema: 5, createdAt: new Date().toISOString(), lastBackup: null, backupSnooze: null };
