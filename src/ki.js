@@ -17,7 +17,7 @@ async function aiFetch(op, body = {}) {
   let j = {};
   try { j = await res.json(); } catch (e) { j = {}; }
   if (res.ok) return j;
-  if (res.status === 404 && !j.err) throw garErr('old', 'Die Weiterleitung ist noch Version 3 – neuen Code (v4) in Cloudflare einfügen.');
+  if ((res.status === 404 || res.status === 403) && !j.err) throw garErr('old', 'Die Weiterleitung ist noch Version 3 – neuen Code (v4) in Cloudflare einfügen.');
   if (j.err === 'ai-key') throw garErr('ai-key', 'Im Worker fehlt das Geheimnis ANTHROPIC_API_KEY.');
   if (j.err === 'budget') throw garErr('budget', j.msg || 'Monatsbudget erreicht.');
   if (j.err === 'key') throw garErr('key', 'Weiterleitung kennt dieses Gerät nicht – Mitteilungen neu verbinden.');

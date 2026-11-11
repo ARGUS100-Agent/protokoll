@@ -152,8 +152,8 @@ function kxDeloadAdvice(k = todayKey()) {
 /* Verpasste Einheiten diese Woche, Tage seit dem letzten Gym */
 function kxMissed(k = todayKey()) {
   const wp = weekPlan(weekStart(k));
-  const missed = wp.days.filter((d) => d.past).flatMap((d) => d.items.filter((it) => it.kind === 'gym' && !it.done && !it.extra && !it.moved).map((it) => ({ k: d.k, n: it.n })));
-  const today = wp.days.find((d) => d.isToday);
+  const missed = wp.days.filter((d) => d.k < k && d.past).flatMap((d) => d.items.filter((it) => it.kind === 'gym' && !it.done && !it.extra && !it.moved).map((it) => ({ k: d.k, n: it.n })));
+  const today = wp.days.find((d) => d.k === k);
   const todayGym = today ? today.items.find((it) => it.kind === 'gym' && !it.done) : null;
   const last = lastGymKey(k), gap = last ? daysBetween(last, k) : null;
   return { missed, todayGym, gap };
@@ -212,6 +212,7 @@ Object.assign(A, {
 });
 /* Mitteilungen: Gym heute, verpasste Einheit, lange Pause */
 function pushTraining(k, r, d, add, isT) {
+  if (!isT) return; // nur für heute: verpasste Einheiten kennt die App erst am Tag selbst
   const mo = kxMotivation(k);
   if (!mo) return;
   const t = Math.max(r.wake + 180, Math.min(17 * 60, r.bed - 300));
