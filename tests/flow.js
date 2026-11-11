@@ -35,7 +35,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(Math.round(caf.info.total) === 250, 'Koffein gesamt 250 mg (' + Math.round(caf.info.total) + ')');
   ok(caf.kcal >= 15 && caf.kcal < 60, 'Monster Zero: Kalorien zählen in der Ernährung (' + Math.round(caf.kcal) + ' kcal)');
   ok(caf.fluid >= 700, 'Flüssigkeit aus Getränken (' + Math.round(caf.fluid) + ' ml)');
-  ok(caf.info.bedLevel > 0, 'Restkoffein zur Schlafenszeit berechnet: ' + Math.round(caf.info.bedLevel) + ' mg');
+  ok(caf.info.bedLevel > 0 || caf.info.last >= caf.info.bed, 'Restkoffein zur Schlafenszeit berechnet: ' + Math.round(caf.info.bedLevel) + ' mg' + (caf.info.last >= caf.info.bed ? ' (Test läuft nach der Schlafenszeit, Getränke danach zählen erst für morgen)' : ''));
   await shot('f02-licht');
   // Uhrzeit ändern
   const cid = await ev((k) => getDay(k).caf[0].id, today);

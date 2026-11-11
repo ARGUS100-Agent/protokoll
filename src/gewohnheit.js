@@ -95,6 +95,8 @@ function autoHabits(k = todayKey()) {
 }
 
 /* ---------- Schritte einer Routine ---------- */
+/* Posten eines Blocks für die Routine: die festen; hat der Block nur optionale (z. B. Magnesium), dann diese */
+function rtBlockItems(b, variant) { const inV = b.items.filter((it) => itemInVariant(it, variant)); const fix = inV.filter((it) => !it.opt); return fix.length ? fix : inV; }
 function rtStep(id, k) {
   const d = getDay(k), r = rhythm(k), variant = dayVariant(k);
   const hb = HABITS.find((h) => h.id === id);
@@ -104,7 +106,7 @@ function rtStep(id, k) {
   if (id.startsWith('block:')) {
     const b = S.settings.plan.find((x) => x.id === id.slice(6));
     if (!b) return null;
-    const its = b.items.filter((it) => !it.opt && itemInVariant(it, variant));
+    const its = rtBlockItems(b, variant);
     if (!its.length) return null;
     const done = its.filter((it) => d.checks[it.id]).length;
     return { id, n: b.n, sub: its.map((it) => itemLabel(it, d)).slice(0, 4).join(', ') + (its.length > 4 ? ' …' : ''), t: resolveBlockTime(b, d), done: done === its.length, part: done > 0 && done < its.length, cnt: `${done}/${its.length}` };
@@ -225,7 +227,7 @@ Object.assign(A, {
     if (s.ask === 'handy') { sheetHandy(k); return; }
     if (id.startsWith('block:')) {
       const b = S.settings.plan.find((x) => x.id === id.slice(6)), d = getDay(k), variant = dayVariant(k);
-      const its = b.items.filter((it) => !it.opt && itemInVariant(it, variant));
+      const its = rtBlockItems(b, variant);
       const all = its.every((it) => d.checks[it.id]);
       mutDay(k, (dd) => { for (const it of its) { if (all) { delete dd.checks[it.id]; if (dd.ct) delete dd.ct[it.id]; } else if (!dd.checks[it.id]) { dd.checks[it.id] = 1; persistRotation(dd, it); if (k === todayKey()) { dd.ct = dd.ct || {}; dd.ct[it.id] = minToTime(nowMin()); } } } syncCafHabit(k); });
       render(); return;
