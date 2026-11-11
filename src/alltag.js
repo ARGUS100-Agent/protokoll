@@ -133,9 +133,10 @@ function rhythm(k = todayKey()) {
   if (wakeNext == null && win) { wakeNext = win.wake; nextSrc = 'fenster'; }
   if (wakeNext == null) { const p = rhPredWake(addDays(k, 1)); if (p) { wakeNext = p.m; nextSrc = p.src; } }
   let bed = pr.bed, bedSrc = 'profil';
-  if (nextSrc === 'fenster') { bed = clamp(win.bed, 20 * 60, 25 * 60); bedSrc = 'fenster'; } // Fenster: gleiche Zeit jeden Abend
-  else if (wakeNext != null) { bed = clamp(wakeNext + 1440 - need - 15, 20 * 60, 25 * 60); bedSrc = nextSrc; }
-  const r = { wake, wakeSrc, bed, bedSrc, need, needSrc, wakeNext, win, live: wakeSrc !== 'profil' || bedSrc !== 'profil' };
+  const rec = sleepAcct(k).rec; // Schlafkonto im Minus: früher ins Bett, Aufstehen bleibt (2.10.0)
+  if (nextSrc === 'fenster') { bed = clamp(win.bed - rec, 20 * 60, 25 * 60); bedSrc = 'fenster'; } // Fenster: gleiche Zeit jeden Abend
+  else if (wakeNext != null) { bed = clamp(wakeNext + 1440 - need - 15 - (nextSrc === 'eingestellt' ? rec : 0), 20 * 60, 25 * 60); bedSrc = nextSrc; }
+  const r = { wake, wakeSrc, bed, bedSrc, need, needSrc, wakeNext, win, rec, live: wakeSrc !== 'profil' || bedSrc !== 'profil' };
   c.m.set(k, r);
   return r;
 }
@@ -150,14 +151,14 @@ function rhShift(t, k) {
   return t;
 }
 function cafGap() { return clamp(Number(S.settings.caf.gapH) || 8, 4, 12) * 60; }
-function cafStopText() { const h = cafGap() / 60; return `${fmt(h, h % 1 ? 1 : 0)} Std. vor dem Schlafen`; }
+function cafStopText() { if (cafMode() === 'dose') return 'je nach Dosis: Kaffee ~8 Std., Monster Zero ~11 Std. vor dem Schlafen'; const h = cafGap() / 60; return `${fmt(h, h % 1 ? 1 : 0)} Std. vor dem Schlafen`; }
 function rhythmLine(k) {
   const r = rhythm(k), nxt = addDays(k, 1);
   const nw = (t) => `<span class="nw">${esc(t)}</span>`;
   const wakeTxt = { garmin: `Aufgewacht ${minToTime(r.wake)}`, eingetragen: `Aufgestanden ${minToTime(r.wake)}`, eingestellt: `Aufstehen ${minToTime(r.wake)} (eingestellt)` }[r.wakeSrc] || `Aufstehen ~${minToTime(r.wake)}`;
   const src = { eingestellt: '', garmin: '', fenster: `dein Fenster ${rhRange(r.wakeNext ?? 0)}`, wochentag: `wie meist am ${WD_LONG[weekday(nxt)]}`, schnitt: 'dein Schnitt', profil: 'aus dem Profil' }[r.bedSrc];
   const next = `${k === todayKey() ? 'Morgen' : 'Am nächsten Tag'} raus ${minToTime(r.wakeNext ?? rhProfile().wake)}${src ? ` (${src})` : ''}`;
-  const third = r.bedSrc === 'fenster' ? `${nw(`Einschlafen ${rhRange(r.win.onset)}`)} · ${nw(wakeTxt)}` : `${nw(wakeTxt)} · ${nw('Schlafbedarf ' + fmtDur(r.need))}`;
+  const third = (r.rec ? `${nw(`${fmtDur(r.rec)} früher (Schlafkonto)`)} · ` : '') + (r.bedSrc === 'fenster' ? `${nw(`Einschlafen ${rhRange(r.win.onset - r.rec)}`)} · ${nw(wakeTxt)}` : `${nw(wakeTxt)} · ${nw('Schlafbedarf ' + fmtDur(r.need))}`);
   return `<div class="rhythm"><span class="rh-ic">${icon('moon')}</span><span class="rh-txt"><b>Schlafenszeit ${minToTime(r.bed)}</b><small>${esc(next)}</small><small>${third}</small></span><button class="pill-btn" data-a="rh-edit" data-date="${k}">Ändern</button></div>`;
 }
 function sheetRhythm(k) {

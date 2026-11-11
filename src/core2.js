@@ -7,7 +7,8 @@
 function defaultSettings2() {
   return {
     nav: { tabs: DEFAULT_TABS.slice() },
-    caf: { halfLife: 5, presets: clone(CAF_PRESETS) }, // gapH (Koffein-Stopp vor dem Schlafen) fehlt absichtlich: Standard 8 Std., Migration rechnet alte Uhrzeit um
+    caf: { halfLife: 5, mode: 'dose', presets: clone(CAF_PRESETS) },
+    sleep: { recMax: 90 }, // gapH (Koffein-Stopp vor dem Schlafen) fehlt absichtlich: Standard 8 Std., Migration rechnet alte Uhrzeit um
     waterFood: 'saskia',
     sauna: { goal: 60 },
     week: clone(DEFAULT_WEEK),
@@ -197,8 +198,31 @@ function navTabs() {
    KOFFEIN
    ============================================================ */
 function hlMin() { return Math.max(1, Number(S.settings.caf.halfLife) || 5) * 60; }
-/* Koffein-Stopp: eingestellter Abstand vor der Schlafenszeit des Tages */
-function cafCutoff(k = todayKey()) { return sleepMin(k) - cafGap(); }
+/* Koffein-Stopp (seit 2.10.0 je Getränk nach Dosis): Meta-Analyse Gardiner 2023 – 107 mg mindestens
+   8,8 Std., 217,5 mg mindestens 13,2 Std. vor dem Schlafen; dazwischen und darüber linear, 6–14 Std.
+   Ohne Dosis gilt dein typisches Getränk (Median der letzten 14 Tage, sonst eine Tasse Kaffee).
+   Modus „fest“: ein Abstand für alles (settings.caf.gapH). */
+function cafMode() { return (S.settings.caf && S.settings.caf.mode) === 'fix' ? 'fix' : 'dose'; }
+function cafDoseH(mg) { return clamp(8.8 + ((Number(mg) || 90) - 107) * (4.4 / 110.5), 6, 14); }
+function cafTypMg(k = todayKey()) {
+  const c = cafTypMg.c || (cafTypMg.c = { v: -1, m: new Map() });
+  if (c.v !== calcVersion) { c.v = calcVersion; c.m.clear(); }
+  if (c.m.has(k)) return c.m.get(k);
+  const mgs = [];
+  for (let i = 0; i < 14; i++) for (const x of cafSources(addDays(k, -i))) if (x.mg >= 15) mgs.push(x.mg);
+  const v = mgs.length >= 3 ? Math.round(rhMedian(mgs)) : 90;
+  c.m.set(k, v);
+  return v;
+}
+function cafCutoff(k = todayKey(), mg) {
+  if (cafMode() === 'fix') return sleepMin(k) - cafGap();
+  return Math.round((sleepMin(k) - cafDoseH(mg ?? cafTypMg(k)) * 60) / 5) * 5;
+}
+function cafStart(k = todayKey()) { return rhythm(k).wake + 90; } // 90-Minuten-Regel (bleibt, Wunsch 11.11.2026)
+/* Bis wann welches Getränk? (Getränke aus den Einstellungen) */
+function cafStops(k = todayKey()) {
+  return (S.settings.caf.presets || []).filter((p) => Number(p.mg) > 0).map((p) => ({ id: p.id, n: p.n, mg: Number(p.mg), stop: cafCutoff(k, p.mg) })).sort((a, b) => a.stop - b.stop);
+}
 function sleepAbs(k = todayKey()) { return sleepMin(k); }
 function cafFood(c) { return { id: 'caf_' + (c.p || 'x'), n: c.n, base: 1, fl: c.ml || 0, u: [['Portion', 1]], cat: 'Getränke', v: { kcal: c.kcal || 0, c: c.sug || 0, sug: c.sug || 0, fs: c.sug || 0, na: c.na || 0, caf: c.mg || 0 } }; }
 /* Alle Koffeinquellen eines Tages: Koffein-Rechner, abgehakte Standardposten, Einzel-Einträge */
@@ -242,13 +266,15 @@ function cafInfo(k) {
   const lLast = last != null ? cafLevel(src, last) : 0;
   const below = (thr) => (last == null ? null : lLast <= thr ? last : last + hlMin() * Math.log2(lLast / thr));
   const cut = cafCutoff(k);
-  const late = today.filter((x) => x.t > cut && (x.src === 'caf' || x.mg >= 15));
+  const late = today.filter((x) => x.t > cafCutoff(k, x.mg) && (x.src === 'caf' || x.mg >= 15)).map((x) => ({ ...x, stop: cafCutoff(k, x.mg) }));
+  const start = cafStart(k), early = today.filter((x) => x.t < start - 15 && (x.src === 'caf' || x.mg >= 15));
   const bed = sleepAbs(k);
-  return { src, today, total, now, nowLevel: isT ? cafLevel(src, now) : null, last, below50: below(50), below25: below(25), late, bed, bedLevel: cafLevel(src, bed), cut };
+  return { src, today, total, now, nowLevel: isT ? cafLevel(src, now) : null, last, below50: below(50), below25: below(25), late, bed, bedLevel: cafLevel(src, bed), cut, start, early };
 }
 function cafLateWarn(info) {
   const out = [];
-  if (info.late.length) out.push(`Koffein nach ${minToTime(info.cut)}: ${info.late.map((x) => `${x.n} um ${minToTime(x.t)}`).join(', ')}`);
+  if (info.late.length) out.push(`Nach dem Koffein-Stopp: ${info.late.map((x) => `${x.n} um ${minToTime(x.t)} (Stopp für ${fmt(x.mg)} mg: ${minToTime(x.stop)})`).join(', ')}`);
+  if (info.early && info.early.length) out.push(`Vor deinem Koffein-Start (${minToTime(info.start)}, 90 Min. nach dem Aufwachen): ${info.early.map((x) => `${x.n} um ${minToTime(x.t)}`).join(', ')}`);
   if (info.bedLevel >= 25) out.push(`Zur Schlafenszeit (${minToTime(info.bed)}) voraussichtlich noch ${fmt(info.bedLevel)} mg im Körper${info.bedLevel >= 50 ? ' – das stört den Tiefschlaf deutlich' : ''}`);
   return out;
 }
@@ -258,8 +284,8 @@ function syncCafHabit(k) {
   if (!d) return;
   const src = cafSources(k);
   if (!src.length) return;
-  const [a, b] = cafWindow(k);
-  const ok = src.every((x) => x.t >= a - 30 && x.t <= b);
+  const a = cafStart(k);
+  const ok = src.every((x) => x.t >= a - 30 && x.t <= cafCutoff(k, x.mg));
   d.hd = d.hd || {};
   d.hd.caffeineEnd = minToTime(src[src.length - 1].t);
   if (ok) d.habits.koffein = true; else delete d.habits.koffein;

@@ -1040,3 +1040,36 @@ th { color: var(--ink-3); font-weight: 650; }
 .wish-amp.amp-stark i { background: var(--st-ok); }
 .wish-amp.amp-mittel i { background: var(--st-under); }
 .wish-amp.amp-schwach i { background: var(--st-over); }
+
+/* ---------- Koffein je Getränk (2.10.0) ---------- */
+.caf-stops { margin: 10px 0; border-radius: var(--r-md); background: var(--bg-2); overflow: hidden; }
+.cs-row { display: flex; align-items: center; gap: 10px; padding: 9px 14px; }
+.cs-row + .cs-row { border-top: 1px solid var(--line); }
+.cs-row span { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 14px; font-weight: 600; }
+.cs-row span small { color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.cs-row b { font-size: 14px; font-variant-numeric: tabular-nums; }
+.cs-row em { font-style: normal; font-size: 12px; font-weight: 650; padding: 2px 8px; border-radius: 999px; }
+.cs-row .cs-on { background: rgba(54, 196, 125, .14); color: var(--st-ok); }
+.cs-row .cs-off { background: var(--bg-3); color: var(--ink-3); }
+.cs-row .cs-wait { background: rgba(242, 179, 61, .14); color: var(--st-under); }
+.cs-row.is-start b { color: var(--coffee); }
+
+/* ---------- Schlafkonto (2.10.0) ---------- */
+.sleep-help .sh-list { display: flex; flex-direction: column; gap: 12px; }
+.sh-tip { display: flex; gap: 10px; }
+.sh-ic { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--bg-3); color: var(--screens); }
+.sh-ic .ic { width: 16px; height: 16px; }
+.sh-tip > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sh-tip b { font-size: 14.5px; }
+.sh-tip small { color: var(--ink-2); font-size: 13px; line-height: 1.4; }
+.sh-tip small.sh-ev { color: var(--ink-3); font-size: 12px; }
+.sh-tip .chips, .sh-tip .pill-btn { margin-top: 4px; align-self: flex-start; }
+.pill-btn.sm { min-height: 30px; padding: 4px 10px; font-size: 13px; }
+.sacct { display: flex; align-items: center; gap: 12px; margin: 10px 0 6px; padding: 10px 12px; border-radius: var(--r-md); background: var(--bg-2); }
+.sacct-bars { display: flex; align-items: center; gap: 3px; height: 56px; }
+.sacct-bars i { display: block; width: 8px; border-radius: 3px; }
+.sacct-bars i.neg { background: var(--st-under); transform: translateY(50%); }
+.sacct-bars i.pos { background: var(--st-ok); transform: translateY(-50%); }
+.sacct > div:last-child { display: flex; flex-direction: column; gap: 2px; }
+.sacct b { font-size: 14.5px; }
+.sacct small { color: var(--ink-3); font-size: 12px; }

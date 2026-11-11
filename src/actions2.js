@@ -273,7 +273,9 @@ Object.assign(A, {
     render();
     const ci = cafInfo(k);
     const undo = () => { mutDay(k, (d) => { d.caf = (d.caf || []).filter((x) => x.id !== id); syncCafHabit(k); }); render(); };
-    if (timeToMin(t) > ci.cut) toast(`Nach dem Koffein-Stopp (${minToTime(ci.cut)}): ${p.n} – noch ${fmt(ci.bedLevel)} mg zur Schlafenszeit`, undo);
+    const stop = cafCutoff(k, p.mg), tm = timeToMin(t);
+    if (k === todayKey() && tm < ci.start - 15) toast(`Noch vor deinem Koffein-Start (${minToTime(ci.start)}, 90-Minuten-Regel): ${p.n}`, undo);
+    else if (tm > stop) toast(`Nach dem Stopp für ${p.n} (${minToTime(stop)}): noch ${fmt(ci.bedLevel)} mg zur Schlafenszeit`, undo);
     else if (ci.bedLevel >= 25) toast(`${p.n} eingetragen – zur Schlafenszeit noch ${fmt(ci.bedLevel)} mg`, undo);
     else toast(`${p.n} eingetragen (${fmt(p.mg)} mg)${k === todayKey() ? '' : ' – Uhrzeit unten anpassen'}`, undo);
   },
@@ -499,6 +501,7 @@ Object.assign(C, {
   'ex-video': (el) => { const c = kneeCfg(); c.video = c.video || {}; const v = el.value.trim(); if (v && !/^https?:\/\//i.test(v)) { toast('Link muss mit https:// beginnen'); return; } if (v) c.video[el.dataset.id] = v; else delete c.video[el.dataset.id]; saveSettings(false); flashSaved(el); },
   'todo-date': (el) => { const t = S.settings.todos.find((x) => x.id === el.dataset.id); if (!t) return; t.date = el.value || null; saveSettings(); },
   'caf-cfg': (el) => { const c = S.settings.caf, f = el.dataset.f; if (f === 'halfLife') { const v = parseNum(el.value); if (v == null || v < 1 || v > 12) { toast('Halbwertszeit zwischen 1 und 12 Std.'); return; } c.halfLife = v; } else if (f === 'gapH') { const v = parseNum(el.value); if (v == null || v < 4 || v > 12) { toast('Koffein-Stopp zwischen 4 und 12 Std. vor dem Schlafen'); return; } c.gapH = v; } saveSettings(false); flashSaved(el); },
+  'caf-mode': (el) => { S.settings.caf.mode = el.dataset.v === 'fix' ? 'fix' : 'dose'; if (S.settings.caf.mode === 'fix' && S.settings.caf.gapH == null) S.settings.caf.gapH = 8; saveSettings(); },
   'caf-preset': (el) => { const p = S.settings.caf.presets[Number(el.dataset.i)]; if (!p) return; const f = el.dataset.f; if (f === 'n') p.n = el.value.trim() || p.n; else { const v = parseNum(el.value); if (v == null || v < 0) return; p[f] = v; } saveSettings(false); flashSaved(el); },
 });
 

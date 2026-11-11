@@ -62,6 +62,8 @@ async function pushCall(op, body = {}, opt = {}) {
 /* ---------- Plan: was wann gemeldet wird ---------- */
 function pushAt(k, min) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d, 0, Math.round(min)).getTime(); }
 function pushList(arr, n = 5) { const a = arr.filter(Boolean); return a.length > n ? `${a.slice(0, n).join(', ')} und ${a.length - n} weitere` : a.join(', '); }
+/* Getränke, die du in den letzten 14 Tagen wirklich getrunken hast */
+function cafUsedIds() { const s = new Set(); for (let i = 0; i < 14; i++) { const d = peekDay(addDays(todayKey(), -i)); for (const c of (d && d.caf) || []) if (c.p) s.add(c.p); } return s; }
 function pushPlan(now = Date.now()) {
   const cats = pushCats(), out = [];
   const today = todayKey();
@@ -101,8 +103,20 @@ function pushPlan(now = Date.now()) {
     }
     /* Tagesrhythmus */
     if (!off('licht_morgen') && !d.habits.licht_morgen) add('rhythm', r.wake + 30, 'licht', 'Morgenlicht', '10–30 Min. raus ins Tageslicht – das stellt deine innere Uhr und hilft beim Einschlafen heute Abend.', '#licht');
-    if (!off('koffein') && cafUser) { const cut = cafCutoff(k); add('rhythm', cut - 15, 'stopp', `Koffein-Stopp um ${minToTime(cut)}`, `Danach kein Kaffee, Monster oder Cola mehr – Schlafenszeit heute ${minToTime(r.bed)}.`, '#licht'); }
+    if (!off('koffein') && cafUser) {
+      if (cafMode() === 'dose') {
+        const used = cafUsedIds(), stops = cafStops(k).filter((x) => !used.size || used.has(x.id));
+        const st = cafStart(k);
+        if (stops.length) add('rhythm', st, 'kstart', `Koffein ab jetzt okay`, `90 Minuten nach dem Aufwachen. ${stops.map((x) => `${x.n} bis ${minToTime(x.stop)}`).join(', ')}.`, '#licht');
+        for (const x of stops.slice(0, 3)) if (x.stop > st + 30) add('rhythm', x.stop - 15, 'stopp-' + String(x.id).replace(/[^a-z0-9]/gi, '').slice(0, 12), `Koffein-Stopp für ${x.n} um ${minToTime(x.stop)}`, `${fmt(x.mg)} mg brauchen ~${fmt(cafDoseH(x.mg), 1)} Std. Abstand zum Schlafen (${minToTime(r.bed)}).${stops.filter((y) => y.stop > x.stop).length ? ' Danach noch: ' + stops.filter((y) => y.stop > x.stop).map((y) => `${y.n} bis ${minToTime(y.stop)}`).join(', ') + '.' : ' Danach kein Koffein mehr.'}`, '#licht');
+      } else { const cut = cafCutoff(k); add('rhythm', cut - 15, 'stopp', `Koffein-Stopp um ${minToTime(cut)}`, `Danach kein Kaffee, Monster oder Cola mehr – Schlafenszeit heute ${minToTime(r.bed)}.`, '#licht'); }
+    }
     if (!(d.hd && d.hd.wakeNext) && r.bedSrc !== 'fenster') add('rhythm', r.bed - 120, 'raus', 'Wann musst du morgen raus?', 'Antippen und Uhrzeit einstellen – dann passen Schlafenszeit und Koffein-Stopp.', '#rhythmus');
+    if (isT) { // Schlafkonto: nach einer kurzen Nacht Vorschläge, Nickerchen-Fenster
+      const sa = sleepAcct(k), nw = napWindow(k);
+      if (sa.bad) add('rhythm', r.wake + 45, 'defizit', 'Kurze Nacht – so gleichst du aus', `${sa.last ? fmtDur(sa.last.dur) + ' geschlafen. ' : ''}${nw ? `Nickerchen 10–20 Min. zwischen ${minToTime(nw[0])} und ${minToTime(nw[1])}, ` : ''}sonst NSDR oder 13 Min. Meditation.${sa.rec ? ` Heute ${fmtDur(sa.rec)} früher ins Bett: ${minToTime(r.bed)}.` : ''}`, '#schlaf');
+      if (sa.bad && nw && !sleepNap(d)) add('rhythm', nw[0], 'nap', 'Nickerchen-Fenster', `Jetzt bis ${minToTime(nw[1])}: 10–20 Min. hinlegen, Wecker stellen. Geht nicht? 10 Min. NSDR.`, '#schlaf');
+    }
     if (!off('bildschirm')) add('rhythm', r.bed - 60, 'screen', 'Bildschirme weg', `Schlafenszeit ${minToTime(r.bed)} – jetzt Licht dimmen und runterfahren.`, '#licht');
     add('rhythm', r.bed - 10, 'bett', `Schlafenszeit ${minToTime(r.bed)}`, r.bedSrc === 'fenster' ? `Dein Fenster: einschlafen ${rhRange(r.win.onset)}, morgen raus ${rhRange(r.wakeNext)}.` : r.wakeNext != null ? `Morgen raus um ${minToTime(r.wakeNext)} – so kommst du auf ${fmtDur(r.need)} Schlaf.` : `So kommst du auf ${fmtDur(r.need)} Schlaf.`, '#heute');
     /* Wochenziele mit Erinnerung */
@@ -194,6 +208,7 @@ function pushNav(url) {
   if (!h) return;
   closeSheet();
   if (h === 'rhythmus') { go('heute', { scrollTop: true }); sheetRhythm(todayKey()); return; }
+  if (h === 'schlaf') { go('heute', { scrollTop: true }); setTimeout(() => { const el = document.getElementById('schlaf-hilfe'); if (el) el.scrollIntoView({ block: 'start' }); }, 50); return; }
   if (h === 'todos') { ui.sub.knie = 'infos'; go('knie', { scrollTop: true }); return; }
   if (h === 'ern') { go('ern', { ernSub: 'uebersicht', date: todayKey(), scrollTop: true }); return; }
   if (areaById(h)) go(h, { date: todayKey(), scrollTop: true });

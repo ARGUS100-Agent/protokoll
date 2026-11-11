@@ -77,7 +77,7 @@ function greeting() {
   return `Guten Abend${n}`;
 }
 /* Koffein-Fenster: 90 Min. nach dem Aufstehen bis zum Koffein-Stopp */
-function cafWindow(k = todayKey()) { return [rhythm(k).wake + 90, cafCutoff(k)]; }
+function cafWindow(k = todayKey()) { return [cafStart(k), cafCutoff(k)]; }
 function arcMessage() {
   const r = rhythm(), now = nowMin(), wake = r.wake, sleep = r.bed;
   const [c1, c2] = cafWindow();
@@ -240,14 +240,14 @@ function suppSection(k) {
   </section>`;
 }
 function shortSupp(f) { return shortName(f); }
-function habitName(h, k) { if (h.id === 'koffein') { const [a, b] = cafWindow(k); return `Koffein nur ${minToTime(a)}–${minToTime(b)}`; } return h.n; }
+function habitName(h, k) { if (h.id === 'koffein') { const [a, b] = cafWindow(k); return cafMode() === 'dose' ? `Koffein ab ${minToTime(a)}, Stopp je Getränk` : `Koffein nur ${minToTime(a)}–${minToTime(b)}`; } return h.n; }
 /* Zeitangaben der Abend-Gewohnheiten folgen der Schlafenszeit des Tages */
 function habitWhen(h, k) {
   const bed = sleepMin(k);
   if (h.id === 'alkohol') return `ab ${minToTime(bed - 480)}`;
   if (h.id === 'mahlzeit') return `bis ca. ${minToTime(bed - 120)}`;
   if (h.id === 'bildschirm') return `ab ${minToTime(bed - 60)}, mindestens 30 Min.`;
-  if (h.id === 'koffein') return `90 Min. nach dem Aufstehen bis ${cafStopText()}`;
+  if (h.id === 'koffein') return cafMode() === 'dose' ? `90 Min. nach dem Aufwachen; Stopp je Getränk: ${cafStops(k).slice(0, 3).map((x) => `${x.n.replace(/\s*\d+\s*ml$/i, '').replace(/ \(Tasse\)/, '')} ${minToTime(x.stop)}`).join(', ')}` : `90 Min. nach dem Aufstehen bis ${cafStopText()}`;
   return h.when;
 }
 function scale10(action, val, k, field = '') {
