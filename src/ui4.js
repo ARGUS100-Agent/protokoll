@@ -233,7 +233,7 @@ function vGarminArea() {
   const sub = getSub('garmin', 'eintragen');
   let h = areaHead('garmin') + subnav('garmin', sub, [['eintragen', 'Eintragen'], ['verlauf', 'Verlauf & Zusammenhänge']]);
   if (sub === 'eintragen') h += goalNotes(['schlaf']);
-  if (sub === 'eintragen') h += dateBar(ui.date) + vGarmin(ui.date);
+  if (sub === 'eintragen') h += dateBar(ui.date) + rhCard(ui.date) + vGarmin(ui.date);
   else {
     const keys = rangeKeys(ui.range);
     h += `<div class="range-row">${seg('range', String(ui.range), [['7', '7 Tage'], ['30', '30 Tage'], ['90', '90 Tage']])}</div>`;

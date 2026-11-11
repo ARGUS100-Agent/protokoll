@@ -15,7 +15,7 @@ function renderTabbar() {
   const inBar = tabs.some((t) => t.id === ui.tab);
   $('#tabbar').innerHTML = tabs.map((t) => { const on = ui.tab === t.id || (t.id === 'mehr' && !inBar); return `<button class="tab${on ? ' is-on' : ''}" data-a="tab" data-tab="${t.id}" aria-current="${on ? 'page' : 'false'}">${icon(t.ic)}<span>${esc(t.short || t.n)}</span></button>`; }).join('');
 }
-const VIEWS = { heute: () => vHeute(), ern: () => vErn(), supp: () => vSupp(), train: () => vTrain(), knie: () => vKnie(), licht: () => vLicht(), haut: () => vHaut2(), koerper: () => vKoerper(), blut: () => vBlut(), garmin: () => vGarminArea(), einkauf: () => vShop(), woche: () => vWoche(), set: () => vSet(), mehr: () => vMehr() };
+const VIEWS = { heute: () => vHeute(), ern: () => vErn(), supp: () => vSupp(), train: () => vTrain(), knie: () => vKnie(), licht: () => vLicht(), haut: () => vHaut2(), koerper: () => vKoerper(), blut: () => vBlut(), garmin: () => vGarminArea(), einkauf: () => vShop(), woche: () => vWoche(), wunsch: () => vWunsch(), set: () => vSet(), mehr: () => vMehr() };
 function render(keepScroll = true) {
   const y = window.scrollY;
   if (!VIEWS[ui.tab]) ui.tab = 'heute';

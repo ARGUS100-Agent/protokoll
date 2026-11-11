@@ -239,7 +239,7 @@ const A = {
       S.days = data.days || {}; S.settings = mergeDefaults(defaultSettings(), data.settings || null); S.foods = data.foods || { custom: [], over: {} };
       S.shop = data.shop || shopDefault();
       upgradePlan3(); upgradeShop3(); invInit(Date.now());
-      for (const key of ['blood', 'knee', 'reviews']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
+      for (const key of ['blood', 'knee', 'reviews', 'wish']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
     } else {
       Object.assign(S.days, data.days || {});
       if (data.foods) { const ids = new Set(S.foods.custom.map((f) => f.id)); for (const f of data.foods.custom || []) if (!ids.has(f.id)) S.foods.custom.push(f); S.foods.over = { ...(data.foods.over || {}), ...S.foods.over }; }
@@ -247,6 +247,7 @@ const A = {
       if (data.blood) { S.blood.entries = byId(S.blood.entries, data.blood.entries); S.blood.custom = byId(S.blood.custom, data.blood.custom); S.blood.markers = { ...(data.blood.markers || {}), ...S.blood.markers }; }
       if (data.knee) { S.knee.tests = byId(S.knee.tests, data.knee.tests); if (!S.knee.befund && data.knee.befund) S.knee.befund = data.knee.befund; }
       if (data.reviews) S.reviews = { ...S.reviews, ...data.reviews };
+      if (data.wish && Array.isArray(data.wish.items)) S.wish.items = byId(wishItems(), data.wish.items);
       if (data.settings && data.settings.todos) S.settings.todos = byId(S.settings.todos, data.settings.todos);
     }
     buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia

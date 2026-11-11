@@ -14,6 +14,7 @@ node tests/garmin.js /tmp/out    # Garmin über eine nachgebaute Weiterleitung: 
 node tests/relay.js              # Weiterleitung (Cloudflare Worker) ohne Browser: Garmin nachgebaut; Mitteilungen mit nachgebautem KV und Push-Dienst (Inhalt mit http_ece entschlüsselt, VAPID geprüft)
 node tests/push.js /tmp/out      # 2.8: Mitteilungen einrichten, Plan, Versand über den echten Worker-Code, Service Worker, Klick, Kategorien, Ausschalten
 node tests/alltag.js /tmp/out    # 2.7: Update auf Schema 5, Tagesrhythmus, Bereitschaft, Gym-Zuordnung, Alternativen, Snacks, Energiebilanz
+node tests/rhythmus.js /tmp/out  # 2.9: Schlaffenster aus den Garmin-Nächten (steuert Schlafenszeit, Koffein, Mitteilungen), Wunschliste, Backup
 ```
 
 `upgrade.js` prüft das Update einer alten Version mit Daten auf die aktuelle (alte `docs/` per `git archive` in einen Ordner, Symlink `cur` darauf, Server auf Port 8768 mit `--directory <ordner>/cur`, dann `node tests/upgrade.js <ordner>`).

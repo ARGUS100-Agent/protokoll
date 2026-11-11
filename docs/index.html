@@ -1012,6 +1012,54 @@ th { color: var(--ink-3); font-weight: 650; }
 .item-txt .gar-mark, .tgl-txt .gar-mark { vertical-align: -2px; }
 .chip.chip-wrap { white-space: normal; text-align: left; line-height: 1.3; border-radius: 14px; max-width: 100%; }
 
+/* ---------- Schlafrhythmus (2.9.0) ---------- */
+.rh-card .sec-sub { margin-bottom: 4px; }
+.rh-win { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 12px; }
+.rh-win > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--r-md); background: var(--bg-2); }
+.rh-win span { display: flex; align-items: center; gap: 5px; color: var(--ink-3); font-size: 12px; font-weight: 600; }
+.rh-win span .ic { width: 14px; height: 14px; color: var(--screens); }
+.rh-win b { font-size: 22px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.rh-win small { color: var(--ink-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.rh-chart { padding: 10px 12px 6px; border-radius: var(--r-md); background: var(--bg-2); }
+.rh-axis { display: flex; justify-content: space-between; margin: 0 92px 4px 48px; color: var(--ink-3); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.rh-row { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+.rh-d { flex: none; width: 40px; color: var(--ink-2); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.rh-bar { position: relative; flex: 1; height: 12px; border-radius: 6px; background: var(--bg-3); }
+.rh-bar i { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+.rh-band { background: rgba(138, 121, 234, .28); }
+.rh-sleep { top: 3px !important; bottom: 3px !important; background: var(--st-under); }
+.rh-row.is-ok .rh-sleep { background: var(--st-ok); }
+.rh-t { flex: none; width: 84px; display: flex; flex-direction: column; color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.rh-t small { color: var(--st-under); font-size: 10.5px; }
+.rh-t small.is-ok { display: flex; align-items: center; gap: 3px; color: var(--st-ok); }
+.rh-t small .ic { width: 11px; height: 11px; stroke-width: 3; }
+.rh-row.is-empty .rh-t { color: var(--ink-3); }
+.rh-stat { margin: 10px 2px 4px; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+
+/* ---------- Wunschliste (2.9.0) ---------- */
+.wish-sum, .wish-cost { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 8px; }
+.wish-sum > div, .wish-cost > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--r-md); background: var(--bg-2); }
+.wish-cost > div { background: var(--bg-3); }
+.wish-sum span, .wish-cost span { color: var(--ink-3); font-size: 12px; font-weight: 600; }
+.wish-sum b, .wish-cost b { font-size: 17px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.wish-row { padding-left: 0; }
+.wish-chk { flex: none; min-width: 52px; padding-right: 0; }
+.wish-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 4px 10px 0; text-align: left; }
+.wish-row.no-chk .wish-main { padding-left: 14px; }
+.wish-main small { color: var(--ink-3); font-size: 13px; line-height: 1.35; }
+.wish-row.is-done b { color: var(--ink-2); }
+.wish-lead { margin: 0 2px 12px; color: var(--ink-2); font-size: 15px; line-height: 1.45; }
+.wish-p { margin: 0 2px 8px; color: var(--ink); font-size: 14.5px; line-height: 1.5; }
+.wish-p.is-pre { white-space: pre-wrap; }
+.wish-list, .wish-src { margin: 0 0 8px; padding-left: 20px; font-size: 14.5px; line-height: 1.5; }
+.wish-list li + li, .wish-src li + li { margin-top: 3px; }
+.wish-src a { color: var(--accent); }
+.wish-amp { display: flex; align-items: center; gap: 8px; margin: 0 2px 6px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.wish-amp i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--st-none); }
+.wish-amp.amp-stark i { background: var(--st-ok); }
+.wish-amp.amp-mittel i { background: var(--st-under); }
+.wish-amp.amp-schwach i { background: var(--st-over); }
+
 </style>
 </head>
 <body>
@@ -1030,6 +1078,7 @@ const ICONS = {
   'arrow-down': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /></svg>',
   'arrow-up': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7" /> <path d="M12 19V5" /></svg>',
   'badge-check': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" /> <path d="m16 9-5.5 5.5L8 12" /></svg>',
+  'bed': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16" /> <path d="M2 8h18a2 2 0 0 1 2 2v10" /> <path d="M2 17h20" /> <path d="M6 8v9" /></svg>',
   'bell': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></svg>',
   'bell-off': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742" /> <path d="m2 2 20 20" /> <path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05" /></svg>',
   'bell-ring': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /></svg>',
@@ -1045,6 +1094,7 @@ const ICONS = {
   'circle-dashed': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.1 2.182a10 10 0 0 1 3.8 0" /> <path d="M13.9 21.818a10 10 0 0 1-3.8 0" /> <path d="M17.609 3.721a10 10 0 0 1 2.69 2.7" /> <path d="M2.182 13.9a10 10 0 0 1 0-3.8" /> <path d="M20.279 17.609a10 10 0 0 1-2.7 2.69" /> <path d="M21.818 10.1a10 10 0 0 1 0 3.8" /> <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69" /> <path d="M6.391 20.279a10 10 0 0 1-2.69-2.7" /></svg>',
   'circle-x': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m15 9-6 6" /> <path d="m9 9 6 6" /></svg>',
   'clipboard-paste': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 14h10" /> <path d="M16 4h2a2 2 0 0 1 2 2v1.344" /> <path d="m17 18 4-4-4-4" /> <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 1.793-1.113" /> <rect x="8" y="2" width="8" height="4" rx="1" /></svg>',
+  'clock': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" /></svg>',
   'coffee': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" /></svg>',
   'copy': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /> <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>',
   'download': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <path d="m7 10 5 5 5-5" /></svg>',
@@ -1054,6 +1104,7 @@ const ICONS = {
   'flag': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" /></svg>',
   'flame': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" /></svg>',
   'footprints': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /></svg>',
+  'gift': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14" /> <path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /> <path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5" /> <rect x="3" y="7" width="18" height="4" rx="1" /></svg>',
   'history': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></svg>',
   'images': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /> <path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /> <circle cx="13" cy="7" r="1" fill="currentColor" /> <rect x="8" y="2" width="14" height="14" rx="2" /></svg>',
   'info': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg>',
@@ -1069,6 +1120,7 @@ const ICONS = {
   'notebook-pen': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></svg>',
   'octagon-alert': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16h.01" /> <path d="M12 8v4" /> <path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z" /></svg>',
   'package': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /> <path d="M12 22V12" /> <polyline points="3.29 7 12 12 20.71 7" /> <path d="m7.5 4.27 9 5.15" /></svg>',
+  'package-check': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12" /> <path d="m16 17 2 2 4-4" /> <path d="M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753" /> <path d="M3.29 7 12 12l8.71-5" /> <path d="m7.5 4.27 8.997 5.148" /></svg>',
   'pause': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="3" width="5" height="18" rx="1" /> <rect x="5" y="3" width="5" height="18" rx="1" /></svg>',
   'pencil': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></svg>',
   'person-standing': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1" /> <path d="m9 20 3-6 3 6" /> <path d="m6 8 6 2 6-2" /> <path d="M12 10v4" /></svg>',
@@ -1105,6 +1157,7 @@ const ICONS = {
   'trending-down': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17h6v-6" /> <path d="m22 17-8.5-8.5-5 5L2 7" /></svg>',
   'trending-up': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6" /> <path d="m22 7-8.5 8.5-5-5L2 17" /></svg>',
   'triangle-alert': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></svg>',
+  'truck': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /> <path d="M15 18H9" /> <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /> <circle cx="17" cy="18" r="2" /> <circle cx="7" cy="18" r="2" /></svg>',
   'unplug': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 5 3-3" /> <path d="m2 22 3-3" /> <path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z" /> <path d="M7.5 13.5 10 11" /> <path d="M10.5 16.5 13 14" /> <path d="m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z" /></svg>',
   'upload': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12" /> <path d="m17 8-5-5-5 5" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /></svg>',
   'watch': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v2.2l1.6 1" /> <path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05" /> <path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05" /> <circle cx="12" cy="12" r="6" /></svg>',
@@ -1118,7 +1171,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.8.0';
+const APP_VERSION = '2.9.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -1609,6 +1662,7 @@ const AREAS = [
   { id: 'garmin', n: 'Garmin & Schlaf', short: 'Garmin', ic: 'watch' },
   { id: 'einkauf', n: 'Einkauf', ic: 'shopping-cart' },
   { id: 'woche', n: 'Wochenrückblick', short: 'Rückblick', ic: 'calendar-check' },
+  { id: 'wunsch', n: 'Wunschliste', ic: 'gift' },
   { id: 'set', n: 'Einstellungen & Backup', short: 'Einstellungen', ic: 'settings' },
 ];
 const MORE_TAB = { id: 'mehr', n: 'Mehr', ic: 'layout-grid' };
@@ -2533,7 +2587,7 @@ const DB = {
 
 /* ---------- Zustand ---------- */
 const S = { settings: null, meta: null, foods: null, days: {}, shop: null, blood: null, knee: null, reviews: null };
-const STORE_KEYS = ['shop', 'blood', 'knee', 'reviews'];
+const STORE_KEYS = ['shop', 'blood', 'knee', 'reviews', 'wish'];
 const dirty = new Set();
 let saveTimer = null;
 function markDirty(key) { dirty.add(key); clearTimeout(saveTimer); saveTimer = setTimeout(flush, key === 'settings' || key === 'meta' ? 0 : 100); }
@@ -3242,7 +3296,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 5, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
+  return { app: 'protokoll', schema: 5, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, wish: { items: wishItems() }, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
 }
 function backupDue() {
   const n = S.settings.backupDays;
@@ -3276,7 +3330,7 @@ function defaultSettings2() {
   };
 }
 function defaultStores() {
-  return { shop: null, blood: { markers: {}, custom: [], entries: [] }, knee: { tests: [], befund: '', appts: [] }, reviews: {} };
+  return { shop: null, blood: { markers: {}, custom: [], entries: [] }, knee: { tests: [], befund: '', appts: [] }, reviews: {}, wish: { items: null } };
 }
 /* Einmalige Umstellung auf Version 2 */
 function migrate2() {
@@ -4592,7 +4646,7 @@ function renderTabbar() {
   const inBar = tabs.some((t) => t.id === ui.tab);
   $('#tabbar').innerHTML = tabs.map((t) => { const on = ui.tab === t.id || (t.id === 'mehr' && !inBar); return `<button class="tab${on ? ' is-on' : ''}" data-a="tab" data-tab="${t.id}" aria-current="${on ? 'page' : 'false'}">${icon(t.ic)}<span>${esc(t.short || t.n)}</span></button>`; }).join('');
 }
-const VIEWS = { heute: () => vHeute(), ern: () => vErn(), supp: () => vSupp(), train: () => vTrain(), knie: () => vKnie(), licht: () => vLicht(), haut: () => vHaut2(), koerper: () => vKoerper(), blut: () => vBlut(), garmin: () => vGarminArea(), einkauf: () => vShop(), woche: () => vWoche(), set: () => vSet(), mehr: () => vMehr() };
+const VIEWS = { heute: () => vHeute(), ern: () => vErn(), supp: () => vSupp(), train: () => vTrain(), knie: () => vKnie(), licht: () => vLicht(), haut: () => vHaut2(), koerper: () => vKoerper(), blut: () => vBlut(), garmin: () => vGarminArea(), einkauf: () => vShop(), woche: () => vWoche(), wunsch: () => vWunsch(), set: () => vSet(), mehr: () => vMehr() };
 function render(keepScroll = true) {
   const y = window.scrollY;
   if (!VIEWS[ui.tab]) ui.tab = 'heute';
@@ -5585,7 +5639,7 @@ function pickResults(q) {
    Supplements, Training & Sauna, Licht & Koffein
    ============================================================ */
 Object.assign(ui, {
-  sub: { train: 'heute', knie: 'heute', haut: 'heute', garmin: 'eintragen', einkauf: 'buy', woche: 'rueckblick' },
+  sub: { train: 'heute', knie: 'heute', haut: 'heute', garmin: 'eintragen', einkauf: 'buy', woche: 'rueckblick', wunsch: 'offen' },
   trainWeek: weekStart(todayKey()), gymDay: null, gymSess: null, reviewWeek: weekStart(todayKey()), bloodOpen: null,
   photoWeek: weekStart(todayKey()), photoCmp: null, exCat: null, exArea: null, exRoutine: null, exQ: '', trainMetric: null, testMetric: 'k2w', runMetric: 'pain',
 });
@@ -5674,6 +5728,7 @@ function areaStatus(id, k = todayKey()) {
         if (low.length) return { v: `${n} offen`, s: esc(`Fast leer: ${low.slice(0, 2).join(', ')}${low.length > 2 ? ` +${low.length - 2}` : ''}`), st: 'under' };
         return { v: `${n} offen`, s: n ? esc(shopStoreCounts('buy').slice(0, 3).map((x) => `${x.n} ${x.count}`).join(' · ')) : 'alles eingekauft', st: 'none' };
       }
+      case 'wunsch': return wishStatus();
       case 'woche': {
         const ws = weekStart(k), r = weekday(k) === 6;
         const n = weekKeys(ws).filter((x) => x <= k && peekDay(x)).length;
@@ -6362,7 +6417,7 @@ function vGarminArea() {
   const sub = getSub('garmin', 'eintragen');
   let h = areaHead('garmin') + subnav('garmin', sub, [['eintragen', 'Eintragen'], ['verlauf', 'Verlauf & Zusammenhänge']]);
   if (sub === 'eintragen') h += goalNotes(['schlaf']);
-  if (sub === 'eintragen') h += dateBar(ui.date) + vGarmin(ui.date);
+  if (sub === 'eintragen') h += dateBar(ui.date) + rhCard(ui.date) + vGarmin(ui.date);
   else {
     const keys = rangeKeys(ui.range);
     h += `<div class="range-row">${seg('range', String(ui.range), [['7', '7 Tage'], ['30', '30 Tage'], ['90', '90 Tage']])}</div>`;
@@ -7276,7 +7331,7 @@ const A = {
       S.days = data.days || {}; S.settings = mergeDefaults(defaultSettings(), data.settings || null); S.foods = data.foods || { custom: [], over: {} };
       S.shop = data.shop || shopDefault();
       upgradePlan3(); upgradeShop3(); invInit(Date.now());
-      for (const key of ['blood', 'knee', 'reviews']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
+      for (const key of ['blood', 'knee', 'reviews', 'wish']) S[key] = data[key] ? mergeDefaults(st[key], data[key]) : st[key];
     } else {
       Object.assign(S.days, data.days || {});
       if (data.foods) { const ids = new Set(S.foods.custom.map((f) => f.id)); for (const f of data.foods.custom || []) if (!ids.has(f.id)) S.foods.custom.push(f); S.foods.over = { ...(data.foods.over || {}), ...S.foods.over }; }
@@ -7284,6 +7339,7 @@ const A = {
       if (data.blood) { S.blood.entries = byId(S.blood.entries, data.blood.entries); S.blood.custom = byId(S.blood.custom, data.blood.custom); S.blood.markers = { ...(data.blood.markers || {}), ...S.blood.markers }; }
       if (data.knee) { S.knee.tests = byId(S.knee.tests, data.knee.tests); if (!S.knee.befund && data.knee.befund) S.knee.befund = data.knee.befund; }
       if (data.reviews) S.reviews = { ...S.reviews, ...data.reviews };
+      if (data.wish && Array.isArray(data.wish.items)) S.wish.items = byId(wishItems(), data.wish.items);
       if (data.settings && data.settings.todos) S.settings.todos = byId(S.settings.todos, data.settings.todos);
     }
     buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia
@@ -8451,6 +8507,7 @@ function goalMetric(key) {
   /* folgen dem Tagesrhythmus: Koffein-Stopp und Schlafenszeit plant die App jeden Tag neu */
   if (key === 'caf_stop') return { key, n: 'Koffein nach dem Koffein-Stopp', u: 'mal', kind: 'num', area: 'koffein', day: (k) => (D(k) ? cafInfo(k).late.length : null) };
   if (key === 'bed_delay') return { key, n: 'Später eingeschlafen als geplant', u: 'Min.', kind: 'num', area: 'schlaf', day: (k) => { const nx = D(addDays(k, 1)); const b = nx && nx.health && nx.health.bedTime ? timeVal(nx.health.bedTime, true) : null; return b == null ? null : Math.round(b - sleepMin(k)); } };
+  if (key === 'rh_win') return { key, n: 'Nächte im Schlaffenster', u: '', kind: 'num', area: 'schlaf', day: (k) => rhNightIn(k) };
   if (GOAL_HEALTH[key]) {
     const [n, u, kind] = GOAL_HEALTH[key];
     return { key, n, u, kind: kind === 'bed' ? 'time' : kind, bed: kind === 'bed', area: key === 'steps' ? 'training' : 'schlaf', day: (k) => { const d = D(k); const v = key === 'readiness' ? (d ? (readinessOf(k) || {}).score : null) : d && d.health ? d.health[key] : null; if (v == null || v === '') return null; return kind === 'num' ? Number(v) : kind === 'dur' ? Number(v) : timeVal(v, kind === 'bed'); } };
@@ -8942,7 +8999,9 @@ function frankReportText(ws) {
   const late = r.past.map((k) => { const nx = peekDay(addDays(k, 1)); const b = nx && nx.health && nx.health.bedTime ? timeVal(nx.health.bedTime, true) : null; return b == null ? null : b - sleepMin(k); }).filter((v) => v != null);
   const wakes = r.past.map((k) => rhWakeOf(peekDay(k))).filter((v) => v != null);
   const rds = r.past.map((k) => readinessOf(k)).filter(Boolean).map((x) => x.score);
-  L.push('Tagesrhythmus (die App plant jeden Tag neu: Aufstehen laut Garmin, Schlafenszeit = Aufstehen am nächsten Morgen − Schlafbedarf − 15 Min.): ' + [wakes.length ? `aufgestanden Ø ${minToTime(Math.round(mean(wakes)))} (${minToTime(Math.min(...wakes))}–${minToTime(Math.max(...wakes))})` : '', r.past.length ? `geplante Schlafenszeit Ø ${minToTime(Math.round(mean(r.past.map((k) => sleepMin(k)))))}` : '', late.length ? `eingeschlafen im Schnitt ${fmt(Math.abs(mean(late)))} Min. ${mean(late) >= 0 ? 'später' : 'früher'} als geplant [bed_delay]` : '', rds.length ? `Trainingsbereitschaft Ø ${f0(mean(rds))} (eigene Berechnung)` : ''].filter(Boolean).join(' · '));
+  L.push('Tagesrhythmus (Aufstehen laut Garmin; Schlafenszeit = Schlaffenster − 15 Min., an Tagen mit eingestelltem „Morgen raus“ = Aufstehen − Schlafbedarf − 15 Min.): ' + [wakes.length ? `aufgestanden Ø ${minToTime(Math.round(mean(wakes)))} (${minToTime(Math.min(...wakes))}–${minToTime(Math.max(...wakes))})` : '', r.past.length ? `geplante Schlafenszeit Ø ${minToTime(Math.round(mean(r.past.map((k) => sleepMin(k)))))}` : '', late.length ? `eingeschlafen im Schnitt ${fmt(Math.abs(mean(late)))} Min. ${mean(late) >= 0 ? 'später' : 'früher'} als geplant [bed_delay]` : '', rds.length ? `Trainingsbereitschaft Ø ${f0(mean(rds))} (eigene Berechnung)` : ''].filter(Boolean).join(' · '));
+  const rw = rhWindow(r.past.length ? r.past[r.past.length - 1] : todayKey()), rin = r.past.map((k) => rhNightIn(k)).filter((v) => v != null);
+  if (rw) L.push(`Schlaffenster (Median der letzten ${rw.n} Nächte, steuert die Schlafenszeit): einschlafen ${rhRange(rw.onset)}, aufstehen ${rhRange(rw.wake)}${rw.pull ? ` (Einschlafen ${rw.pull} Min. vorgezogen, weil die Nächte kürzer sind als der Schlafbedarf)` : ''} · Nächte im Fenster ${rin.length ? `${rin.filter(Boolean).length}/${rin.length}` : '–'} [rh_win] · Schwankung Einschlafen ±${rw.devBed} Min., Aufwachen ±${rw.devWake} Min.`);
   const more = [needs.length ? `Schlafbedarf laut Garmin Ø ${goalFmt({ kind: 'dur' }, mean(needs))} Std.` : '', hav('bbSleep') != null ? `Body Battery im Schlaf Ø +${f0(hav('bbSleep'))}` : '', hav('hrvWeek') != null ? `HRV 7-Tage-Ø ${f0(hav('hrvWeek'))} ms` : '', hav('spo2') != null ? `SpO2 Ø ${f0(hav('spo2'))} %` : '', hav('resp') != null ? `Atemfrequenz Ø ${f0(hav('resp'), 1)}/min` : ''].filter(Boolean);
   if (more.length) L.push(more.join(' · '));
   // Koffein
@@ -9775,7 +9834,7 @@ Object.assign(A, {
 /* ============================================================
    ALLTAG: bessere Alternativen, Snacks für unterwegs, Plausibilität
    ============================================================ */
-/*icons: repeat moon */
+/*icons: repeat moon sunrise bed */
 
 /* Tausch-Hinweise: passt ein Lebensmittel, zeigt die App eine bessere Wahl (Wunsch vom 10.11.2026) */
 const SWAPS = [
@@ -9893,6 +9952,8 @@ function rhythm(k = todayKey()) {
   const pr = rhProfile(), d = peekDay(k), nx = peekDay(addDays(k, 1));
   let wake = rhWakeOf(d), wakeSrc = wake == null ? null : d.gar && d.gar.wakeTime === d.health.wakeTime ? 'garmin' : 'eingetragen';
   if (wake == null) { const pv = peekDay(addDays(k, -1)), w = pv && pv.hd && pv.hd.wakeNext ? timeToMin(pv.hd.wakeNext) : null; if (w != null) { wake = w; wakeSrc = 'eingestellt'; } } // am Vortag „morgen raus um …“
+  const win = rhWindow(k);
+  if (wake == null && win) { wake = win.wake; wakeSrc = 'fenster'; } // Schlaffenster (2.9.0)
   if (wake == null) { const p = rhPredWake(k); if (p) { wake = p.m; wakeSrc = p.src; } }
   if (wake == null) { wake = pr.wake; wakeSrc = 'profil'; }
   /* Schlafbedarf für die kommende Nacht: Garmin (Nacht danach bzw. „nächster Schlafbedarf“), sonst letzte Nacht, sonst Schnitt */
@@ -9902,10 +9963,12 @@ function rhythm(k = todayKey()) {
   if (need == null) { need = 480; needSrc = 'standard'; }
   let wakeNext = d && d.hd && d.hd.wakeNext ? timeToMin(d.hd.wakeNext) : null, nextSrc = 'eingestellt';
   if (wakeNext == null) { wakeNext = rhWakeOf(nx); nextSrc = 'garmin'; }
+  if (wakeNext == null && win) { wakeNext = win.wake; nextSrc = 'fenster'; }
   if (wakeNext == null) { const p = rhPredWake(addDays(k, 1)); if (p) { wakeNext = p.m; nextSrc = p.src; } }
   let bed = pr.bed, bedSrc = 'profil';
-  if (wakeNext != null) { bed = clamp(wakeNext + 1440 - need - 15, 20 * 60, 25 * 60); bedSrc = nextSrc; }
-  const r = { wake, wakeSrc, bed, bedSrc, need, needSrc, wakeNext, live: wakeSrc !== 'profil' || bedSrc !== 'profil' };
+  if (nextSrc === 'fenster') { bed = clamp(win.bed, 20 * 60, 25 * 60); bedSrc = 'fenster'; } // Fenster: gleiche Zeit jeden Abend
+  else if (wakeNext != null) { bed = clamp(wakeNext + 1440 - need - 15, 20 * 60, 25 * 60); bedSrc = nextSrc; }
+  const r = { wake, wakeSrc, bed, bedSrc, need, needSrc, wakeNext, win, live: wakeSrc !== 'profil' || bedSrc !== 'profil' };
   c.m.set(k, r);
   return r;
 }
@@ -9925,16 +9988,17 @@ function rhythmLine(k) {
   const r = rhythm(k), nxt = addDays(k, 1);
   const nw = (t) => `<span class="nw">${esc(t)}</span>`;
   const wakeTxt = { garmin: `Aufgewacht ${minToTime(r.wake)}`, eingetragen: `Aufgestanden ${minToTime(r.wake)}`, eingestellt: `Aufstehen ${minToTime(r.wake)} (eingestellt)` }[r.wakeSrc] || `Aufstehen ~${minToTime(r.wake)}`;
-  const src = { eingestellt: '', garmin: '', wochentag: `wie meist am ${WD_LONG[weekday(nxt)]}`, schnitt: 'dein Schnitt', profil: 'aus dem Profil' }[r.bedSrc];
+  const src = { eingestellt: '', garmin: '', fenster: `dein Fenster ${rhRange(r.wakeNext ?? 0)}`, wochentag: `wie meist am ${WD_LONG[weekday(nxt)]}`, schnitt: 'dein Schnitt', profil: 'aus dem Profil' }[r.bedSrc];
   const next = `${k === todayKey() ? 'Morgen' : 'Am nächsten Tag'} raus ${minToTime(r.wakeNext ?? rhProfile().wake)}${src ? ` (${src})` : ''}`;
-  return `<div class="rhythm"><span class="rh-ic">${icon('moon')}</span><span class="rh-txt"><b>Schlafenszeit ${minToTime(r.bed)}</b><small>${esc(next)}</small><small>${nw(wakeTxt)} · ${nw('Schlafbedarf ' + fmtDur(r.need))}</small></span><button class="pill-btn" data-a="rh-edit" data-date="${k}">Ändern</button></div>`;
+  const third = r.bedSrc === 'fenster' ? `${nw(`Einschlafen ${rhRange(r.win.onset)}`)} · ${nw(wakeTxt)}` : `${nw(wakeTxt)} · ${nw('Schlafbedarf ' + fmtDur(r.need))}`;
+  return `<div class="rhythm"><span class="rh-ic">${icon('moon')}</span><span class="rh-txt"><b>Schlafenszeit ${minToTime(r.bed)}</b><small>${esc(next)}</small><small>${third}</small></span><button class="pill-btn" data-a="rh-edit" data-date="${k}">Ändern</button></div>`;
 }
 function sheetRhythm(k) {
   const r = rhythm(k), d = peekDay(k);
   ui.sheet = { type: 'rhythm', k };
   const needTxt = { garmin: 'laut Garmin', schnitt: 'dein Garmin-Schnitt', standard: 'Standard, bis Garmin ihn kennt' }[r.needSrc];
   openSheet(`<h3 class="sheet-title">Wann musst du ${k === todayKey() ? 'morgen' : 'am nächsten Tag'} raus?</h3>
-    <p class="hint">Aus deinem Aufstehen und deinem Schlafbedarf (${fmtDur(r.need)}, ${needTxt}) plus 15 Min. zum Einschlafen rechnet die App deine Schlafenszeit. Danach richten sich Koffein-Stopp, letzte Mahlzeit, Bildschirm-Pause und die Abend-Blöcke im Plan.</p>
+    <p class="hint">${r.win ? `Ohne Eingabe gilt dein Schlaffenster: einschlafen ${rhRange(r.win.onset)}, aufstehen ${rhRange(r.win.wake)}. Musst du früher raus, stell es hier ein: dann rechnet die App mit deinem Schlafbedarf (${fmtDur(r.need)}, ${needTxt}) plus 15 Min. zum Einschlafen.` : `Aus deinem Aufstehen und deinem Schlafbedarf (${fmtDur(r.need)}, ${needTxt}) plus 15 Min. zum Einschlafen rechnet die App deine Schlafenszeit.`} Danach richten sich Koffein-Stopp, letzte Mahlzeit, Bildschirm-Pause und die Abend-Blöcke im Plan.</p>
     <div class="form"><div class="frow"><span class="flabel">Raus um</span><div class="fin"><input type="time" id="rh-wake" value="${r.wakeNext != null ? minToTime(r.wakeNext) : ''}"></div></div></div>
     <div class="sheet-acts"><button class="btn is-accent" data-a="rh-save">Übernehmen</button>${d && d.hd && d.hd.wakeNext ? '<button class="btn" data-a="rh-reset">Wieder automatisch</button>' : '<button class="btn is-ghost" data-a="sheet-close">Abbrechen</button>'}</div>`);
 }
@@ -10119,6 +10183,314 @@ Object.assign(C, {
   },
 });
 
+/* ---- rhythmus.js ---- */
+/* ============================================================
+   SCHLAFRHYTHMUS (seit 2.9.0)
+   Ein Zielfenster für alle Tage aus deinen Garmin-Nächten: Einschlafen und Aufwachen
+   je ±15 Min. um den Median der letzten 14 Nächte. Schläfst du im Schnitt kürzer als
+   dein Schlafbedarf, zieht das Fenster das Einschlafen um bis zu 30 Min. vor (wandert
+   so mit jeder Nacht ein Stück). Das Fenster steuert den Tagesrhythmus (Schlafenszeit,
+   Koffein-Stopp, Bildschirm-Pause, Mitteilungen); ein eingestelltes „Morgen raus“ geht vor.
+   Hintergrund: Regelmäßige Schlafzeiten hängen in großen Studien enger mit Gesundheit
+   zusammen als die Schlafdauer allein (UK Biobank, Windred 2024).
+   ============================================================ */
+/*icons: moon sunrise bed clock*/
+const RH_WIN = 15, RH_NIGHTS = 14, RH_MIN = 4, RH_PULL = 30;
+
+/* Nacht, die am Morgen des Tages k endet (Garmin speichert sie beim Aufwach-Tag) */
+function rhNight(k) {
+  const d = peekDay(k);
+  if (!d || !d.health || !d.health.bedTime) return null;
+  const bed = timeVal(d.health.bedTime, true), wake = rhWakeOf(d);
+  if (bed == null || wake == null || bed < 18 * 60 || bed > 28 * 60) return null; // 18:00 bis 04:00
+  const dur = wake + 1440 - bed;
+  if (dur < 180 || dur > 780) return null;
+  return { k, bed, wake, dur };
+}
+const rh5 = (m) => Math.round(m / 5) * 5;
+function rhWindow(k = todayKey()) {
+  const c = rhWindow.c || (rhWindow.c = { v: -1, m: new Map() });
+  if (c.v !== calcVersion) { c.v = calcVersion; c.m.clear(); }
+  const end = k > todayKey() ? todayKey() : k;
+  if (c.m.has(end)) return c.m.get(end);
+  const nights = [];
+  for (let i = 0; i < 28 && nights.length < RH_NIGHTS; i++) { const n = rhNight(addDays(end, -i)); if (n) nights.push(n); }
+  let w = null;
+  if (nights.length >= RH_MIN) {
+    const medBed = rhMedian(nights.map((n) => n.bed)), medWake = rhMedian(nights.map((n) => n.wake));
+    const needs = nights.map((n) => rhNeed((peekDay(n.k).health || {}).sleepNeed)).filter((v) => v != null);
+    const need = needs.length ? Math.round(rhMedian(needs)) : 480;
+    const want = medWake + 1440 - need; // so früh müsstest du einschlafen, um deinen Bedarf zu schaffen
+    const pull = want < medBed - 5 ? Math.min(RH_PULL, medBed - want) : 0;
+    const onset = rh5(medBed - pull), wake = rh5(medWake);
+    const recent = nights.filter((n) => daysBetween(n.k, end) < 7);
+    const dev = (a, m) => Math.round(mean(a.map((x) => Math.abs(x - m))));
+    const inBed = (n) => Math.abs(n.bed - onset) <= RH_WIN, inWake = (n) => Math.abs(n.wake - wake) <= RH_WIN;
+    w = {
+      onset, wake, bed: onset - 15, need, pull, n: nights.length, nights,
+      medBed: Math.round(medBed), medWake: Math.round(medWake), medDur: Math.round(rhMedian(nights.map((n) => n.dur))),
+      mid: Math.round((medBed + medWake + 1440) / 2) % 1440,
+      devBed: dev(nights.map((n) => n.bed), medBed), devWake: dev(nights.map((n) => n.wake), medWake),
+      recent, hit: recent.filter((n) => inBed(n) && inWake(n)).length, inBed, inWake,
+    };
+  }
+  c.m.set(end, w);
+  return w;
+}
+/* Lag die Nacht nach Tag k im Fenster? (für Wochenziele: 1 = ja, 0 = nein) */
+function rhNightIn(k) {
+  const n = rhNight(addDays(k, 1)), w = rhWindow(k);
+  if (!n || !w) return null;
+  return w.inBed(n) && w.inWake(n) ? 1 : 0;
+}
+function rhRange(m) { return `${minToTime((m - RH_WIN + 2880) % 1440)}–${minToTime((m + RH_WIN) % 1440)}`; }
+function rhDiff(v, t) { const x = Math.round(v - t); return Math.abs(x) <= RH_WIN ? '' : `${x > 0 ? '+' : '−'}${fmtDur(Math.abs(x))}`; }
+
+/* Karte unter Garmin & Schlaf: Fenster, die letzten 7 Nächte als Balken, Regelmäßigkeit */
+function rhCard(k = todayKey()) {
+  const w = rhWindow(k);
+  if (!w) {
+    const n = Array.from({ length: 28 }, (_, i) => rhNight(addDays(k, -i))).filter(Boolean).length;
+    return `<section class="sec rh-card"><div class="sec-head"><h2>Schlafrhythmus</h2></div><p class="sec-sub">Ab ${RH_MIN} Nächten mit Einschlaf- und Aufwachzeit (von Garmin oder selbst eingetragen) rechnet die App dein Zielfenster: einschlafen und aufstehen jeden Tag zur gleichen Zeit, je ±${RH_WIN} Min. Bisher ${n} ${n === 1 ? 'Nacht' : 'Nächte'}.</p></section>`;
+  }
+  /* Balken: Achse 20:00 bis 12:00 (16 Std.) */
+  const A0 = 20 * 60, AL = 16 * 60, pos = (m) => clamp(((m - A0) / AL) * 100, 0, 100);
+  const band = (m) => `<i class="rh-band" style="left:${pos(m - RH_WIN)}%;width:${pos(m + RH_WIN) - pos(m - RH_WIN)}%"></i>`;
+  const rows = [];
+  for (let i = 6; i >= 0; i--) {
+    const x = addDays(k > todayKey() ? todayKey() : k, -i), n = rhNight(x);
+    const lab = fmtDate(x, { weekday: 'short', day: 'numeric' }).replace('.,', '');
+    if (!n) { rows.push(`<div class="rh-row is-empty"><span class="rh-d">${esc(lab)}</span><div class="rh-bar">${band(w.onset)}${band(w.wake + 1440)}</div><span class="rh-t">–</span></div>`); continue; }
+    const ok = w.inBed(n) && w.inWake(n);
+    const db = rhDiff(n.bed, w.onset), dw = rhDiff(n.wake, w.wake);
+    rows.push(`<div class="rh-row${ok ? ' is-ok' : ''}"><span class="rh-d">${esc(lab)}</span><div class="rh-bar">${band(w.onset)}${band(w.wake + 1440)}<i class="rh-sleep" style="left:${pos(n.bed)}%;width:${pos(n.wake + 1440) - pos(n.bed)}%"></i></div><span class="rh-t">${minToTime(n.bed % 1440)}–${minToTime(n.wake)}${db || dw ? `<small>${[db ? 'ein ' + db : '', dw ? 'auf ' + dw : ''].filter(Boolean).join(' · ')}</small>` : `<small class="is-ok">${icon('check')}im Fenster</small>`}</span></div>`);
+  }
+  const reg = Math.max(w.devBed, w.devWake);
+  const regTxt = reg <= 20 ? 'sehr regelmäßig' : reg <= 40 ? 'ziemlich regelmäßig' : reg <= 60 ? 'schwankt merklich' : 'schwankt stark';
+  const tip = w.pull ? `Deine Nächte sind im Schnitt kürzer (${fmtDur(w.medDur)}) als dein Schlafbedarf (${fmtDur(w.need)}). Das Fenster zieht dein Einschlafen deshalb um ${w.pull} Min. vor und wandert mit jeder Nacht weiter, bis es passt.`
+    : reg > 40 ? 'Am meisten bringt jetzt, das Aufstehen festzuhalten – auch nach einer späten Nacht. Morgenlicht direkt danach verankert die innere Uhr.'
+      : 'Halte das Fenster auch an freien Tagen; höchstens eine Stunde Abweichung, dann bleibt die innere Uhr stabil.';
+  return `<section class="sec rh-card" id="rhythmus-card"><div class="sec-head"><h2>Schlafrhythmus</h2><span class="count">${w.n} Nächte</span></div>
+    <div class="rh-win"><div><span>${icon('moon')}Einschlafen</span><b>${minToTime(w.onset % 1440)}</b><small>${rhRange(w.onset)}</small></div><div><span>${icon('sunrise')}Aufstehen</span><b>${minToTime(w.wake)}</b><small>${rhRange(w.wake)}</small></div><div><span>${icon('bed')}Ins Bett</span><b>${minToTime(w.bed % 1440)}</b><small>15 Min. vorher</small></div></div>
+    <div class="rh-chart"><div class="rh-axis"><span>20</span><span>24</span><span>4</span><span>8</span><span>12</span></div>${rows.join('')}</div>
+    <p class="rh-stat"><b>${w.hit} von ${w.recent.length}</b> Nächten der letzten 7 Tage im Fenster · Schwankung Einschlafen ±${w.devBed} Min., Aufwachen ±${w.devWake} Min. (${regTxt}) · Schlafmitte ${minToTime(w.mid)}</p>
+    <p class="hint">${esc(tip)}</p>
+    <p class="hint">Das Fenster kommt aus deinen letzten ${w.n} Nächten (Median) und passt sich langsam an. Danach richten sich Schlafenszeit, Koffein-Stopp, Bildschirm-Pause und die Abend-Mitteilungen. Musst du an einem Tag früher raus, stell es auf Heute unter „Ändern“ ein – das geht vor.</p></section>`;
+}
+
+/* ---- wunsch.js ---- */
+/* ============================================================
+   WUNSCHLISTE (seit 2.9.0)
+   Produkte für später: Preis, Abo, Link, Priorität, Summe; abhaken als „bestellt“,
+   danach „angekommen“. Jedes Produkt hat eine ausführliche Erklärung (was es ist,
+   was es bringt, Studienlage, Vor- und Nachteile, Alternativen, Tipps, Quellen),
+   damit man in ein paar Monaten nicht neu recherchieren muss.
+   Vorbefüllt mit drei recherchierten Schlaf-Produkten (Stand 11.11.2026).
+   ============================================================ */
+/*icons: gift package-check truck external-link pencil trash-2 send rotate-ccw plus*/
+const WISH_CATS = ['Schlaf', 'Training', 'Ernährung', 'Haut', 'Gesundheit', 'Sonstiges'];
+const WISH_PRIO = [[1, 'Zuerst'], [2, 'Später'], [3, 'Irgendwann']];
+const WISH_AMPEL = { stark: 'gut belegt', mittel: 'teils belegt', schwach: 'kaum belegt' };
+const WISH_DEFAULT = [
+  {
+    id: 'w_oura5', n: 'Oura Ring 5', cat: 'Schlaf', price: 429, subYear: 69.99, sub: 'Abo 5,99 €/Monat oder 69,99 €/Jahr (ohne Abo nur Grundwerte)', link: 'https://ouraring.com/', prio: 1, stand: '2026-11-11',
+    info: {
+      kurz: 'Schlaf- und Erholungstracker als Ring: misst nachts Puls, HRV, Hauttemperatur und Schlafphasen.',
+      was: 'Ein Titanring (2,28 mm dünn, bis 100 m wasserdicht, bis zu 9 Tage Akku), seit Juni 2026 auf dem Markt. Er misst Puls, HRV, Hauttemperatur, Sauerstoffsättigung, Atmung und Schlafphasen und rechnet daraus Schlaf-, Erholungs- und Aktivitätswerte. Neu beim Ring 5 sind u. a. Hinweise aus nächtlichen Blutdruck-Signalen (nicht in jeder Region verfügbar).',
+      nutzen: 'Am Finger ist das Pulssignal nachts oft sauberer als am Handgelenk, und ein Ring stört beim Schlafen weniger als eine Uhr. Er misst die Hauttemperatur, die deine Forerunner 265 nicht hat: Abweichungen zeigen früh einen Infekt, Übertraining oder schlechte Erholung. Und er ist ein zweiter Messwert, um Garmins Schlafphasen einzuordnen.',
+      belege: 'Im Vergleich mit dem Schlaflabor gehört Oura (Gen 3) zu den genauesten Trackern für Schlafphasen (Übereinstimmung κ ≈ 0,65, Tiefschlaf zu rund 80 % erkannt), allerdings aus einer Studie mit Beteiligung des Herstellers. Ein älteres Garmin-Gerät schnitt in einer unabhängigen Studie deutlich schwächer ab (κ ≈ 0,2); für die Forerunner 265 und den Ring 5 gibt es noch keine unabhängige Prüfung. Für alle Tracker gilt: Gesamtschlaf ziemlich gut, Schlafphasen nur mäßig genau – gut für Trends, nicht für Diagnosen.',
+      ampel: 'mittel', ampelTxt: 'Messgenauigkeit teils belegt, Ring 5 selbst noch nicht unabhängig geprüft',
+      pro: ['Kaum spürbar, angenehmer im Bett als eine Uhr', 'Hauttemperatur-Verlauf (fehlt deiner Garmin)', 'Lange Akkulaufzeit, ausgereifte App', 'Unter den Wearables mit die besten Werte für Schlafphasen'],
+      contra: ['429 € (Premiumfarben 529 €) plus Abo – ohne Abo zeigt er nur wenige Grundwerte', 'Kann beim Krafttraining stören (Griff an der Hantel): dann abnehmen oder an die andere Hand', 'Doppelte Daten neben Garmin; die Protokoll-App liest Oura bisher nicht', 'Kein Umtauschprogramm für Vorgängermodelle'],
+      alt: 'RingConn Gen 3 (ca. 369 €, ohne Abo, in Tests sehr ähnliche Werte), Ultrahuman Ring Air (ca. 379 €, ohne Abo), Samsung Galaxy Ring (ca. 449 €), Oura Ring 4 (Vorgänger, deutlich günstiger).',
+      tipps: ['Zuerst das Größen-Set bestellen (ca. 10 €); Oura empfiehlt den Zeigefinger', 'Mit dem Abo rechnen: über 3 Jahre rund 640 € gesamt', 'Nach dem Kauf: Anbindung an die Protokoll-App prüfen lassen, dann zählen Schlafzeiten und Temperatur vom Ring'],
+      src: [['Oura Ring 5: Maße, Akku, Abo (Notebookcheck)', 'https://www.notebookcheck.com/Oura-Ring-5-startet-mit-40-kompakterem-Gehaeuse-und-bis-zu-9-Tagen-Akkulaufzeit.1308647.0.html'], ['Test Oura Ring 5 (netzwelt)', 'https://www.netzwelt.de/oura-ring-5/testbericht.html'], ['Oura Ring 5 gegen RingConn Gen 3 (netzwelt)', 'https://www.netzwelt.de/news/254969-oura-ring-5-ringconn-gen-3-habe-klaren-favoriten.html'], ['Preise und Konkurrenz (Wareable)', 'https://www.wareable.com/de/health-tech/oura-ring-5-test'], ['Genauigkeit der Tracker im Vergleich (Kygo)', 'https://www.kygo.app/post/most-accurate-sleep-tracker-oura-vs-apple-vs-fitbit-2026'], ['Unabhängige Studie Schyvens 2025, Garmin/Whoop/Apple (Gneta)', 'https://www.gneta.app/blog/whose-sleep-score-to-trust']],
+    },
+  },
+  {
+    id: 'w_muse', n: 'Schlaf-Stirnband Muse S Athena', cat: 'Schlaf', price: 450, subYear: 0, sub: 'Grundfunktionen ohne Abo, Abo optional', link: 'https://choosemuse.com/', prio: 2, stand: '2026-11-11',
+    info: {
+      kurz: 'Stirnband, das nachts die Hirnströme (EEG) misst – die genaueste Schlafphasen-Messung für zu Hause.',
+      was: 'Ein weiches Stoff-Stirnband mit EEG-Sensoren (Hirnströme), fNIRS (Durchblutung im Stirnhirn), Pulssensor und Bewegungssensor. Im Schlaflabor werden Schlafphasen ebenfalls über Hirnströme bestimmt; Uhr und Ring schätzen sie nur über Puls und Bewegung. Dazu kommen Einschlafhilfen (Klänge, die auf deine Hirnwellen reagieren), eine Funktion für tieferen Schlaf und tagsüber Meditation mit Echtzeit-Rückmeldung (Neurofeedback).',
+      nutzen: 'Du siehst, wie viel Tief- und REM-Schlaf du wirklich hast, und kannst ein paar Wochen lang prüfen, wie stark deine Garmin danebenliegt. Das Neurofeedback passt zu Meditation und NSDR in deinem Plan: Du hörst, wann du wirklich zur Ruhe kommst.',
+      belege: 'Muse-S gegen Schlaflabor (SLEEP Advances 2026, 56 Erwachsene, eine Nacht): substanzielle Übereinstimmung Epoche für Epoche und gute Werte für die Schlafarchitektur. In einer unabhängigen Vergleichsstudie mit 6 Geräten (60 Personen) schnitt ein EEG-Stirnband (Dreem 3) am besten ab, vor Oura, Fitbit und Aktigrafie. Bei älteren Menschen mit Schlafproblemen war der Gesamtschlaf gut, Tief- und REM-Schlaf ungenauer. Einschlafhilfen und „Deep Sleep Boost“ sind kaum unabhängig geprüft.',
+      ampel: 'mittel', ampelTxt: 'Messung gut belegt, Einschlafhilfen kaum geprüft',
+      pro: ['Schlafphasen aus Hirnströmen – näher am Schlaflabor als Uhr oder Ring', 'Grundfunktionen ohne Pflicht-Abo', 'Meditation mit Neurofeedback für tagsüber', 'Gut für ein paar Wochen Vergleich mit deiner Garmin'],
+      contra: ['Ein Band am Kopf ist gewöhnungsbedürftig, vor allem für Seitenschläfer', 'Muss regelmäßig geladen werden; kein Tracker für den Tag (keine Schritte, kein Training)', 'Daten nur in der Muse-App', 'Ca. 450 €, mit Abo mehr – für Rhythmus und Gesamtschlaf reicht die Garmin'],
+      alt: 'Weitere Stirnbänder: Frenz Brainband, Somnee und Elemind (setzen eher auf Stimulation, noch weniger geprüft). Bei Verdacht auf eine Schlafstörung ist eine Untersuchung im Schlaflabor über den Arzt der richtige Weg, nicht ein Gerät.',
+      tipps: ['Vorher klären, ob dich Schlafphasen wirklich interessieren – für Rhythmus und Dauer reicht die Garmin', 'Die ersten Nächte sind oft unruhiger: ein paar Nächte eingewöhnen, bevor du die Werte vergleichst', 'Rückgaberecht nutzen, falls das Band beim Schlafen stört', 'Preis in Euro vor dem Kauf prüfen (ca. 450 € laut Test, in den USA 474,99 $)'],
+      src: [['Muse-S gegen Schlaflabor (SLEEP Advances 2026)', 'https://pure.etsmtl.ca/en/publications/assessing-the-performance-of-a-portable-electroencephalographic-s/'], ['Vergleich von 6 Schlaftrackern mit dem Schlaflabor (Sleep 2024)', 'https://pubmed.ncbi.nlm.nih.gov/38087674/'], ['Test Muse S Athena mit Preisen (Tom’s Guide)', 'https://www.tomsguide.com/wellness/sleep-tech/the-muse-s-athena-headband-helps-me-fall-asleep-fast-even-when-im-wired-heres-why-its-the-best-sleep-aid-ive-tried-so-far-in-2026'], ['EEG-Stirnband gegen Schlaflabor bei Älteren (Miner 2026)', 'https://www.omnicuris.com/medshots/daily_updates/eeg-headband-vs-polysomnography-older-adults']],
+    },
+  },
+  {
+    id: 'w_pod6', n: 'Eight Sleep Pod 6 (Solo)', cat: 'Schlaf', price: 2199, subYear: 199, sub: 'Autopilot-Abo Pflicht: 199, 299 oder 399 €/Jahr', link: 'https://www.eightsleep.com/', prio: 3, stand: '2026-11-11',
+    info: {
+      kurz: 'Matratzenauflage, die dein Bett nachts automatisch kühlt und wärmt und dabei den Schlaf misst.',
+      was: 'Ein Cover mit feinen Wasserkanälen über deiner Matratze und ein Hub unter dem Bett, der das Wasser kühlt oder heizt (ca. 12–43 °C). Der „Autopilot“ ändert die Temperatur während der Nacht nach deinen Schlafphasen. Im Cover stecken 18 Sensoren (9 pro Seite) für Puls, HRV, Atmung und Schlafphasen; geweckt wirst du mit Vibration und Wärme. Pod 6 gibt es seit September 2026: Hub halb so groß wie beim Pod 5, Temperatur bis zu 20 % schneller, erstmals als Solo-Größe für eine Person.',
+      nutzen: 'Zum Einschlafen muss die Körperkerntemperatur sinken, gegen Morgen steigt sie wieder (Huberman-Protokolle 5 und 6). Der Pod macht das automatisch: kühl in der ersten Nachthälfte, wenn der meiste Tiefschlaf kommt, wärmer vor dem Aufwachen. Das kann Tiefschlaf und Erholung nach dem Training etwas verbessern, vor allem in warmen Sommernächten ohne Klimaanlage. Dazu kommen Schlafdaten, ohne etwas am Körper zu tragen.',
+      belege: 'Herstellerstudie (Bioengineering 2024, 54 Personen, je 4 Nächte an und aus, Heim-Schlaftest): Männer hatten mit kühler erster Nachthälfte 14 Min. mehr Tiefschlaf, der Schlafpuls sank um 2 %, die HRV stieg um 7 %. Auswertung des Autopilot (SLEEP-Kongress 2025, Daten des Herstellers): +4,7 Min. Tiefschlaf (+10 %), HRV +13 %. Unabhängige Studien fehlen; die Effekte sind klein und bei Leuten, die schon gut schlafen, eher gering. Gut belegt ist der Mechanismus: kühle Umgebung und warm duschen vor dem Schlafen helfen beim Einschlafen.',
+      ampel: 'schwach', ampelTxt: 'Mechanismus gut belegt, das Produkt nur in Studien des Herstellers',
+      pro: ['Nichts am Körper – misst und regelt im Liegen', 'Temperatur passt sich die ganze Nacht automatisch an', 'Stiller Wecker mit Vibration und Wärme', 'Hilft besonders in warmen Sommernächten'],
+      contra: ['Sehr teuer: ab 2.199 € plus Pflicht-Abo (199–399 € pro Jahr)', 'In Studien kleine Effekte (wenige Minuten mehr Tiefschlaf)', 'Wasser nachfüllen; der Hub braucht Strom und Platz unter dem Bett', 'Daten bleiben in der Eight-Sleep-App, nicht in Garmin oder der Protokoll-App'],
+      alt: 'Fast kostenlos über denselben Mechanismus: Schlafzimmer kühl (ca. 17–19 °C), leichte Decke, warm duschen 1–2 Std. vor dem Schlafen (Meta-Analyse: schneller eingeschlafen). Wasser-Kühlmatten anderer Hersteller (z. B. Sleepme) sind günstiger, messen aber meist keinen Schlaf; Verfügbarkeit in Deutschland prüfen.',
+      tipps: ['Solo-Größe für eine Person: 90 × 200 cm für 2.199 €; ganze Betten ab 2.899 €, 200 × 200 cm 3.399 €', 'Abo-Stufen 199, 299 oder 399 € pro Jahr (ab 17 € im Monat); über 3 Jahre mindestens rund 2.800 € gesamt', 'Erst kaufen, wenn Schlafrhythmus, Licht und Koffein sitzen – dann siehst du, was der Pod zusätzlich bringt', 'Probezeit und Rückgabe auf der Herstellerseite prüfen'],
+      src: [['Pod 6 mit Preisen für Deutschland (ifun.de)', 'https://www.ifun.de/eight-sleep-pod-6-das-intelligente-bett-wird-kleiner-und-guenstiger-289505/'], ['Pod 6: technische Daten (BornCity)', 'https://borncity.com/news/eight-sleep-pod-6-18-sensoren-und-schnellere-temperatursteuerung/'], ['Studie: eine Woche auf dem temperierten Cover (Bioengineering 2024)', 'https://pubmed.ncbi.nlm.nih.gov/38671774/'], ['Autopilot-Auswertung SLEEP 2025 (Hersteller)', 'https://www.eightsleep.com/blog/research-finds-the-pod-can-boost-sleep-and-cardiovascular-metrics-with-real-time-temperature-adjustments-based-on-your-sleep-stages/']],
+    },
+  },
+];
+
+function wishItems() {
+  if (!S.wish) S.wish = { items: null };
+  if (!Array.isArray(S.wish.items)) { S.wish.items = clone(WISH_DEFAULT).map((x) => ({ ...x, status: 'offen', at: { added: todayKey() } })); markDirty('wish'); }
+  return S.wish.items;
+}
+function wishSave() { markDirty('wish'); render(); }
+const wishEuro = (v, d = 0) => `${fmt(v, d)} €`;
+function wishSum(list) {
+  const once = list.reduce((a, x) => a + (Number(x.price) || 0), 0), year = list.reduce((a, x) => a + (Number(x.subYear) || 0), 0);
+  return { once, year };
+}
+function wishPriceTxt(it) {
+  const p = Number(it.price) > 0 ? wishEuro(it.price) : 'Preis offen';
+  return Number(it.subYear) > 0 ? `${p} + ${wishEuro(it.subYear, it.subYear % 1 ? 2 : 0)}/Jahr` : p;
+}
+function wishStatus() {
+  const all = wishItems(), open = all.filter((x) => x.status === 'offen'), ord = all.filter((x) => x.status === 'bestellt');
+  const s = wishSum(open);
+  return { v: `${open.length} offen`, s: open.length ? `${wishEuro(s.once)} einmalig${s.year ? ` + ${wishEuro(s.year)}/Jahr Abos` : ''}${ord.length ? ` · ${ord.length} bestellt` : ''}` : ord.length ? `${ord.length} bestellt, unterwegs` : 'Liste leer', st: ord.length ? 'under' : 'none' };
+}
+
+function vWunsch() {
+  const sub = getSub('wunsch', 'offen');
+  const all = wishItems();
+  const open = all.filter((x) => x.status === 'offen').sort((a, b) => (a.prio || 2) - (b.prio || 2) || (a.price || 0) - (b.price || 0));
+  const got = all.filter((x) => x.status !== 'offen').sort((a, b) => (a.status === 'bestellt' ? 0 : 1) - (b.status === 'bestellt' ? 0 : 1) || String((b.at || {}).ordered || '').localeCompare(String((a.at || {}).ordered || '')));
+  let h = areaHead('wunsch') + subnav('wunsch', sub, [['offen', `Wunschliste (${open.length})`], ['bestellt', `Bestellt (${got.length})`]]);
+  if (sub === 'offen') {
+    const s = wishSum(open);
+    if (open.length) h += `<div class="wish-sum"><div><span>Einmalig</span><b>${wishEuro(s.once)}</b></div><div><span>Abos pro Jahr</span><b>${wishEuro(s.year)}</b></div><div><span>3 Jahre gesamt</span><b>${wishEuro(s.once + 3 * s.year)}</b></div></div>`;
+    for (const [p, lab] of WISH_PRIO) {
+      const its = open.filter((x) => (x.prio || 2) === p);
+      if (!its.length) continue;
+      h += `<h4 class="meal-h">${esc(lab)} <small>${its.length}</small></h4><div class="list">${its.map((it) => wishRow(it)).join('')}</div>`;
+    }
+    if (!open.length) h += emptyState('Nichts auf der Wunschliste.');
+    h += `<button class="btn" data-a="wish-new">${icon('plus')}Produkt hinzufügen</button><p class="hint">Antippen öffnet die Erklärung: was es ist, was es dir bringt, was die Forschung sagt, Vor- und Nachteile, Alternativen. Der Haken markiert es als bestellt.</p>`;
+  } else {
+    if (!got.length) return h + emptyState('Noch nichts bestellt.');
+    h += `<div class="list">${got.map((it) => wishRow(it)).join('')}</div>`;
+  }
+  return h;
+}
+function wishRow(it) {
+  const st = it.status, at = it.at || {};
+  const meta = st === 'offen' ? [wishPriceTxt(it), it.info && it.info.kurz ? it.info.kurz : it.note || ''].filter(Boolean).join(' · ')
+    : st === 'bestellt' ? `Bestellt am ${fmtDate(at.ordered || todayKey(), { day: 'numeric', month: 'short' })} · ${wishPriceTxt(it)}`
+      : `Angekommen am ${fmtDate(at.arrived || todayKey(), { day: 'numeric', month: 'short' })}`;
+  const main = `<button class="row-main wish-main" data-a="wish-open" data-id="${it.id}"><b>${esc(it.n)}${it.cat ? `<span class="store-tag">${esc(it.cat)}</span>` : ''}</b><small>${esc(meta)}</small></button>`;
+  if (st === 'offen') return `<div class="shop-row wish-row"><button class="shop-chk wish-chk" data-a="wish-order" data-id="${it.id}" aria-label="${esc(it.n)} als bestellt markieren"><span class="tgl-box">${icon('check')}</span></button>${main}</div>`;
+  if (st === 'bestellt') return `<div class="shop-row wish-row no-chk">${main}<button class="pill-btn" data-a="wish-arrived" data-id="${it.id}">${icon('package-check')}Angekommen</button></div>`;
+  return `<div class="shop-row wish-row no-chk is-done">${main}${icon('check', 'row-ic')}</div>`;
+}
+
+function sheetWish(id) {
+  const it = wishItems().find((x) => x.id === id);
+  if (!it) return;
+  ui.sheet = { type: 'wish', id };
+  const f = it.info || {};
+  const list = (a) => `<ul class="wish-list">${a.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  const para = (t, x) => (x ? `<h5>${esc(t)}</h5><p class="wish-p">${esc(x)}</p>` : '');
+  const amp = f.ampel ? `<p class="wish-amp amp-${f.ampel}"><i></i>${esc(WISH_AMPEL[f.ampel] || f.ampel)}${f.ampelTxt ? ` – ${esc(f.ampelTxt)}` : ''}</p>` : '';
+  const sy = Number(it.subYear) || 0, pr = Number(it.price) || 0;
+  const cost = `<div class="wish-cost"><div><span>Kaufpreis</span><b>${pr ? wishEuro(pr) : '–'}</b></div><div><span>Abo pro Jahr</span><b>${sy ? wishEuro(sy, sy % 1 ? 2 : 0) : '–'}</b></div><div><span>3 Jahre</span><b>${pr || sy ? wishEuro(pr + 3 * sy) : '–'}</b></div></div>${it.sub ? `<p class="hint">${esc(it.sub)}</p>` : ''}`;
+  const src = (f.src || []).filter((x) => /^https?:\/\//.test(x[1]));
+  const ask = `Ich habe ${it.n} auf meiner Wunschliste (Infos in meiner App vom ${fmtDate(it.stand || (it.at || {}).added || todayKey(), { day: 'numeric', month: 'long', year: 'numeric' })}). Prüfe bitte kurz auf Deutsch: aktueller Preis in Deutschland und Abo-Kosten, gibt es ein neueres Modell, was sagen unabhängige Studien und Tests, welche Alternativen gibt es, und lohnt es sich für jemanden, der Krafttraining und Laufen macht und schon eine Garmin Forerunner 265 trägt?`;
+  const statusAct = it.status === 'offen' ? `<button class="btn is-accent" data-a="wish-order" data-id="${it.id}">${icon('truck')}Bestellt</button>`
+    : it.status === 'bestellt' ? `<button class="btn is-accent" data-a="wish-arrived" data-id="${it.id}">${icon('package-check')}Angekommen</button><button class="btn" data-a="wish-back" data-id="${it.id}">${icon('rotate-ccw')}Zurück auf die Wunschliste</button>`
+      : `<button class="btn" data-a="wish-back" data-id="${it.id}">${icon('rotate-ccw')}Zurück auf die Wunschliste</button>`;
+  openSheet(`<h3 class="sheet-title">${esc(it.n)}</h3>
+    ${f.kurz ? `<p class="wish-lead">${esc(f.kurz)}</p>` : ''}
+    ${cost}
+    ${para('Was es ist', f.was)}${para('Was es dir bringt', f.nutzen)}
+    ${f.belege ? `<h5>Was die Forschung sagt</h5>${amp}<p class="wish-p">${esc(f.belege)}</p>` : ''}
+    ${f.pro && f.pro.length ? `<h5>Vorteile</h5>${list(f.pro)}` : ''}${f.contra && f.contra.length ? `<h5>Nachteile</h5>${list(f.contra)}` : ''}
+    ${para('Alternativen', f.alt)}${f.tipps && f.tipps.length ? `<h5>Vor dem Kauf</h5>${list(f.tipps)}` : ''}
+    ${f.free ? `<h5>Erklärung</h5><p class="wish-p is-pre">${esc(f.free)}</p>` : ''}
+    ${it.note ? `<h5>Meine Notiz</h5><p class="wish-p is-pre">${esc(it.note)}</p>` : ''}
+    ${src.length ? `<h5>Quellen</h5><ul class="wish-src">${src.map(([t, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join('')}</ul>` : ''}
+    <p class="hint">${it.stand ? `Stand der Infos: ${esc(fmtDate(it.stand, { day: 'numeric', month: 'long', year: 'numeric' }))}. ` : ''}Preise und Modelle ändern sich – vor dem Kauf kurz prüfen.</p>
+    <div class="sheet-acts">${statusAct}
+      ${it.link && /^https?:\/\//.test(it.link) ? `<a class="btn" href="${esc(it.link)}" target="_blank" rel="noopener">${icon('external-link')}Zum Shop</a>` : ''}
+      <a class="btn" href="${esc('https://claude.ai/new?q=' + encodeURIComponent(ask))}" target="_blank" rel="noopener" data-copy="${esc(ask)}">${icon('send')}Mit Claude neu prüfen</a>
+      <button class="btn is-ghost" data-a="wish-edit" data-id="${it.id}">${icon('pencil')}Bearbeiten</button></div>`);
+}
+function sheetWishEdit(id) {
+  const it = id ? wishItems().find((x) => x.id === id) : null;
+  ui.sheet = { type: 'wish-edit', id: it ? it.id : null, prio: it ? it.prio || 2 : 2 };
+  const v = it || { n: '', cat: 'Schlaf', price: '', subYear: '', link: '', note: '', info: {} };
+  const own = !it || !WISH_DEFAULT.some((x) => x.id === it.id);
+  openSheet(`<h3 class="sheet-title">${it ? 'Produkt bearbeiten' : 'Produkt hinzufügen'}</h3><div class="form">
+    <div class="frow is-wide"><span class="flabel">Name</span><div class="fin"><input type="text" id="wi-n" value="${esc(v.n)}" placeholder="z. B. Schlafmaske"></div></div>
+    <div class="frow is-wide"><span class="flabel">Kategorie</span><div class="fin"><select id="wi-cat">${WISH_CATS.map((c) => `<option ${c === v.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div></div>
+    <div class="frow is-wide"><span class="flabel">Preis</span><div class="fin inv-in"><input type="text" inputmode="decimal" id="wi-price" value="${numIn(v.price, 2)}" placeholder="–"><span>€</span></div></div>
+    <div class="frow is-wide"><span class="flabel">Abo pro Jahr</span><div class="fin inv-in"><input type="text" inputmode="decimal" id="wi-sub" value="${numIn(v.subYear, 2)}" placeholder="0"><span>€</span></div></div>
+    <div class="frow is-wide"><span class="flabel">Link</span><div class="fin"><input type="url" id="wi-link" value="${esc(v.link || '')}" placeholder="https://…" autocapitalize="off"></div></div></div>
+    <h5>Priorität</h5><div class="chips chips-tight">${WISH_PRIO.map(([p, l]) => `<button class="chip chip-xs${ui.sheet.prio === p ? ' is-on' : ''}" data-a="wish-prio" data-v="${p}">${esc(l)}</button>`).join('')}</div>
+    ${own ? `<h5>Erklärung</h5><textarea class="note" id="wi-free" rows="6" placeholder="Was es ist, was es bringt, Vor- und Nachteile … oder die Antwort von Claude hier einfügen">${esc((v.info && v.info.free) || '')}</textarea>
+      ${it ? '' : `<p class="hint">Tipp: Erst speichern, dann im Produkt „Mit Claude neu prüfen“ antippen und die Antwort hier einfügen.</p>`}` : ''}
+    <h5>Meine Notiz</h5><textarea class="note" id="wi-note" rows="2" placeholder="z. B. warten bis Black Friday">${esc(v.note || '')}</textarea>
+    <div class="sheet-acts"><button class="btn is-accent" data-a="wish-save">${it ? 'Speichern' : 'Hinzufügen'}</button>${it ? `<button class="btn is-danger" data-a="wish-del" data-id="${it.id}">${icon('trash-2')}Löschen</button>` : '<button class="btn is-ghost" data-a="sheet-close">Abbrechen</button>'}</div>`);
+}
+
+Object.assign(A, {
+  'wish-open': (el) => sheetWish(el.dataset.id),
+  'wish-new': () => sheetWishEdit(null),
+  'wish-edit': (el) => sheetWishEdit(el.dataset.id),
+  'wish-prio': (el) => { const s = ui.sheet; if (!s) return; s.prio = Number(el.dataset.v); document.querySelectorAll('[data-a="wish-prio"]').forEach((b) => b.classList.toggle('is-on', Number(b.dataset.v) === s.prio)); },
+  'wish-order': (el) => {
+    const it = wishItems().find((x) => x.id === el.dataset.id); if (!it) return;
+    const prev = { status: it.status, at: { ...(it.at || {}) } };
+    it.status = 'bestellt'; it.at = { ...(it.at || {}), ordered: todayKey() };
+    if (ui.sheet && ui.sheet.type === 'wish') closeSheet();
+    wishSave();
+    toast(`${it.n} als bestellt markiert`, () => { Object.assign(it, prev); wishSave(); });
+  },
+  'wish-arrived': (el) => {
+    const it = wishItems().find((x) => x.id === el.dataset.id); if (!it) return;
+    const prev = { status: it.status, at: { ...(it.at || {}) } };
+    it.status = 'da'; it.at = { ...(it.at || {}), arrived: todayKey() };
+    if (ui.sheet && ui.sheet.type === 'wish') closeSheet();
+    wishSave();
+    toast(`${it.n} ist angekommen`, () => { Object.assign(it, prev); wishSave(); });
+  },
+  'wish-back': (el) => {
+    const it = wishItems().find((x) => x.id === el.dataset.id); if (!it) return;
+    it.status = 'offen'; if (it.at) { delete it.at.ordered; delete it.at.arrived; }
+    closeSheet(); wishSave(); toast('Wieder auf der Wunschliste');
+  },
+  'wish-save': () => {
+    const s = ui.sheet; if (!s || s.type !== 'wish-edit') return;
+    const val = (id) => (($('#' + id) || {}).value || '').trim();
+    const n = val('wi-n');
+    if (!n) { toast('Bitte einen Namen eingeben'); return; }
+    const price = parseNum(val('wi-price')), sub = parseNum(val('wi-sub'));
+    let link = val('wi-link');
+    if (link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
+    const items = wishItems();
+    let it = s.id ? items.find((x) => x.id === s.id) : null;
+    if (!it) { it = { id: uid(), status: 'offen', at: { added: todayKey() }, info: {} }; items.push(it); }
+    Object.assign(it, { n, cat: val('wi-cat') || 'Sonstiges', price: price != null && price >= 0 ? price : null, subYear: sub != null && sub >= 0 ? sub : 0, link, prio: s.prio || 2, note: val('wi-note') });
+    if ($('#wi-free')) it.info = { ...(it.info || {}), free: val('wi-free') };
+    closeSheet(); wishSave(); toast(s.id ? 'Gespeichert' : `${n} auf der Wunschliste`);
+  },
+  'wish-del': (el) => {
+    const items = wishItems(), i = items.findIndex((x) => x.id === el.dataset.id); if (i < 0) return;
+    const [it] = items.splice(i, 1);
+    closeSheet(); wishSave();
+    toast(`${it.n} gelöscht`, () => { wishItems().splice(i, 0, it); wishSave(); });
+  },
+});
+
 /* ---- push.js ---- */
 /* ============================================================
    MITTEILUNGEN (Push) – Wunsch vom 10.11.2026
@@ -10136,7 +10508,7 @@ let pushTimer = null, pushBusy = null, pushAgain = false;
 const PUSH_CATS = [
   ['todo', 'To-dos & Checks', 'Fällige To-dos, Knie-Morgencheck, Backup, Wochenrückblick am Sonntag'],
   ['plan', 'Offene Posten im Standardtag', 'Nach jeder Mahlzeit-Zeit, wenn noch etwas offen ist – auch Supplements'],
-  ['rhythm', 'Tagesrhythmus', 'Morgenlicht, Koffein-Stopp, Bildschirm-Pause, Schlafenszeit, „Wann musst du morgen raus?“'],
+  ['rhythm', 'Tagesrhythmus', 'Morgenlicht, Koffein-Stopp, Bildschirm-Pause, Schlafenszeit aus deinem Schlaffenster („Wann musst du morgen raus?“, solange es noch kein Fenster gibt)'],
   ['goals', 'Wochenziele', 'Zur Erinnerungszeit deiner Ziele („Jetzt dran“)'],
   ['nutri', 'Nährstoffe am Abend', 'Was heute noch fehlt oder schon zu viel ist – mit konkretem Tipp'],
   ['wins', 'Geschafft', 'Am Abend, was du heute erreicht hast'],
@@ -10224,9 +10596,9 @@ function pushPlan(now = Date.now()) {
     /* Tagesrhythmus */
     if (!off('licht_morgen') && !d.habits.licht_morgen) add('rhythm', r.wake + 30, 'licht', 'Morgenlicht', '10–30 Min. raus ins Tageslicht – das stellt deine innere Uhr und hilft beim Einschlafen heute Abend.', '#licht');
     if (!off('koffein') && cafUser) { const cut = cafCutoff(k); add('rhythm', cut - 15, 'stopp', `Koffein-Stopp um ${minToTime(cut)}`, `Danach kein Kaffee, Monster oder Cola mehr – Schlafenszeit heute ${minToTime(r.bed)}.`, '#licht'); }
-    if (!(d.hd && d.hd.wakeNext)) add('rhythm', r.bed - 120, 'raus', 'Wann musst du morgen raus?', 'Antippen und Uhrzeit einstellen – dann passen Schlafenszeit und Koffein-Stopp.', '#rhythmus');
+    if (!(d.hd && d.hd.wakeNext) && r.bedSrc !== 'fenster') add('rhythm', r.bed - 120, 'raus', 'Wann musst du morgen raus?', 'Antippen und Uhrzeit einstellen – dann passen Schlafenszeit und Koffein-Stopp.', '#rhythmus');
     if (!off('bildschirm')) add('rhythm', r.bed - 60, 'screen', 'Bildschirme weg', `Schlafenszeit ${minToTime(r.bed)} – jetzt Licht dimmen und runterfahren.`, '#licht');
-    add('rhythm', r.bed - 10, 'bett', `Schlafenszeit ${minToTime(r.bed)}`, r.wakeNext != null ? `Morgen raus um ${minToTime(r.wakeNext)} – so kommst du auf ${fmtDur(r.need)} Schlaf.` : `So kommst du auf ${fmtDur(r.need)} Schlaf.`, '#heute');
+    add('rhythm', r.bed - 10, 'bett', `Schlafenszeit ${minToTime(r.bed)}`, r.bedSrc === 'fenster' ? `Dein Fenster: einschlafen ${rhRange(r.win.onset)}, morgen raus ${rhRange(r.wakeNext)}.` : r.wakeNext != null ? `Morgen raus um ${minToTime(r.wakeNext)} – so kommst du auf ${fmtDur(r.need)} Schlaf.` : `So kommst du auf ${fmtDur(r.need)} Schlaf.`, '#heute');
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {

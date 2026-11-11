@@ -1,7 +1,7 @@
 /* ============================================================
    ALLTAG: bessere Alternativen, Snacks für unterwegs, Plausibilität
    ============================================================ */
-/*icons: repeat moon */
+/*icons: repeat moon sunrise bed */
 
 /* Tausch-Hinweise: passt ein Lebensmittel, zeigt die App eine bessere Wahl (Wunsch vom 10.11.2026) */
 const SWAPS = [
@@ -119,6 +119,8 @@ function rhythm(k = todayKey()) {
   const pr = rhProfile(), d = peekDay(k), nx = peekDay(addDays(k, 1));
   let wake = rhWakeOf(d), wakeSrc = wake == null ? null : d.gar && d.gar.wakeTime === d.health.wakeTime ? 'garmin' : 'eingetragen';
   if (wake == null) { const pv = peekDay(addDays(k, -1)), w = pv && pv.hd && pv.hd.wakeNext ? timeToMin(pv.hd.wakeNext) : null; if (w != null) { wake = w; wakeSrc = 'eingestellt'; } } // am Vortag „morgen raus um …“
+  const win = rhWindow(k);
+  if (wake == null && win) { wake = win.wake; wakeSrc = 'fenster'; } // Schlaffenster (2.9.0)
   if (wake == null) { const p = rhPredWake(k); if (p) { wake = p.m; wakeSrc = p.src; } }
   if (wake == null) { wake = pr.wake; wakeSrc = 'profil'; }
   /* Schlafbedarf für die kommende Nacht: Garmin (Nacht danach bzw. „nächster Schlafbedarf“), sonst letzte Nacht, sonst Schnitt */
@@ -128,10 +130,12 @@ function rhythm(k = todayKey()) {
   if (need == null) { need = 480; needSrc = 'standard'; }
   let wakeNext = d && d.hd && d.hd.wakeNext ? timeToMin(d.hd.wakeNext) : null, nextSrc = 'eingestellt';
   if (wakeNext == null) { wakeNext = rhWakeOf(nx); nextSrc = 'garmin'; }
+  if (wakeNext == null && win) { wakeNext = win.wake; nextSrc = 'fenster'; }
   if (wakeNext == null) { const p = rhPredWake(addDays(k, 1)); if (p) { wakeNext = p.m; nextSrc = p.src; } }
   let bed = pr.bed, bedSrc = 'profil';
-  if (wakeNext != null) { bed = clamp(wakeNext + 1440 - need - 15, 20 * 60, 25 * 60); bedSrc = nextSrc; }
-  const r = { wake, wakeSrc, bed, bedSrc, need, needSrc, wakeNext, live: wakeSrc !== 'profil' || bedSrc !== 'profil' };
+  if (nextSrc === 'fenster') { bed = clamp(win.bed, 20 * 60, 25 * 60); bedSrc = 'fenster'; } // Fenster: gleiche Zeit jeden Abend
+  else if (wakeNext != null) { bed = clamp(wakeNext + 1440 - need - 15, 20 * 60, 25 * 60); bedSrc = nextSrc; }
+  const r = { wake, wakeSrc, bed, bedSrc, need, needSrc, wakeNext, win, live: wakeSrc !== 'profil' || bedSrc !== 'profil' };
   c.m.set(k, r);
   return r;
 }
@@ -151,16 +155,17 @@ function rhythmLine(k) {
   const r = rhythm(k), nxt = addDays(k, 1);
   const nw = (t) => `<span class="nw">${esc(t)}</span>`;
   const wakeTxt = { garmin: `Aufgewacht ${minToTime(r.wake)}`, eingetragen: `Aufgestanden ${minToTime(r.wake)}`, eingestellt: `Aufstehen ${minToTime(r.wake)} (eingestellt)` }[r.wakeSrc] || `Aufstehen ~${minToTime(r.wake)}`;
-  const src = { eingestellt: '', garmin: '', wochentag: `wie meist am ${WD_LONG[weekday(nxt)]}`, schnitt: 'dein Schnitt', profil: 'aus dem Profil' }[r.bedSrc];
+  const src = { eingestellt: '', garmin: '', fenster: `dein Fenster ${rhRange(r.wakeNext ?? 0)}`, wochentag: `wie meist am ${WD_LONG[weekday(nxt)]}`, schnitt: 'dein Schnitt', profil: 'aus dem Profil' }[r.bedSrc];
   const next = `${k === todayKey() ? 'Morgen' : 'Am nächsten Tag'} raus ${minToTime(r.wakeNext ?? rhProfile().wake)}${src ? ` (${src})` : ''}`;
-  return `<div class="rhythm"><span class="rh-ic">${icon('moon')}</span><span class="rh-txt"><b>Schlafenszeit ${minToTime(r.bed)}</b><small>${esc(next)}</small><small>${nw(wakeTxt)} · ${nw('Schlafbedarf ' + fmtDur(r.need))}</small></span><button class="pill-btn" data-a="rh-edit" data-date="${k}">Ändern</button></div>`;
+  const third = r.bedSrc === 'fenster' ? `${nw(`Einschlafen ${rhRange(r.win.onset)}`)} · ${nw(wakeTxt)}` : `${nw(wakeTxt)} · ${nw('Schlafbedarf ' + fmtDur(r.need))}`;
+  return `<div class="rhythm"><span class="rh-ic">${icon('moon')}</span><span class="rh-txt"><b>Schlafenszeit ${minToTime(r.bed)}</b><small>${esc(next)}</small><small>${third}</small></span><button class="pill-btn" data-a="rh-edit" data-date="${k}">Ändern</button></div>`;
 }
 function sheetRhythm(k) {
   const r = rhythm(k), d = peekDay(k);
   ui.sheet = { type: 'rhythm', k };
   const needTxt = { garmin: 'laut Garmin', schnitt: 'dein Garmin-Schnitt', standard: 'Standard, bis Garmin ihn kennt' }[r.needSrc];
   openSheet(`<h3 class="sheet-title">Wann musst du ${k === todayKey() ? 'morgen' : 'am nächsten Tag'} raus?</h3>
-    <p class="hint">Aus deinem Aufstehen und deinem Schlafbedarf (${fmtDur(r.need)}, ${needTxt}) plus 15 Min. zum Einschlafen rechnet die App deine Schlafenszeit. Danach richten sich Koffein-Stopp, letzte Mahlzeit, Bildschirm-Pause und die Abend-Blöcke im Plan.</p>
+    <p class="hint">${r.win ? `Ohne Eingabe gilt dein Schlaffenster: einschlafen ${rhRange(r.win.onset)}, aufstehen ${rhRange(r.win.wake)}. Musst du früher raus, stell es hier ein: dann rechnet die App mit deinem Schlafbedarf (${fmtDur(r.need)}, ${needTxt}) plus 15 Min. zum Einschlafen.` : `Aus deinem Aufstehen und deinem Schlafbedarf (${fmtDur(r.need)}, ${needTxt}) plus 15 Min. zum Einschlafen rechnet die App deine Schlafenszeit.`} Danach richten sich Koffein-Stopp, letzte Mahlzeit, Bildschirm-Pause und die Abend-Blöcke im Plan.</p>
     <div class="form"><div class="frow"><span class="flabel">Raus um</span><div class="fin"><input type="time" id="rh-wake" value="${r.wakeNext != null ? minToTime(r.wakeNext) : ''}"></div></div></div>
     <div class="sheet-acts"><button class="btn is-accent" data-a="rh-save">Übernehmen</button>${d && d.hd && d.hd.wakeNext ? '<button class="btn" data-a="rh-reset">Wieder automatisch</button>' : '<button class="btn is-ghost" data-a="sheet-close">Abbrechen</button>'}</div>`);
 }

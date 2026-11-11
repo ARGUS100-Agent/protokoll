@@ -20,6 +20,7 @@ const AREAS = [
   { id: 'garmin', n: 'Garmin & Schlaf', short: 'Garmin', ic: 'watch' },
   { id: 'einkauf', n: 'Einkauf', ic: 'shopping-cart' },
   { id: 'woche', n: 'Wochenrückblick', short: 'Rückblick', ic: 'calendar-check' },
+  { id: 'wunsch', n: 'Wunschliste', ic: 'gift' },
   { id: 'set', n: 'Einstellungen & Backup', short: 'Einstellungen', ic: 'settings' },
 ];
 const MORE_TAB = { id: 'mehr', n: 'Mehr', ic: 'layout-grid' };

@@ -3,7 +3,7 @@
    Supplements, Training & Sauna, Licht & Koffein
    ============================================================ */
 Object.assign(ui, {
-  sub: { train: 'heute', knie: 'heute', haut: 'heute', garmin: 'eintragen', einkauf: 'buy', woche: 'rueckblick' },
+  sub: { train: 'heute', knie: 'heute', haut: 'heute', garmin: 'eintragen', einkauf: 'buy', woche: 'rueckblick', wunsch: 'offen' },
   trainWeek: weekStart(todayKey()), gymDay: null, gymSess: null, reviewWeek: weekStart(todayKey()), bloodOpen: null,
   photoWeek: weekStart(todayKey()), photoCmp: null, exCat: null, exArea: null, exRoutine: null, exQ: '', trainMetric: null, testMetric: 'k2w', runMetric: 'pain',
 });
@@ -92,6 +92,7 @@ function areaStatus(id, k = todayKey()) {
         if (low.length) return { v: `${n} offen`, s: esc(`Fast leer: ${low.slice(0, 2).join(', ')}${low.length > 2 ? ` +${low.length - 2}` : ''}`), st: 'under' };
         return { v: `${n} offen`, s: n ? esc(shopStoreCounts('buy').slice(0, 3).map((x) => `${x.n} ${x.count}`).join(' · ')) : 'alles eingekauft', st: 'none' };
       }
+      case 'wunsch': return wishStatus();
       case 'woche': {
         const ws = weekStart(k), r = weekday(k) === 6;
         const n = weekKeys(ws).filter((x) => x <= k && peekDay(x)).length;

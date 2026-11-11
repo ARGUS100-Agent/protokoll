@@ -992,3 +992,51 @@ th { color: var(--ink-3); font-weight: 650; }
 .gar-train .kv-list b { font-weight: 600; text-align: right; }
 .item-txt .gar-mark, .tgl-txt .gar-mark { vertical-align: -2px; }
 .chip.chip-wrap { white-space: normal; text-align: left; line-height: 1.3; border-radius: 14px; max-width: 100%; }
+
+/* ---------- Schlafrhythmus (2.9.0) ---------- */
+.rh-card .sec-sub { margin-bottom: 4px; }
+.rh-win { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 12px; }
+.rh-win > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--r-md); background: var(--bg-2); }
+.rh-win span { display: flex; align-items: center; gap: 5px; color: var(--ink-3); font-size: 12px; font-weight: 600; }
+.rh-win span .ic { width: 14px; height: 14px; color: var(--screens); }
+.rh-win b { font-size: 22px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.rh-win small { color: var(--ink-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.rh-chart { padding: 10px 12px 6px; border-radius: var(--r-md); background: var(--bg-2); }
+.rh-axis { display: flex; justify-content: space-between; margin: 0 92px 4px 48px; color: var(--ink-3); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.rh-row { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+.rh-d { flex: none; width: 40px; color: var(--ink-2); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.rh-bar { position: relative; flex: 1; height: 12px; border-radius: 6px; background: var(--bg-3); }
+.rh-bar i { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+.rh-band { background: rgba(138, 121, 234, .28); }
+.rh-sleep { top: 3px !important; bottom: 3px !important; background: var(--st-under); }
+.rh-row.is-ok .rh-sleep { background: var(--st-ok); }
+.rh-t { flex: none; width: 84px; display: flex; flex-direction: column; color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.rh-t small { color: var(--st-under); font-size: 10.5px; }
+.rh-t small.is-ok { display: flex; align-items: center; gap: 3px; color: var(--st-ok); }
+.rh-t small .ic { width: 11px; height: 11px; stroke-width: 3; }
+.rh-row.is-empty .rh-t { color: var(--ink-3); }
+.rh-stat { margin: 10px 2px 4px; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+
+/* ---------- Wunschliste (2.9.0) ---------- */
+.wish-sum, .wish-cost { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 8px; }
+.wish-sum > div, .wish-cost > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--r-md); background: var(--bg-2); }
+.wish-cost > div { background: var(--bg-3); }
+.wish-sum span, .wish-cost span { color: var(--ink-3); font-size: 12px; font-weight: 600; }
+.wish-sum b, .wish-cost b { font-size: 17px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.wish-row { padding-left: 0; }
+.wish-chk { flex: none; min-width: 52px; padding-right: 0; }
+.wish-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 4px 10px 0; text-align: left; }
+.wish-row.no-chk .wish-main { padding-left: 14px; }
+.wish-main small { color: var(--ink-3); font-size: 13px; line-height: 1.35; }
+.wish-row.is-done b { color: var(--ink-2); }
+.wish-lead { margin: 0 2px 12px; color: var(--ink-2); font-size: 15px; line-height: 1.45; }
+.wish-p { margin: 0 2px 8px; color: var(--ink); font-size: 14.5px; line-height: 1.5; }
+.wish-p.is-pre { white-space: pre-wrap; }
+.wish-list, .wish-src { margin: 0 0 8px; padding-left: 20px; font-size: 14.5px; line-height: 1.5; }
+.wish-list li + li, .wish-src li + li { margin-top: 3px; }
+.wish-src a { color: var(--accent); }
+.wish-amp { display: flex; align-items: center; gap: 8px; margin: 0 2px 6px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.wish-amp i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--st-none); }
+.wish-amp.amp-stark i { background: var(--st-ok); }
+.wish-amp.amp-mittel i { background: var(--st-under); }
+.wish-amp.amp-schwach i { background: var(--st-over); }

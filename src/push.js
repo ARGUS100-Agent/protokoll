@@ -14,7 +14,7 @@ let pushTimer = null, pushBusy = null, pushAgain = false;
 const PUSH_CATS = [
   ['todo', 'To-dos & Checks', 'Fällige To-dos, Knie-Morgencheck, Backup, Wochenrückblick am Sonntag'],
   ['plan', 'Offene Posten im Standardtag', 'Nach jeder Mahlzeit-Zeit, wenn noch etwas offen ist – auch Supplements'],
-  ['rhythm', 'Tagesrhythmus', 'Morgenlicht, Koffein-Stopp, Bildschirm-Pause, Schlafenszeit, „Wann musst du morgen raus?“'],
+  ['rhythm', 'Tagesrhythmus', 'Morgenlicht, Koffein-Stopp, Bildschirm-Pause, Schlafenszeit aus deinem Schlaffenster („Wann musst du morgen raus?“, solange es noch kein Fenster gibt)'],
   ['goals', 'Wochenziele', 'Zur Erinnerungszeit deiner Ziele („Jetzt dran“)'],
   ['nutri', 'Nährstoffe am Abend', 'Was heute noch fehlt oder schon zu viel ist – mit konkretem Tipp'],
   ['wins', 'Geschafft', 'Am Abend, was du heute erreicht hast'],
@@ -102,9 +102,9 @@ function pushPlan(now = Date.now()) {
     /* Tagesrhythmus */
     if (!off('licht_morgen') && !d.habits.licht_morgen) add('rhythm', r.wake + 30, 'licht', 'Morgenlicht', '10–30 Min. raus ins Tageslicht – das stellt deine innere Uhr und hilft beim Einschlafen heute Abend.', '#licht');
     if (!off('koffein') && cafUser) { const cut = cafCutoff(k); add('rhythm', cut - 15, 'stopp', `Koffein-Stopp um ${minToTime(cut)}`, `Danach kein Kaffee, Monster oder Cola mehr – Schlafenszeit heute ${minToTime(r.bed)}.`, '#licht'); }
-    if (!(d.hd && d.hd.wakeNext)) add('rhythm', r.bed - 120, 'raus', 'Wann musst du morgen raus?', 'Antippen und Uhrzeit einstellen – dann passen Schlafenszeit und Koffein-Stopp.', '#rhythmus');
+    if (!(d.hd && d.hd.wakeNext) && r.bedSrc !== 'fenster') add('rhythm', r.bed - 120, 'raus', 'Wann musst du morgen raus?', 'Antippen und Uhrzeit einstellen – dann passen Schlafenszeit und Koffein-Stopp.', '#rhythmus');
     if (!off('bildschirm')) add('rhythm', r.bed - 60, 'screen', 'Bildschirme weg', `Schlafenszeit ${minToTime(r.bed)} – jetzt Licht dimmen und runterfahren.`, '#licht');
-    add('rhythm', r.bed - 10, 'bett', `Schlafenszeit ${minToTime(r.bed)}`, r.wakeNext != null ? `Morgen raus um ${minToTime(r.wakeNext)} – so kommst du auf ${fmtDur(r.need)} Schlaf.` : `So kommst du auf ${fmtDur(r.need)} Schlaf.`, '#heute');
+    add('rhythm', r.bed - 10, 'bett', `Schlafenszeit ${minToTime(r.bed)}`, r.bedSrc === 'fenster' ? `Dein Fenster: einschlafen ${rhRange(r.win.onset)}, morgen raus ${rhRange(r.wakeNext)}.` : r.wakeNext != null ? `Morgen raus um ${minToTime(r.wakeNext)} – so kommst du auf ${fmtDur(r.need)} Schlaf.` : `So kommst du auf ${fmtDur(r.need)} Schlaf.`, '#heute');
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {

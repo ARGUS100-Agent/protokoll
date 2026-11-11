@@ -16,7 +16,7 @@ function defaultSettings2() {
   };
 }
 function defaultStores() {
-  return { shop: null, blood: { markers: {}, custom: [], entries: [] }, knee: { tests: [], befund: '', appts: [] }, reviews: {} };
+  return { shop: null, blood: { markers: {}, custom: [], entries: [] }, knee: { tests: [], befund: '', appts: [] }, reviews: {}, wish: { items: null } };
 }
 /* Einmalige Umstellung auf Version 2 */
 function migrate2() {
