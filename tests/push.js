@@ -48,7 +48,11 @@ const T = (hm, d = '2026-11-10') => Date.parse(`${d}T${hm}:00+01:00`);
     const rq = route.request();
     if (rq.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
     const h = { ...rq.headers(), origin: APP };
-    const res = await worker.fetch(new Request(rq.url(), { method: rq.method(), headers: h, body: rq.method() === 'POST' ? rq.postData() || '' : undefined }), env);
+    // Der Worker läuft in Node: „jetzt“ = die simulierte Uhr der Seite (sonst liegt der Testtag in der Vergangenheit)
+    const pageNow = await page.evaluate(() => Date.now()).catch(() => Date.now());
+    const real = Date.now; Date.now = () => pageNow;
+    let res;
+    try { res = await worker.fetch(new Request(rq.url(), { method: rq.method(), headers: h, body: rq.method() === 'POST' ? rq.postData() || '' : undefined }), env); } finally { Date.now = real; }
     calls.push(new URL(rq.url()).pathname);
     return route.fulfill({ status: res.status, headers: { ...cors, 'Content-Type': res.headers.get('Content-Type') || 'text/plain' }, body: Buffer.from(await res.arrayBuffer()) });
   });
@@ -70,6 +74,8 @@ const T = (hm, d = '2026-11-10') => Date.parse(`${d}T${hm}:00+01:00`);
       d.entries = [{ id: 'e1', food: 'banane', g: 120, meal: 'fruehstueck', t: Date.now() - 3600000 }];
     });
     S.settings.todos = [{ id: 'td1', t: 'Rezept abholen', date: '2026-11-10', done: false }];
+    // 2.10: fester Koffein-Abstand und ohne die neuen Kategorien – die prüft tests/rhythmus.js
+    S.settings.caf.mode = 'fix'; S.settings.push = { ...(S.settings.push || {}), cats: { habits: false, training: false } };
     for (const b of S.settings.plan) for (const it of b.items) if (it.id === 'n_paranuss') it.opt = true; // Selen-Lücke für den Tipp
     S.reviews['2026-11-09'] = { goals: [goalNorm({ area: 'koffein', title: 'Kein Koffein nach dem Stopp', metric: 'caf_stop', agg: 'days', cmp: '<=', value: 0, need: 6, when: 'stop-30', tip: 'Ab dem Stopp nur Wasser oder Tee.' }, 0)] };
     markDirty('settings'); markDirty('reviews'); invalidate(); go('heute');

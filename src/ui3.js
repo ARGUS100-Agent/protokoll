@@ -128,14 +128,17 @@ function vHeute() {
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
+  h += expTodayCard(k);
   h += sleepHelpCard(k);
   h += routineCard(k);
+  if (weekday(k) <= 2) h += agentCard(addDays(weekStart(k), -7));
   h += kneeMorningCard(k, true);
   h += sundayCard(k);
   h += todoCard();
   h += reviewReadyCard(k);
   h += pushHintCard();
   h += `<div class="tiles">${HOME_TILES.map((id) => tileHTML(id, k)).join('')}</div>`;
+  if (aiOn()) h += `<button class="btn" data-a="ask-open">${icon('message-circle')}Frag Frank</button>`;
   h += `<p class="hint center">Tippe auf eine Kachel, um in den Bereich zu wechseln.</p>`;
   return h;
 }
@@ -483,6 +486,7 @@ function vLicht() {
   h += `<section class="sec"><div class="sec-head"><h2>Licht</h2><span class="count">${{ garmin: 'aufgewacht', eingetragen: 'aufgestanden', eingestellt: 'aufstehen' }[rhythm(k).wakeSrc] || 'aufstehen ~'} ${minToTime(rhythm(k).wake)}</span></div><div class="toggle-grid">
     <button class="tgl${lm ? ' is-on' : ''}" data-a="habit" data-id="licht_morgen" data-date="${k}" aria-pressed="${lm}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Morgenlicht${garHabitMark(d, 'licht_morgen')}</b><small>10–30 Min. draußen nach dem Aufstehen</small></span></button>
     <button class="tgl${ln ? ' is-on' : ''}" data-a="habit" data-id="licht_nachmittag" data-date="${k}" aria-pressed="${ln}"><span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>Nachmittagslicht</b><small>ein paar Minuten im späten Licht</small></span></button></div>
+    ${sunHTML(k)}
     <div class="chips chips-tight light-min"><span class="hint">Morgens draußen:</span>${[10, 15, 20, 30, 45].map((m) => `<button class="chip chip-xs${lmin === m ? ' is-on' : ''}" data-a="light-min" data-v="${m}" data-date="${k}">${m} Min.</button>`).join('')}</div>
     <div class="mlist">${topicRow('licht_morgen', 'Warum Morgenlicht?')}</div></section>`;
   /* Koffein */

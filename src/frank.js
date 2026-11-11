@@ -184,7 +184,7 @@ function renderFrankSheet() {
     <div class="frank-step"><span class="frank-n">1</span><div class="frank-body"><b>Frank fragen</b>
       <input type="text" class="frank-in" id="frank-q" data-i="frank-q" value="${esc(s.q)}" placeholder="z. B. Milbona Protein Shake, 1 Flasche" autocomplete="off" enterkeyhint="done">
       <a class="btn" id="frank-go" href="${esc(frankClaudeUrl(s.q))}" target="_blank" rel="noopener" data-copy="${esc(frankAskText(s.q))}">${icon('message-circle')}Kopieren und Claude öffnen</a>
-      <p class="hint">Geht Claude im Browser statt in der App auf: Claude-App öffnen und den kopierten Text einfügen.</p></div></div>
+      <p class="hint">Geht Claude im Browser statt in der App auf: Claude-App öffnen und den kopierten Text einfügen.</p>${typeof frankAIBox === 'function' ? frankAIBox() : ''}</div></div>
     <div class="frank-step"><span class="frank-n">2</span><div class="frank-body"><b>Code von Frank einfügen</b>
       <textarea class="note frank-code" id="frank-code" rows="3" data-i="frank-code" placeholder="Code hier einfügen" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
       <button class="btn is-accent" data-a="frank-paste">${icon('clipboard-paste')}Code einfügen</button>
@@ -260,6 +260,7 @@ function renderFrankPreview() {
   const n = s.items.length;
   openSheet(`<h3 class="sheet-title">Von Frank</h3>
     ${s.items.map((it, i) => frankCard(it, i)).join('')}
+    ${typeof frankPreviewExtra === 'function' ? frankPreviewExtra(s) : ''}
     <h5>Wann</h5>
     <div class="chips">${days.map((k) => `<button class="chip chip-sm${k === s.k ? ' is-on' : ''}" data-a="frank-day" data-v="${k}">${esc(dayName(k))}</button>`).join('')}</div>
     <div class="chips frank-meals">${MEALS.map(([id, nm]) => `<button class="chip chip-sm${id === s.meal ? ' is-on' : ''}" data-a="frank-meal" data-v="${id}">${nm}</button>`).join('')}</div>

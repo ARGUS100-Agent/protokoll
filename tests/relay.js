@@ -18,7 +18,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const hdr = (h) => ({ Origin: APP, ...h });
 
   let r = await req('/');
-  ok(r.status === 200 && (await r.text()) === 'Protokoll-Weiterleitung läuft (v3)' && r.headers.get('Access-Control-Allow-Origin') === APP, 'Startseite: läuft (v3), mit CORS-Kopf');
+  ok(r.status === 200 && (await r.text()) === 'Protokoll-Weiterleitung läuft (v4)' && r.headers.get('Access-Control-Allow-Origin') === APP, 'Startseite: läuft (v4), mit CORS-Kopf');
   r = await req('/sleep-service/sleep/dailySleep?date=2026-11-07', { method: 'OPTIONS', headers: hdr({ 'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'authorization' }) });
   ok(r.status === 204 && /Authorization/.test(r.headers.get('Access-Control-Allow-Headers')), 'Vorabanfrage (OPTIONS) erlaubt Authorization');
   r = await req('/sleep-service/sleep/dailySleep?date=2026-11-07', { headers: { Authorization: 'Bearer x' } });
@@ -65,7 +65,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const preq = (op, body, key, e = env) => worker.fetch(new Request(W + '/push/' + op, { method: 'POST', headers: hdr({ 'Content-Type': 'application/json', ...(key ? { 'X-Push-Key': key } : {}) }), body: JSON.stringify(body || {}) }), e);
   const KEY = 'k' + 'A'.repeat(42), KEY2 = 'z' + 'B'.repeat(42);
   r = await worker.fetch(new Request(W + '/'), env);
-  ok((await r.text()) === 'Protokoll-Weiterleitung läuft (v3) · Mitteilungen bereit', 'Startseite zeigt: Mitteilungen bereit (KV gebunden)');
+  ok((await r.text()) === 'Protokoll-Weiterleitung läuft (v4) · Mitteilungen bereit', 'Startseite zeigt: Mitteilungen bereit (KV gebunden)');
   r = await preq('setup', {}, KEY, {});
   ok(r.status === 501 && (await r.json()).err === 'kv', 'Ohne KV-Speicher: 501 mit Hinweis');
   r = await worker.fetch(new Request(W + '/push/setup', { method: 'POST', headers: { Origin: 'https://fremd.example', 'X-Push-Key': KEY } }), env);
@@ -74,7 +74,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(r.status === 401, 'Ohne gültigen Geräte-Schlüssel: 401');
   r = await preq('setup', {}, KEY);
   const setup = await r.json();
-  ok(r.status === 200 && /^[A-Za-z0-9_-]{87}$/.test(setup.pub) && setup.v === 3, 'Einrichten: VAPID-Schlüssel erzeugt, öffentlicher Teil (65 Byte) zurück');
+  ok(r.status === 200 && /^[A-Za-z0-9_-]{87}$/.test(setup.pub) && setup.v === 4, 'Einrichten: VAPID-Schlüssel erzeugt, öffentlicher Teil (65 Byte) zurück');
   const cfg0 = JSON.parse(store.get('cfg'));
   ok(cfg0.jwk && cfg0.jwk.d && !store.get('cfg').includes(KEY), 'Im Speicher: privater Signier-Schlüssel, vom Geräte-Schlüssel nur der Prüfwert');
   r = await preq('setup', {}, KEY);

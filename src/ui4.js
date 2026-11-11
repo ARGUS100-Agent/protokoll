@@ -178,7 +178,7 @@ function vKoerper() {
 const BLOOD_ST = { low: 'niedrig', ok: 'normal', high: 'hoch', none: '–' };
 function refTxt(m) { return m.lo != null && m.hi != null ? `${fmt(m.lo, 2)}–${fmt(m.hi, 2)}` : m.lo != null ? `≥ ${fmt(m.lo, 2)}` : m.hi != null ? `≤ ${fmt(m.hi, 2)}` : 'kein Bereich'; }
 function vBlut() {
-  let h = areaHead('blut', `<button class="pill-btn is-accent" data-a="blood-add">${icon('plus')}Werte</button>`);
+  let h = areaHead('blut', `<div class="row-btns">${aiOn() ? `<label class="pill-btn">${icon('camera')}Bericht<input type="file" accept="image/*" data-c="lab-photo" hidden></label>` : ''}<button class="pill-btn is-accent" data-a="blood-add">${icon('plus')}Werte</button></div>`);
   h += `<div class="banner is-soft">${icon('info')}<div><b>Hinweis</b><span>Referenzbereiche sind Richtwerte und ersetzen keine ärztliche Beurteilung. Labore nutzen unterschiedliche Einheiten und Bereiche – übernimm am besten die deines Labors (Wert antippen).</span></div></div>`;
   const entries = (S.blood.entries || []).slice().sort((a, b) => b.date.localeCompare(a.date));
   if (!entries.length) h += emptyState('Noch keine Blutwerte eingetragen.', `<button class="btn is-accent" data-a="blood-add">${icon('plus')}Erste Werte eintragen</button>`);
@@ -253,7 +253,7 @@ function vShop() {
   const items = S.shop.items;
   const buy = items.filter((x) => x.list === 'buy'), home = items.filter((x) => x.list === 'home');
   const grp = (ui.shopGroup && ui.shopGroup[sub]) || (sub === 'buy' ? 'store' : 'cat');
-  let h = areaHead('einkauf');
+  let h = areaHead('einkauf', aiOn() ? `<label class="pill-btn">${icon('receipt')}Kassenbon<input type="file" accept="image/*" data-c="receipt-photo" hidden></label>` : '');
   h += `<div class="seg"><button class="${sub === 'buy' ? 'is-on' : ''}" data-a="sub" data-area="einkauf" data-v="buy">Einkaufen (${buy.length})</button><button class="${sub === 'home' ? 'is-on' : ''}" data-a="sub" data-area="einkauf" data-v="home">Zuhause (${home.length})</button></div>`;
   h += `<div class="shop-add"><input type="text" id="shop-new" placeholder="Artikel hinzufügen" enterkeyhint="done" autocomplete="off"><label class="choice-select sm">${icon('chevron-down')}<select id="shop-cat" aria-label="Kategorie">${SHOP_CATS.map((c) => `<option ${c === (ui.shopCat || 'Gemüse') ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label><button class="icon-btn" data-a="shop-add" aria-label="Hinzufügen">${icon('plus')}</button></div>`;
   const list = sub === 'buy' ? buy : home;
@@ -339,8 +339,9 @@ function sheetShopItem(id) {
    ============================================================ */
 function vWoche() {
   const sub = getSub('woche', 'rueckblick');
-  let h = areaHead('woche') + subnav('woche', sub, [['rueckblick', 'Rückblick'], ['muster', 'Muster'], ['kalender', 'Kalender & Serien'], ['archiv', 'Archiv']]);
-  if (sub === 'rueckblick') h += reviewHTML(ui.reviewWeek);
+  let h = areaHead('woche') + subnav('woche', sub, [['rueckblick', 'Rückblick'], ['muster', 'Muster'], ['experimente', 'Experimente'], ['kalender', 'Kalender & Serien'], ['archiv', 'Archiv']]);
+  if (sub === 'rueckblick') h += agentCard(ui.reviewWeek) + reviewHTML(ui.reviewWeek);
+  else if (sub === 'experimente') h += expHTML();
   else if (sub === 'muster') h += vMuster();
   else if (sub === 'kalender') {
     const st = { nutri: streak('nutri'), supp: streak('supp'), habits: streak('habits') };

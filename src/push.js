@@ -104,7 +104,7 @@ function pushPlan(now = Date.now()) {
       add('plan', g.t, `plan-${String(g.id).replace(/[^a-z0-9]/gi, '')}`, `Noch offen: ${g.n}`, pushList(g.labels, 6), '#ern');
     }
     /* Tagesrhythmus */
-    if (!off('licht_morgen') && !d.habits.licht_morgen) add('rhythm', r.wake + 30, 'licht', 'Morgenlicht', '10–30 Min. raus ins Tageslicht – das stellt deine innere Uhr und hilft beim Einschlafen heute Abend.', '#licht');
+    if (!off('licht_morgen') && !d.habits.licht_morgen) add('rhythm', lightAt(k), 'licht', 'Morgenlicht', '10–30 Min. raus ins Tageslicht – das stellt deine innere Uhr und hilft beim Einschlafen heute Abend.', '#licht');
     if (!off('koffein') && cafUser) {
       if (cafMode() === 'dose') {
         const used = cafUsedIds(), stops = cafStops(k).filter((x) => !used.size || used.has(x.id));
@@ -123,6 +123,7 @@ function pushPlan(now = Date.now()) {
     add('rhythm', r.bed - 10, 'bett', `Schlafenszeit ${minToTime(r.bed)}`, r.bedSrc === 'fenster' ? `Dein Fenster: einschlafen ${rhRange(r.win.onset)}, morgen raus ${rhRange(r.wakeNext)}.` : r.wakeNext != null ? `Morgen raus um ${minToTime(r.wakeNext)} – so kommst du auf ${fmtDur(r.need)} Schlaf.` : `So kommst du auf ${fmtDur(r.need)} Schlaf.`, '#heute');
     pushHabits(k, r, d, add, off, isT);
     pushTraining(k, r, d, add, isT);
+    pushExp(k, r, add);
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {
@@ -195,9 +196,12 @@ function pushSync(force = false, keepalive = false) {
   if (pushBusy) { pushAgain = true; return pushBusy; }
   let items;
   try { items = pushPlan().map(({ at, title, body, tag, url }) => ({ at, title, body, tag, url })); } catch (e) { return Promise.resolve(null); }
-  const hash = pushHash(JSON.stringify(items));
+  let ctx = null, week = null;
+  try { ctx = briefCtx(); } catch (e) { ctx = null; }
+  try { week = AIST && AIST.ai ? agentPayload() : null; } catch (e) { week = null; }
+  const hash = pushHash(JSON.stringify([items, ctx, week]));
   if (!force && hash === PUSH.hash && PUSH.last && Date.now() - Date.parse(PUSH.last) < 6 * 3600000) return Promise.resolve(null);
-  pushBusy = pushCall('schedule', { items }, { keepalive })
+  pushBusy = pushCall('schedule', { items, ctx, week }, { keepalive })
     .then((j) => { PUSH.hash = hash; PUSH.last = new Date().toISOString(); PUSH.n = j.n; PUSH.err = null; PUSH.errAt = null; return pushSave().then(() => j); })
     .catch((e) => { PUSH.err = e.message; PUSH.errAt = Date.now(); pushSave(); return null; })
     .finally(() => { pushBusy = null; if (pushAgain) { pushAgain = false; pushSoon(); } });
@@ -205,7 +209,7 @@ function pushSync(force = false, keepalive = false) {
 }
 /* Bei offener App: alle 30 Min. prüfen, ob sich der Plan geändert hat (z. B. nach Mitternacht) */
 let pushChecked = 0;
-function pushTick() { if (!pushOn() || Date.now() - pushChecked < 30 * 60000) return; pushChecked = Date.now(); pushSync(false); }
+function pushTick() { try { aiRefresh(); } catch (e) { /* egal */ } if (!pushOn() || Date.now() - pushChecked < 30 * 60000) return; pushChecked = Date.now(); pushSync(false); }
 /* Klick auf eine Mitteilung: Bereich öffnen */
 function pushNav(url) {
   const h = String(url || '').replace(/^#/, '');
@@ -223,7 +227,7 @@ function pushInit() {
   navigator.serviceWorker.addEventListener('message', (e) => { if (e.data && e.data.type === 'nav') pushNav(e.data.url); });
   navigator.serviceWorker.ready.then((r) => { pushReg = r; }).catch(() => {});
   if (location.hash && location.hash.length > 1) { const h = location.hash; history.replaceState(null, '', location.pathname + location.search); setTimeout(() => pushNav(h), 300); }
-  setTimeout(() => pushSync(false), 3000);
+  setTimeout(() => { aiRefresh(true).finally(() => pushSync(false)); }, 2500);
 }
 
 /* ---------- Oberfläche ---------- */

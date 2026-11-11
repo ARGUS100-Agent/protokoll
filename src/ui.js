@@ -26,6 +26,7 @@ function render(keepScroll = true) {
   renderTabbar();
   if (keepScroll) window.scrollTo(0, y);
   hydratePhotos($('#main'));
+  try { badgeSync(); wxFetch(); } catch (e) { /* egal */ }
 }
 function go(tab, opts = {}) {
   ui.scroll[ui.tab] = window.scrollY;
@@ -350,7 +351,7 @@ function defaultMeal() { const n = nowMin(); return n < 660 ? 'fruehstueck' : n 
 function vDetail(k) {
   const d = getDay(k);
   let h = `<div class="search"><span>${icon('search')}</span><input type="search" placeholder="Lebensmittel suchen" data-i="search" value="${esc(ui.q)}" autocomplete="off" enterkeyhint="search"></div>
-  <div class="row-btns"><button class="pill-btn is-accent" data-a="frank-open" data-date="${k}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new">${icon('plus')}Eigenes Lebensmittel</button><button class="pill-btn" data-a="plant-pick" data-date="${k}">${icon('sprout')}Pflanze hinzufügen</button></div>
+  <div class="row-btns"><button class="pill-btn is-accent" data-a="frank-open" data-date="${k}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="scan-open" data-date="${k}">${icon('scan-barcode')}Barcode</button><button class="pill-btn" data-a="food-new">${icon('plus')}Eigenes Lebensmittel</button><button class="pill-btn" data-a="plant-pick" data-date="${k}">${icon('sprout')}Pflanze hinzufügen</button></div>
   <div id="results">${searchResults()}</div>`;
   h += snacksHTML(k);
   const entries = d.entries || [];
@@ -486,6 +487,7 @@ function openSheet(html) {
   document.documentElement.classList.add('noscroll');
 }
 function closeSheet() {
+  if (ui.sheet && ui.sheet.type === 'scan') { try { scanStop(); } catch (e) { /* egal */ } }
   const el = $('#sheet');
   el.classList.remove('open');
   el.innerHTML = '';

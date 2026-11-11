@@ -8,7 +8,7 @@ DIST = os.path.join(ROOT, 'docs')
 NM = os.path.join(ROOT, 'node_modules')
 ICON_DIR = os.path.join(NM, 'lucide-static/icons')
 FONT = os.path.join(NM, '@fontsource-variable/big-shoulders-display/files/big-shoulders-display-latin-wght-normal.woff2')
-JS_ORDER = ['data.js', 'data2.js', 'info.js', 'core.js', 'core2.js', 'charts.js', 'ui.js', 'ui2.js', 'ui3.js', 'ui4.js', 'knee.js', 'actions.js', 'actions2.js', 'frank.js', 'ziele.js', 'garmin.js', 'alltag.js', 'energie.js', 'rhythmus.js', 'wunsch.js', 'gewohnheit.js', 'kraft.js', 'push.js', 'main.js']
+JS_ORDER = ['data.js', 'data2.js', 'info.js', 'core.js', 'core2.js', 'charts.js', 'ui.js', 'ui2.js', 'ui3.js', 'ui4.js', 'knee.js', 'actions.js', 'actions2.js', 'frank.js', 'ziele.js', 'garmin.js', 'alltag.js', 'energie.js', 'rhythmus.js', 'wunsch.js', 'gewohnheit.js', 'kraft.js', 'scan.js', 'umwelt.js', 'experiment.js', 'ki.js', 'push.js', 'main.js']
 RELAY = os.path.join(ROOT, 'relay', 'garmin-relay.js')
 
 
@@ -69,6 +69,7 @@ def main():
     with open(os.path.join(DIST, 'sw.js'), 'w', encoding='utf-8') as f:
         f.write(sw)
     shutil.copy(os.path.join(SRC, 'pwa/manifest.webmanifest'), os.path.join(DIST, 'manifest.webmanifest'))
+    shutil.copy(os.path.join(NM, '@zxing/library/umd/index.min.js'), os.path.join(DIST, 'zxing.min.js'))  # Barcode-Scanner, wird bei Bedarf geladen
     for size in (180, 192, 512):
         subprocess.run(['rsvg-convert', '-w', str(size), '-h', str(size), os.path.join(SRC, 'pwa/icon.svg'), '-o', os.path.join(DIST, f'icon-{size}.png')], check=True)
     subprocess.run(['rsvg-convert', '-w', '512', '-h', '512', os.path.join(SRC, 'pwa/icon-maskable.svg'), '-o', os.path.join(DIST, 'icon-maskable-512.png')], check=True)

@@ -131,7 +131,7 @@ function fixtures(path, q) {
   const shown = await ev(() => { const t = document.querySelector('.gar-code'); return t ? t.value : null; });
   const copied = await ev(() => document.querySelector('#toast').textContent);
   ok((shown && shown.includes("APP_ORIGIN = 'https://argus100-agent.github.io'") && shown.includes('export default')) || copied.includes('Code kopiert'), 'Code der Weiterleitung kopierbar oder sichtbar');
-  ok(await ev(() => GAR_RELAY_CODE.includes('personal.connectapi.garmin.com') && GAR_RELAY_CODE.includes('VERSION = 3') && GAR_RELAY_CODE.includes('async scheduled(') && !/ApiKey [A-Za-z0-9]{8,}/.test(GAR_RELAY_CODE)), 'Eingebetteter Code: Version 3 (Garmin + Mitteilungen), Garmin-Adresse, kein Schlüssel');
+  ok(await ev(() => GAR_RELAY_CODE.includes('personal.connectapi.garmin.com') && GAR_RELAY_CODE.includes('VERSION = 4') && GAR_RELAY_CODE.includes('async scheduled(') && !/ApiKey [A-Za-z0-9]{8,}/.test(GAR_RELAY_CODE)), 'Eingebetteter Code: Version 4 (Garmin + Mitteilungen + KI), Garmin-Adresse, kein Schlüssel');
 
   // Falsche Adresse
   await page.fill('#gar-url', 'https://falsch.test');
@@ -197,7 +197,7 @@ function fixtures(path, q) {
   ok(await ev(() => !peekDay('2026-10-30')), 'Tage ohne Garmin-Daten werden nicht angelegt');
 
   // Gewohnheiten, die die Uhr belegt
-  ok(d6.habits.nsdr === true && d6.gh.nsdr === '9005', 'Meditation (12 Min.) auf der Uhr → „Meditation / NSDR“ abgehakt');
+  ok(d6.habits.meditation === true && d6.gh.meditation === '9005', 'Meditation (12 Min.) auf der Uhr → „Meditation 13 Min.“ abgehakt (seit 2.10.0)');
   ok(d7.habits.licht_morgen === true && d7.gh.licht_morgen === '9006' && d7.hd.lightMin === 30, 'Spaziergang 35 Min. um 09:00 → Morgenlicht + Spaziergang, 30 Min. draußen');
   ok(!d8.habits.licht_morgen, 'Spaziergang unter 30 Min. hakt nichts ab');
 
@@ -259,7 +259,7 @@ function fixtures(path, q) {
   await ev(() => garSync({ days: 5 }));
   const d6b = await H('2026-11-06'), d7b = await H('2026-11-07');
   ok(d6b.tr.length === 0 && d6b.skip.includes('9003'), 'Gelöschtes Garmin-Training wird nicht wieder geholt');
-  ok(!d7b.habits.licht_morgen && d7b.ghOff.includes('licht_morgen') && d6b.habits.nsdr === true, 'Abgewählte Gewohnheit bleibt abgewählt, andere bleiben');
+  ok(!d7b.habits.licht_morgen && d7b.ghOff.includes('licht_morgen') && d6b.habits.meditation === true, 'Abgewählte Gewohnheit bleibt abgewählt, andere bleiben');
 
   // Wochenbericht an Frank enthält die neuen Werte
   const rep = await ev(() => frankReportText(weekStart(todayKey())));
