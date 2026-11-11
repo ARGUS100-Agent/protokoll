@@ -16,6 +16,7 @@ const PUSH_CATS = [
   ['plan', 'Offene Posten im Standardtag', 'Nach jeder Mahlzeit-Zeit, wenn noch etwas offen ist – auch Supplements'],
   ['rhythm', 'Tagesrhythmus', 'Morgenlicht, Koffein-Stopp, Bildschirm-Pause, Schlafenszeit aus deinem Schlaffenster („Wann musst du morgen raus?“, solange es noch kein Fenster gibt)'],
   ['goals', 'Wochenziele', 'Zur Erinnerungszeit deiner Ziele („Jetzt dran“)'],
+  ['training', 'Training & Kraft', 'Gym heute, ausgefallene Einheiten, lange Pausen – mit einem kleinen Tritt'],
   ['habits', 'Gewohnheiten & Routinen', 'Warm duschen, Meditation, Atemübung, To-do-Liste, Bildschirmzeit, Sauna, Kältebad – antippen und Ja/Nein wählen'],
   ['nutri', 'Nährstoffe am Abend', 'Was heute noch fehlt oder schon zu viel ist – mit konkretem Tipp'],
   ['wins', 'Geschafft', 'Am Abend, was du heute erreicht hast'],
@@ -121,6 +122,7 @@ function pushPlan(now = Date.now()) {
     if (!off('bildschirm')) add('rhythm', r.bed - 60, 'screen', 'Bildschirme weg', `Schlafenszeit ${minToTime(r.bed)} – jetzt Licht dimmen und runterfahren.`, '#licht');
     add('rhythm', r.bed - 10, 'bett', `Schlafenszeit ${minToTime(r.bed)}`, r.bedSrc === 'fenster' ? `Dein Fenster: einschlafen ${rhRange(r.win.onset)}, morgen raus ${rhRange(r.wakeNext)}.` : r.wakeNext != null ? `Morgen raus um ${minToTime(r.wakeNext)} – so kommst du auf ${fmtDur(r.need)} Schlaf.` : `So kommst du auf ${fmtDur(r.need)} Schlaf.`, '#heute');
     pushHabits(k, r, d, add, off, isT);
+    pushTraining(k, r, d, add, isT);
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {

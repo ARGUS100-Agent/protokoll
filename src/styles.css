@@ -1103,3 +1103,26 @@ th { color: var(--ink-3); font-weight: 650; }
 .rt-erow span { flex: 1; font-size: 14px; }
 .rt-addrow { display: flex; align-items: center; gap: 6px; margin: 8px 0 4px; }
 .rt-addrow input { flex: 1; min-width: 0; min-height: 40px; padding: 0 10px; border-radius: 10px; background: var(--bg-3); color: var(--ink); }
+
+/* ---------- Kraft-Autopilot (2.10.0) ---------- */
+.kx-sug { display: flex; align-items: flex-start; gap: 10px; margin: 8px 0 6px; padding: 10px 12px; border-radius: 12px; background: var(--bg-3); }
+.kx-sug > .ic { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--accent); }
+.kx-sug.kx-up > .ic { color: var(--st-ok); }
+.kx-sug.kx-down > .ic { color: var(--st-under); }
+.kx-sug > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.kx-sug b { font-size: 14px; }
+.kx-sug small { color: var(--ink-3); font-size: 12.5px; line-height: 1.4; }
+.rir-btn { flex: none; min-width: 52px; min-height: 36px; padding: 0 8px; border-radius: 10px; background: var(--bg-3); color: var(--ink-3); font-size: 12px; font-weight: 650; }
+.rir-btn.is-on { background: var(--accent-soft); color: var(--accent); }
+.kx-sets { padding: 10px 12px; border-radius: var(--r-md); background: var(--bg-2); }
+.kx-row { display: flex; align-items: center; gap: 8px; min-height: 26px; font-size: 13px; }
+.kx-row > span { width: 78px; color: var(--ink-2); }
+.kx-bar { position: relative; flex: 1; height: 8px; border-radius: 4px; background: var(--bg-3); }
+.kx-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--st-none); }
+.kx-bar i.st-ok { background: var(--st-ok); } .kx-bar i.st-under { background: var(--st-under); } .kx-bar i.st-over { background: var(--st-over); }
+.kx-bar b { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink-3); opacity: .5; }
+.kx-row em { width: 28px; text-align: right; font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kx-row small { width: 58px; color: var(--ink-3); font-size: 11px; }
+.kx-st { display: flex; gap: 8px; margin: 10px 2px; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+.kx-st .ic { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--st-under); }
+.set-row .rir-btn { margin-left: 2px; }

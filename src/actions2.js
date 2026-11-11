@@ -233,7 +233,9 @@ Object.assign(A, {
       while (e.s.length <= i) e.s.push({});
       const s = e.s[i];
       s.d = !s.d;
-      if (s.d && last && last.sets[i] && last.alt === !!e.alt) { if (s.w == null && last.sets[i].w != null) s.w = last.sets[i].w; if (s.r == null && last.sets[i].r != null) s.r = last.sets[i].r; }
+      const sg = s.d ? kxSuggest(ex, t.gym.sched, !!e.alt, ui.gymSess.k, t.id) : null; // Vorschlag des Kraft-Autopiloten zuerst
+      if (sg && (sg.w != null || sg.reps.length)) { if (s.w == null && sg.w != null) s.w = sg.w; if (s.r == null) s.r = sg.reps[i] ?? sg.reps[sg.reps.length - 1]; }
+      else if (s.d && last && last.sets[i] && last.alt === !!e.alt) { if (s.w == null && last.sets[i].w != null) s.w = last.sets[i].w; if (s.r == null && last.sets[i].r != null) s.r = last.sets[i].r; }
     });
     render();
   },

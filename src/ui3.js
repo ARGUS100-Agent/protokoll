@@ -304,6 +304,7 @@ function vTrainToday(k) {
   const d = getDay(k);
   let h = dateBar(k);
   h += recoveryCard(k);
+  if (k === todayKey()) h += kxCard(k);
   const wp = weekPlan(weekStart(k)), day = wp.days[weekday(k)];
   h += `<section class="sec"><div class="sec-head"><h2>${k === todayKey() ? 'Heute geplant' : 'Geplant'}</h2>${goBtn('train', 'Woche', 'woche')}</div>${day.warn ? `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(day.warn)}</span></div></div>` : ''}<div class="list">`;
   for (const it of day.items) {
@@ -399,14 +400,16 @@ function vGymSession() {
     const e = t.gym.ex[ex.id] || { s: [] };
     const tg = gymTarget(ex, t.gym.sched, e.alt);
     const last = lastGymLog(ex.id, addDays(k, -1), t.id);
-    const rows = Array.from({ length: Math.max(tg.sets, (e.s || []).length) }, (_, i) => {
+    const sg = kxSuggest(ex.id, t.gym.sched, !!e.alt, k, t.id);
+    const rows = Array.from({ length: Math.max(sg ? sg.sets : tg.sets, (e.s || []).length) }, (_, i) => {
       const s = (e.s || [])[i] || {};
-      const ls = last && last.sets[i];
+      const ls = sg ? { w: sg.w, r: sg.reps[i] ?? sg.reps[sg.reps.length - 1] } : last && last.sets[i];
       return `<div class="set-row${s.d ? ' is-done' : ''}"><button class="set-chk" data-a="gym-set" data-ex="${ex.id}" data-i="${i}" aria-pressed="${!!s.d}" aria-label="Satz ${i + 1} erledigt"><span class="tgl-box">${icon('check')}</span><span>${i + 1}</span></button>
         <label class="set-in"><input type="text" inputmode="decimal" data-c="gym-val" data-ex="${ex.id}" data-i="${i}" data-f="w" value="${numIn(s.w, 2)}" placeholder="${ls && ls.w != null ? numIn(ls.w, 2) : 'kg'}"><span>kg</span></label>
-        <label class="set-in"><input type="text" inputmode="numeric" data-c="gym-val" data-ex="${ex.id}" data-i="${i}" data-f="r" value="${s.r ?? ''}" placeholder="${ls && ls.r != null ? ls.r : String(tg.reps).split(/[–\s]/)[0]}"><span>Wdh.</span></label></div>`;
+        <label class="set-in"><input type="text" inputmode="numeric" data-c="gym-val" data-ex="${ex.id}" data-i="${i}" data-f="r" value="${s.r ?? ''}" placeholder="${ls && ls.r != null ? ls.r : String(tg.reps).split(/[–\s]/)[0]}"><span>Wdh.</span></label><button class="rir-btn${s.rir != null ? ' is-on' : ''}" data-a="gym-rir" data-ex="${ex.id}" data-i="${i}" aria-label="Wiederholungen in Reserve">${s.rir != null ? 'RIR ' + RIR_LABEL[s.rir] : 'RIR'}</button></div>`;
     }).join('');
     h += `<section class="card gym-card"><div class="gym-head"><div><h3>${esc(tg.n)}</h3><small>${tg.sets} × ${esc(tg.reps)} · ${esc(tg.note)}</small></div>${ex.alt ? `<button class="chip chip-xs${e.alt ? ' is-on' : ''}" data-a="gym-exalt" data-ex="${ex.id}">${icon('footprints')}Knie-Variante</button>` : ''}</div>
+      ${kxExHTML(ex, t, e, k)}
       ${last ? `<p class="hint">Letztes Mal (${esc(fmtDate(last.k, { day: 'numeric', month: 'short' }))}${last.alt ? ', Knie-Variante' : ''}): ${esc(last.sets.map((s) => `${s.w != null ? fmt(s.w, 1) : '–'} × ${s.r ?? '–'}`).join(', '))}</p>` : ''}
       ${rows}<button class="link-btn" data-a="gym-addset" data-ex="${ex.id}">${icon('plus')} Satz</button></section>`;
   }
