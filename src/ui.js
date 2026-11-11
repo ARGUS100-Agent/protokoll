@@ -20,6 +20,7 @@ function render(keepScroll = true) {
   const y = window.scrollY;
   if (!VIEWS[ui.tab]) ui.tab = 'heute';
   try { invSync(); } catch (e) { /* egal */ }
+  try { autoHabits(todayKey()); autoHabits(addDays(todayKey(), -1)); } catch (e) { /* egal */ }
   try { goalWatch(); goalNudgeCheck(); } catch (e) { /* egal */ }
   $('#main').innerHTML = VIEWS[ui.tab]();
   renderTabbar();

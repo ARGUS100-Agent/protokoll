@@ -67,6 +67,8 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(mig.gym === 'Oberkörper A 1' + (await ev(() => gymSched('2026-11-09'))) && mig.plannedMon === 1, 'Garmin-Krafttraining dieser Woche → geplanter Gym-Tag (Montag: Oberkörper A)');
 
   /* ---------- 2. Tagesrhythmus aus Garmin ---------- */
+  // 2.10: diese Tests prüfen den festen Koffein-Abstand und den Rhythmus ohne Schlafkonto-Ausgleich (beides in tests/rhythmus.js)
+  await ev(() => { S.settings.caf.mode = 'fix'; S.settings.sleep = { recMax: 0 }; saveSettings(false); });
   await ev(() => {
     for (let i = 1; i <= 21; i++) {
       const k = addDays('2026-11-10', -i);

@@ -125,7 +125,7 @@ function sleepAcct(k = todayKey()) {
   const napToday = sleepNap(peekDay(end));
   const acc = nights.length ? nights.reduce((a, n) => a + n.diff, 0) + napToday : null;
   const debt = acc != null ? Math.max(0, -acc) : 0;
-  const cap = clamp(Number(S.settings.sleep && S.settings.sleep.recMax) || 90, 0, 180);
+  const rm = S.settings.sleep ? S.settings.sleep.recMax : null, cap = clamp(rm == null || !isFinite(Number(rm)) ? 90 : Number(rm), 0, 180);
   const rec = debt >= 20 ? Math.min(cap, rh5(debt)) : 0;
   const d0 = peekDay(end), score = d0 && d0.health ? Number(d0.health.sleepScore) : NaN;
   const bad = !!last && (last.diff <= -45 || (isFinite(score) && score < 60));

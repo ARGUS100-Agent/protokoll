@@ -1073,3 +1073,33 @@ th { color: var(--ink-3); font-weight: 650; }
 .sacct > div:last-child { display: flex; flex-direction: column; gap: 2px; }
 .sacct b { font-size: 14.5px; }
 .sacct small { color: var(--ink-3); font-size: 12px; }
+
+/* ---------- Routinen (2.10.0) ---------- */
+.routine-card { padding-bottom: 6px; }
+.rt-part + .rt-part { border-top: 1px solid var(--line); }
+.rt-head { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 46px; padding: 6px 2px; text-align: left; }
+.rt-head > .ic:first-child { width: 18px; height: 18px; color: var(--screens); }
+.rt-head b { flex: 1; font-size: 15px; }
+.rt-cnt { font-size: 13px; font-weight: 700; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.rt-cnt.is-ok { color: var(--st-ok); }
+.rt-steps { padding: 0 0 8px; }
+.rt-row { display: flex; align-items: center; gap: 6px; }
+.rt-hit { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 2px; text-align: left; }
+.rt-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.rt-txt b { font-size: 14.5px; font-weight: 650; }
+.rt-txt small { color: var(--ink-3); font-size: 12.5px; line-height: 1.35; }
+.rt-t { flex: none; color: var(--ink-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.rt-row.is-on .tgl-box { background: var(--st-ok); border-color: var(--st-ok); }
+.rt-row.is-on .tgl-box .ic { opacity: 1; }
+.rt-row.is-on .rt-txt b { color: var(--ink-2); }
+.rt-row.is-no .tgl-box { background: rgba(242, 96, 92, .18); border-color: var(--st-over); }
+.rt-row.is-no .tgl-box .ic { opacity: 1; color: var(--st-over); }
+.rt-row.is-part .tgl-box { border-color: var(--st-under); }
+.rt-row.is-info { min-height: 40px; padding: 4px 2px; gap: 12px; }
+.rt-dot { flex: none; display: grid; place-items: center; width: 26px; height: 26px; color: var(--coffee); }
+.rt-dot .ic { width: 16px; height: 16px; }
+.ht-clock { margin: 18px 0; text-align: center; font: 800 72px/1 var(--disp); font-variant-numeric: tabular-nums; }
+.rt-erow { display: flex; align-items: center; gap: 2px; padding: 4px 6px 4px 14px; min-height: 44px; }
+.rt-erow span { flex: 1; font-size: 14px; }
+.rt-addrow { display: flex; align-items: center; gap: 6px; margin: 8px 0 4px; }
+.rt-addrow input { flex: 1; min-width: 0; min-height: 40px; padding: 0 10px; border-radius: 10px; background: var(--bg-3); color: var(--ink); }

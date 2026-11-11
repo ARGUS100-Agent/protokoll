@@ -291,7 +291,7 @@ function skinProgressHTML(keys) {
 const SET_SECTIONS = [
   ['profil', 'Profil & Schlafzeiten'], ['nav', 'Tab-Leiste'], ['backup', 'Backup & Daten'], ['garmin', 'Garmin Connect'], ['push', 'Mitteilungen'], ['ziele', 'Tagesziele'], ['plan', 'Standardtag bearbeiten'], ['woche', 'Tagesvarianten pro Wochentag'],
   ['training', 'Training, Wochenstruktur & Sauna'], ['knie', 'Knie-Programm'], ['koffein', 'Koffein'],
-  ['foods', 'Lebensmittel & Supplements'], ['haut', 'Haut-Protokoll'], ['habits', 'Gewohnheiten'], ['todos', 'Termine & To-dos'],
+  ['foods', 'Lebensmittel & Supplements'], ['haut', 'Haut-Protokoll'], ['habits', 'Gewohnheiten'], ['routinen', 'Routinen & Limits'], ['todos', 'Termine & To-dos'],
   ['about', 'Installation & Hinweise'],
 ];
 function vSet() {
@@ -304,6 +304,7 @@ function vSet() {
   return h + `</div><p class="hint center">Protokoll ${APP_VERSION}. Alle Daten bleiben auf diesem Gerät.</p>`;
 }
 const SET_VIEWS = {
+  routinen() { return setRoutinesHTML(); },
   profil() {
     const p = S.settings.profile;
     const f = (k, l, type = 'text', mode = '') => `<div class="frow"><span class="flabel">${l}</span><div class="fin"><input type="${type}" ${mode ? `inputmode="${mode}"` : ''} data-c="profile" data-k="${k}" value="${esc(p[k] ?? '')}"></div></div>`;

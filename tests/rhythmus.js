@@ -32,11 +32,12 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
     }
     invalidate();
   });
+  const cafDoseFor90 = await ev(() => cafDoseH(90) * 60);
   const r1 = await ev(() => { const w = rhWindow(), r = rhythm(todayKey()); return { onset: w.onset, wake: w.wake, n: w.n, pull: w.pull, hit: w.hit, recent: w.recent.length, bed: r.bed, src: r.bedSrc, next: r.wakeNext, caf: cafCutoff(todayKey()), tomorrowWake: rhythm(addDays(todayKey(), 1)).wake, tomorrowSrc: rhythm(addDays(todayKey(), 1)).wakeSrc }; });
   console.log('     ' + JSON.stringify(r1));
   ok(r1.n === 14 && r1.onset === 1380 && r1.wake === 420 && r1.pull === 0, 'Fenster aus 14 Nächten: einschlafen 23:00, aufstehen 07:00 (Median, Ausreißer 00:30 zählt kaum)');
   ok(r1.src === 'fenster' && r1.bed === 1365 && r1.next === 420, 'Fenster steuert die Schlafenszeit: ins Bett 22:45, morgen raus 07:00');
-  ok(r1.caf === 1365 - 480, 'Koffein-Stopp folgt dem Fenster (8 Std. vor 22:45 = 14:45)');
+  ok(r1.caf === Math.round((1365 - cafDoseFor90) / 5) * 5, 'Koffein-Stopp folgt dem Fenster (Kaffee 90 mg: ~8,1 Std. vor 22:45 → 14:40)');
   ok(r1.tomorrowWake === 420 && r1.tomorrowSrc === 'fenster', 'Morgen: Aufstehen laut Fenster');
   ok(r1.recent === 7 && r1.hit === 5, 'Letzte 7 Nächte: 5 im Fenster (23:40 und 23:20 zu spät)');
 

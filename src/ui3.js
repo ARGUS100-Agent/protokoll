@@ -129,6 +129,7 @@ function vHeute() {
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
   h += sleepHelpCard(k);
+  h += routineCard(k);
   h += kneeMorningCard(k, true);
   h += sundayCard(k);
   h += todoCard();
@@ -320,7 +321,16 @@ function vTrainToday(k) {
   if (d.training) h += `<p class="hint">${icon('salad')} Ernährung: ${esc(TRAINING[d.training].n)} – ${esc(TRAINING[d.training].hint)}</p>`;
   h += '</section>';
   h += saunaSection(k, wp.sauna);
+  h += coldSection(k);
   return h;
+}
+function coldSection(k) {
+  const d = getDay(k), cs = d.cold || [], free = coldFree(k), v = coldViolations(k);
+  let h = `<section class="sec"><div class="sec-head"><h2>Kältebad</h2>${free != null ? `<span class="count">frühestens ${minToTime(free % 1440)}</span>` : ''}</div>`;
+  h += `<div class="chips chips-tight sauna-add"><span class="hint">Eintragen:</span>${[2, 3, 5, 10].map((m) => `<button class="chip chip-sm" data-a="cold-add" data-v="${m}" data-date="${k}">+ ${m} Min.</button>`).join('')}</div>`;
+  if (cs.length) h += `<div class="chips">${cs.map((c, i) => `<button class="chip is-on" data-a="cold-del" data-i="${i}" data-date="${k}" aria-label="Löschen">${c.min} Min.${c.t ? ' · ' + c.t : ''} ${icon('x')}</button>`).join('')}</div>`;
+  if (v.length) h += `<div class="banner is-warn">${icon('triangle-alert')}<div><span>Kältebad weniger als 6 Std. nach dem Krafttraining – das bremst den Muskelaufbau. Nächstes Mal vorher oder ab ${minToTime(free % 1440)}.</span></div></div>`;
+  return h + `<p class="hint">Nach dem Krafttraining mindestens 6 Std. warten (Meta-Analyse: Kälte direkt danach bremst den Muskelzuwachs). Vorher oder an Tagen ohne Krafttraining ist okay.</p></section>`;
 }
 function saunaSection(k, sw) {
   const d = getDay(k);
