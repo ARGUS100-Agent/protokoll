@@ -2,14 +2,14 @@
    KNIE-RESET & MOBILITY – Ansichten und geführter Timer
    ============================================================ */
 Object.assign(ui, { rtEdit: null, rtOpen: null, timer: null, exOpen: null, todoDone: false });
-const KNEE_SUB = [['heute', 'Heute'], ['routinen', 'Routinen'], ['kraft', 'Kraftplan'], ['laeufe', 'Läufe'], ['tests', 'Tests'], ['uebungen', 'Übungen'], ['infos', 'Infos & Termine']];
+const KNEE_SUB = [['heute', 'Heute'], ['zwick', 'Zwickt’s'], ['routinen', 'Routinen'], ['kraft', 'Kraftplan'], ['laeufe', 'Läufe'], ['tests', 'Tests'], ['uebungen', 'Übungen'], ['infos', 'Infos & Termine']];
 function vKnie() {
   const sub = getSub('knie', 'heute');
   const w = kneeWeek();
   let h = areaHead('knie', `<span class="count">${w ? `Woche ${Math.min(w, 99)} von 12` : 'Start ' + fmtDate(kneeCfg().start, { day: 'numeric', month: 'short' })} · ${esc(kneePhase().n)}</span>`);
   h += subnav('knie', sub, KNEE_SUB);
   if (sub === 'heute') h += goalNotes(['knie']);
-  const views = { heute: vKnieToday, routinen: vKnieRoutines, kraft: vKnieKraft, laeufe: vKnieRuns, tests: vKnieTests, uebungen: vKnieEx, infos: vKnieInfos };
+  const views = { heute: vKnieToday, zwick: vZwick, routinen: vKnieRoutines, kraft: vKnieKraft, laeufe: vKnieRuns, tests: vKnieTests, uebungen: vKnieEx, infos: vKnieInfos };
   return h + (views[sub] || vKnieToday)();
 }
 
@@ -344,7 +344,7 @@ function timerStart(rid, opts = {}) {
   if (!steps.length) { toast('Diese Routine hat keine Übungen'); return; }
   Sound.init();
   if (kneeCfg().signal === 'voice') Sound.say(' ');
-  ui.timer = { rid, name: opts.name || (rt ? rt.n : 'Übung'), steps, i: 0, phase: 'prep', endAt: Date.now() + 5000, remain: 5000, paused: false, startedAt: Date.now(), act: 0, resumedAt: Date.now(), plan: steps.reduce((a, s) => a + stepSec(s), 0), rate: {}, noSave: !!opts.noSave, lastBeep: null, confirmEnd: false };
+  ui.timer = { rid, name: opts.name || (rt ? rt.n : 'Übung'), steps, i: 0, phase: 'prep', endAt: Date.now() + 5000, remain: 5000, paused: false, startedAt: Date.now(), act: 0, resumedAt: Date.now(), plan: steps.reduce((a, s) => a + stepSec(s), 0), rate: {}, noSave: !!opts.noSave, noExtra: !!opts.noExtra, onDone: opts.onDone || null, lastBeep: null, confirmEnd: false };
   lockScreen();
   $('#overlay').classList.add('open');
   document.documentElement.classList.add('noscroll');
@@ -393,6 +393,7 @@ function timerFinish() {
   const t = ui.timer;
   if (!t.paused) t.act += Date.now() - t.resumedAt;
   t.phase = 'done'; t.endedAt = Date.now(); t.complete = true;
+  if (t.onDone) { try { t.onDone(); } catch (e) { /* egal */ } t.onDone = null; }
   sig('end', 'Geschafft. Gut gemacht.');
   timerRender();
 }
@@ -428,7 +429,7 @@ function timerRender() {
   const isRun = t.phase === 'run';
   const head = t.phase === 'prep' ? 'Gleich geht’s los' : t.phase === 'switch' ? (st.side ? `Seitenwechsel → ${sideName(st.side)}` : `Satz ${st.set}`) : t.phase === 'trans' ? 'Nächste Übung' : st.grp || '';
   const reps = isRun && st.type !== 'time';
-  const sideLbl = st.side ? `<span class="tm-side s-${st.side}">${st.sideName ? esc(st.sideName) : sideName(st.side)}${st.side === extraSide() && !ex.d.noX ? ' +' : ''}</span>` : '';
+  const sideLbl = st.side ? `<span class="tm-side s-${st.side}">${st.sideName ? esc(st.sideName) : sideName(st.side)}${st.side === extraSide() && !ex.d.noX && !t.noExtra ? ' +' : ''}</span>` : '';
   o.innerHTML = `<div class="tm${isRun ? ' is-run' : ' is-pause'}">
     <div class="tm-top"><button class="icon-btn" data-a="tm-end" aria-label="Beenden">${icon('x')}</button><div class="tm-title"><b>${esc(t.name)}</b><small>Übung ${new Set(t.steps.slice(0, t.i + 1).map((s) => s.idx)).size} von ${new Set(t.steps.map((s) => s.idx)).size} · <span id="tm-elapsed">0:00</span></small></div><a class="icon-btn" href="${esc(exVideo(ex))}" target="_blank" rel="noopener" aria-label="Video">${icon('square-play')}</a></div>
     <div class="tm-prog"><i style="width:${(t.i / t.steps.length) * 100}%"></i></div>

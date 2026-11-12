@@ -480,7 +480,7 @@ function kneeAm(k) { const d = peekDay(k); return d && d.knee && d.knee.am != nu
 function kneeWeek(k = todayKey()) { const n = daysBetween(kneeCfg().start, k); return n < 0 ? 0 : Math.floor(n / 7) + 1; }
 function plannedPhase(week) { return week >= 9 ? 3 : week >= 4 ? 2 : 1; }
 function kneePhase() { return KNEE_PHASES.find((p) => p.id === (kneeCfg().phase || 1)) || KNEE_PHASES[0]; }
-function exById(id) { return KNEE_EX.find((e) => e.id === id) || null; }
+function exById(id) { return KNEE_EX.find((e) => e.id === id) || (typeof ZW_OWN !== 'undefined' && ZW_OWN.find((e) => e.id === id)) || null; }
 function exVideo(ex) {
   const own = (kneeCfg().video || {})[ex.id];
   return own || `https://www.youtube.com/results?search_query=${ex.en.toLowerCase().replace(/[^a-z0-9]+/g, '+').replace(/^\+|\+$/g, '')}+tutorial`;

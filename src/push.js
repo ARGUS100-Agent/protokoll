@@ -127,6 +127,7 @@ function pushPlan(now = Date.now()) {
     pushTraining(k, r, d, add, isT);
     pushExp(k, r, add);
     pushBP(k, r, add);
+    pushZw(k, r, d, add);
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {
@@ -227,6 +228,7 @@ function pushNav(url) {
   if (h === 'rhythmus') { go('heute', { scrollTop: true }); sheetRhythm(todayKey()); return; }
   if (h.startsWith('hq-')) { const id = h.slice(3).replace(/-/g, '_'); go('heute', { scrollTop: true }); setTimeout(() => sheetHabitAsk(id, todayKey()), 50); return; }
   if (h === 'blutdruck') { A['bp-go'](); return; }
+  if (h === 'zwick') { A['zw-open'](); return; }
   if (h === 'schlaf') { go('heute', { scrollTop: true }); setTimeout(() => { const el = document.getElementById('schlaf-hilfe'); if (el) el.scrollIntoView({ block: 'start' }); }, 50); return; }
   if (h === 'todos') { ui.sub.knie = 'infos'; go('knie', { scrollTop: true }); return; }
   if (h === 'ern') { go('ern', { ernSub: 'uebersicht', date: todayKey(), scrollTop: true }); return; }

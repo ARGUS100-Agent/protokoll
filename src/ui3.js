@@ -130,6 +130,7 @@ function vHeute() {
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
   h += expTodayCard(k);
   h += bpTodayCard(k);
+  h += zwTodayCard(k);
   h += sleepHelpCard(k);
   h += routineCard(k);
   if (weekday(k) <= 2) h += agentCard(addDays(weekStart(k), -7));
@@ -308,6 +309,7 @@ function vTrainToday(k) {
   const d = getDay(k);
   let h = dateBar(k);
   h += recoveryCard(k);
+  if (k === todayKey()) h += zwTrainHint(k);
   if (k === todayKey()) h += kxCard(k);
   const wp = weekPlan(weekStart(k)), day = wp.days[weekday(k)];
   h += `<section class="sec"><div class="sec-head"><h2>${k === todayKey() ? 'Heute geplant' : 'Geplant'}</h2>${goBtn('train', 'Woche', 'woche')}</div>${day.warn ? `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(day.warn)}</span></div></div>` : ''}<div class="list">`;

@@ -27,6 +27,7 @@ const GAR_TYPES = [
   [/hiit|interval|tabata|bootcamp/, 'HIIT'],
   [/yoga|pilates|mobility|stretch|flexib/, 'Mobility'],
   [/walk|hik/, 'Spaziergang'],
+  [/jiu|bjj|grappl|wrestl|judo|mixed_martial|martial_art|mma/, 'BJJ'],
   [/indoor_climb|bouldering|rock_climb|mountaineer/, 'Sport'],
   [/cardio|elliptical|stair|row|ski_erg|jump_rope|fitness_equipment/, 'Cardio'],
   [/tennis|padel|squash|badminton|pickleball|soccer|football|basketball|volleyball|golf|boxing|martial|mma|ski|snowboard|skat|surf|paddl|kayak|climb|sport/, 'Sport'],
@@ -227,7 +228,8 @@ function garActs(raw) {
       pace: spd > 0.3 && dist > 0 ? Math.round(1000 / spd) : null, pw: r0(gNum(a.avgPower)), sl: r0(gNum(a.avgStrideLength)), up: r0(gNum(a.elevationGain)),
       hrmax: r0(gNum(a.maxHR)), kcal: r0(gNum(a.calories)), bb: r0(gNum(a.differenceBodyBattery)), z: zones.some((v) => v != null) ? zones.map((v) => Math.round(v || 0)) : null };
     for (const key of Object.keys(g)) if (g[key] == null) delete g[key];
-    out.push({ gid: String(id), k: st.slice(0, 10), type: garTypeOf(tk), tk, time: gClock(st, true), dur: sec > 0 ? Math.round(sec / 60) : null, km: dist > 0 ? Math.round(dist / 10) / 100 : null,
+    const nm = String(gVal(a, ['activityName']) || '').toLowerCase();
+    out.push({ gid: String(id), k: st.slice(0, 10), type: /\bbjj\b|jiu|grappl|no-?gi/.test(nm) ? 'BJJ' : garTypeOf(tk), tk, time: gClock(st, true), dur: sec > 0 ? Math.round(sec / 60) : null, km: dist > 0 ? Math.round(dist / 10) / 100 : null,
       cad: gNum(a.averageRunningCadenceInStepsPerMinute), load: gNum(a.activityTrainingLoad), hr: gNum(a.averageHR), vo2: gNum(a.vO2MaxValue), g });
   }
   return out;

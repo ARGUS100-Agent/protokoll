@@ -39,7 +39,7 @@ const CAF_PRESETS = [
 const TRAIN_TYPES = [
   { id: 'Oberkörper A', gym: 1, ic: 'dumbbell' }, { id: 'Unterkörper & Rumpf', gym: 2, legs: true, ic: 'dumbbell' }, { id: 'Oberkörper B', gym: 3, ic: 'dumbbell' },
   { id: 'Gym (frei)', hard: true }, { id: 'Push', hard: true }, { id: 'Pull', hard: true }, { id: 'Beine', hard: true, legs: true },
-  { id: 'Laufen', run: true, hard: true }, { id: 'Cardio', hard: true }, { id: 'Rad', hard: true }, { id: 'Schwimmen', hard: true }, { id: 'HIIT', hard: true },
+  { id: 'Laufen', run: true, hard: true }, { id: 'Cardio', hard: true }, { id: 'Rad', hard: true }, { id: 'Schwimmen', hard: true }, { id: 'HIIT', hard: true }, { id: 'BJJ', hard: true, ic: 'hand' },
   { id: 'Knie-Kraft', light: true }, { id: 'Mobility', light: true }, { id: 'Spaziergang', light: true }, { id: 'Sport', hard: true }, { id: 'Sonstiges' },
 ];
 /* Dein 3er-Split (Schedule A = schwer, wenige Wdh.; Schedule B = mehr Wdh.) */

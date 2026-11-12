@@ -106,7 +106,7 @@ Object.assign(A, {
   },
   'tm-end': () => { const t = ui.timer; if (!t) return; if (!t.paused) A['tm-pause'](); t.confirmEnd = true; timerRender(); },
   'tm-resume': () => { const t = ui.timer; if (!t) return; t.confirmEnd = false; if (t.paused) A['tm-pause'](); else timerRender(); },
-  'tm-finish-now': () => { const t = ui.timer; if (!t) return; t.confirmEnd = false; t.phase = 'done'; t.endedAt = Date.now(); t.complete = t.i >= t.steps.length * 0.8; timerRender(); },
+  'tm-finish-now': () => { const t = ui.timer; if (!t) return; t.confirmEnd = false; t.phase = 'done'; t.endedAt = Date.now(); t.complete = t.i >= t.steps.length * 0.8; if (t.complete && t.onDone) { t.onDone(); t.onDone = null; } timerRender(); },
   'tm-rate': (el) => { const t = ui.timer; if (!t) return; const v = Number(el.dataset.v); if (t.rate[el.dataset.ex] === v) delete t.rate[el.dataset.ex]; else t.rate[el.dataset.ex] = v; timerRender(); },
   'tm-save': () => timerSave(),
   'tm-close': () => timerClose(),

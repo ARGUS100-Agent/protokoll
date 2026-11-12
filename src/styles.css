@@ -1180,3 +1180,18 @@ label.pill-btn { cursor: pointer; }
 .bp-m { flex: 1; display: flex; flex-direction: column; color: var(--ink-2); font-size: 13px; }
 .bp-cat.st-ok { color: var(--st-ok); } .bp-cat.st-under { color: var(--st-under); } .bp-cat.st-over { color: var(--st-over); }
 .bp-cat { font-size: 16px !important; }
+/* Zwickt's (2.12.0) */
+.zw-card .flag-chips { margin: 10px 0 4px; align-items: center; }
+.zw-card .flag-chips .hint { margin-right: 4px; }
+.zw-stage { margin: 10px 0; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); }
+.zw-stage b { display: block; font-size: 14px; }
+.zw-stage small { display: block; margin-top: 2px; color: var(--ink-3); font-size: 12.5px; line-height: 1.4; }
+.zw-stage.st-akut { background: rgba(242, 179, 61, .12); }
+.zw-ex .zw-how { padding: 4px 14px 12px; font-size: 13.5px; line-height: 1.45; }
+.zw-ex .zw-how p { margin: 0 0 6px; }
+.zw-trend { display: flex; align-items: flex-end; gap: 3px; margin-top: 12px; min-height: 44px; flex-wrap: wrap; }
+.zw-trend i { width: 10px; border-radius: 3px 3px 0 0; background: var(--st-ok); }
+.zw-trend i.mid { background: var(--st-under); }
+.zw-trend i.hi { background: var(--st-over); }
+.zw-trend span { flex-basis: 100%; font-size: 11.5px; color: var(--ink-3); }
+.zw-banner .pill-btn { flex: none; align-self: center; }
