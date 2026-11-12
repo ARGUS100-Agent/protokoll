@@ -7,7 +7,7 @@
    Vorbefüllt mit drei recherchierten Schlaf-Produkten (Stand 11.11.2026).
    ============================================================ */
 /*icons: gift package-check truck external-link pencil trash-2 send rotate-ccw plus*/
-const WISH_CATS = ['Schlaf', 'Training', 'Ernährung', 'Haut', 'Gesundheit', 'Sonstiges'];
+const WISH_CATS = ['Schlaf', 'Training', 'Erholung', 'Ernährung', 'Haut', 'Gesundheit', 'Sonstiges'];
 const WISH_PRIO = [[1, 'Zuerst'], [2, 'Später'], [3, 'Irgendwann']];
 const WISH_AMPEL = { stark: 'gut belegt', mittel: 'teils belegt', schwach: 'kaum belegt' };
 const WISH_DEFAULT = [
@@ -56,12 +56,36 @@ const WISH_DEFAULT = [
       src: [['Pod 6 mit Preisen für Deutschland (ifun.de)', 'https://www.ifun.de/eight-sleep-pod-6-das-intelligente-bett-wird-kleiner-und-guenstiger-289505/'], ['Pod 6: technische Daten (BornCity)', 'https://borncity.com/news/eight-sleep-pod-6-18-sensoren-und-schnellere-temperatursteuerung/'], ['Studie: eine Woche auf dem temperierten Cover (Bioengineering 2024)', 'https://pubmed.ncbi.nlm.nih.gov/38671774/'], ['Autopilot-Auswertung SLEEP 2025 (Hersteller)', 'https://www.eightsleep.com/blog/research-finds-the-pod-can-boost-sleep-and-cardiovascular-metrics-with-real-time-temperature-adjustments-based-on-your-sleep-stages/']],
     },
   },
+  {
+    id: 'w_saunadecke', n: 'Infrarot-Saunadecke HigherDOSE', cat: 'Erholung', price: 799, subYear: 0, sub: 'Kein Abo; Baumwoll-Einlage und Tragetasche teils extra', link: 'https://higherdose.com/en-eu/products/infrared-sauna-blanket', prio: 3, stand: '2026-11-12',
+    info: {
+      kurz: 'Infrarot-Saunadecke für zu Hause: ein beheizter Schlafsack, in dem du liegst und schwitzt, der Kopf bleibt draußen.',
+      was: 'Decke im Schlafsack-Stil (ausgebreitet ca. 180 × 180 cm) mit Ferninfrarot-Heizung, bis ca. 79 °C, Stufen 1–9, Timer bis 1 Std., 350–420 W (220-V-Version für die EU). Fünf Schichten: Heizelemente, Kohle, Ton, ein Magnetstreifen und eine Kristallschicht aus Amethyst und Obsidian. Außen wasserdichtes, abwischbares Polyurethan.',
+      nutzen: 'Wärmereiz zu Hause ohne Weg ins Studio oder Bad: Puls und Körpertemperatur steigen, du schwitzt, danach fühlen sich die meisten entspannt. Praktisch an Tagen, an denen du es nicht in eine Sauna schaffst. Der Reiz ist milder als in einer finnischen Sauna (80–100 °C, ganzer Körper samt Kopf in der Hitze).',
+      belege: 'Die starken Ergebnisse (weniger Herz-Kreislauf-Todesfälle, Bluthochdruck und Demenz bei 4–7 Saunagängen pro Woche) stammen aus finnischen Sauna-Studien (KIHD, 2.315 Männer, über 20 Jahre) – beobachtend, nicht mit Infrarot und nicht mit Decken. Infrarot-spezifisch gibt es vor allem kleine Studien zur japanischen Waon-Therapie (60 °C, 15 Min., 5× pro Woche) bei Herzschwäche: kurzfristig bessere Herzfunktion, etwas niedrigerer Blutdruck. Regeneration: In einer Studie mit 10 Männern brachten 30 Min. Infrarot-Sauna nach Krafttraining keine schnellere Erholung; für besseren Schlaf reichen die Belege nicht. Gegen „Cholesterin senken“ spricht die Studienlage, Abnehmen und „Detox“ sind nicht belegt. Für Kohle, Ton, Magnet und Kristalle gibt es keine Belege; der Hersteller nennt keine Studien, nur eine Umfrage unter Kunden. Eine Decke liefert eine kleinere Hitzedosis als die Saunen in den Studien.',
+      ampel: 'schwach', ampelTxt: 'Wärme an sich teils belegt, die Decke und ihre Extra-Schichten nicht',
+      pro: ['Zu Hause, jederzeit, ohne Weg und Eintritt', 'Heizt schnell auf und braucht wenig Strom (350–420 W)', 'Abwischbar, lässt sich zusammenlegen', '120 Tage Geld-zurück-Garantie: in Ruhe ausprobieren'],
+      contra: ['799 € – technisch ähnliche Decken gibt es ab ca. 100–250 €', 'Kohle-, Ton-, Magnet- und Kristallschicht sind Marketing ohne Belege; „Low EMF“ ohne Messwerte', 'Schwächerer Reiz als eine finnische Sauna, für die es die besten Belege gibt', 'Nur 1 Jahr Garantie; Einlage und Tasche teils extra', 'Schweiß in der Decke: Handtuch oder Einlage nötig, nach jeder Nutzung abwischen'],
+      alt: 'Die normale Sauna im Studio oder Bad: beste Belege, kein Kauf nötig. Günstige Infrarot-Decken ab ca. 100–250 € (z. B. Minenice, Vayotoy, Dioche bis 80 °C) – gleiche Technik ohne Extra-Schichten. Für Wärme am Abend zum Einschlafen: warm duschen 1–2 Std. vor dem Schlafen.',
+      tipps: ['Nur kaufen, wenn du es regelmäßig nicht in eine Sauna schaffst', 'Auf ein Angebot warten (in den USA gab es sie schon für 524 $)', 'Die 120 Tage nutzen: Schlaf und HRV in der App an Tagen mit und ohne Decke vergleichen, bringt es nichts → zurückschicken', 'Viel trinken, 30–45 Min. reichen; nicht nach Alkohol, bei Infekt oder auf frisch verletzte Stellen', 'Rückgabe- und Versandbedingungen für Deutschland vor dem Kauf prüfen (die Seite nennt Versandkosten in Dollar)'],
+      src: [['Produktseite (EU) mit Preis und Technik', 'https://higherdose.com/en-eu/products/infrared-sauna-blanket'], ['Test (Fit&Well)', 'https://fitandwell.com/reviews/higherdose-sauna-blanket-review'], ['Test mit Angebotspreis (Athletech News)', 'https://athletechnews.com/higherdose-infrared-sauna-blanket-review/'], ['Infrarot- gegen finnische Sauna: Studienlage (MedicalResearch.com)', 'https://medicalresearch.com/?p=75667'], ['Saunadecken gegen Saunen (Superpower)', 'https://superpower.com/guides/emerging-health-topics/infrared-sauna-blanket-heat-exposure-evidence-vs-sauna'], ['Infrarot-Sauna und Regeneration (The Conversation/inkl)', 'https://www.inkl.com/news/do-infrared-saunas-improve-workout-recovery-the-evidence-is-still-lukewarm'], ['Waon-Therapie bei Herzschwäche, Meta-Analyse', 'https://pubmed.ncbi.nlm.nih.gov/30239008/'], ['Günstige Saunadecken im Vergleich (vergleich.org)', 'https://www.vergleich.org/saunadecke/']],
+    },
+  },
 ];
 
+const WISH_BASE = ['w_oura5', 'w_muse', 'w_pod6']; // bis 2.12.0 vorbefüllt
 function wishItems() {
   if (!S.wish) S.wish = { items: null };
-  if (!Array.isArray(S.wish.items)) { S.wish.items = clone(WISH_DEFAULT).map((x) => ({ ...x, status: 'offen', at: { added: todayKey() } })); markDirty('wish'); }
-  return S.wish.items;
+  const w = S.wish;
+  if (!Array.isArray(w.items)) { w.items = clone(WISH_DEFAULT).map((x) => ({ ...x, status: 'offen', at: { added: todayKey() } })); w.seen = WISH_DEFAULT.map((x) => x.id); markDirty('wish'); }
+  if (!Array.isArray(w.seen)) { w.seen = [...new Set([...WISH_BASE, ...w.items.map((x) => x.id)])]; markDirty('wish'); }
+  /* Neue Vorschläge (seit 2.12.1) einmal in bestehende Listen übernehmen; gelöschte kommen nicht zurück */
+  for (const x of WISH_DEFAULT) {
+    if (w.seen.includes(x.id)) continue;
+    if (!w.items.some((i) => i.id === x.id)) w.items.push({ ...clone(x), status: 'offen', at: { added: todayKey() } });
+    w.seen.push(x.id); markDirty('wish');
+  }
+  return w.items;
 }
 function wishSave() { markDirty('wish'); render(); }
 const wishEuro = (v, d = 0) => `${fmt(v, d)} €`;

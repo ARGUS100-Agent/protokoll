@@ -80,10 +80,10 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
 
   /* ---------- 8. Wunschliste ---------- */
   await ev(() => go('mehr')); await page.clock.runFor(300);
-  ok((await page.textContent('#main')).includes('Wunschliste') && (await page.textContent('#main')).includes('3 offen'), 'Mehr: Bereich Wunschliste mit 3 offenen Produkten');
+  ok((await page.textContent('#main')).includes('Wunschliste') && (await page.textContent('#main')).includes('4 offen'), 'Mehr: Bereich Wunschliste mit 4 offenen Produkten');
   await ev(() => go('wunsch')); await page.clock.runFor(300);
   let main = await page.textContent('#main');
-  ok(main.includes('Oura Ring 5') && main.includes('Muse S Athena') && main.includes('Pod 6') && main.includes('3.078 €') && main.includes('268,99 €') !== undefined, 'Vorbefüllt: Oura, Stirnband, Pod 6 mit Summe');
+  ok(main.includes('Oura Ring 5') && main.includes('Muse S Athena') && main.includes('Pod 6') && main.includes('Saunadecke') && main.includes('3.877 €') && main.includes('268,99 €') !== undefined, 'Vorbefüllt: Oura, Stirnband, Pod 6, Saunadecke mit Summe');
   console.log('     Summe: ' + (await page.textContent('.wish-sum')).replace(/\s+/g, ' '));
   await shot('wunsch');
   await page.click('[data-a="wish-open"][data-id="w_pod6"]'); await page.clock.runFor(300);
@@ -123,7 +123,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const per = await ev(() => wishItems().map((x) => `${x.id}:${x.status}`).join(','));
   ok(per.includes('w_oura5:da') && per.includes('w_pod6:offen'), 'Nach Neuladen gespeichert: ' + per);
   const bk = await ev(() => JSON.parse(JSON.stringify(exportData())));
-  ok(bk.wish && bk.wish.items.length === 3, 'Backup enthält die Wunschliste');
+  ok(bk.wish && bk.wish.items.length === 4 && bk.wish.seen.length === 4, 'Backup enthält die Wunschliste');
   const imp = await ev(async () => {
     const old = clone(exportData()); delete old.wish; // Backup aus 2.8
     ui.sheet = { type: 'import', data: old }; await A['import-do']({ dataset: { mode: 'replace' } });
@@ -132,7 +132,17 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
     ui.sheet = { type: 'import', data: withW }; await A['import-do']({ dataset: { mode: 'merge' } });
     return { a, b: wishItems().length, c: wishItems()[0].status };
   });
-  ok(imp.a === 'offen,offen,offen' && imp.b === 4 && imp.c === 'bestellt', 'Import: altes Backup ohne Liste → Vorschläge; Zusammenführen übernimmt Stand und neue Produkte');
+  ok(imp.a === 'offen,offen,offen,offen' && imp.b === 5 && imp.c === 'bestellt', 'Import: altes Backup ohne Liste → Vorschläge; Zusammenführen übernimmt Stand und neue Produkte');
+
+  const mig = await ev(() => {
+    // Liste aus 2.9–2.12.0: Pod 6 gelöscht, eigenes Produkt, noch ohne „seen“
+    S.wish = { items: clone(WISH_DEFAULT).filter((x) => ['w_oura5', 'w_muse'].includes(x.id)).map((x) => ({ ...x, status: 'offen', at: {} })).concat([{ id: 'w_own', n: 'Eigenes', status: 'offen', at: {} }]) };
+    const a = wishItems().map((x) => x.id).join(',');
+    S.wish.items = S.wish.items.filter((x) => x.id !== 'w_saunadecke');
+    const b = wishItems().map((x) => x.id).join(',');
+    return { a, b };
+  });
+  ok(mig.a === 'w_oura5,w_muse,w_own,w_saunadecke' && mig.b === 'w_oura5,w_muse,w_own', 'Update: neue Saunadecke kommt einmal dazu, gelöschte (Pod 6, danach Decke) kommen nicht zurück');
 
   /* ---------- 10. Alle Bereiche ohne Fehler ---------- */
   for (const t of ['heute', 'garmin', 'licht', 'wunsch', 'woche', 'set']) { await ev((x) => go(x), t); await page.clock.runFor(200); }

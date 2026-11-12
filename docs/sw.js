@@ -1,5 +1,5 @@
 /* Service Worker: App offline verfügbar machen */
-const CACHE = 'protokoll-a0d91e52f5';
+const CACHE = 'protokoll-6003ff2eb1';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {
