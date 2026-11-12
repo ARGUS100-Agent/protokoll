@@ -22,6 +22,8 @@ const PUSH_CATS = [
   ['wins', 'Geschafft', 'Am Abend, was du heute erreicht hast'],
 ];
 const PUSH_DAYS = 3; // heute + 2 Tage im Voraus
+const PUSH_CAP = 16; // höchstens pro Tag
+const PUSH_PRIO = { rhythm: 1, todo: 1, goals: 1, training: 2, habits: 2, plan: 3, nutri: 3, wins: 3 }; // 3 fällt zuerst weg
 const PUSH_CF_KV = 'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces';
 const PUSH_CF_WORKERS = 'https://dash.cloudflare.com/?to=/:account/workers-and-pages';
 
@@ -124,6 +126,7 @@ function pushPlan(now = Date.now()) {
     pushHabits(k, r, d, add, off, isT);
     pushTraining(k, r, d, add, isT);
     pushExp(k, r, add);
+    pushBP(k, r, add);
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {
@@ -169,17 +172,23 @@ function pushPlan(now = Date.now()) {
       if (gok) win.push(`${gok} ${gok === 1 ? 'Wochenziel' : 'Wochenziele'} heute erfüllt`);
       if (win.length >= 2) add('wins', r.bed - 30, 'wins', 'Heute geschafft', win.join(' · '), '#heute');
     }
-    /* sortieren, Abstand mind. 5 Min., nur Kommendes, höchstens 14 pro Tag */
+    /* sortieren, Abstand mind. 5 Min., nur Kommendes; höchstens PUSH_CAP pro Tag – zu viele? Dann fallen
+       zuerst „Noch offen“, Nährstoffe und „Geschafft“ weg, dann Gewohnheiten; Rhythmus und Checks bleiben */
     day.sort((a, b) => a.min - b.min);
-    let last = -99, n = 0;
+    let last = -99;
+    const fut = [];
     for (const x of day) {
       x.min = Math.max(x.min, last + 5);
       last = x.min;
       const at = pushAt(k, x.min);
-      if (at <= now + 60000 || n >= 14) continue;
-      out.push({ at, title: x.title, body: x.body.slice(0, 600), tag: x.tag, url: x.url, cat: x.cat });
-      n++;
+      if (at > now + 60000) fut.push({ ...x, at });
     }
+    while (fut.length > PUSH_CAP) {
+      let wi = 0;
+      fut.forEach((x, i) => { const a = PUSH_PRIO[x.cat] || 2, b = PUSH_PRIO[fut[wi].cat] || 2; if (a > b || (a === b && x.at >= fut[wi].at)) wi = i; });
+      fut.splice(wi, 1);
+    }
+    for (const x of fut) out.push({ at: x.at, title: x.title, body: x.body.slice(0, 600), tag: x.tag, url: x.url, cat: x.cat });
   }
   return out.sort((a, b) => a.at - b.at).slice(0, 80);
 }
@@ -217,6 +226,7 @@ function pushNav(url) {
   closeSheet();
   if (h === 'rhythmus') { go('heute', { scrollTop: true }); sheetRhythm(todayKey()); return; }
   if (h.startsWith('hq-')) { const id = h.slice(3).replace(/-/g, '_'); go('heute', { scrollTop: true }); setTimeout(() => sheetHabitAsk(id, todayKey()), 50); return; }
+  if (h === 'blutdruck') { A['bp-go'](); return; }
   if (h === 'schlaf') { go('heute', { scrollTop: true }); setTimeout(() => { const el = document.getElementById('schlaf-hilfe'); if (el) el.scrollIntoView({ block: 'start' }); }, 50); return; }
   if (h === 'todos') { ui.sub.knie = 'infos'; go('knie', { scrollTop: true }); return; }
   if (h === 'ern') { go('ern', { ernSub: 'uebersicht', date: todayKey(), scrollTop: true }); return; }

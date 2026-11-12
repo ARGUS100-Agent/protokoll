@@ -153,6 +153,7 @@ function vKoerper() {
   const prev = (f) => { for (let i = 1; i < 60; i++) { const x = peekDay(addDays(k, -i)); if (x && x.health && x.health[f] != null) return x.health[f]; } return null; };
   const row = (f, n, unit, dec) => { const v = d.health[f]; const pv = prev(f); return `<div class="frow"><span class="flabel">${n}</span><div class="fin"><input type="text" inputmode="decimal" data-c="health" data-k="${f}" data-date="${k}" value="${numIn(v, dec)}" placeholder="${pv != null ? 'zuletzt ' + numIn(pv, dec) : '–'}" aria-label="${n}"><span class="unit">${unit}</span></div></div>`; };
   h += `<section class="sec"><div class="form">${row('weight', 'Gewicht', 'kg', 1)}${row('waist', 'Bauchumfang (optional)', 'cm', 1)}</div><p class="hint">Bauchumfang auf Nabelhöhe, entspannt ausatmen.</p></section>`;
+  h += bpSection(k);
   for (const [f, n, unit] of [['weight', 'Gewicht', 'kg'], ['waist', 'Bauchumfang', 'cm']]) {
     const ser = weightSeries(f);
     if (!ser.length) { if (f === 'weight') h += chartCard('kw', n, 'Trag dein Gewicht ein, dann siehst du hier Verlauf, gleitenden Schnitt und Veränderung.', emptyChart('Noch kein Eintrag.')); continue; }

@@ -16,6 +16,7 @@ node tests/push.js /tmp/out      # 2.8: Mitteilungen einrichten, Plan, Versand �
 node tests/alltag.js /tmp/out    # 2.7: Update auf Schema 5, Tagesrhythmus, Bereitschaft, Gym-Zuordnung, Alternativen, Snacks, Energiebilanz
 node tests/rhythmus.js /tmp/out  # 2.9: Schlaffenster aus den Garmin-Nächten (steuert Schlafenszeit, Koffein, Mitteilungen), Wunschliste, Backup
 node tests/v210.js /tmp/out      # 2.10: Kraft-Autopilot, Gewohnheiten & Routinen, Kältebad, Handy, Barcode, Sonne/UV, App-Symbol, Experimente, Frank-KI, Wochen-Agent, Morgen-Briefing (Worker v4 mit nachgebautem Claude und Garmin)
+node tests/blutdruck.js /tmp/out # 2.11: Blutdruck-Messwoche (ESC 2024), Einordnung, Störfaktoren, Mitteilungen, Routine, Bericht
 ```
 
 `upgrade.js` prüft das Update einer alten Version mit Daten auf die aktuelle (alte `docs/` per `git archive` in einen Ordner, Symlink `cur` darauf, Server auf Port 8768 mit `--directory <ordner>/cur`, dann `node tests/upgrade.js <ordner>`).

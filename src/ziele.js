@@ -567,6 +567,7 @@ function frankReportText(ws) {
   if (hp.length) { L.push('', `## Gewohnheiten der letzten 4 Wochen`); hp.forEach((x) => L.push(`- ${x.text}`)); }
   // Körper und App-Auswertung
   if (r.weight != null) L.push('', `## Körper`, `Gewicht ${fmt(r.weight, 1)} kg${r.weightPrev != null ? ` (Vorwoche ${fmt(r.weightPrev, 1)})` : ''}`);
+  { const bl = typeof bpReportLine === 'function' ? bpReportLine(ws) : ''; if (bl) L.push(r.weight != null ? bl : '\n## Körper\n' + bl); }
   if (r.good.length || r.bad.length) L.push('', `## Auswertung der App`, `Lief gut: ${r.good.join('; ') || '–'}`, `Verbessern: ${r.bad.join('; ') || '–'}`);
   const note = (S.reviews[ws] || {}).note;
   if (note) L.push('', `## Meine Notiz`, note);

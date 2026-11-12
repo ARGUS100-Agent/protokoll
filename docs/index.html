@@ -1182,6 +1182,24 @@ label.pill-btn { cursor: pointer; }
 .est.is-ok { background: rgba(54, 196, 125, .14); color: var(--st-ok); }
 .page-head .row-btns { gap: 6px; }
 
+/* ---------- Blutdruck (2.11.0) ---------- */
+.bp-today { display: flex; gap: 8px; margin: 0 0 10px; }
+.bp-today span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--bg-2); color: var(--ink-2); font-size: 13px; font-weight: 650; }
+.bp-today span .ic { width: 15px; height: 15px; }
+.bp-today span.is-ok { background: rgba(54, 196, 125, .14); color: var(--st-ok); }
+.bp-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 0 0 10px; }
+.bp-form label { min-width: 0; display: flex; flex-direction: column; gap: 4px; color: var(--ink-3); font-size: 12px; font-weight: 600; }
+.bp-form input { width: 100%; min-width: 0; height: 46px; padding: 0 10px; border-radius: 12px; background: var(--bg-2); color: var(--ink); font-size: 18px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+.bp-form .btn { grid-column: 1 / -1; min-height: 46px; }
+.bp-row { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 14px; }
+.bp-v { display: flex; flex-direction: column; min-width: 86px; }
+.bp-v b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.bp-v.st-ok b { color: var(--st-ok); } .bp-v.st-under b { color: var(--st-under); } .bp-v.st-over b { color: var(--st-over); }
+.bp-v small, .bp-m small { color: var(--ink-3); font-size: 12px; }
+.bp-m { flex: 1; display: flex; flex-direction: column; color: var(--ink-2); font-size: 13px; }
+.bp-cat.st-ok { color: var(--st-ok); } .bp-cat.st-under { color: var(--st-under); } .bp-cat.st-over { color: var(--st-over); }
+.bp-cat { font-size: 16px !important; }
+
 </style>
 </head>
 <body>
@@ -1231,6 +1249,7 @@ const ICONS = {
   'flask-conical': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" /> <path d="M6.453 15h11.094" /> <path d="M8.5 2h7" /></svg>',
   'footprints': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /></svg>',
   'gift': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14" /> <path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /> <path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5" /> <rect x="3" y="7" width="18" height="4" rx="1" /></svg>',
+  'heart-pulse': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" /> <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" /></svg>',
   'history': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> <path d="M12 7v5l4 2" /></svg>',
   'image': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /> <circle cx="9" cy="9" r="2" /> <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>',
   'images': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /> <path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /> <circle cx="13" cy="7" r="1" fill="currentColor" /> <rect x="8" y="2" width="14" height="14" rx="2" /></svg>',
@@ -1312,7 +1331,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.10.0';
+const APP_VERSION = '2.11.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -5937,6 +5956,7 @@ function vHeute() {
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
   h += expTodayCard(k);
+  h += bpTodayCard(k);
   h += sleepHelpCard(k);
   h += routineCard(k);
   if (weekday(k) <= 2) h += agentCard(addDays(weekStart(k), -7));
@@ -6535,6 +6555,7 @@ function vKoerper() {
   const prev = (f) => { for (let i = 1; i < 60; i++) { const x = peekDay(addDays(k, -i)); if (x && x.health && x.health[f] != null) return x.health[f]; } return null; };
   const row = (f, n, unit, dec) => { const v = d.health[f]; const pv = prev(f); return `<div class="frow"><span class="flabel">${n}</span><div class="fin"><input type="text" inputmode="decimal" data-c="health" data-k="${f}" data-date="${k}" value="${numIn(v, dec)}" placeholder="${pv != null ? 'zuletzt ' + numIn(pv, dec) : '–'}" aria-label="${n}"><span class="unit">${unit}</span></div></div>`; };
   h += `<section class="sec"><div class="form">${row('weight', 'Gewicht', 'kg', 1)}${row('waist', 'Bauchumfang (optional)', 'cm', 1)}</div><p class="hint">Bauchumfang auf Nabelhöhe, entspannt ausatmen.</p></section>`;
+  h += bpSection(k);
   for (const [f, n, unit] of [['weight', 'Gewicht', 'kg'], ['waist', 'Bauchumfang', 'cm']]) {
     const ser = weightSeries(f);
     if (!ser.length) { if (f === 'weight') h += chartCard('kw', n, 'Trag dein Gewicht ein, dann siehst du hier Verlauf, gleitenden Schnitt und Veränderung.', emptyChart('Noch kein Eintrag.')); continue; }
@@ -9237,6 +9258,7 @@ function frankReportText(ws) {
   if (hp.length) { L.push('', `## Gewohnheiten der letzten 4 Wochen`); hp.forEach((x) => L.push(`- ${x.text}`)); }
   // Körper und App-Auswertung
   if (r.weight != null) L.push('', `## Körper`, `Gewicht ${fmt(r.weight, 1)} kg${r.weightPrev != null ? ` (Vorwoche ${fmt(r.weightPrev, 1)})` : ''}`);
+  { const bl = typeof bpReportLine === 'function' ? bpReportLine(ws) : ''; if (bl) L.push(r.weight != null ? bl : '\n## Körper\n' + bl); }
   if (r.good.length || r.bad.length) L.push('', `## Auswertung der App`, `Lief gut: ${r.good.join('; ') || '–'}`, `Verbessern: ${r.bad.join('; ') || '–'}`);
   const note = (S.reviews[ws] || {}).note;
   if (note) L.push('', `## Meine Notiz`, note);
@@ -10886,6 +10908,7 @@ function rtStep(id, k) {
   const d = getDay(k), r = rhythm(k), variant = dayVariant(k);
   const hb = HABITS.find((h) => h.id === id);
   if (id === 'caf_start') { const st = cafStart(k); return { id, n: `Koffein frühestens ${minToTime(st)}`, sub: '90 Min. nach dem Aufwachen', t: st, info: true, done: k < todayKey() || (k === todayKey() && nowMin() >= st) }; }
+  if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
   if (id === 'knee:mob') { const dd = dayDone(k); return { id, n: 'Mobility (tägliche Routine)', sub: 'Knie & Mobility', go: 'knie', done: !!dd.mob }; }
   if (id.startsWith('block:')) {
@@ -10908,7 +10931,11 @@ function rtStep(id, k) {
   if (id === 'warm_dusche') s.sub = `zwischen ${minToTime(r.bed - 120)} und ${minToTime(r.bed - 60)}, 40–42 °C, mind. 10 Min.`;
   return s;
 }
-function routineSteps(part, k) { return (rtCfg()[part] || []).map((id) => rtStep(id, k)).filter(Boolean); }
+function routineSteps(part, k) {
+  const ids = (rtCfg()[part] || []).slice();
+  if (typeof bpWeek === 'function' && bpWeek(k) && part !== 'day') ids.unshift('bp_' + part); // Blutdruck-Messwoche
+  return ids.map((id) => rtStep(id, k)).filter(Boolean);
+}
 function routineCard(k = todayKey()) {
   const now = k === todayKey() ? nowMin() : 0, r = rhythm(k);
   const cur = now < r.wake + 240 ? 'am' : now < r.bed - 180 ? 'day' : 'pm';
@@ -11856,6 +11883,139 @@ Object.assign(C, {
   'receipt-photo': (el) => { const f = el.files && el.files[0]; if (f) receiptPhoto(f); el.value = ''; },
 });
 
+/* ---- blutdruck.js ---- */
+/* ============================================================
+   BLUTDRUCK (seit 2.11.0, Wunsch vom 12.11.2026)
+   Selbst eintragen (systolisch, diastolisch, Puls). Messwoche alle 3 Monate nach der
+   ESC-Leitlinie 2024 / ESH 2021: 7 Tage morgens und abends je 2 Messungen im Abstand von
+   1–2 Min., nach 5 Min. Ruhe im Sitzen, Arm und Rücken gestützt; der erste Tag zählt nicht.
+   Einordnung Heimmessung (ESC 2024): nicht erhöht < 120/70, erhöht 120/70 bis < 135/85,
+   Hypertonie-Bereich ≥ 135/85. Die App ersetzt keine ärztliche Beurteilung.
+   ============================================================ */
+/*icons: heart-pulse activity triangle-alert*/
+const BP_DAYS = 7;
+function bpCfg() { return { every: 90, start: null, hist: [], ...(S.settings.bp || {}) }; }
+function bpSave(c) { S.settings.bp = c; markDirty('settings'); invalidate(); }
+function bpList(k) { const d = peekDay(k); return (d && Array.isArray(d.bp)) ? d.bp : []; }
+function bpSlot(t) { const m = typeof t === 'number' ? t : timeToMin(t); return m != null && m < 14 * 60 ? 'am' : 'pm'; }
+function bpCat(sys, dia) {
+  if (sys >= 135 || dia >= 85) return { id: 'hoch', n: 'Hypertonie-Bereich', st: 'over' };
+  if (sys >= 120 || dia >= 70) return { id: 'erhoeht', n: 'erhöht', st: 'under' };
+  return { id: 'ok', n: 'nicht erhöht', st: 'ok' };
+}
+/* Laufende Messwoche: Tag 1–7 */
+function bpWeek(k = todayKey()) {
+  const c = bpCfg();
+  if (!c.start) return null;
+  const day = daysBetween(c.start, k) + 1;
+  return day >= 1 && day <= BP_DAYS ? { start: c.start, day, end: addDays(c.start, BP_DAYS - 1) } : null;
+}
+function bpNextDue(k = todayKey()) {
+  const c = bpCfg(), last = (c.hist || []).slice(-1)[0];
+  if (bpWeek(k)) return null;
+  if (!last && !c.start) return k;
+  const from = last ? last.end : addDays(c.start, BP_DAYS - 1);
+  return addDays(from, c.every);
+}
+/* Auswertung einer Messwoche (ohne Tag 1, wenn danach genug Messungen da sind) */
+function bpEval(start) {
+  const keys = Array.from({ length: BP_DAYS }, (_, i) => addDays(start, i));
+  const all = keys.flatMap((k, i) => bpList(k).map((x) => ({ ...x, k, i })));
+  const later = all.filter((x) => x.i > 0), use = later.length >= 6 ? later : all;
+  if (!use.length) return null;
+  const sys = mean(use.map((x) => x.sys)), dia = mean(use.map((x) => x.dia)), pul = use.filter((x) => x.pul).length ? mean(use.filter((x) => x.pul).map((x) => x.pul)) : null;
+  const am = use.filter((x) => x.slot === 'am'), pm = use.filter((x) => x.slot === 'pm');
+  const days = new Set(use.map((x) => x.k)).size;
+  return { sys: Math.round(sys), dia: Math.round(dia), pul: pul != null ? Math.round(pul) : null, n: use.length, days, cat: bpCat(sys, dia), enough: days >= 3 && use.length >= 12, am: am.length ? [Math.round(mean(am.map((x) => x.sys))), Math.round(mean(am.map((x) => x.dia)))] : null, pm: pm.length ? [Math.round(mean(pm.map((x) => x.sys))), Math.round(mean(pm.map((x) => x.dia)))] : null, dropFirst: use === later };
+}
+function bpTodayState(k = todayKey()) { const l = bpList(k); return { am: l.filter((x) => x.slot === 'am').length, pm: l.filter((x) => x.slot === 'pm').length }; }
+/* Was kurz vor der Messung den Wert verfälschen kann */
+function bpConfounders(k, t) {
+  const out = [], m = timeToMin(t);
+  if (m == null) return out;
+  try { const c = cafInfo(k); if (c.today.some((x) => x.t <= m && m - x.t < 30)) out.push('Koffein in den letzten 30 Min.'); } catch (e) { /* egal */ }
+  const tr = ((peekDay(k) || {}).trainings || []).find((x) => { const s = timeToMin(x.time); return s != null && m >= s && m - (s + (Number(x.dur) || 45)) < 30; });
+  if (tr) out.push('Training kurz davor');
+  if ((peekDay(k) || {}).sauna && (peekDay(k).sauna || []).some((s) => { const st = timeToMin(s.t); return st != null && m >= st && m - st < 60; })) out.push('Sauna kurz davor');
+  return out;
+}
+function bpAlarm(x) {
+  if (x.sys >= 180 || x.dia >= 110) return 'Sehr hoher Wert. 5 Min. ruhig sitzen und nochmal messen. Bleibt er so hoch, heute noch ärztlich abklären lassen – bei Brustschmerz, Atemnot, Sehstörung, Lähmung oder Sprachproblemen sofort 112.';
+  if (x.sys < 90 || x.dia < 55) return 'Niedriger Wert. Ohne Beschwerden meist harmlos (bei Sportlern häufig). Bei Schwindel oder Ohnmacht ärztlich abklären lassen.';
+  return null;
+}
+/* ---------- Oberfläche (unter Körper) ---------- */
+function bpSection(k) {
+  const c = bpCfg(), w = bpWeek(k), due = bpNextDue(k), list = bpList(k), st = bpTodayState(k);
+  let h = '<section class="sec bp-sec" id="blutdruck"><div class="sec-head"><h2>Blutdruck</h2>';
+  h += w ? `<span class="count">Messwoche Tag ${w.day}/${BP_DAYS}</span>` : due ? `<span class="count">${due <= k ? 'Messwoche fällig' : 'nächste Messwoche ' + esc(fmtDate(due, { day: 'numeric', month: 'short' }))}</span>` : '';
+  h += '</div>';
+  if (w) h += `<div class="bp-today"><span class="${st.am >= 2 ? 'is-ok' : ''}">${icon(st.am >= 2 ? 'check' : 'sunrise')}Morgens ${st.am}/2</span><span class="${st.pm >= 2 ? 'is-ok' : ''}">${icon(st.pm >= 2 ? 'check' : 'moon')}Abends ${st.pm}/2</span></div>`;
+  else if (due && due <= k) h += `<div class="banner">${icon('heart-pulse')}<div><b>Blutdruck-Messwoche starten</b><span>7 Tage morgens und abends je 2 Messungen. Die App erinnert dich und rechnet den Mittelwert.</span></div><button class="pill-btn sm" data-a="bp-start">Starten</button></div>`;
+  h += `<div class="bp-form"><label><span>Systolisch</span><input type="text" inputmode="numeric" id="bp-sys" placeholder="120"></label><label><span>Diastolisch</span><input type="text" inputmode="numeric" id="bp-dia" placeholder="80"></label><label><span>Puls</span><input type="text" inputmode="numeric" id="bp-pul" placeholder="60"></label><button class="btn is-accent" data-a="bp-add" data-date="${k}">${icon('plus')}Eintragen</button></div>`;
+  if (list.length) h += `<div class="list">${list.map((x, i) => { const cat = bpCat(x.sys, x.dia); return `<div class="bp-row"><span class="bp-v st-${cat.st}"><b>${x.sys}/${x.dia}</b>${x.pul ? `<small>Puls ${x.pul}</small>` : ''}</span><span class="bp-m">${esc(x.t)} · ${x.slot === 'am' ? 'morgens' : 'abends'}${x.note ? `<small>${esc(x.note)}</small>` : ''}</span><button class="icon-btn sm ghost" data-a="bp-del" data-i="${i}" data-date="${k}" aria-label="Löschen">${icon('trash-2')}</button></div>`; }).join('')}</div>`;
+  h += '<p class="hint">So misst du richtig: 5 Min. ruhig sitzen, Rücken angelehnt, Füße auf dem Boden, Manschette am nackten Oberarm auf Herzhöhe, nicht sprechen. Zweimal messen, 1–2 Min. Pause. Morgens vor Frühstück, Koffein und Training, abends vor dem Schlafen.</p>';
+  /* Auswertung */
+  const weeks = [...(c.hist || [])];
+  if (c.start && !weeks.some((x) => x.start === c.start)) weeks.push({ start: c.start, end: addDays(c.start, BP_DAYS - 1), cur: true });
+  const ev = weeks.map((x) => ({ ...x, e: bpEval(x.start) })).filter((x) => x.e).reverse();
+  if (ev.length) {
+    const e0 = ev[0].e;
+    h += `<div class="kv-grid is-3"><div class="kv"><span>${ev[0].cur && w ? 'Ø bisher' : 'Ø Messwoche'}</span><b>${e0.sys}/${e0.dia}</b><small>mmHg · ${e0.n} Messungen</small></div><div class="kv"><span>Einordnung</span><b class="bp-cat st-${e0.cat.st}">${esc(e0.cat.n)}</b><small>Heimmessung, ESC 2024</small></div><div class="kv"><span>Puls Ø</span><b>${e0.pul ?? '–'}</b><small>Schläge/Min.</small></div></div>`;
+    h += `<p class="hint">${e0.enough ? '' : 'Für eine verlässliche Einordnung mindestens 3 Tage und 12 Messungen. '}${e0.dropFirst ? 'Der erste Tag zählt nicht (man ist anfangs oft aufgeregter). ' : ''}${e0.am && e0.pm ? `Morgens Ø ${e0.am[0]}/${e0.am[1]}, abends Ø ${e0.pm[0]}/${e0.pm[1]}. ` : ''}${e0.cat.id === 'hoch' ? 'Im Hypertonie-Bereich: Werte bitte mit dem Hausarzt besprechen.' : e0.cat.id === 'erhoeht' ? 'Erhöht heißt nicht krank: Bewegung, wenig Salz, Schlaf und wenig Alkohol senken den Druck. Beim Arzt ansprechen, wenn es so bleibt.' : 'Gut so.'}</p>`;
+    const pts = [];
+    for (const x of weeks) for (let i = 0; i < BP_DAYS; i++) { const k2 = addDays(x.start, i); const l = bpList(k2); if (l.length) pts.push({ k: k2, sys: mean(l.map((y) => y.sys)), dia: mean(l.map((y) => y.dia)) }); }
+    if (pts.length >= 2) {
+      const body = lineChart({ keys: pts.map((p) => p.k), series: [{ name: 'Systolisch', color: SERIES.one, vals: pts.map((p) => p.sys), dots: true }, { name: 'Diastolisch', color: SERIES.two, vals: pts.map((p) => p.dia), dots: true }], unit: 'mmHg', fmtY: (v) => fmt(v) });
+      h += chartCard('bp', 'Blutdruck-Verlauf', 'Tagesmittel der Messwochen. Hypertonie-Bereich bei Heimmessung ab 135/85, nicht erhöht unter 120/70.', body, `<tr><th>Messwoche</th><th>Ø</th><th>Puls</th><th>Einordnung</th></tr>` + ev.map((x) => `<tr><td>${shortDate(x.start)}</td><td>${x.e.sys}/${x.e.dia}</td><td>${x.e.pul ?? '–'}</td><td>${esc(x.e.cat.n)}</td></tr>`).join(''), `<div class="legend"><span><i class="line-key" style="background:${SERIES.one}"></i>Systolisch</span><span><i class="line-key" style="background:${SERIES.two}"></i>Diastolisch</span></div>`);
+    }
+  }
+  h += `<div class="chips chips-tight"><span class="hint">Messwoche alle</span>${[30, 60, 90, 180].map((n) => `<button class="chip chip-xs${c.every === n ? ' is-on' : ''}" data-a="bp-every" data-v="${n}">${n === 30 ? '1 Monat' : n === 180 ? '6 Monate' : n / 30 + ' Monate'}</button>`).join('')}${w ? '<button class="chip chip-xs" data-a="bp-stop">Messwoche beenden</button>' : !due || due > k ? '<button class="chip chip-xs" data-a="bp-start">Jetzt Messwoche</button>' : ''}</div>`;
+  return h + '</section>';
+}
+function bpTodayCard(k = todayKey()) {
+  const w = bpWeek(k), due = bpNextDue(k);
+  if (w) { const st = bpTodayState(k), now = nowMin(), r = rhythm(k); const open = (st.am < 2 && now < 14 * 60) || (st.pm < 2 && now >= r.bed - 120); if (!open && st.am >= 2 && st.pm >= 2) return ''; return `<div class="banner bp-banner">${icon('heart-pulse')}<div><b>Blutdruck-Messwoche Tag ${w.day}/${BP_DAYS}</b><span>Morgens ${st.am}/2 · abends ${st.pm}/2</span></div><button class="pill-btn sm" data-a="bp-go">Messen</button></div>`; }
+  if (due && due <= k) return `<div class="banner bp-banner">${icon('heart-pulse')}<div><b>Blutdruck-Messwoche fällig</b><span>7 Tage, morgens und abends je 2 Messungen.</span></div><button class="pill-btn sm" data-a="bp-start">Starten</button></div>`;
+  return '';
+}
+Object.assign(A, {
+  'bp-go': () => { go('koerper', { date: todayKey() }); setTimeout(() => { const el = document.getElementById('blutdruck'); if (el) el.scrollIntoView({ block: 'start' }); const i = $('#bp-sys'); if (i) i.focus(); }, 50); },
+  'bp-start': () => { const c = bpCfg(); if (c.start && !bpWeek(todayKey()) && !(c.hist || []).some((x) => x.start === c.start)) { const e = bpEval(c.start); if (e) c.hist = [...(c.hist || []), { start: c.start, end: addDays(c.start, BP_DAYS - 1), sys: e.sys, dia: e.dia, pul: e.pul }]; } c.start = todayKey(); bpSave(c); render(); toast('Messwoche gestartet: 7 Tage, morgens und abends je 2 Messungen'); },
+  'bp-stop': () => { const c = bpCfg(); if (!c.start) return; const e = bpEval(c.start); if (e) c.hist = [...(c.hist || []).filter((x) => x.start !== c.start), { start: c.start, end: todayKey(), sys: e.sys, dia: e.dia, pul: e.pul }]; c.start = null; bpSave(c); render(); toast('Messwoche beendet'); },
+  'bp-every': (el) => { const c = bpCfg(); c.every = Number(el.dataset.v); bpSave(c); render(); },
+  'bp-add': (el) => {
+    const k = curDate(el), sys = parseNum(($('#bp-sys') || {}).value || ''), dia = parseNum(($('#bp-dia') || {}).value || ''), pul = parseNum(($('#bp-pul') || {}).value || '');
+    if (sys == null || dia == null || sys < 60 || sys > 260 || dia < 30 || dia > 160 || dia >= sys) { toast('Bitte gültige Werte eintragen (z. B. 122 / 78)'); return; }
+    const t = k === todayKey() ? minToTime(nowMin()) : '08:00';
+    const note = bpConfounders(k, t).join(', ');
+    const x = { sys: Math.round(sys), dia: Math.round(dia), pul: pul != null && pul >= 30 && pul <= 220 ? Math.round(pul) : null, t, slot: bpSlot(t), ...(note ? { note } : {}) };
+    mutDay(k, (d) => { d.bp = d.bp || []; d.bp.push(x); });
+    render();
+    const al = bpAlarm(x), st = bpTodayState(k);
+    if (al) toast(al);
+    else if (note) toast(`Notiert – ${note} kann den Wert erhöhen`);
+    else toast(st[x.slot] === 1 ? 'Notiert – in 1–2 Min. die zweite Messung' : `${x.sys}/${x.dia} notiert (${bpCat(x.sys, x.dia).n})`);
+  },
+  'bp-del': (el) => { const k = curDate(el), i = Number(el.dataset.i); const old = bpList(k)[i]; mutDay(k, (d) => { d.bp = (d.bp || []).filter((_, j) => j !== i); }); render(); toast('Messung gelöscht', () => { mutDay(k, (d) => { d.bp = d.bp || []; d.bp.splice(i, 0, old); }); render(); }); },
+});
+/* Mitteilungen (Kategorie To-dos & Checks): an Messtagen morgens und abends, Start einer fälligen Messwoche */
+function pushBP(k, r, add) {
+  const w = bpWeek(k), st = bpTodayState(k);
+  if (w) {
+    if (st.am < 2) add('todo', r.wake + 15, 'bp-am', `Blutdruck messen (Tag ${w.day}/${BP_DAYS})`, 'Vor Frühstück und Koffein: 5 Min. sitzen, dann zweimal messen, 1–2 Min. Pause.', '#blutdruck');
+    if (st.pm < 2) add('todo', r.bed - 45, 'bp-pm', `Blutdruck abends (Tag ${w.day}/${BP_DAYS})`, '5 Min. ruhig sitzen, zweimal messen, 1–2 Min. Pause.', '#blutdruck');
+  } else { const due = bpNextDue(k); if (due && due === k) add('todo', r.wake + 60, 'bp-due', 'Blutdruck-Messwoche fällig', 'Antippen und starten: 7 Tage morgens und abends je 2 Messungen.', '#blutdruck'); }
+}
+/* Zeile im Wochenbericht */
+function bpReportLine(ws) {
+  const c = bpCfg();
+  const wk = [...(c.hist || []), ...(c.start ? [{ start: c.start }] : [])].filter((x) => x.start <= addDays(ws, 6) && addDays(x.start, BP_DAYS - 1) >= ws).pop();
+  if (!wk) return '';
+  const e = bpEval(wk.start);
+  return e ? `Blutdruck (Messwoche ab ${shortDate(wk.start)}, Heimmessung): Ø ${e.sys}/${e.dia} mmHg, Puls ${e.pul ?? '–'}, ${e.n} Messungen → ${e.cat.n} (ESC 2024: < 120/70 nicht erhöht, ≥ 135/85 Hypertonie-Bereich)` : '';
+}
+
 /* ---- push.js ---- */
 /* ============================================================
    MITTEILUNGEN (Push) – Wunsch vom 10.11.2026
@@ -11881,6 +12041,8 @@ const PUSH_CATS = [
   ['wins', 'Geschafft', 'Am Abend, was du heute erreicht hast'],
 ];
 const PUSH_DAYS = 3; // heute + 2 Tage im Voraus
+const PUSH_CAP = 16; // höchstens pro Tag
+const PUSH_PRIO = { rhythm: 1, todo: 1, goals: 1, training: 2, habits: 2, plan: 3, nutri: 3, wins: 3 }; // 3 fällt zuerst weg
 const PUSH_CF_KV = 'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces';
 const PUSH_CF_WORKERS = 'https://dash.cloudflare.com/?to=/:account/workers-and-pages';
 
@@ -11983,6 +12145,7 @@ function pushPlan(now = Date.now()) {
     pushHabits(k, r, d, add, off, isT);
     pushTraining(k, r, d, add, isT);
     pushExp(k, r, add);
+    pushBP(k, r, add);
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {
@@ -12028,17 +12191,23 @@ function pushPlan(now = Date.now()) {
       if (gok) win.push(`${gok} ${gok === 1 ? 'Wochenziel' : 'Wochenziele'} heute erfüllt`);
       if (win.length >= 2) add('wins', r.bed - 30, 'wins', 'Heute geschafft', win.join(' · '), '#heute');
     }
-    /* sortieren, Abstand mind. 5 Min., nur Kommendes, höchstens 14 pro Tag */
+    /* sortieren, Abstand mind. 5 Min., nur Kommendes; höchstens PUSH_CAP pro Tag – zu viele? Dann fallen
+       zuerst „Noch offen“, Nährstoffe und „Geschafft“ weg, dann Gewohnheiten; Rhythmus und Checks bleiben */
     day.sort((a, b) => a.min - b.min);
-    let last = -99, n = 0;
+    let last = -99;
+    const fut = [];
     for (const x of day) {
       x.min = Math.max(x.min, last + 5);
       last = x.min;
       const at = pushAt(k, x.min);
-      if (at <= now + 60000 || n >= 14) continue;
-      out.push({ at, title: x.title, body: x.body.slice(0, 600), tag: x.tag, url: x.url, cat: x.cat });
-      n++;
+      if (at > now + 60000) fut.push({ ...x, at });
     }
+    while (fut.length > PUSH_CAP) {
+      let wi = 0;
+      fut.forEach((x, i) => { const a = PUSH_PRIO[x.cat] || 2, b = PUSH_PRIO[fut[wi].cat] || 2; if (a > b || (a === b && x.at >= fut[wi].at)) wi = i; });
+      fut.splice(wi, 1);
+    }
+    for (const x of fut) out.push({ at: x.at, title: x.title, body: x.body.slice(0, 600), tag: x.tag, url: x.url, cat: x.cat });
   }
   return out.sort((a, b) => a.at - b.at).slice(0, 80);
 }
@@ -12076,6 +12245,7 @@ function pushNav(url) {
   closeSheet();
   if (h === 'rhythmus') { go('heute', { scrollTop: true }); sheetRhythm(todayKey()); return; }
   if (h.startsWith('hq-')) { const id = h.slice(3).replace(/-/g, '_'); go('heute', { scrollTop: true }); setTimeout(() => sheetHabitAsk(id, todayKey()), 50); return; }
+  if (h === 'blutdruck') { A['bp-go'](); return; }
   if (h === 'schlaf') { go('heute', { scrollTop: true }); setTimeout(() => { const el = document.getElementById('schlaf-hilfe'); if (el) el.scrollIntoView({ block: 'start' }); }, 50); return; }
   if (h === 'todos') { ui.sub.knie = 'infos'; go('knie', { scrollTop: true }); return; }
   if (h === 'ern') { go('ern', { ernSub: 'uebersicht', date: todayKey(), scrollTop: true }); return; }

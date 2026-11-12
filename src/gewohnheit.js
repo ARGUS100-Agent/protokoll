@@ -101,6 +101,7 @@ function rtStep(id, k) {
   const d = getDay(k), r = rhythm(k), variant = dayVariant(k);
   const hb = HABITS.find((h) => h.id === id);
   if (id === 'caf_start') { const st = cafStart(k); return { id, n: `Koffein frühestens ${minToTime(st)}`, sub: '90 Min. nach dem Aufwachen', t: st, info: true, done: k < todayKey() || (k === todayKey() && nowMin() >= st) }; }
+  if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
   if (id === 'knee:mob') { const dd = dayDone(k); return { id, n: 'Mobility (tägliche Routine)', sub: 'Knie & Mobility', go: 'knie', done: !!dd.mob }; }
   if (id.startsWith('block:')) {
@@ -123,7 +124,11 @@ function rtStep(id, k) {
   if (id === 'warm_dusche') s.sub = `zwischen ${minToTime(r.bed - 120)} und ${minToTime(r.bed - 60)}, 40–42 °C, mind. 10 Min.`;
   return s;
 }
-function routineSteps(part, k) { return (rtCfg()[part] || []).map((id) => rtStep(id, k)).filter(Boolean); }
+function routineSteps(part, k) {
+  const ids = (rtCfg()[part] || []).slice();
+  if (typeof bpWeek === 'function' && bpWeek(k) && part !== 'day') ids.unshift('bp_' + part); // Blutdruck-Messwoche
+  return ids.map((id) => rtStep(id, k)).filter(Boolean);
+}
 function routineCard(k = todayKey()) {
   const now = k === todayKey() ? nowMin() : 0, r = rhythm(k);
   const cur = now < r.wake + 240 ? 'am' : now < r.bed - 180 ? 'day' : 'pm';
