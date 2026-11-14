@@ -2,7 +2,7 @@
    KNIE-RESET & MOBILITY – Ansichten und geführter Timer
    ============================================================ */
 Object.assign(ui, { rtEdit: null, rtOpen: null, timer: null, exOpen: null, todoDone: false });
-const KNEE_SUB = [['heute', 'Heute'], ['zwick', 'Zwickt’s'], ['routinen', 'Routinen'], ['kraft', 'Kraftplan'], ['laeufe', 'Läufe'], ['tests', 'Tests'], ['uebungen', 'Übungen'], ['infos', 'Infos & Termine']];
+const KNEE_SUB = [['heute', 'Heute'], ['zwick', 'Zwickt’s'], ['routinen', 'Routinen'], ['kraft', 'Kraft & Athletik'], ['laeufe', 'Läufe'], ['tests', 'Tests'], ['uebungen', 'Übungen'], ['infos', 'Infos & Termine']];
 function vKnie() {
   const sub = getSub('knie', 'heute');
   const w = kneeWeek();
@@ -29,11 +29,11 @@ function vKnieToday() {
     const done = it.kind === 'mob' ? dd.mob : it.kind === 'kraft' ? dd.kraft : it.kind === 'lauf' ? dd.run > 0 : it.kind === 'lang' ? dd.lang : it.kind === 'vorlauf' ? kneeSessions(peekDay(k)).some((s) => s.r === 'vorlauf') : false;
     let act = '';
     if (it.r && !done) act = `<button class="pill-btn is-accent" data-a="timer-start" data-r="${it.r}">${icon('play')}Start</button>`;
-    else if (it.kind === 'kraft' && !done) act = `<button class="pill-btn" data-a="sub" data-area="knie" data-v="kraft">Öffnen</button>`;
+    else if (it.kind === 'kraft' && !done) act = `<button class="pill-btn is-accent" data-a="ath-start">${icon('play')}Start</button>`;
     else if (it.kind === 'lauf' && !done) act = `<button class="pill-btn" data-a="run-add" data-date="${k}">Eintragen</button>`;
     let sub = '';
     if (it.r) { const rt = routineById(it.r); if (rt) sub = `ca. ${Math.round(routineSec(rt, { short: it.r === 'lang' && kneeCfg().longShort }) / 60)} Min.`; }
-    if (it.kind === 'kraft') sub = `${kneePhase().ex.length} Übungen · ${esc(kneePhase().goal)}`;
+    if (it.kind === 'kraft') sub = `${esc(ATH_TYPES[athType(k)])} · ca. ${athMin(k)} Min.${athLight(k) ? ' · heute leichter' : ''} · <a class="link-btn" data-a="sub" data-area="knie" data-v="kraft">Übungen</a>`;
     if (it.kind === 'lauf') sub = `im Gesprächstempo, Kadenz ${kneeCfg().cadence ? `${Math.round(kneeCfg().cadence * 1.05)}–${Math.round(kneeCfg().cadence * 1.1)}` : '+5–10 %'}${ins && !ins.before && !ins.runOk ? ` · mit Einlagen erst ab ${fmtDate(ins.runFrom, { day: 'numeric', month: 'short' })}` : ''}`;
     if (it.kind === 'mob' && !done) sub = (sub ? sub + ' · ' : '') + 'oder ohne Timer abhaken';
     h += `<div class="plan-row${done ? ' is-done' : ''}"><button class="tgl-box-btn" ${it.kind === 'mob' ? `data-a="knee-mob" data-date="${k}"` : 'disabled'} aria-label="erledigt">${'<span class="tgl-box">' + icon('check') + '</span>'}</button><span class="row-main"><b>${esc(it.n)}</b>${sub ? `<small>${sub}</small>` : ''}</span>${act}</div>`;
@@ -41,7 +41,7 @@ function vKnieToday() {
   h += `</div><div class="row-btns"><button class="pill-btn" data-a="timer-start" data-r="kurz">${icon('play')}Kurzroutine 30 Min.</button><button class="pill-btn" data-a="timer-start" data-r="pflicht5">${icon('play')}Pflicht-5</button></div></section>`;
   const q = kneeQuota(weekStart(k));
   const qt = (l, v, g, s = '') => `<div class="kv"><span>${l}</span><b>${v}/${g}</b>${progBar(v, typeof g === 'number' ? g : 2, v >= (typeof g === 'number' ? g : 2) ? 'ok' : '')}${s ? `<small>${s}</small>` : ''}</div>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Diese Woche</h2><span class="count">Serie Mobilität: ${mobStreak()} ${mobStreak() === 1 ? 'Tag' : 'Tage'}</span></div><div class="kv-grid">${qt('Knie-Kraft', q.kraft, q.kraftGoal)}${qt('Läufe', q.runs, q.runsGoal, `${fmt(kmWeek(weekStart(k)), 1)} km`)}${qt('Mobilität', q.mob, 7)}${qt('Lange Routine', q.lang, '2–3')}</div></section>`;
+  h += `<section class="sec"><div class="sec-head"><h2>Diese Woche</h2><span class="count">Serie Mobilität: ${mobStreak()} ${mobStreak() === 1 ? 'Tag' : 'Tage'}</span></div><div class="kv-grid">${qt('Kraft & Athletik', q.kraft, q.kraftGoal)}${qt('Läufe', q.runs, q.runsGoal, `${fmt(kmWeek(weekStart(k)), 1)} km`)}${qt('Mobilität', q.mob, 7)}${qt('Lange Routine', q.lang, '2–3')}</div></section>`;
   if (ins) h += insolesCard(k, ins);
   const td = testDue();
   if (td.due) h += `<div class="banner">${icon('ruler')}<div><b>Test fällig</b><span>${td.days == null ? 'Noch kein Test gemacht.' : `Letzter Test vor ${td.days} Tagen.`} Step-down, Knie zur Wand, Einbeinstand, Sit-and-Reach, Couch-Stretch.</span></div><button class="pill-btn" data-a="sub" data-area="knie" data-v="tests">Testen</button></div>`;
@@ -123,34 +123,40 @@ function sheetExPick() {
   openSheet(`<h3 class="sheet-title">Übung hinzufügen</h3>${Object.entries(KNEE_CATS).map(([c, n]) => `<h5>${esc(n)}</h5><div class="list">${KNEE_EX.filter((e) => e.cat === c && e.d.t !== 'info').map((e) => `<button class="row" data-a="rt-pick" data-id="${e.id}"><span class="row-main"><b>${esc(e.n)}</b><small>${esc(e.dose)}</small></span>${icon('plus', 'row-ic')}</button>`).join('')}</div>`).join('')}`);
 }
 
-/* ---------- Kraftplan ---------- */
+/* ---------- Kraft & Athletik (seit 2.13: täglich zu Hause, Einheiten A/B/C) ---------- */
 function vKnieKraft() {
   const k = todayKey();
   const ph = kneePhase(), w = kneeWeek();
   const d = getDay(k), str = kneeDay(d).str || {};
+  const t = athType(k), items = athItems(k, t);
   let h = phaseGateCard();
   h += `<div class="phase-bar knee-phases">${KNEE_PHASES.map((p) => `<div class="phase-seg${p.id === ph.id ? ' is-now' : ''}" style="flex:${p.weeks[1] - p.weeks[0] + 1};--pc:${PHASE_COLORS[p.id - 1]}"><i style="width:${p.id < ph.id ? 100 : p.id > ph.id ? 0 : clamp(((w - p.weeks[0] + 1) / (p.weeks[1] - p.weeks[0] + 1)) * 100, 4, 100)}%"></i><span>P${p.id} · W${p.weeks[0]}–${p.weeks[1]}</span></div>`).join('')}</div>`;
-  h += `<p class="sec-sub">${esc(ph.goal)} ${ph.perWeek}× pro Woche (Standard: ${WD_LONG.filter((_, i) => weekTpl(i).kraft).join(', ')}).${(kneeCfg().ext || 0) ? ` Phase um ${kneeCfg().ext} Woche(n) verlängert.` : ''}</p>`;
-  const tpl = weekTpl(weekday(k));
-  if (tpl.gym && gymDay(tpl.gym) && gymDay(tpl.gym).legs) h += `<div class="banner is-soft">${icon('dumbbell')}<div><b>Heute Beintag</b><span>Clamshells, Monster Walks und Glute Bridge als Aufwärmen vor dem Gym. Wandsitzen und Wadenheben können entfallen – Wadenheben ist im Beintag.</span></div></div>`;
-  else if (tpl.gym) h += `<p class="hint">${icon('dumbbell')} Heute ${esc(gymDay(tpl.gym).n)}: Knie-Kraft direkt nach dem Oberkörpertraining.</p>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Einheit heute</h2>${str.done ? `<span class="st st-ok">${icon('check')}erledigt</span>` : ''}</div>`;
-  for (const pe of ph.ex) {
+  h += `<p class="sec-sub">${esc(ph.goal)} Zu Hause ${ph.perWeek}× pro Woche, ca. 20–25 Min., Einheiten A, B und C im Wechsel.${(kneeCfg().ext || 0) ? ` Phase um ${kneeCfg().ext} Woche(n) verlängert.` : ''}</p>`;
+  h += athLightBanner(k);
+  if (athLegsDay(k)) h += `<div class="banner is-soft">${icon('dumbbell')}<div><b>Heute Beintag</b><span>Zu Hause eine leichtere Einheit (nicht A), den Knie-Block machst du im Gym – siehe unten.</span></div></div>`;
+  h += `<section class="sec"><div class="sec-head"><h2>Einheit ${t} · ${esc(ATH_TYPES[t])}</h2>${str.done ? `<span class="st st-ok">${icon('check')}erledigt</span>` : `<span class="count">ca. ${athMin(k, t)} Min.</span>`}</div>
+    <div class="chips chips-tight ath-types">${Object.entries(ATH_TYPES).map(([v, n]) => `<button class="chip chip-xs${v === t ? ' is-on' : ''}" data-a="ath-type" data-v="${v}">${v} · ${esc(n)}</button>`).join('')}</div>
+    ${str.done ? '' : `<button class="btn is-accent" data-a="ath-start">${icon('play')}Mit Timer starten</button>`}`;
+  for (const pe of items) {
     const ex = exById(pe.i);
     if (!ex) continue;
-    const it = { sets: pe.sets, reps: pe.reps, sec: pe.sec };
+    const n = pe.sets || ex.d.sets || 1;
+    const it = { sets: n, reps: pe.reps, sec: pe.sec };
     const e = (str.ex || {})[ex.id] || {};
-    const prog = strengthProg(ex.id, pe.sets);
-    const sets = Array.from({ length: pe.sets }, (_, i) => `<button class="set-dot${(e.sets || [])[i] ? ' is-on' : ''}" data-a="kstr-set" data-ex="${ex.id}" data-i="${i}" data-n="${pe.sets}" aria-label="Satz ${i + 1}">${i + 1}</button>`).join('');
+    const prog = strengthProg(ex.id, n);
+    const sets = Array.from({ length: n }, (_, i) => `<button class="set-dot${(e.sets || [])[i] ? ' is-on' : ''}" data-a="kstr-set" data-ex="${ex.id}" data-i="${i}" data-n="${n}" aria-label="Satz ${i + 1}">${i + 1}</button>`).join('');
     const loads = ex.band ? `<div class="chips chips-tight load-chips">${kneeCfg().bands.map((b) => `<button class="chip chip-xs${e.load === b.n ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="${esc(b.n)}">${esc(b.n)} ${fmt(b.kg, 1)} kg</button>`).join('')}<button class="chip chip-xs${e.load === 'ohne' ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="ohne">ohne</button></div>`
-      : ['k_bss', 'k_slrdl', 'k_wadeeinbein', 'k_wadeexz'].includes(ex.id) ? `<label class="mini-in kg-in"><input type="text" inputmode="decimal" data-c="kstr-kg" data-ex="${ex.id}" value="${esc(e.load && e.load !== 'ohne' ? e.load : '')}" placeholder="kg"><span>kg Zusatz</span></label>` : '';
-    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= pe.sets ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}</small></button>${ex.d.t === 'time' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="1" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
+      : ex.kg || ['k_bss', 'k_slrdl', 'k_wadeeinbein', 'k_wadeexz'].includes(ex.id) ? `<label class="mini-in kg-in"><input type="text" inputmode="decimal" data-c="kstr-kg" data-ex="${ex.id}" value="${esc(e.load && e.load !== 'ohne' ? e.load : '')}" placeholder="–"><span>kg</span></label>` : '';
+    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= n ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}${pe.rest ? ` · ${pe.rest % 60 === 0 ? `${pe.rest / 60} Min.` : `${pe.rest} Sek.`} Pause` : ''}</small></button>${ex.d.t === 'time' && ex.id !== 'a_ergo' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="${n}" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
       <div class="kstr-sets">${sets}</div>${loads}${prog ? `<p class="hint prog">${icon('trending-up')} ${esc(prog)}</p>` : ''}</div>`;
   }
-  h += `<p class="flabel-s">Knieschmerz während der Einheit (0–10)</p>${scale0('kstr-pain', str.pain ?? null, k)}
+  h += `<p class="flabel-s">Knieschmerz während der Einheit (0–10) · bis 5 okay, wenn er morgen früh wieder auf dem Ausgangswert ist</p>${scale0('kstr-pain', str.pain ?? null, k)}
     <button class="btn ${str.done ? 'is-ghost' : 'is-accent'}" data-a="kstr-done">${str.done ? 'Als nicht erledigt markieren' : `${icon('check')}Einheit abschließen`}</button></section>`;
+  h += athGymHTML(false);
+  h += athWeekHTML(k);
   if (ph.id === 3) h += `<p class="hint">${icon('activity')} Phase 3: Lauf-ABC 1×/Woche ca. 10 Min. (A-Skip, Hopserlauf, Wall Drill je 2 × 20 m) und Step-down-Test jede Woche.</p>`;
-  h += `<p class="hint">Alle Sätze sauber und schmerzfrei in zwei Einheiten → die App schlägt die nächste Stufe vor (mehr Wiederholungen, stärkeres Band, einbeinig, Gewicht).</p>`;
+  h += `<p class="hint">Alle Sätze sauber und höchstens 2/10 Schmerz in zwei Einheiten → die App schlägt bei der Übung die nächste Stufe vor.</p>`;
+  h += athInfoHTML();
   return h;
 }
 
@@ -381,7 +387,7 @@ function timerAdvance(silent = false) {
   const next = t.steps[t.i + 1];
   t.i++;
   if (next.ex === st.ex) {
-    t.phase = 'switch'; t.endAt = Date.now() + 5000;
+    t.phase = 'switch'; t.endAt = Date.now() + stepGap(st, next) * 1000;
     if (!silent) sig('switch', next.side && next.side !== st.side ? `Seitenwechsel. ${stepSpeech(next, false)}` : `Satz ${next.set}. ${stepSpeech(next, false)}`);
   } else {
     t.phase = 'trans'; t.endAt = Date.now() + (kneeCfg().trans || 10) * 1000;
@@ -419,6 +425,7 @@ function timerRender() {
     const real = Math.round(t.act / 1000);
     o.innerHTML = `<div class="tm"><div class="tm-done">${icon('badge-check')}<h2>${esc(t.name)} geschafft</h2>
       <div class="kv-grid"><div class="kv"><span>Geplant</span><b>${fmtClock(t.plan + Math.max(0, t.steps.length - 1) * 6)}</b><small>Min.</small></div><div class="kv"><span>Tatsächlich</span><b>${fmtClock(real)}</b><small>Min. ohne Pausen</small></div></div>
+      ${t.rid === 'kraft' ? `<h5>Knieschmerz während der Einheit (0–10)</h5>${scale0('tm-pain', t.pain ?? null, todayKey())}<p class="hint">Bis 5 ist okay, wenn das Knie morgen früh wieder auf dem Ausgangswert ist.</p>` : ''}
       ${stretches.length && !t.noSave ? `<h5>Wie stark war der Zug? (optional, 5–7 ist ideal)</h5><div class="rate-list">${stretches.map((e) => `<div class="rate-row"><span>${esc(e.n)}</span><div class="chips chips-tight">${[3, 4, 5, 6, 7, 8].map((n) => `<button class="chip chip-xs${t.rate[e.id] === n ? ' is-on' : ''}" data-a="tm-rate" data-ex="${e.id}" data-v="${n}">${n}</button>`).join('')}</div></div>`).join('')}</div>` : ''}
       <div class="sheet-acts">${t.noSave ? '' : '<button class="btn is-accent" data-a="tm-save">Speichern</button>'}<button class="btn is-ghost" data-a="tm-close">${t.noSave ? 'Schließen' : 'Ohne Speichern schließen'}</button></div></div></div>`;
     return;
@@ -427,7 +434,7 @@ function timerRender() {
   const next = t.steps[t.i + 1];
   const nx = next ? exById(next.ex) : null;
   const isRun = t.phase === 'run';
-  const head = t.phase === 'prep' ? 'Gleich geht’s los' : t.phase === 'switch' ? (st.side ? `Seitenwechsel → ${sideName(st.side)}` : `Satz ${st.set}`) : t.phase === 'trans' ? 'Nächste Übung' : st.grp || '';
+  const head = t.phase === 'prep' ? 'Gleich geht’s los' : t.phase === 'switch' ? (st.rest && t.steps[t.i - 1] && t.steps[t.i - 1].set !== st.set ? `Pause, dann Satz ${st.set}` : st.side ? `Seitenwechsel → ${sideName(st.side)}` : `Satz ${st.set}`) : t.phase === 'trans' ? 'Nächste Übung' : st.grp || '';
   const reps = isRun && st.type !== 'time';
   const sideLbl = st.side ? `<span class="tm-side s-${st.side}">${st.sideName ? esc(st.sideName) : sideName(st.side)}${st.side === extraSide() && !ex.d.noX && !t.noExtra ? ' +' : ''}</span>` : '';
   o.innerHTML = `<div class="tm${isRun ? ' is-run' : ' is-pause'}">
@@ -465,6 +472,7 @@ function timerSave() {
     d.knee.sess = d.knee.sess || [];
     d.knee.sess.push({ id: uid(), r: t.rid, start: t.startedAt, end: t.endedAt || Date.now(), act: Math.round(t.act / 1000), plan: t.plan, done, total: t.steps.length, complete: t.complete || done >= t.steps.length * 0.8, short: t.rid === 'lang' && !!kneeCfg().longShort, rate: t.rate });
   });
+  if (t.rid === 'kraft') athSaveTimer(t);
   toast(`${t.name} gespeichert`);
   timerClose();
 }

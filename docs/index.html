@@ -1214,6 +1214,16 @@ label.pill-btn { cursor: pointer; }
 .zw-trend i.hi { background: var(--st-over); }
 .zw-trend span { flex-basis: 100%; font-size: 11.5px; color: var(--ink-3); }
 .zw-banner .pill-btn { flex: none; align-self: center; }
+/* Knie Kraft & Athletik (2.13.0) */
+.ath-types { margin: 6px 0 10px; }
+.ath-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.ath-day { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 10px; background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+.ath-day small { font-size: 11px; color: var(--ink-3); }
+.ath-day b { font-size: 15px; color: var(--ink-3); }
+.ath-day.is-done { background: rgba(54, 196, 125, .14); box-shadow: inset 0 0 0 1px rgba(54, 196, 125, .45); }
+.ath-day.is-done b { color: var(--st-ok); }
+.ath-day.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
+.ath-gym .row-main small { white-space: normal; }
 
 </style>
 </head>
@@ -1337,7 +1347,8 @@ const ICONS = {
   'watch': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v2.2l1.6 1" /> <path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05" /> <path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05" /> <circle cx="12" cy="12" r="6" /></svg>',
   'waves': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12q2.5 2 5 0t5 0 5 0 5 0" /> <path d="M2 19q2.5 2 5 0t5 0 5 0 5 0" /> <path d="M2 5q2.5 2 5 0t5 0 5 0 5 0" /></svg>',
   'wind': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.8 19.6A2 2 0 1 0 14 16H2" /> <path d="M17.5 8a2.5 2.5 0 1 1 2 4H2" /> <path d="M9.8 4.4A2 2 0 1 1 11 8H2" /></svg>',
-  'x': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>'
+  'x': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>',
+  'zap': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" /></svg>'
 };
 /* ---- data.js ---- */
 /* ============================================================
@@ -1347,7 +1358,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.12.1';
+const APP_VERSION = '2.13.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -2016,7 +2027,7 @@ const BLOOD_MARKERS = [
 /* ============================================================
    KNIE-RESET & MOBILITY
    ============================================================ */
-const KNEE_CATS = { roll: 'Rollen', mob: 'Mobilisieren', stretch: 'Dehnen', strength: 'Kräftigen', run: 'Laufstil' };
+const KNEE_CATS = { roll: 'Rollen', mob: 'Mobilisieren', stretch: 'Dehnen', strength: 'Kräftigen', athl: 'Athletik & Sprünge', run: 'Laufstil' };
 const KNEE_AREAS = { huefte: 'Hüfte', vorn: 'Oberschenkel vorn', hinten: 'Oberschenkel hinten', add: 'Adduktoren', wade: 'Wade', fuss: 'Fuß/Sprunggelenk', rumpf: 'Rumpf', bws: 'Brustwirbelsäule' };
 const KNEE_RULES = [
   'Dehnen bis deutlicher Zug (5–7 von 10), nie bis Schmerz. In den Bauch atmen, beim Ausatmen etwas tiefer. Nicht wippen.',
@@ -2174,10 +2185,10 @@ const KNEE_EX = [
   { id: 'k_slrdl', n: 'Einbeiniges Kreuzheben', en: 'Single Leg Romanian Deadlift', cat: 'strength', areas: ['hinten', 'huefte'], d: { t: 'reps', s: 2, reps: 8, sets: 3 }, dose: '3 × 8/Seite',
     how: 'Auf einem Bein, Knie leicht gebeugt. Oberkörper nach vorn neigen, das freie Bein geht gestreckt nach hinten, Becken bleibt gerade. Kontrolliert zurück.',
     benefit: 'Gesäß, Beinbeuger und Gleichgewicht.', mistake: 'Becken dreht auf.', safety: 'Mit Halt beginnen.' },
-  { id: 'k_pogo', n: 'Sprünge auf der Stelle', en: 'Pogo Jumps', cat: 'strength', areas: ['wade', 'fuss'], d: { t: 'reps', s: 1, reps: 20, sets: 3 }, dose: '3 × 20 (Phase 3)',
+  { id: 'k_pogo', n: 'Sprünge auf der Stelle', en: 'Pogo Jumps', cat: 'strength', plyo: true, areas: ['wade', 'fuss'], d: { t: 'reps', s: 1, reps: 20, sets: 3 }, dose: '3 × 20 (Phase 3)',
     how: 'Kleine, federnde Sprünge aus den Sprunggelenken, Knie fast gestreckt, kurzer Bodenkontakt.',
     benefit: 'Bereitet Sehnen und Waden auf das Laufen vor.', mistake: 'Laut landen oder Knie fallen nach innen.', safety: 'Nur schmerzfrei, erst ab Phase 3.' },
-  { id: 'k_lathops', n: 'Seitsprünge', en: 'Lateral Hops', cat: 'strength', areas: ['wade', 'huefte'], d: { t: 'reps', s: 2, reps: 10, sets: 3 }, dose: '3 × 10/Seite (Phase 3)',
+  { id: 'k_lathops', n: 'Seitsprünge', en: 'Lateral Hops', cat: 'strength', plyo: true, areas: ['wade', 'huefte'], d: { t: 'reps', s: 2, reps: 10, sets: 3 }, dose: '3 × 10/Seite (Phase 3)',
     how: 'Auf einem Bein seitlich über eine Linie hüpfen und sicher landen, das Knie bleibt über dem Fuß.',
     benefit: 'Seitliche Stabilität unter Sprungbelastung.', mistake: 'Knie knickt bei der Landung ein.', safety: 'Nur schmerzfrei, erst ab Phase 3.' },
   /* Laufstil */
@@ -2220,20 +2231,32 @@ const KNEE_ROUTINES = [
 ];
 const ROUTINE_KIND = { taeglich: 'mob', kurz: 'mob', lang: 'lang', vorlauf: 'vorlauf', pflicht5: 'kraft' };
 
-/* 12-Wochen-Kraftplan */
+/* 12-Wochen-Plan Kraft & Athletik (seit 2.13.0): täglich zu Hause 20–25 Min., Einheiten A/B/C im Wechsel,
+   dazu ein Knie-Block am Beintag im Gym. Aufbau nach dem Sehnen-Programm von Breda 2021 (isometrisch → langsam schwer
+   → Sprungkraft → Sport) plus Hüfte/Seite (Außenseite des Knies) und Athletik (Gleichgewicht, Landen, Seitbewegung).
+   it: { i: Übung, sets, reps|sec, rest: Pause zwischen Sätzen (Sek.) } · plyo-Übungen fallen an leichten Tagen weg */
 const KNEE_PHASES = [
-  { id: 1, n: 'Phase 1', weeks: [1, 3], perWeek: 3, ex: [
-    { i: 'k_clamshell', sets: 3, reps: 15 }, { i: 'k_abduktion', sets: 3, reps: 12 }, { i: 'k_monster', sets: 3, reps: 10 }, { i: 'k_bridge', sets: 3, reps: 12 },
-    { i: 'k_seitstuetz', sets: 3, sec: 30 }, { i: 'k_wandsitzen', sets: 4, sec: 30 }, { i: 'k_wadeexz', sets: 3, reps: 15 },
-  ], goal: 'Hüft- und Gesäßkraft aufbauen, Knieachse stabilisieren.' },
-  { id: 2, n: 'Phase 2', weeks: [4, 8], perWeek: 3, ex: [
-    { i: 'k_stepdown', sets: 3, reps: 10 }, { i: 'k_bss', sets: 3, reps: 8 }, { i: 'k_slrdl', sets: 3, reps: 8 }, { i: 'k_wadeeinbein', sets: 3, reps: 12 },
-    { i: 'k_monster', sets: 3, reps: 10 }, { i: 'k_seitstuetz', sets: 3, sec: 40 },
-  ], goal: 'Einbeinige Kraft und Kontrolle unter Last.' },
-  { id: 3, n: 'Phase 3', weeks: [9, 12], perWeek: 2, ex: [
-    { i: 'k_stepdown', sets: 3, reps: 10 }, { i: 'k_bss', sets: 3, reps: 8 }, { i: 'k_slrdl', sets: 3, reps: 8 }, { i: 'k_wadeeinbein', sets: 3, reps: 12 },
-    { i: 'k_monster', sets: 3, reps: 10 }, { i: 'k_seitstuetz', sets: 3, sec: 40 }, { i: 'k_pogo', sets: 3, reps: 20 }, { i: 'k_lathops', sets: 3, reps: 10 },
-  ], goal: 'Nur schmerzfrei: Kraft 2×/Woche, Sprünge, Lauf-ABC 1×/Woche, Step-down-Test 1×/Woche.' },
+  { id: 1, n: 'Phase 1', weeks: [1, 3], perWeek: 6, goal: 'Beruhigen und Grundkraft: Sehne isometrisch belasten, Hüfte und Seite kräftigen, noch keine Sprünge.',
+    days: {
+      A: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 5, sec: 45, rest: 60 }, { i: 'k_bridge', sets: 3, reps: 12 }, { i: 'k_wadeexz', sets: 3, reps: 15 }, { i: 'a_tibialis', sets: 2, reps: 15 }],
+      B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_clamshell', sets: 2, reps: 15 }, { i: 'k_abduktion', sets: 2, reps: 12 }, { i: 'k_seitstuetz', sets: 2, sec: 30 }, { i: 'k_monster', sets: 2, reps: 10 }],
+      C: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'a_kbdl', sets: 3, reps: 10 }, { i: 'k_einbeinstand', sets: 2, sec: 30 }, { i: 'k_hiphike', sets: 2, reps: 12 }, { i: 'k_deadbug', sets: 2, reps: 8 }, { i: 'a_tiefhocke', sets: 3, sec: 30 }],
+    },
+    gym: [['Beinstrecker isometrisch', '5 × 45 Sek. bei ca. 60° Kniebeugung, etwa 70 % Kraft, 2 Min. Pause – wie Stufe 1 der Studie, an der Maschine genau dosierbar'], ['Abduktoren-Maschine', '3 × 15, langsam'], ['Beintag mit Knie-Varianten', 'Hip Thrust statt Hackenschmidt, wenn die Kniebeuge über 5/10 schmerzt']] },
+  { id: 2, n: 'Phase 2', weeks: [4, 8], perWeek: 6, goal: 'Kraft: langsam und schwer (3 Sek. runter, 3 Sek. hoch), einbeinig, Seitbewegung; isometrisch an den anderen Tagen.',
+    days: {
+      A: [{ i: 'a_ergo', sec: 300 }, { i: 'a_goblet', sets: 4, reps: 8, rest: 90 }, { i: 'a_stepup', sets: 3, reps: 8 }, { i: 'k_wadeeinbein', sets: 3, reps: 12 }, { i: 'a_tibialis', sets: 2, reps: 15 }],
+      B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_monster', sets: 3, reps: 10 }, { i: 'a_copen', sets: 3, sec: 20 }, { i: 'k_seitstuetz', sets: 2, sec: 40 }, { i: 'a_seitausfall', sets: 2, reps: 8 }],
+      C: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_stepdown', sets: 3, reps: 10 }, { i: 'k_slrdl', sets: 3, reps: 8 }, { i: 'a_swing', sets: 3, reps: 15 }, { i: 'a_landen', sets: 3, reps: 6 }],
+    },
+    gym: [['Beinstrecker langsam', '4 × 8–15, 3 Sek. hoch, 3 Sek. runter, schwer (Heavy Slow Resistance)'], ['Beinpresse einbeinig', '3 × 10 je Bein, langsam'], ['Ab- und Adduktoren-Maschine', 'je 3 × 12']] },
+  { id: 3, n: 'Phase 3', weeks: [9, 12], perWeek: 6, goal: 'Sprungkraft und Sport: Sprünge jeden dritten Tag, einbeinig schwerer, BJJ-typische Bewegungen; danach als Erhaltung weiter.',
+    days: {
+      A: [{ i: 'a_ergo', sec: 300 }, { i: 'k_bss', sets: 3, reps: 8, rest: 60 }, { i: 'a_pistol', sets: 3, reps: 6 }, { i: 'k_wadeeinbein', sets: 3, reps: 12 }, { i: 'a_wand1b', sets: 2, sec: 30, rest: 45 }],
+      B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'a_copen', sets: 2, sec: 30 }, { i: 'a_cossack', sets: 3, reps: 6 }, { i: 'k_seitstuetz', sets: 2, sec: 40 }, { i: 'k_monster', sets: 2, reps: 10 }],
+      C: [{ i: 'a_ergo', sec: 300 }, { i: 'k_pogo', sets: 3, reps: 20 }, { i: 'k_lathops', sets: 3, reps: 10 }, { i: 'a_skater', sets: 3, reps: 6 }, { i: 'a_stufensprung', sets: 3, reps: 6 }, { i: 'a_standup', sets: 2, reps: 5 }, { i: 'a_tiefhocke', sets: 2, sec: 30 }],
+    },
+    gym: [['Hackenschmidt oder Beinpresse schwer', '4 × 6, langsam runter'], ['Beinstrecker langsam', '3 × 8, 3 Sek. hoch, 3 Sek. runter'], ['Sprungtage nicht nach dem Beintag', 'Einheit C (Sprünge) frühestens einen Tag später']] },
 ];
 const KNEE_BANDS = [{ n: 'Rot', kg: 4.0 }, { n: 'Grün', kg: 4.9 }];
 
@@ -3878,7 +3901,7 @@ function dayDone(k) {
     gymAny: tr.some((t) => trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id)),
     legs: tr.some((t) => trainType(t).legs),
     run: tr.filter((t) => trainType(t).run).length,
-    kraft: !!(d.knee && d.knee.str && d.knee.str.done) || sess.some((s) => s.r === 'pflicht5' && s.complete) || tr.some((t) => t.type === 'Knie-Kraft'),
+    kraft: !!(d.knee && d.knee.str && d.knee.str.done) || sess.some((s) => (s.r === 'pflicht5' || s.r === 'kraft') && s.complete) || tr.some((t) => t.type === 'Knie-Kraft'),
     lang: sess.some((s) => s.r === 'lang' && s.complete),
     mob: sess.some((s) => ['taeglich', 'kurz', 'lang'].includes(s.r) && s.complete) || !!(d.knee && d.knee.mob),
     sauna: saunaMin(d),
@@ -3893,7 +3916,7 @@ function weekPlan(ws) {
     const tpl = weekTpl(i), done = dayDone(k);
     const items = [];
     if (tpl.gym && gymDay(tpl.gym)) items.push({ kind: 'gym', day: tpl.gym, n: gymDay(tpl.gym).n, done: done.gym.includes(Number(tpl.gym)) || (done.gymAny && !done.gym.length) });
-    if (tpl.kraft) items.push({ kind: 'kraft', n: 'Knie-Kraft', done: done.kraft });
+    items.push({ kind: 'kraft', n: 'Knie-Athletik', done: done.kraft }); // seit 2.13 täglich zu Hause
     if (tpl.lauf) items.push({ kind: 'lauf', n: 'Lockerer Lauf', done: done.run > 0 });
     if (tpl.lang) items.push({ kind: 'lang', n: 'Lange Routine', done: done.lang });
     if (tpl.walk) items.push({ kind: 'walk', n: 'Spaziergang', done: done.walk });
@@ -3989,7 +4012,7 @@ function doseText(ex, it = {}) {
   const xs = extraSide();
   const extra = d.s === 2 && !d.noX ? (d.t === 'time' ? kneeCfg().extraSec : kneeCfg().extraReps) : 0;
   const pre = sets > 1 ? `${sets} × ` : '';
-  const one = (v) => (d.t === 'reps' && !pre ? `${v}×` : `${v}${ut}`);
+  const one = (v) => (d.t === 'reps' && !pre ? `${v}×` : d.t === 'time' && v >= 120 && v % 60 === 0 ? `${v / 60} Min.` : `${v}${ut}`);
   if (d.s === 2 && extra) {
     const l = xs === 'R' ? val : val + extra, r = xs === 'R' ? val + extra : val;
     return `${pre}${one(l)} links / ${one(r)} rechts`;
@@ -4014,17 +4037,18 @@ function buildSteps(rt, opts = {}) {
       for (const side of sides) {
         const extra = side && !d.noX && side === extraSide();
         const val = d.t === 'time' ? base + (extra ? cfg.extraSec : 0) : base + (extra ? cfg.extraReps : 0);
-        steps.push({ ex: ex.id, idx, grp: it.grp || null, side, set: s + 1, sets, type: d.t, sec: d.t === 'time' ? val : null, reps: d.t === 'reps' ? val : null, label: ex.labels ? ex.labels[s] || null : null, alt: !!d.alt, sideName: ex.sideNames ? ex.sideNames[side === 'L' ? 0 : 1] : null });
+        steps.push({ ex: ex.id, idx, grp: it.grp || null, side, set: s + 1, sets, type: d.t, sec: d.t === 'time' ? val : null, reps: d.t === 'reps' ? val : null, label: ex.labels ? ex.labels[s] || null : null, alt: !!d.alt, sideName: ex.sideNames ? ex.sideNames[side === 'L' ? 0 : 1] : null, rest: it.rest || d.rest || null });
       }
     }
   });
   return steps;
 }
+function stepGap(a, b) { return b.set !== a.set && b.rest ? b.rest : 5; } // Pause im Timer zwischen Sätzen derselben Übung
 function stepSec(st) { return st.type === 'time' ? st.sec : Math.max(20, Math.round(st.reps * (st.alt ? 5 : 3.5))); }
 function routineSec(rt, opts = {}) {
   const trans = kneeCfg().trans || 10;
   let s = 0, prev = null;
-  for (const st of buildSteps(rt, opts)) { s += stepSec(st) + (prev == null ? 0 : prev.ex === st.ex ? 5 : trans); prev = st; }
+  for (const st of buildSteps(rt, opts)) { s += stepSec(st) + (prev == null ? 0 : prev.ex === st.ex ? stepGap(prev, st) : trans); prev = st; }
   return s;
 }
 function painValues(n, end = todayKey()) {
@@ -4145,7 +4169,7 @@ function milestones() {
 function kneePlanItemsToday(k) {
   const i = weekday(k), tpl = weekTpl(i);
   const out = [{ kind: 'mob', n: 'Täglich Mobilität', r: 'taeglich' }];
-  if (tpl.kraft) out.push({ kind: 'kraft', n: `Knie-Kraft (${kneePhase().n})` });
+  out.push({ kind: 'kraft', n: `Knie-Athletik ${athType(k)} (${kneePhase().n})` });
   if (tpl.lauf) { out.push({ kind: 'vorlauf', n: 'Vor dem Lauf (5 Min.)', r: 'vorlauf' }); out.push({ kind: 'lauf', n: 'Lockerer Lauf' }); }
   if (tpl.lang) out.push({ kind: 'lang', n: 'Lange Routine (abends)', r: 'lang' });
   return out;
@@ -6153,13 +6177,14 @@ function vTrainToday(k) {
   let h = dateBar(k);
   h += recoveryCard(k);
   if (k === todayKey()) h += zwTrainHint(k);
+  if (k === todayKey()) h += athTrainCard(k);
   if (k === todayKey()) h += kxCard(k);
   const wp = weekPlan(weekStart(k)), day = wp.days[weekday(k)];
   h += `<section class="sec"><div class="sec-head"><h2>${k === todayKey() ? 'Heute geplant' : 'Geplant'}</h2>${goBtn('train', 'Woche', 'woche')}</div>${day.warn ? `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(day.warn)}</span></div></div>` : ''}<div class="list">`;
   for (const it of day.items) {
     let act = '';
     if (it.kind === 'gym' && !it.done) act = `<button class="pill-btn is-accent" data-a="gym-start" data-day="${it.day}" data-date="${k}">${k < todayKey() ? 'Nachtragen' : 'Starten'}</button>`;
-    else if (it.kind === 'kraft' && !it.done) act = `<button class="pill-btn" data-a="goto" data-tab="knie" data-sub="kraft">Öffnen</button>`;
+    else if (it.kind === 'kraft' && !it.done) act = k === todayKey() ? `<button class="pill-btn" data-a="ath-start">${icon('play')}Start</button>` : `<button class="pill-btn" data-a="goto" data-tab="knie" data-sub="kraft">Öffnen</button>`;
     else if (it.kind === 'lauf' && !it.done) act = `<button class="pill-btn" data-a="run-add" data-date="${k}">Eintragen</button>`;
     else if ((it.kind === 'lang' || it.kind === 'mob') && !it.done) act = `<button class="pill-btn" data-a="timer-start" data-r="${it.kind === 'lang' ? 'lang' : 'taeglich'}">${icon('play')}Start</button>`;
     h += `<div class="plan-row${it.done ? ' is-done' : ''}${it.moved ? ' is-moved' : ''}"><span class="tgl-box">${icon('check')}</span><span class="row-main"><b>${esc(it.n)}${it.kind === 'gym' && gymDay(it.day) ? ` <em class="est is-blue">Schedule ${gymSched(k)}</em>` : ''}</b>${it.kind === 'gym' && gymDay(it.day) ? `<small>${esc(gymDay(it.day).sub)}, ca. ${gymDay(it.day).min} Min.</small>` : ''}</span>${act}</div>`;
@@ -6198,7 +6223,7 @@ function vTrainWeek() {
   const ws = ui.trainWeek;
   const wp = weekPlan(ws);
   let h = weekNav(ws, 'train-week', addDays(weekStart(todayKey()), 7));
-  h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Kraft nach dem Oberkörpertraining, kein schweres Beintraining am Tag vor einem Lauf.</p>`;
+  h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Athletik täglich zu Hause (Knie → Kraft & Athletik), am Beintag dazu der Knie-Block. Kein schweres Beintraining am Tag vor einem Lauf.</p>`;
   for (const n of wp.notes) h += `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(n)}</span></div></div>`;
   for (const d of wp.days) {
     const rec = d.isToday ? recovery(d.k) : null;
@@ -6245,6 +6270,7 @@ function vGymSession() {
   const gs = gymProgress(t);
   let h = `<header class="page-head is-tight sess-head"><button class="icon-btn" data-a="gym-close" aria-label="Zurück">${icon('chevron-left')}</button><div><h1>${esc(gd.n)}</h1><p class="eyebrow-date">Schedule ${t.gym.sched} · ${esc(fmtDate(k, { weekday: 'short', day: 'numeric', month: 'short' }))}${t.time ? ' · ' + t.time + ' Uhr' : ''}</p></div></header>`;
   h += `<div class="sess-prog">${progBar(gs.done, gs.total, gs.done >= gs.total ? 'ok' : '')}<span>${gs.done}/${gs.total} Sätze</span></div>`;
+  if (gd.legs) h += athGymHTML(true);
   for (const ex of gd.ex) {
     const e = t.gym.ex[ex.id] || { s: [] };
     const tg = gymTarget(ex, t.gym.sched, e.alt);
@@ -6862,7 +6888,7 @@ Object.assign(SET_VIEWS, {
    KNIE-RESET & MOBILITY – Ansichten und geführter Timer
    ============================================================ */
 Object.assign(ui, { rtEdit: null, rtOpen: null, timer: null, exOpen: null, todoDone: false });
-const KNEE_SUB = [['heute', 'Heute'], ['zwick', 'Zwickt’s'], ['routinen', 'Routinen'], ['kraft', 'Kraftplan'], ['laeufe', 'Läufe'], ['tests', 'Tests'], ['uebungen', 'Übungen'], ['infos', 'Infos & Termine']];
+const KNEE_SUB = [['heute', 'Heute'], ['zwick', 'Zwickt’s'], ['routinen', 'Routinen'], ['kraft', 'Kraft & Athletik'], ['laeufe', 'Läufe'], ['tests', 'Tests'], ['uebungen', 'Übungen'], ['infos', 'Infos & Termine']];
 function vKnie() {
   const sub = getSub('knie', 'heute');
   const w = kneeWeek();
@@ -6889,11 +6915,11 @@ function vKnieToday() {
     const done = it.kind === 'mob' ? dd.mob : it.kind === 'kraft' ? dd.kraft : it.kind === 'lauf' ? dd.run > 0 : it.kind === 'lang' ? dd.lang : it.kind === 'vorlauf' ? kneeSessions(peekDay(k)).some((s) => s.r === 'vorlauf') : false;
     let act = '';
     if (it.r && !done) act = `<button class="pill-btn is-accent" data-a="timer-start" data-r="${it.r}">${icon('play')}Start</button>`;
-    else if (it.kind === 'kraft' && !done) act = `<button class="pill-btn" data-a="sub" data-area="knie" data-v="kraft">Öffnen</button>`;
+    else if (it.kind === 'kraft' && !done) act = `<button class="pill-btn is-accent" data-a="ath-start">${icon('play')}Start</button>`;
     else if (it.kind === 'lauf' && !done) act = `<button class="pill-btn" data-a="run-add" data-date="${k}">Eintragen</button>`;
     let sub = '';
     if (it.r) { const rt = routineById(it.r); if (rt) sub = `ca. ${Math.round(routineSec(rt, { short: it.r === 'lang' && kneeCfg().longShort }) / 60)} Min.`; }
-    if (it.kind === 'kraft') sub = `${kneePhase().ex.length} Übungen · ${esc(kneePhase().goal)}`;
+    if (it.kind === 'kraft') sub = `${esc(ATH_TYPES[athType(k)])} · ca. ${athMin(k)} Min.${athLight(k) ? ' · heute leichter' : ''} · <a class="link-btn" data-a="sub" data-area="knie" data-v="kraft">Übungen</a>`;
     if (it.kind === 'lauf') sub = `im Gesprächstempo, Kadenz ${kneeCfg().cadence ? `${Math.round(kneeCfg().cadence * 1.05)}–${Math.round(kneeCfg().cadence * 1.1)}` : '+5–10 %'}${ins && !ins.before && !ins.runOk ? ` · mit Einlagen erst ab ${fmtDate(ins.runFrom, { day: 'numeric', month: 'short' })}` : ''}`;
     if (it.kind === 'mob' && !done) sub = (sub ? sub + ' · ' : '') + 'oder ohne Timer abhaken';
     h += `<div class="plan-row${done ? ' is-done' : ''}"><button class="tgl-box-btn" ${it.kind === 'mob' ? `data-a="knee-mob" data-date="${k}"` : 'disabled'} aria-label="erledigt">${'<span class="tgl-box">' + icon('check') + '</span>'}</button><span class="row-main"><b>${esc(it.n)}</b>${sub ? `<small>${sub}</small>` : ''}</span>${act}</div>`;
@@ -6901,7 +6927,7 @@ function vKnieToday() {
   h += `</div><div class="row-btns"><button class="pill-btn" data-a="timer-start" data-r="kurz">${icon('play')}Kurzroutine 30 Min.</button><button class="pill-btn" data-a="timer-start" data-r="pflicht5">${icon('play')}Pflicht-5</button></div></section>`;
   const q = kneeQuota(weekStart(k));
   const qt = (l, v, g, s = '') => `<div class="kv"><span>${l}</span><b>${v}/${g}</b>${progBar(v, typeof g === 'number' ? g : 2, v >= (typeof g === 'number' ? g : 2) ? 'ok' : '')}${s ? `<small>${s}</small>` : ''}</div>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Diese Woche</h2><span class="count">Serie Mobilität: ${mobStreak()} ${mobStreak() === 1 ? 'Tag' : 'Tage'}</span></div><div class="kv-grid">${qt('Knie-Kraft', q.kraft, q.kraftGoal)}${qt('Läufe', q.runs, q.runsGoal, `${fmt(kmWeek(weekStart(k)), 1)} km`)}${qt('Mobilität', q.mob, 7)}${qt('Lange Routine', q.lang, '2–3')}</div></section>`;
+  h += `<section class="sec"><div class="sec-head"><h2>Diese Woche</h2><span class="count">Serie Mobilität: ${mobStreak()} ${mobStreak() === 1 ? 'Tag' : 'Tage'}</span></div><div class="kv-grid">${qt('Kraft & Athletik', q.kraft, q.kraftGoal)}${qt('Läufe', q.runs, q.runsGoal, `${fmt(kmWeek(weekStart(k)), 1)} km`)}${qt('Mobilität', q.mob, 7)}${qt('Lange Routine', q.lang, '2–3')}</div></section>`;
   if (ins) h += insolesCard(k, ins);
   const td = testDue();
   if (td.due) h += `<div class="banner">${icon('ruler')}<div><b>Test fällig</b><span>${td.days == null ? 'Noch kein Test gemacht.' : `Letzter Test vor ${td.days} Tagen.`} Step-down, Knie zur Wand, Einbeinstand, Sit-and-Reach, Couch-Stretch.</span></div><button class="pill-btn" data-a="sub" data-area="knie" data-v="tests">Testen</button></div>`;
@@ -6983,34 +7009,40 @@ function sheetExPick() {
   openSheet(`<h3 class="sheet-title">Übung hinzufügen</h3>${Object.entries(KNEE_CATS).map(([c, n]) => `<h5>${esc(n)}</h5><div class="list">${KNEE_EX.filter((e) => e.cat === c && e.d.t !== 'info').map((e) => `<button class="row" data-a="rt-pick" data-id="${e.id}"><span class="row-main"><b>${esc(e.n)}</b><small>${esc(e.dose)}</small></span>${icon('plus', 'row-ic')}</button>`).join('')}</div>`).join('')}`);
 }
 
-/* ---------- Kraftplan ---------- */
+/* ---------- Kraft & Athletik (seit 2.13: täglich zu Hause, Einheiten A/B/C) ---------- */
 function vKnieKraft() {
   const k = todayKey();
   const ph = kneePhase(), w = kneeWeek();
   const d = getDay(k), str = kneeDay(d).str || {};
+  const t = athType(k), items = athItems(k, t);
   let h = phaseGateCard();
   h += `<div class="phase-bar knee-phases">${KNEE_PHASES.map((p) => `<div class="phase-seg${p.id === ph.id ? ' is-now' : ''}" style="flex:${p.weeks[1] - p.weeks[0] + 1};--pc:${PHASE_COLORS[p.id - 1]}"><i style="width:${p.id < ph.id ? 100 : p.id > ph.id ? 0 : clamp(((w - p.weeks[0] + 1) / (p.weeks[1] - p.weeks[0] + 1)) * 100, 4, 100)}%"></i><span>P${p.id} · W${p.weeks[0]}–${p.weeks[1]}</span></div>`).join('')}</div>`;
-  h += `<p class="sec-sub">${esc(ph.goal)} ${ph.perWeek}× pro Woche (Standard: ${WD_LONG.filter((_, i) => weekTpl(i).kraft).join(', ')}).${(kneeCfg().ext || 0) ? ` Phase um ${kneeCfg().ext} Woche(n) verlängert.` : ''}</p>`;
-  const tpl = weekTpl(weekday(k));
-  if (tpl.gym && gymDay(tpl.gym) && gymDay(tpl.gym).legs) h += `<div class="banner is-soft">${icon('dumbbell')}<div><b>Heute Beintag</b><span>Clamshells, Monster Walks und Glute Bridge als Aufwärmen vor dem Gym. Wandsitzen und Wadenheben können entfallen – Wadenheben ist im Beintag.</span></div></div>`;
-  else if (tpl.gym) h += `<p class="hint">${icon('dumbbell')} Heute ${esc(gymDay(tpl.gym).n)}: Knie-Kraft direkt nach dem Oberkörpertraining.</p>`;
-  h += `<section class="sec"><div class="sec-head"><h2>Einheit heute</h2>${str.done ? `<span class="st st-ok">${icon('check')}erledigt</span>` : ''}</div>`;
-  for (const pe of ph.ex) {
+  h += `<p class="sec-sub">${esc(ph.goal)} Zu Hause ${ph.perWeek}× pro Woche, ca. 20–25 Min., Einheiten A, B und C im Wechsel.${(kneeCfg().ext || 0) ? ` Phase um ${kneeCfg().ext} Woche(n) verlängert.` : ''}</p>`;
+  h += athLightBanner(k);
+  if (athLegsDay(k)) h += `<div class="banner is-soft">${icon('dumbbell')}<div><b>Heute Beintag</b><span>Zu Hause eine leichtere Einheit (nicht A), den Knie-Block machst du im Gym – siehe unten.</span></div></div>`;
+  h += `<section class="sec"><div class="sec-head"><h2>Einheit ${t} · ${esc(ATH_TYPES[t])}</h2>${str.done ? `<span class="st st-ok">${icon('check')}erledigt</span>` : `<span class="count">ca. ${athMin(k, t)} Min.</span>`}</div>
+    <div class="chips chips-tight ath-types">${Object.entries(ATH_TYPES).map(([v, n]) => `<button class="chip chip-xs${v === t ? ' is-on' : ''}" data-a="ath-type" data-v="${v}">${v} · ${esc(n)}</button>`).join('')}</div>
+    ${str.done ? '' : `<button class="btn is-accent" data-a="ath-start">${icon('play')}Mit Timer starten</button>`}`;
+  for (const pe of items) {
     const ex = exById(pe.i);
     if (!ex) continue;
-    const it = { sets: pe.sets, reps: pe.reps, sec: pe.sec };
+    const n = pe.sets || ex.d.sets || 1;
+    const it = { sets: n, reps: pe.reps, sec: pe.sec };
     const e = (str.ex || {})[ex.id] || {};
-    const prog = strengthProg(ex.id, pe.sets);
-    const sets = Array.from({ length: pe.sets }, (_, i) => `<button class="set-dot${(e.sets || [])[i] ? ' is-on' : ''}" data-a="kstr-set" data-ex="${ex.id}" data-i="${i}" data-n="${pe.sets}" aria-label="Satz ${i + 1}">${i + 1}</button>`).join('');
+    const prog = strengthProg(ex.id, n);
+    const sets = Array.from({ length: n }, (_, i) => `<button class="set-dot${(e.sets || [])[i] ? ' is-on' : ''}" data-a="kstr-set" data-ex="${ex.id}" data-i="${i}" data-n="${n}" aria-label="Satz ${i + 1}">${i + 1}</button>`).join('');
     const loads = ex.band ? `<div class="chips chips-tight load-chips">${kneeCfg().bands.map((b) => `<button class="chip chip-xs${e.load === b.n ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="${esc(b.n)}">${esc(b.n)} ${fmt(b.kg, 1)} kg</button>`).join('')}<button class="chip chip-xs${e.load === 'ohne' ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="ohne">ohne</button></div>`
-      : ['k_bss', 'k_slrdl', 'k_wadeeinbein', 'k_wadeexz'].includes(ex.id) ? `<label class="mini-in kg-in"><input type="text" inputmode="decimal" data-c="kstr-kg" data-ex="${ex.id}" value="${esc(e.load && e.load !== 'ohne' ? e.load : '')}" placeholder="kg"><span>kg Zusatz</span></label>` : '';
-    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= pe.sets ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}</small></button>${ex.d.t === 'time' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="1" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
+      : ex.kg || ['k_bss', 'k_slrdl', 'k_wadeeinbein', 'k_wadeexz'].includes(ex.id) ? `<label class="mini-in kg-in"><input type="text" inputmode="decimal" data-c="kstr-kg" data-ex="${ex.id}" value="${esc(e.load && e.load !== 'ohne' ? e.load : '')}" placeholder="–"><span>kg</span></label>` : '';
+    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= n ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}${pe.rest ? ` · ${pe.rest % 60 === 0 ? `${pe.rest / 60} Min.` : `${pe.rest} Sek.`} Pause` : ''}</small></button>${ex.d.t === 'time' && ex.id !== 'a_ergo' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="${n}" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
       <div class="kstr-sets">${sets}</div>${loads}${prog ? `<p class="hint prog">${icon('trending-up')} ${esc(prog)}</p>` : ''}</div>`;
   }
-  h += `<p class="flabel-s">Knieschmerz während der Einheit (0–10)</p>${scale0('kstr-pain', str.pain ?? null, k)}
+  h += `<p class="flabel-s">Knieschmerz während der Einheit (0–10) · bis 5 okay, wenn er morgen früh wieder auf dem Ausgangswert ist</p>${scale0('kstr-pain', str.pain ?? null, k)}
     <button class="btn ${str.done ? 'is-ghost' : 'is-accent'}" data-a="kstr-done">${str.done ? 'Als nicht erledigt markieren' : `${icon('check')}Einheit abschließen`}</button></section>`;
+  h += athGymHTML(false);
+  h += athWeekHTML(k);
   if (ph.id === 3) h += `<p class="hint">${icon('activity')} Phase 3: Lauf-ABC 1×/Woche ca. 10 Min. (A-Skip, Hopserlauf, Wall Drill je 2 × 20 m) und Step-down-Test jede Woche.</p>`;
-  h += `<p class="hint">Alle Sätze sauber und schmerzfrei in zwei Einheiten → die App schlägt die nächste Stufe vor (mehr Wiederholungen, stärkeres Band, einbeinig, Gewicht).</p>`;
+  h += `<p class="hint">Alle Sätze sauber und höchstens 2/10 Schmerz in zwei Einheiten → die App schlägt bei der Übung die nächste Stufe vor.</p>`;
+  h += athInfoHTML();
   return h;
 }
 
@@ -7241,7 +7273,7 @@ function timerAdvance(silent = false) {
   const next = t.steps[t.i + 1];
   t.i++;
   if (next.ex === st.ex) {
-    t.phase = 'switch'; t.endAt = Date.now() + 5000;
+    t.phase = 'switch'; t.endAt = Date.now() + stepGap(st, next) * 1000;
     if (!silent) sig('switch', next.side && next.side !== st.side ? `Seitenwechsel. ${stepSpeech(next, false)}` : `Satz ${next.set}. ${stepSpeech(next, false)}`);
   } else {
     t.phase = 'trans'; t.endAt = Date.now() + (kneeCfg().trans || 10) * 1000;
@@ -7279,6 +7311,7 @@ function timerRender() {
     const real = Math.round(t.act / 1000);
     o.innerHTML = `<div class="tm"><div class="tm-done">${icon('badge-check')}<h2>${esc(t.name)} geschafft</h2>
       <div class="kv-grid"><div class="kv"><span>Geplant</span><b>${fmtClock(t.plan + Math.max(0, t.steps.length - 1) * 6)}</b><small>Min.</small></div><div class="kv"><span>Tatsächlich</span><b>${fmtClock(real)}</b><small>Min. ohne Pausen</small></div></div>
+      ${t.rid === 'kraft' ? `<h5>Knieschmerz während der Einheit (0–10)</h5>${scale0('tm-pain', t.pain ?? null, todayKey())}<p class="hint">Bis 5 ist okay, wenn das Knie morgen früh wieder auf dem Ausgangswert ist.</p>` : ''}
       ${stretches.length && !t.noSave ? `<h5>Wie stark war der Zug? (optional, 5–7 ist ideal)</h5><div class="rate-list">${stretches.map((e) => `<div class="rate-row"><span>${esc(e.n)}</span><div class="chips chips-tight">${[3, 4, 5, 6, 7, 8].map((n) => `<button class="chip chip-xs${t.rate[e.id] === n ? ' is-on' : ''}" data-a="tm-rate" data-ex="${e.id}" data-v="${n}">${n}</button>`).join('')}</div></div>`).join('')}</div>` : ''}
       <div class="sheet-acts">${t.noSave ? '' : '<button class="btn is-accent" data-a="tm-save">Speichern</button>'}<button class="btn is-ghost" data-a="tm-close">${t.noSave ? 'Schließen' : 'Ohne Speichern schließen'}</button></div></div></div>`;
     return;
@@ -7287,7 +7320,7 @@ function timerRender() {
   const next = t.steps[t.i + 1];
   const nx = next ? exById(next.ex) : null;
   const isRun = t.phase === 'run';
-  const head = t.phase === 'prep' ? 'Gleich geht’s los' : t.phase === 'switch' ? (st.side ? `Seitenwechsel → ${sideName(st.side)}` : `Satz ${st.set}`) : t.phase === 'trans' ? 'Nächste Übung' : st.grp || '';
+  const head = t.phase === 'prep' ? 'Gleich geht’s los' : t.phase === 'switch' ? (st.rest && t.steps[t.i - 1] && t.steps[t.i - 1].set !== st.set ? `Pause, dann Satz ${st.set}` : st.side ? `Seitenwechsel → ${sideName(st.side)}` : `Satz ${st.set}`) : t.phase === 'trans' ? 'Nächste Übung' : st.grp || '';
   const reps = isRun && st.type !== 'time';
   const sideLbl = st.side ? `<span class="tm-side s-${st.side}">${st.sideName ? esc(st.sideName) : sideName(st.side)}${st.side === extraSide() && !ex.d.noX && !t.noExtra ? ' +' : ''}</span>` : '';
   o.innerHTML = `<div class="tm${isRun ? ' is-run' : ' is-pause'}">
@@ -7325,6 +7358,7 @@ function timerSave() {
     d.knee.sess = d.knee.sess || [];
     d.knee.sess.push({ id: uid(), r: t.rid, start: t.startedAt, end: t.endedAt || Date.now(), act: Math.round(t.act / 1000), plan: t.plan, done, total: t.steps.length, complete: t.complete || done >= t.steps.length * 0.8, short: t.rid === 'lang' && !!kneeCfg().longShort, rate: t.rate });
   });
+  if (t.rid === 'kraft') athSaveTimer(t);
   toast(`${t.name} gespeichert`);
   timerClose();
 }
@@ -7958,16 +7992,16 @@ Object.assign(A, {
   'kstr-set': (el) => {
     const k = todayKey(), ex = el.dataset.ex, i = Number(el.dataset.i), n = Number(el.dataset.n);
     kneeMut(k, (kn) => {
-      kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 };
+      athEnsure(kn, k);
       const e = kn.str.ex[ex] = kn.str.ex[ex] || { sets: [] };
       while (e.sets.length < n) e.sets.push(false);
       e.sets[i] = !e.sets[i];
     });
     render();
   },
-  'kstr-load': (el) => { kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = e.load === el.dataset.v ? null : el.dataset.v; }); render(); },
-  'kstr-pain': (el) => { const v = Number(el.dataset.v); kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; kn.str.pain = kn.str.pain === v ? null : v; }); render(); if (v > 3) toast('Über 3/10: Übung leichter machen oder tauschen'); },
-  'kstr-done': () => { let on = false; kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; kn.str.done = !kn.str.done; on = kn.str.done; kn.str.phase = kneeCfg().phase || 1; }); render(); if (on) toast('Knie-Kraft erledigt'); },
+  'kstr-load': (el) => { kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = e.load === el.dataset.v ? null : el.dataset.v; }); render(); },
+  'kstr-pain': (el) => { const v = Number(el.dataset.v); kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); kn.str.pain = kn.str.pain === v ? null : v; }); render(); if (v > 5) toast('Über 5/10: Übung leichter machen (weniger tief, weniger Gewicht) oder tauschen'); else if (v > 3) toast('Okay, wenn das Knie morgen früh wieder auf dem Ausgangswert ist'); },
+  'kstr-done': () => { let on = false; kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); kn.str.done = !kn.str.done; on = kn.str.done; kn.str.phase = kneeCfg().phase || 1; }); render(); if (on) toast('Knie-Athletik erledigt'); },
 
   /* Läufe & Tests */
   'run-add': (el) => sheetTrain(curDate(el), null, { type: 'Laufen' }),
@@ -8341,7 +8375,7 @@ Object.assign(C, {
   'knee-band': (el) => { const b = kneeCfg().bands[Number(el.dataset.i)]; if (!b) return; if (el.dataset.f === 'n') b.n = el.value.trim() || b.n; else b.kg = parseNum(el.value); saveSettings(false); flashSaved(el); },
   'knee-ins': (el) => { const v = parseNum(el.value); kneeMut(el.dataset.date, (kn) => { if (v == null) delete kn.ins; else kn.ins = v; }); flashSaved(el); },
   'knee-befund': (el) => { S.knee.befund = el.value; markDirty('knee'); flashSaved(el); },
-  'kstr-kg': (el) => { const v = el.value.trim(); kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = v || null; }); flashSaved(el); },
+  'kstr-kg': (el) => { const v = el.value.trim(); kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = v || null; }); flashSaved(el); },
   'rt-item': (el) => { const rt = ensureRoutines().find((r) => r.id === ui.rtEdit); const it = rt && rt.items[Number(el.dataset.i)]; const v = parseNum(el.value); if (!it || v == null || v <= 0) { toast('Wert prüfen'); return; } it[el.dataset.f] = Math.round(v); saveSettings(false); flashSaved(el); },
   'ex-video': (el) => { const c = kneeCfg(); c.video = c.video || {}; const v = el.value.trim(); if (v && !/^https?:\/\//i.test(v)) { toast('Link muss mit https:// beginnen'); return; } if (v) c.video[el.dataset.id] = v; else delete c.video[el.dataset.id]; saveSettings(false); flashSaved(el); },
   'todo-date': (el) => { const t = S.settings.todos.find((x) => x.id === el.dataset.id); if (!t) return; t.date = el.value || null; saveSettings(); },
@@ -9264,6 +9298,7 @@ function frankReportText(ws) {
   // Knie
   L.push('', `## Knie`);
   L.push(`Morgenschmerz Ø ${f0(r.painAm, 1)}/10 · Laufschmerz Ø ${f0(r.painRun, 1)} · max. ${f0(r.painMax)} · Mobilität ${r.q.mob}/7 · Knie-Kraft ${r.q.kraft}/${r.q.kraftGoal} · lange Routine ${r.q.lang} · Warnzeichen: ${r.flags.length ? r.flags.join(', ') : 'keine'}`);
+  { const al = typeof athReportLine === 'function' ? athReportLine(ws) : ''; if (al) L.push(al); }
   { const zl = typeof zwReportLine === 'function' ? zwReportLine(ws) : ''; if (zl) L.push(zl); }
   // Gewohnheiten
   const hab = HABITS.map((h) => `${h.n.split(' (')[0]} [habit:${h.id}] ${r.past.filter((k) => { const d = peekDay(k); return d && d.habits && d.habits[h.id]; }).length}/7`);
@@ -10888,15 +10923,17 @@ Object.assign(INFO, {
 });
 const ROUTINE_DEFAULT = {
   am: ['r_wasser', 'licht_morgen', 'block:morgen', 'skin:pflege_am', 'meditation', 'caf_start', 'knee:mob'],
-  day: ['atem', 'gehen_essen', 'schritte', 'kein_kalt', 'sauna_woche', 'licht_nachmittag'],
+  day: ['atem', 'gehen_essen', 'schritte', 'knee:kraft', 'kein_kalt', 'sauna_woche', 'licht_nachmittag'],
   pm: ['mahlzeit', 'warm_dusche', 'block:schlaf', 'skin:pflege_pm', 'handy', 'todo_morgen', 'bildschirm', 'dimmen'],
   custom: [{ id: 'r_wasser', n: 'Großes Glas Wasser (Prise Salz)' }],
 };
 const ROUTINE_PARTS = [['am', 'Morgenroutine', 'sunrise'], ['day', 'Tagsüber', 'sun'], ['pm', 'Abendroutine', 'moon']];
 function rtCfg() {
   const r = S.settings.routines;
-  if (!r || !Array.isArray(r.am)) { S.settings.routines = clone(ROUTINE_DEFAULT); markDirty('settings'); }
-  return S.settings.routines;
+  if (!r || !Array.isArray(r.am)) { S.settings.routines = { ...clone(ROUTINE_DEFAULT), v: 2 }; markDirty('settings'); }
+  const R = S.settings.routines;
+  if (!(R.v >= 2)) { if (![...R.am, ...(R.day || []), ...(R.pm || [])].includes('knee:kraft')) (R.day = R.day || []).splice(Math.min(3, R.day.length), 0, 'knee:kraft'); R.v = 2; markDirty('settings'); } // 2.13: Knie-Athletik einmal ergänzen
+  return R;
 }
 function phoneCfg() { return { social: 30, total: 180, ...(S.settings.phone || {}) }; }
 function stepsGoal() { return Number(S.settings.stepsGoal) || 8000; }
@@ -10957,6 +10994,7 @@ function rtStep(id, k) {
   if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
   if (id === 'knee:mob') { const dd = dayDone(k); return { id, n: 'Mobility (tägliche Routine)', sub: 'Knie & Mobility', go: 'knie', done: !!dd.mob }; }
+  if (id === 'knee:kraft') { const t = athType(k); return { id, n: `Knie-Athletik ${t}`, sub: `${ATH_TYPES[t]} · ca. ${athMin(k, t)} Min.`, go: 'knie', goSub: 'kraft', done: !!dayDone(k).kraft }; }
   if (id.startsWith('block:')) {
     const b = S.settings.plan.find((x) => x.id === id.slice(6));
     if (!b) return null;
@@ -11081,7 +11119,7 @@ Object.assign(A, {
   'rt-step': (el) => {
     const id = el.dataset.id, k = curDate(el), s = rtStep(id, k);
     if (!s) return;
-    if (s.go) { go(s.go, { date: k }); return; }
+    if (s.go) { if (s.goSub) ui.sub[s.go] = s.goSub; go(s.go, { date: k }); return; }
     if (s.ask === 'handy') { sheetHandy(k); return; }
     if (id.startsWith('block:')) {
       const b = S.settings.plan.find((x) => x.id === id.slice(6)), d = getDay(k), variant = dayVariant(k);
@@ -11128,7 +11166,7 @@ Object.assign(A, {
 function setRoutinesHTML() {
   const R = rtCfg();
   const label = (id) => { const s = rtStep(id, todayKey()); if (s) return s.n; const hb = HABITS.find((h) => h.id === id); return hb ? hb.n : id; };
-  const catalog = ['caf_start', 'knee:mob', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
+  const catalog = ['caf_start', 'knee:mob', 'knee:kraft', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
   let h = '';
   for (const [part, n] of ROUTINE_PARTS) {
     const ids = R[part] || [];
@@ -11799,7 +11837,7 @@ function agentParams() {
   return { params: p, habits: HABITS.map((h) => ({ id: h.id, name: h.n, on: !(S.settings.habitsOff || []).includes(h.id) })), routines: { am: rtCfg().am, day: rtCfg().day, pm: rtCfg().pm }, experiments: Object.entries(EXPS).map(([id, x]) => ({ id, name: x.n })), experimentRunning: expCur() ? expCur().id : null, deloadAdvice: kxDeloadAdvice() ? kxDeloadAdvice().why || 'läuft' : null };
 }
 const AGENT_SYS = `Du bist Frank, der Wochen-Agent der Protokoll-App. Du bekommst den Wochenbericht und die einstellbaren Werte. Werte die Woche aus, setze 3–5 messbare Ziele für die neue Woche und passe Einstellungen an, wo die Daten es klar nahelegen (lieber wenige, begründete Änderungen; keine Änderung ohne Grund). Antworte NUR mit einem JSON-Codeblock:
-{"review":{"good":[],"work":[],"more":[],"less":[],"tips":[]},"goals":[{"area":"…","title":"…","metric":"…","agg":"days|sum|avg|max","cmp":">=|<=","value":…,"need":5,"when":"HH:MM|wake+30|stop-30|bed-60","why":"…","tip":"…","example":"…"}],"changes":[{"key":"p.lo","value":190,"why":"…"},{"key":"habit.atem","value":"off","why":"…"},{"key":"routine.pm.nsdr","value":"add","why":"…"}],"experiment":null,"deload":false,"message":"2–3 Sätze an Dominik, direkt und motivierend"}
+{"review":{"good":[],"work":[],"more":[],"less":[],"tips":[]},"goals":[{"area":"…","title":"…","metric":"…","agg":"days|sum|avg|max","cmp":">=|<=","value":…,"need":5,"when":"HH:MM|wake+30|stop-30|bed-60","why":"…","tip":"…","example":"…"}],"changes":[{"key":"p.lo","value":190,"why":"…"},{"key":"habit.atem","value":"off","why":"…"},{"key":"routine.pm.nsdr","value":"add","why":"…"}],"experiment":null,"deload":false,"message":"2–3 Sätze in Du-Form, direkt und motivierend"}
 Messgrößen (metric): Nährstoffe kcal, p, fatPct, c, sf, fs, sug, fib, na, fluid, upf, alk, ferm, pp, pre, vc, vd, vk, va, ve, b12, fol, b6, mg, zn, fe, se, i, ca, k, cu, cho, o3, plants (agg max); item:<id>, habit:<id>, routine:<id> (IDs in eckigen Klammern im Bericht); tag:whey|milbona|ag1|upf|alkohol (<= 0); caf, caf_last, caf_bed, caf_stop (<= 0), bed_delay, rh_win (Nacht im Schlaffenster, >= 1 mit need); sleepScore, sleepDur, bedTime, wakeTime, hrv, rhr, bbMorning, readiness, stress, steps, hd:lastMeal, hd:screenFree; train, gym, run, run_km, sauna (sum); mob, knee_str, lang, knee_am (avg <=); skin (avg), spots; manual (mit need).
 changes.key: einer der Parameter (Wert innerhalb min–max), "habit.<id>" mit "on"/"off", "routine.<am|day|pm>.<schritt-id>" mit "add"/"remove". experiment: null oder {"id":"…"} (nur wenn keins läuft). deload: true, wenn eine leichtere Trainingswoche jetzt sinnvoll ist. Keine Supplement-Dosen, keine medizinischen Ratschläge; Koffein-Regeln (90 Min. nach dem Aufwachen, Stopp je Dosis) bleiben.`;
 function agentWeek() {
@@ -12297,6 +12335,187 @@ function zwTrainHint(k) {
   return `<div class="banner${hi ? ' is-warn' : ''}">${icon('hand')}<div><b>Zwickt: ${esc(parts.join(', '))}</b><span>${hi ? 'Übungen, die dort wehtun, heute weglassen oder deutlich leichter machen. Beim BJJ: Partner Bescheid geben, früh abklopfen, keine Hebel auf die Stelle.' : 'Trainieren ist okay, solange der Schmerz bei 3/10 oder darunter bleibt und am nächsten Morgen nicht schlimmer ist.'}</span></div><button class="pill-btn sm" data-a="zw-open">Übungen</button></div>`;
 }
 
+/* ---- athletik.js ---- */
+/* ============================================================
+   KNIE: KRAFT & ATHLETIK (seit 2.13.0, Wunsch vom 14.11.2026)
+   Der 12-Wochen-Kraftplan ist jetzt ein tägliches Programm für zu Hause (20–25 Min., Einheiten A/B/C im Wechsel)
+   plus Knie-Block am Beintag im Gym. Ausstattung: Ergometer (Rad), Kettlebells 2 × 12 kg, Miniband, Stufe,
+   Power Tower, Matte, Blackroll.
+   – Sehne (Schmerz unter der Kniescheibe): Breda 2021 – isometrisch → langsam schwer → Sprungkraft → Sport, im
+     akzeptablen Schmerzbereich; besser als exzentrisches Training.
+   – Außenseite des Knies: Hüftabduktoren kräftigen (häufigster wirksamer Baustein bei ITBS-Studien).
+   – Athletik: Gleichgewicht, Landen, Seitbewegung, Sprünge – neuromuskuläres Training senkt Knieverletzungen.
+   – Schmerz-Monitoring: bis 5/10 während/nach der Übung ok, am nächsten Morgen zurück auf dem Ausgangswert.
+   ============================================================ */
+/*icons: dumbbell play check triangle-alert octagon-alert info chevron-down chevron-up zap*/
+const ATH_EX = [
+  { id: 'a_ergo', n: 'Ergometer locker', en: 'Stationary Bike Warm Up', cat: 'athl', areas: ['vorn'], d: { t: 'time', s: 1, sec: 300, noX: true }, dose: '5 Min. locker',
+    how: 'Sattel so hoch einstellen, dass das Knie am tiefsten Punkt fast gestreckt ist. 80–90 Umdrehungen pro Minute, wenig Widerstand – du kannst dich dabei unterhalten.',
+    benefit: 'Wärmt Muskeln und Sehnen ohne Stoßbelastung auf; Radfahren belastet die Kniescheibe wenig.', mistake: 'Sattel zu tief – dann drückt es mehr auf die Kniescheibe.', safety: 'Keine.', prog: 'An freien Tagen auch 20–40 Min. Zone 2 statt Joggen, solange Laufen noch schmerzt.' },
+  { id: 'a_wand60', n: 'Wandsitzen für die Sehne', en: 'Isometric Wall Sit Patellar Tendon', cat: 'strength', areas: ['vorn'], d: { t: 'time', s: 1, sec: 45, sets: 5, rest: 60, noX: true }, dose: '5 × 45 Sek., 1 Min. Pause, Knie ca. 60°',
+    how: 'Rücken an die Wand, Füße hüftbreit etwa eine Fußlänge vor der Wand. Nur bis etwa 60° Kniebeugung heruntergleiten (Oberschenkel noch schräg, nicht waagerecht) und halten. Anstrengung etwa 7 von 10, Knie zeigen über die 2. Zehe.',
+    benefit: 'Gleichmäßig hohe Spannung für Oberschenkel und Patellasehne – Stufe 1 des Sehnen-Programms. Lindert bei vielen kurzfristig den Schmerz.', mistake: 'Zu tief einsteigen oder die Knie nach innen fallen lassen.', safety: 'Bis 5/10 Schmerz ist okay, wenn er morgen früh wieder auf dem Ausgangswert ist. Sonst weniger tief.', prog: 'Tiefer (bis 90°), mit Kettlebell auf den Oberschenkeln oder einbeinig.' },
+  { id: 'a_wand1b', n: 'Einbeiniges Wandsitzen', en: 'Single Leg Wall Sit', cat: 'strength', areas: ['vorn'], d: { t: 'time', s: 2, sec: 30, sets: 3, rest: 45 }, dose: '3 × 30 Sek. je Bein',
+    how: 'Wie Wandsitzen, dann einen Fuß wenige Zentimeter anheben, sodass ein Bein das Gewicht trägt. Becken bleibt gerade.',
+    benefit: 'Mehr Last pro Sehne, ohne Gewichte – zeigt auch Unterschiede zwischen links und rechts.', mistake: 'Hüfte kippt zur Seite.', safety: 'Bis 5/10 Schmerz.', prog: 'Länger halten oder tiefer.' },
+  { id: 'a_goblet', n: 'Goblet-Kniebeuge langsam, Fersen erhöht', en: 'Heel Elevated Goblet Squat Tempo', cat: 'strength', areas: ['vorn', 'huefte'], kg: true, d: { t: 'reps', s: 1, reps: 8, sets: 4, rest: 90, noX: true }, dose: '4 × 8, 3 Sek. runter, 3 Sek. hoch, 12 kg',
+    how: 'Kettlebell vor der Brust, Fersen auf ein flaches Brett oder zwei Bücher (2–3 cm). In 3 Sek. so tief wie angenehm runter, 3 Sek. hoch. Die Knie dürfen über die Zehen.',
+    benefit: 'Langsam und schwer (Stufe 2): kräftigt Quadrizeps und Patellasehne; die erhöhten Fersen legen den Fokus auf den vorderen Oberschenkel.', mistake: 'Zu schnell, Schwung aus der Hocke.', safety: 'Bis 5/10 Schmerz, am nächsten Morgen nicht schlechter. Sonst weniger tief.', prog: 'Zwei Kettlebells (24 kg) oder 4 × 6 mit 2 Sek. Pause unten.' },
+  { id: 'a_stepup', n: 'Step-up langsam', en: 'Slow Step Up Kettlebell', cat: 'strength', areas: ['vorn', 'huefte'], kg: true, d: { t: 'reps', s: 2, reps: 8, sets: 3 }, dose: '3 × 8 je Bein, 2 × 12 kg',
+    how: 'Ein Fuß auf die Stufe, mit diesem Bein hochdrücken (das hintere hilft kaum), oben kurz stehen, in 3 Sek. absenken. Knie über dem 2. Zeh.',
+    benefit: 'Einbeinige Kraft wie beim Treppensteigen, Laufen und Aufstehen aus dem Kniestand.', mistake: 'Mit dem unteren Bein abstoßen.', safety: 'Bis 5/10 Schmerz.', prog: 'Höhere Stufe oder schwerer.' },
+  { id: 'a_tibialis', n: 'Schienbein-Heben an der Wand', en: 'Tibialis Raise Wall', cat: 'strength', areas: ['wade', 'fuss'], d: { t: 'reps', s: 1, reps: 15, sets: 2, noX: true }, dose: '2 × 15',
+    how: 'Mit dem Rücken an die Wand lehnen, Fersen etwa 30 cm vor der Wand. Fußspitzen so hoch wie möglich ziehen, kurz halten, langsam absenken.',
+    benefit: 'Kräftigt den vorderen Unterschenkel, der beim Abbremsen und Laufen mitarbeitet.', mistake: 'Hohlkreuz, Schwung.', safety: 'Keine.', prog: 'Weiter weg von der Wand oder einbeinig.' },
+  { id: 'a_kbdl', n: 'Kettlebell-Kreuzheben', en: 'Kettlebell Deadlift', cat: 'strength', areas: ['hinten', 'huefte'], kg: true, d: { t: 'reps', s: 1, reps: 10, sets: 3, noX: true }, dose: '3 × 10 mit 2 × 12 kg',
+    how: 'Kettlebells neben den Füßen. Hüfte nach hinten schieben, Rücken gerade, Knie leicht gebeugt, greifen und aus der Hüfte aufrichten. Oben Po anspannen.',
+    benefit: 'Hüftstrecker und Beinbeuger stark machen – sie nehmen dem Knie bei Landungen und im BJJ Arbeit ab, bei wenig Druck auf die Kniescheibe.', mistake: 'Runder Rücken, aus den Knien statt aus der Hüfte.', safety: 'Rücken neutral halten.', prog: 'Einbeinig (siehe Einbeiniges Kreuzheben) oder langsamer ablassen.' },
+  { id: 'a_swing', n: 'Kettlebell-Swing', en: 'Kettlebell Swing', cat: 'athl', areas: ['hinten', 'huefte'], kg: true, d: { t: 'reps', s: 1, reps: 15, sets: 3, noX: true }, dose: '3 × 15 mit 12 kg',
+    how: 'Kettlebell zwischen den Beinen nach hinten schwingen (Hüfte nach hinten), dann explosiv die Hüfte strecken – die Kugel schwingt bis Brusthöhe. Die Kraft kommt aus der Hüfte, nicht aus den Armen.',
+    benefit: 'Explosive Hüftstreckung ohne Stoß fürs Knie – Athletik und Kondition.', mistake: 'Kniebeuge statt Hüftbeuge, Arme ziehen.', safety: 'Erst die Technik, dann das Tempo.', prog: '3 × 20 oder einarmig.' },
+  { id: 'a_tiefhocke', n: 'Tiefe Hocke halten', en: 'Assisted Deep Squat Hold', cat: 'mob', areas: ['vorn', 'huefte'], d: { t: 'time', s: 1, sec: 30, sets: 3, noX: true }, dose: '3 × 30 Sek. am Power Tower',
+    how: 'Am Power Tower festhalten und so tief in die Hocke gehen, wie es angenehm ist, Fersen am Boden (sonst etwas unter die Fersen legen). Ruhig atmen, Gewicht leicht vor und zurück verlagern.',
+    benefit: 'Gewöhnt die Knie an tiefe Beugung, wie sie im BJJ (Guard, Kniestand, Scramble) ständig vorkommt.', mistake: 'Ohne Halt erzwingen.', safety: 'Nur bis 3/10 Schmerz; bei Druck unter der Kniescheibe weniger tief.', prog: 'Weniger festhalten, länger halten.' },
+  { id: 'a_copen', n: 'Copenhagen-Seitstütz', en: 'Copenhagen Plank Short Lever', cat: 'strength', areas: ['add', 'rumpf'], d: { t: 'time', s: 2, sec: 20, sets: 3 }, dose: '3 × 20 Sek. je Seite, Knie aufgelegt',
+    how: 'Seitstütz auf dem Unterarm, das obere Knie liegt auf der Stufe oder dem Sofa, das untere Bein hängt frei. Becken anheben, Körper gerade, halten.',
+    benefit: 'Kräftigt die Adduktoren (Innenseite) – sie stabilisieren das Knie von innen; Innenband-Verletzungen sind im BJJ die häufigsten Knieverletzungen.', mistake: 'Becken sackt ab.', safety: 'Bei Leistenschmerz kürzer halten.', prog: 'Fuß statt Knie auflegen (langer Hebel), unteres Bein anheben.' },
+  { id: 'a_seitausfall', n: 'Seitlicher Ausfallschritt', en: 'Lateral Lunge Goblet', cat: 'strength', areas: ['add', 'huefte', 'vorn'], kg: true, d: { t: 'reps', s: 2, reps: 8, sets: 3 }, dose: '3 × 8 je Seite, 12 kg',
+    how: 'Breit stehen, Kettlebell vor der Brust. Gewicht auf ein Bein verlagern und die Hüfte nach hinten schieben, das andere Bein bleibt gestreckt. Knie über dem Fuß, zurück zur Mitte.',
+    benefit: 'Kraft in der Seitbewegung – fürs Ausweichen, Passieren und Scrambles.', mistake: 'Knie fällt nach innen, Ferse hebt ab.', safety: 'Bis 5/10 Schmerz.', prog: 'Tiefer oder Cossack Squat.' },
+  { id: 'a_cossack', n: 'Cossack Squat', en: 'Cossack Squat', cat: 'strength', areas: ['add', 'huefte', 'vorn'], kg: true, d: { t: 'reps', s: 2, reps: 6, sets: 3 }, dose: '3 × 6 je Seite',
+    how: 'Sehr breit stehen, tief zu einer Seite in die Hocke, das andere Bein gestreckt mit der Fußspitze nach oben. Mit Halt am Power Tower beginnen.',
+    benefit: 'Kraft in tiefer Beugung und Spreizung – genau die Positionen aus der Guard und beim Passieren.', mistake: 'Ferse hebt ab, Rücken rund.', safety: 'Nur so tief wie kontrolliert möglich.', prog: 'Ohne Halt, dann mit Kettlebell.' },
+  { id: 'a_pistol', n: 'Einbeinig aufstehen mit Halt', en: 'Assisted Single Leg Box Squat', cat: 'strength', areas: ['vorn', 'huefte'], d: { t: 'reps', s: 2, reps: 6, sets: 3 }, dose: '3 × 6 je Bein',
+    how: 'Vor dem Power Tower auf einem Bein stehen, an den Griffen festhalten, langsam auf einen Stuhl absetzen und mit einem Bein wieder aufstehen. Nur so viel ziehen wie nötig.',
+    benefit: 'Volle einbeinige Kraft für Knie und Sehne – Vorstufe zur Pistol-Kniebeuge.', mistake: 'Knie fällt nach innen, Schwung.', safety: 'Bis 5/10 Schmerz.', prog: 'Niedrigerer Sitz, weniger Halt.' },
+  { id: 'a_landen', n: 'Landen üben', en: 'Drop Landing Snap Down', cat: 'athl', plyo: true, areas: ['vorn', 'huefte'], d: { t: 'reps', s: 1, reps: 6, sets: 3, noX: true }, dose: '3 × 6',
+    how: 'Von der Stufe heruntersteigen (nicht springen) und auf beiden Füßen weich landen: Knie über den Füßen, Hüfte nach hinten, möglichst leise. 2 Sek. halten.',
+    benefit: 'Kontrolliertes Abbremsen – Kern der Programme gegen Knieverletzungen.', mistake: 'Laut und steif landen, Knie nach innen.', safety: 'Nur an Tagen ohne erhöhten Schmerz.', prog: 'Einbeinig landen, dann seitlich.' },
+  { id: 'a_skater', n: 'Skater-Sprünge', en: 'Skater Jumps', cat: 'athl', plyo: true, areas: ['huefte', 'wade'], d: { t: 'reps', s: 2, reps: 6, sets: 3 }, dose: '3 × 6 je Seite',
+    how: 'Seitlich von einem Bein aufs andere springen und weich einbeinig landen, 1 Sek. halten. Erst klein, dann weiter.',
+    benefit: 'Seitliche Sprungkraft und Landung auf einem Bein – wie beim Ausweichen und schnellen Positionswechsel.', mistake: 'Knie fällt bei der Landung nach innen.', safety: 'Nur schmerzarm (bis 3/10).', prog: 'Weiter springen, schneller wechseln.' },
+  { id: 'a_stufensprung', n: 'Sprung auf die Stufe', en: 'Box Jump Low Step', cat: 'athl', plyo: true, areas: ['vorn', 'wade'], d: { t: 'reps', s: 1, reps: 6, sets: 3, noX: true }, dose: '3 × 6',
+    how: 'Beidbeinig auf eine stabile, niedrige Stufe springen, weich landen, dann heruntersteigen (nicht herunterspringen).',
+    benefit: 'Sprungkraft mit wenig Landestoß – Stufe 3 des Sehnen-Programms.', mistake: 'Herunterspringen, harte Landung.', safety: 'Nur schmerzarm (bis 3/10).', prog: 'Höhere Stufe, dann einbeinig.' },
+  { id: 'a_standup', n: 'Technisches Aufstehen', en: 'Technical Stand Up BJJ', cat: 'athl', areas: ['huefte', 'vorn'], d: { t: 'reps', s: 2, reps: 5, sets: 2 }, dose: '2 × 5 je Seite',
+    how: 'Aus dem Sitzen: eine Hand hinten aufsetzen, den gegenüberliegenden Fuß fest aufstellen, Hüfte anheben, das freie Bein nach hinten durchziehen und in eine stabile Basis aufstehen. Langsam und kontrolliert.',
+    benefit: 'BJJ-typischer Ablauf unter Kontrolle – Knie in Beugung und Drehung belastbar machen.', mistake: 'Knie knickt beim Durchziehen nach innen.', safety: 'Langsam beginnen.', prog: 'Schneller, mit Richtungswechsel.' },
+];
+KNEE_EX.push(...ATH_EX);
+const ATH_TYPES = { A: 'Sehne & Kraft', B: 'Hüfte & Seite', C: 'Athletik & Kontrolle' };
+const ATH_NEXT = { A: 'B', B: 'C', C: 'A' };
+function athStr(k) { return kneeDay(peekDay(k)).str || null; }
+function athLegsDay(k) { const tpl = weekTpl(weekday(k)); return !!(tpl.gym && gymDay(tpl.gym) && gymDay(tpl.gym).legs) || dayDone(k).legs; }
+/* Einheit des Tages: gewählt, sonst die nächste nach der letzten erledigten; am Beintag nicht A (schwerer Quadrizeps) */
+function athType(k = todayKey()) {
+  const s = athStr(k);
+  if (s && s.t && ATH_TYPES[s.t]) return s.t;
+  let last = null;
+  for (let i = 1; i <= 14 && !last; i++) { const x = athStr(addDays(k, -i)); if (x && x.done && x.t) last = x.t; }
+  let t = last ? ATH_NEXT[last] : 'A';
+  if (t === 'A' && athLegsDay(k)) t = 'B';
+  return t;
+}
+/* Leichter Tag nach dem Schmerz-Monitoring: Morgenschmerz deutlich höher oder letzte Einheit über 5/10 */
+function athLight(k = todayKey()) {
+  const kn = kneeDay(peekDay(k)), am = kneeAm(k);
+  if ((kn.flags || []).length) return { stop: true, why: `Warnzeichen: ${kn.flags.join(', ')}` };
+  let prev = null;
+  for (let i = 1; i <= 3 && prev == null; i++) prev = kneeAm(addDays(k, -i));
+  let sp = null;
+  for (let i = 1; i <= 2 && sp == null; i++) { const x = athStr(addDays(k, -i)); if (x && x.pain != null) sp = x.pain; }
+  if (am != null && am >= 7) return { why: `Morgenschmerz ${am}/10` };
+  if (am != null && prev != null && am - prev >= 2) return { why: `Morgenschmerz ${am}/10 (vorher ${prev}/10)` };
+  if (sp != null && sp > 5) return { why: `letzte Einheit ${sp}/10` };
+  return null;
+}
+function athItems(k = todayKey(), t = athType(k)) {
+  const L = athLight(k);
+  let items = clone((kneePhase().days || {})[t] || []).filter((it) => exById(it.i));
+  if (L) items = items.filter((it) => !exById(it.i).plyo).map((it) => (it.sets > 1 ? { ...it, sets: it.sets - 1 } : it));
+  return items;
+}
+function athRoutine(k = todayKey(), t = athType(k)) { return { id: 'kraft', n: `Knie-Athletik ${t}`, items: athItems(k, t) }; }
+function athMin(k = todayKey(), t = athType(k)) { return Math.max(1, Math.round(routineSec(athRoutine(k, t)) / 60)); }
+function athStart(k = todayKey()) {
+  const t = athType(k), rt = athRoutine(k, t);
+  timerStart('kraft', { steps: buildSteps(rt), name: `${rt.n} · ${ATH_TYPES[t]}` });
+  if (ui.timer) ui.timer.athT = t;
+}
+/* Nach dem Timer: Einheit als erledigt speichern (alle Sätze, Schmerz vom Abschluss-Bildschirm) */
+function athSaveTimer(t) {
+  const k = todayKey(), items = athItems(k, t.athT || athType(k));
+  kneeMut(k, (kn) => {
+    kn.str = kn.str || { ex: {} };
+    kn.str.ex = kn.str.ex || {};
+    kn.str.t = t.athT || kn.str.t || athType(k);
+    kn.str.phase = kneeCfg().phase || 1;
+    if (t.complete) for (const it of items) { const e = kn.str.ex[it.i] = kn.str.ex[it.i] || { sets: [] }; e.sets = Array.from({ length: it.sets || exById(it.i).d.sets || 1 }, () => true); }
+    if (t.pain != null) kn.str.pain = t.pain;
+    if (t.complete || (t.i >= t.steps.length * 0.8)) kn.str.done = true;
+  });
+}
+function athEnsure(kn, k) { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; kn.str.ex = kn.str.ex || {}; if (!kn.str.t) kn.str.t = athType(k); return kn.str; }
+function athWeek(ws) { return weekKeys(ws).map((k) => { const s = athStr(k); return { k, t: s && s.done ? s.t || '✓' : null }; }); }
+/* ---------- Oberfläche ---------- */
+function athLightBanner(k) {
+  const L = athLight(k);
+  if (!L) return '';
+  return `<div class="banner ${L.stop ? 'is-red' : 'is-warn'}">${icon(L.stop ? 'octagon-alert' : 'triangle-alert')}<div><b>Heute leichter</b><span>${esc(L.why)}: je Übung ein Satz weniger, keine Sprünge, beim Wandsitzen nur etwa halbe Kraft.${L.stop ? ' Schwellung, Instabilität, Blockade oder Nachtschmerz bitte ärztlich oder physiotherapeutisch abklären lassen.' : ' Wird es nicht besser, eine Stufe zurück.'}</span></div></div>`;
+}
+function athGymHTML(compact) {
+  const ph = kneePhase();
+  return `<section class="${compact ? 'card' : 'sec'} ath-gym"><div class="sec-head"><h2>Knie-Block im Gym</h2><span class="count">am Beintag · ${esc(ph.n)}</span></div><div class="list">${(ph.gym || []).map(([n, dose]) => `<div class="row is-static"><span class="row-main"><b>${esc(n)}</b><small>${esc(dose)}</small></span></div>`).join('')}</div>${compact ? '' : '<p class="hint">Vor dem Beintag 5 Min. Ergometer. Schmerz bis 5/10 ist okay, wenn das Knie am nächsten Morgen nicht schlechter ist.</p>'}</section>`;
+}
+function athTrainCard(k) {
+  if (!athLegsDay(k)) return '';
+  return athGymHTML(true);
+}
+function athInfoHTML() {
+  const open = ui.exp.has('ath-info');
+  let h = `<section class="sec"><button class="row" data-a="expand" data-key="ath-info"><span class="row-main"><b>So funktioniert der Plan</b><small>Regeln, Studien, Quellen</small></span>${icon(open ? 'chevron-up' : 'chevron-down', 'row-ic')}</button>`;
+  if (!open) return h + '</section>';
+  h += `<ul class="wish-list">
+    <li><b>Schmerz-Regel:</b> Während und direkt nach den Übungen sind bis 5/10 okay, wenn der Schmerz bis zum nächsten Morgen wieder auf deinem Ausgangswert ist und nicht von Woche zu Woche steigt (Schmerz-Monitoring-Modell). Für den Wechsel in die nächste Phase müssen alle Werte 2 Wochen lang bei höchstens 3/10 liegen.</li>
+    <li><b>Leichter Tag:</b> Morgenschmerz ab 7/10, 2 Punkte über dem Vortag oder die letzte Einheit über 5/10 → die App nimmt je Übung einen Satz weg und lässt Sprünge weg.</li>
+    <li><b>Unter der Kniescheibe (Patellasehne):</b> Stufenweise belasten – isometrisch (Wandsitzen, Beinstrecker), dann langsam und schwer (3 Sek. runter, 3 Sek. hoch), dann Sprungkraft, dann Sport. In einer randomisierten Studie (76 Sportler, meist seit Jahren Beschwerden) verbesserte das den VISA-P-Wert nach 24 Wochen um 28 statt 18 Punkte gegenüber klassischem exzentrischem Training. Isometrische Übungen lindern bei manchen kurzfristig, sind langfristig aber nicht besser als langsames Krafttraining – deshalb nur als Einstieg und an leichteren Tagen.</li>
+    <li><b>Außenseite des Knies:</b> Häufig ist es der Tractus iliotibialis (Läuferknie). In den Studien war das Kräftigen der Hüftabduktoren der häufigste wirksame Baustein (Seitliches Beinheben, Clamshells, Monster Walks, Seitstütz, Hip Hike). Den Tractus selbst zu dehnen hilft kaum; rollen eher Po und Oberschenkel vorne.</li>
+    <li><b>Athletik:</b> Programme aus Gleichgewicht, Kraft, Landen und Sprüngen senkten Knieverletzungen in einer Meta-Analyse um rund ein Viertel und Kreuzbandrisse um rund die Hälfte. Entscheidend ist Regelmäßigkeit.</li>
+    <li><b>BJJ:</b> In einer Befragung betrafen knapp 30 % der Verletzungen das Knie, meist Innenband-Zerrungen. Deshalb Adduktoren (Copenhagen), Seitbewegung, tiefe Beugung und kontrolliertes Aufstehen.</li>
+    <li><b>Abklären:</b> Halten die Beschwerden schon länger an, lass einmal von Physio oder Sportmedizin klären, was genau es ist (Patellasehne, Kniescheibe, Tractus, Außenband, Meniskus) – der Plan passt zu den häufigen Ursachen, ersetzt aber keine Untersuchung. Sofort abklären: Schwellung, Wegknicken, Blockade, Nachtschmerz.</li></ul>
+    <h5>Quellen</h5><div class="list">${[
+    ['Breda 2021: Stufenweises Sehnentraining bei Patellasehnen-Beschwerden (BJSM)', 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8070614/'],
+    ['Erasmus MC: Ablauf der vier Stufen (JUMPER-Studie)', 'https://www.erasmusmc.nl/en/research/project/jumper-project'],
+    ['Clifford 2020: Isometrisch vs. isotonisch bei Tendinopathie (Meta-Analyse)', 'https://pubmed.ncbi.nlm.nih.gov/32818059/'],
+    ['Sprague 2021: Schmerz-Monitoring bei Patellasehnen-Beschwerden', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7905015'],
+    ['Sanchez-Alvarado 2024: Behandlung des Läuferknies (systematische Übersicht)', 'https://pubmed.ncbi.nlm.nih.gov/39247485/'],
+    ['Donnell-Fink 2015: Neuromuskuläres Training gegen Knieverletzungen (Meta-Analyse)', 'https://pubmed.ncbi.nlm.nih.gov/26637173/'],
+    ['Eustaquio 2021: Knieverletzungen im BJJ', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8601382'],
+  ].map(([n, u]) => `<a class="row" href="${u}" target="_blank" rel="noopener"><span class="row-main"><b>${esc(n)}</b></span>${icon('chevron-right', 'row-ic')}</a>`).join('')}</div>`;
+  return h + '</section>';
+}
+function athWeekHTML(k) {
+  const ws = weekStart(k), wk = athWeek(ws), n = wk.filter((x) => x.t).length, goal = kneePhase().perWeek;
+  return `<section class="sec"><div class="sec-head"><h2>Diese Woche</h2><span class="count">${n}/${goal} Einheiten</span></div><div class="ath-week">${wk.map((x, i) => `<div class="ath-day${x.t ? ' is-done' : ''}${x.k === k ? ' is-today' : ''}"><small>${WD_SHORT[i]}</small><b>${x.t ? esc(x.t) : x.k < k ? '–' : '·'}</b></div>`).join('')}</div><p class="hint">Ein Tag Pause pro Woche ist eingeplant. Ausgefallen? Einfach mit der nächsten Einheit weitermachen.</p></section>`;
+}
+/* Routine-Schritt und Mitteilung */
+function pushAth(k, r, d, add) {
+  if (kneeWeek(k) < 1 || dayDone(k).kraft) return;
+  const t = athType(k), L = athLight(k);
+  add('training', Math.min(r.bed - 240, 19 * 60 + 30), 'ath', `Knie-Athletik ${t}: ${ATH_TYPES[t]}`, `ca. ${athMin(k, t)} Min. zu Hause${L ? ` – heute leichter (${L.why})` : ''}. Antippen öffnet die Einheit.`, '#kraft');
+}
+function athReportLine(ws) {
+  const wk = athWeek(ws).filter((x) => x.t);
+  if (!wk.length) return '';
+  const pains = weekKeys(ws).map((k) => (athStr(k) || {}).pain).filter((v) => v != null);
+  return `Kraft & Athletik (${kneePhase().n}): ${wk.length}/${kneePhase().perWeek} Einheiten (${wk.map((x) => x.t).join(' ')})${pains.length ? ` · Schmerz in den Einheiten Ø ${fmt(mean(pains), 1)}, max. ${Math.max(...pains)}` : ''}`;
+}
+Object.assign(A, {
+  'ath-type': (el) => { const k = todayKey(), v = el.dataset.v; kneeMut(k, (kn) => { athEnsure(kn, k).t = v; }); render(); },
+  'ath-start': () => athStart(todayKey()),
+  'tm-pain': (el) => { const t = ui.timer; if (!t) return; const v = Number(el.dataset.v); t.pain = t.pain === v ? null : v; timerRender(); },
+});
+
 /* ---- push.js ---- */
 /* ============================================================
    MITTEILUNGEN (Push) – Wunsch vom 10.11.2026
@@ -12428,6 +12647,7 @@ function pushPlan(now = Date.now()) {
     pushExp(k, r, add);
     pushBP(k, r, add);
     pushZw(k, r, d, add);
+    pushAth(k, r, d, add);
     /* Wochenziele mit Erinnerung */
     const ws = weekStart(k);
     for (const g of weekGoals(ws)) {
@@ -12529,6 +12749,7 @@ function pushNav(url) {
   if (h.startsWith('hq-')) { const id = h.slice(3).replace(/-/g, '_'); go('heute', { scrollTop: true }); setTimeout(() => sheetHabitAsk(id, todayKey()), 50); return; }
   if (h === 'blutdruck') { A['bp-go'](); return; }
   if (h === 'zwick') { A['zw-open'](); return; }
+  if (h === 'kraft') { ui.sub.knie = 'kraft'; go('knie', { scrollTop: true }); return; }
   if (h === 'schlaf') { go('heute', { scrollTop: true }); setTimeout(() => { const el = document.getElementById('schlaf-hilfe'); if (el) el.scrollIntoView({ block: 'start' }); }, 50); return; }
   if (h === 'todos') { ui.sub.knie = 'infos'; go('knie', { scrollTop: true }); return; }
   if (h === 'ern') { go('ern', { ernSub: 'uebersicht', date: todayKey(), scrollTop: true }); return; }

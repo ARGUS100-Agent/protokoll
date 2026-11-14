@@ -554,6 +554,7 @@ function frankReportText(ws) {
   // Knie
   L.push('', `## Knie`);
   L.push(`Morgenschmerz Ø ${f0(r.painAm, 1)}/10 · Laufschmerz Ø ${f0(r.painRun, 1)} · max. ${f0(r.painMax)} · Mobilität ${r.q.mob}/7 · Knie-Kraft ${r.q.kraft}/${r.q.kraftGoal} · lange Routine ${r.q.lang} · Warnzeichen: ${r.flags.length ? r.flags.join(', ') : 'keine'}`);
+  { const al = typeof athReportLine === 'function' ? athReportLine(ws) : ''; if (al) L.push(al); }
   { const zl = typeof zwReportLine === 'function' ? zwReportLine(ws) : ''; if (zl) L.push(zl); }
   // Gewohnheiten
   const hab = HABITS.map((h) => `${h.n.split(' (')[0]} [habit:${h.id}] ${r.past.filter((k) => { const d = peekDay(k); return d && d.habits && d.habits[h.id]; }).length}/7`);

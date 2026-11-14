@@ -388,7 +388,7 @@ function dayDone(k) {
     gymAny: tr.some((t) => trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id)),
     legs: tr.some((t) => trainType(t).legs),
     run: tr.filter((t) => trainType(t).run).length,
-    kraft: !!(d.knee && d.knee.str && d.knee.str.done) || sess.some((s) => s.r === 'pflicht5' && s.complete) || tr.some((t) => t.type === 'Knie-Kraft'),
+    kraft: !!(d.knee && d.knee.str && d.knee.str.done) || sess.some((s) => (s.r === 'pflicht5' || s.r === 'kraft') && s.complete) || tr.some((t) => t.type === 'Knie-Kraft'),
     lang: sess.some((s) => s.r === 'lang' && s.complete),
     mob: sess.some((s) => ['taeglich', 'kurz', 'lang'].includes(s.r) && s.complete) || !!(d.knee && d.knee.mob),
     sauna: saunaMin(d),
@@ -403,7 +403,7 @@ function weekPlan(ws) {
     const tpl = weekTpl(i), done = dayDone(k);
     const items = [];
     if (tpl.gym && gymDay(tpl.gym)) items.push({ kind: 'gym', day: tpl.gym, n: gymDay(tpl.gym).n, done: done.gym.includes(Number(tpl.gym)) || (done.gymAny && !done.gym.length) });
-    if (tpl.kraft) items.push({ kind: 'kraft', n: 'Knie-Kraft', done: done.kraft });
+    items.push({ kind: 'kraft', n: 'Knie-Athletik', done: done.kraft }); // seit 2.13 täglich zu Hause
     if (tpl.lauf) items.push({ kind: 'lauf', n: 'Lockerer Lauf', done: done.run > 0 });
     if (tpl.lang) items.push({ kind: 'lang', n: 'Lange Routine', done: done.lang });
     if (tpl.walk) items.push({ kind: 'walk', n: 'Spaziergang', done: done.walk });
@@ -499,7 +499,7 @@ function doseText(ex, it = {}) {
   const xs = extraSide();
   const extra = d.s === 2 && !d.noX ? (d.t === 'time' ? kneeCfg().extraSec : kneeCfg().extraReps) : 0;
   const pre = sets > 1 ? `${sets} × ` : '';
-  const one = (v) => (d.t === 'reps' && !pre ? `${v}×` : `${v}${ut}`);
+  const one = (v) => (d.t === 'reps' && !pre ? `${v}×` : d.t === 'time' && v >= 120 && v % 60 === 0 ? `${v / 60} Min.` : `${v}${ut}`);
   if (d.s === 2 && extra) {
     const l = xs === 'R' ? val : val + extra, r = xs === 'R' ? val + extra : val;
     return `${pre}${one(l)} links / ${one(r)} rechts`;
@@ -524,17 +524,18 @@ function buildSteps(rt, opts = {}) {
       for (const side of sides) {
         const extra = side && !d.noX && side === extraSide();
         const val = d.t === 'time' ? base + (extra ? cfg.extraSec : 0) : base + (extra ? cfg.extraReps : 0);
-        steps.push({ ex: ex.id, idx, grp: it.grp || null, side, set: s + 1, sets, type: d.t, sec: d.t === 'time' ? val : null, reps: d.t === 'reps' ? val : null, label: ex.labels ? ex.labels[s] || null : null, alt: !!d.alt, sideName: ex.sideNames ? ex.sideNames[side === 'L' ? 0 : 1] : null });
+        steps.push({ ex: ex.id, idx, grp: it.grp || null, side, set: s + 1, sets, type: d.t, sec: d.t === 'time' ? val : null, reps: d.t === 'reps' ? val : null, label: ex.labels ? ex.labels[s] || null : null, alt: !!d.alt, sideName: ex.sideNames ? ex.sideNames[side === 'L' ? 0 : 1] : null, rest: it.rest || d.rest || null });
       }
     }
   });
   return steps;
 }
+function stepGap(a, b) { return b.set !== a.set && b.rest ? b.rest : 5; } // Pause im Timer zwischen Sätzen derselben Übung
 function stepSec(st) { return st.type === 'time' ? st.sec : Math.max(20, Math.round(st.reps * (st.alt ? 5 : 3.5))); }
 function routineSec(rt, opts = {}) {
   const trans = kneeCfg().trans || 10;
   let s = 0, prev = null;
-  for (const st of buildSteps(rt, opts)) { s += stepSec(st) + (prev == null ? 0 : prev.ex === st.ex ? 5 : trans); prev = st; }
+  for (const st of buildSteps(rt, opts)) { s += stepSec(st) + (prev == null ? 0 : prev.ex === st.ex ? stepGap(prev, st) : trans); prev = st; }
   return s;
 }
 function painValues(n, end = todayKey()) {
@@ -655,7 +656,7 @@ function milestones() {
 function kneePlanItemsToday(k) {
   const i = weekday(k), tpl = weekTpl(i);
   const out = [{ kind: 'mob', n: 'Täglich Mobilität', r: 'taeglich' }];
-  if (tpl.kraft) out.push({ kind: 'kraft', n: `Knie-Kraft (${kneePhase().n})` });
+  out.push({ kind: 'kraft', n: `Knie-Athletik ${athType(k)} (${kneePhase().n})` });
   if (tpl.lauf) { out.push({ kind: 'vorlauf', n: 'Vor dem Lauf (5 Min.)', r: 'vorlauf' }); out.push({ kind: 'lauf', n: 'Lockerer Lauf' }); }
   if (tpl.lang) out.push({ kind: 'lang', n: 'Lange Routine (abends)', r: 'lang' });
   return out;

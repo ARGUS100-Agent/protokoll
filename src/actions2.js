@@ -115,16 +115,16 @@ Object.assign(A, {
   'kstr-set': (el) => {
     const k = todayKey(), ex = el.dataset.ex, i = Number(el.dataset.i), n = Number(el.dataset.n);
     kneeMut(k, (kn) => {
-      kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 };
+      athEnsure(kn, k);
       const e = kn.str.ex[ex] = kn.str.ex[ex] || { sets: [] };
       while (e.sets.length < n) e.sets.push(false);
       e.sets[i] = !e.sets[i];
     });
     render();
   },
-  'kstr-load': (el) => { kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = e.load === el.dataset.v ? null : el.dataset.v; }); render(); },
-  'kstr-pain': (el) => { const v = Number(el.dataset.v); kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; kn.str.pain = kn.str.pain === v ? null : v; }); render(); if (v > 3) toast('Über 3/10: Übung leichter machen oder tauschen'); },
-  'kstr-done': () => { let on = false; kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; kn.str.done = !kn.str.done; on = kn.str.done; kn.str.phase = kneeCfg().phase || 1; }); render(); if (on) toast('Knie-Kraft erledigt'); },
+  'kstr-load': (el) => { kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = e.load === el.dataset.v ? null : el.dataset.v; }); render(); },
+  'kstr-pain': (el) => { const v = Number(el.dataset.v); kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); kn.str.pain = kn.str.pain === v ? null : v; }); render(); if (v > 5) toast('Über 5/10: Übung leichter machen (weniger tief, weniger Gewicht) oder tauschen'); else if (v > 3) toast('Okay, wenn das Knie morgen früh wieder auf dem Ausgangswert ist'); },
+  'kstr-done': () => { let on = false; kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); kn.str.done = !kn.str.done; on = kn.str.done; kn.str.phase = kneeCfg().phase || 1; }); render(); if (on) toast('Knie-Athletik erledigt'); },
 
   /* Läufe & Tests */
   'run-add': (el) => sheetTrain(curDate(el), null, { type: 'Laufen' }),
@@ -498,7 +498,7 @@ Object.assign(C, {
   'knee-band': (el) => { const b = kneeCfg().bands[Number(el.dataset.i)]; if (!b) return; if (el.dataset.f === 'n') b.n = el.value.trim() || b.n; else b.kg = parseNum(el.value); saveSettings(false); flashSaved(el); },
   'knee-ins': (el) => { const v = parseNum(el.value); kneeMut(el.dataset.date, (kn) => { if (v == null) delete kn.ins; else kn.ins = v; }); flashSaved(el); },
   'knee-befund': (el) => { S.knee.befund = el.value; markDirty('knee'); flashSaved(el); },
-  'kstr-kg': (el) => { const v = el.value.trim(); kneeMut(todayKey(), (kn) => { kn.str = kn.str || { ex: {}, phase: kneeCfg().phase || 1 }; const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = v || null; }); flashSaved(el); },
+  'kstr-kg': (el) => { const v = el.value.trim(); kneeMut(todayKey(), (kn) => { athEnsure(kn, todayKey()); const e = kn.str.ex[el.dataset.ex] = kn.str.ex[el.dataset.ex] || { sets: [] }; e.load = v || null; }); flashSaved(el); },
   'rt-item': (el) => { const rt = ensureRoutines().find((r) => r.id === ui.rtEdit); const it = rt && rt.items[Number(el.dataset.i)]; const v = parseNum(el.value); if (!it || v == null || v <= 0) { toast('Wert prüfen'); return; } it[el.dataset.f] = Math.round(v); saveSettings(false); flashSaved(el); },
   'ex-video': (el) => { const c = kneeCfg(); c.video = c.video || {}; const v = el.value.trim(); if (v && !/^https?:\/\//i.test(v)) { toast('Link muss mit https:// beginnen'); return; } if (v) c.video[el.dataset.id] = v; else delete c.video[el.dataset.id]; saveSettings(false); flashSaved(el); },
   'todo-date': (el) => { const t = S.settings.todos.find((x) => x.id === el.dataset.id); if (!t) return; t.date = el.value || null; saveSettings(); },

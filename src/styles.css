@@ -1195,3 +1195,13 @@ label.pill-btn { cursor: pointer; }
 .zw-trend i.hi { background: var(--st-over); }
 .zw-trend span { flex-basis: 100%; font-size: 11.5px; color: var(--ink-3); }
 .zw-banner .pill-btn { flex: none; align-self: center; }
+/* Knie Kraft & Athletik (2.13.0) */
+.ath-types { margin: 6px 0 10px; }
+.ath-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.ath-day { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 10px; background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+.ath-day small { font-size: 11px; color: var(--ink-3); }
+.ath-day b { font-size: 15px; color: var(--ink-3); }
+.ath-day.is-done { background: rgba(54, 196, 125, .14); box-shadow: inset 0 0 0 1px rgba(54, 196, 125, .45); }
+.ath-day.is-done b { color: var(--st-ok); }
+.ath-day.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
+.ath-gym .row-main small { white-space: normal; }

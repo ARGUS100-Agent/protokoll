@@ -185,11 +185,12 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
 
   // 10 Knie-Kraft
   await ev(() => { ui.sub.knie = 'kraft'; render(); });
+  await page.click('[data-a="ath-type"][data-v="B"]');
   await page.click('[data-a="kstr-set"][data-ex="k_clamshell"][data-i="0"]');
   await page.click('[data-a="kstr-load"][data-ex="k_clamshell"][data-v="Rot"]');
   await page.click('[data-a="kstr-done"]');
   const str = await ev((k) => getDay(k).knee.str, today);
-  ok(str.done && str.ex.k_clamshell.sets[0] === true && str.ex.k_clamshell.load === 'Rot', 'Knie-Kraft Satz, Band und Abschluss gespeichert');
+  ok(str.done && str.t === 'B' && str.ex.k_clamshell.sets[0] === true && str.ex.k_clamshell.load === 'Rot', 'Knie-Kraft (Einheit B) Satz, Band und Abschluss gespeichert');
   await shot('f08-kraft');
 
   // 11 Foto

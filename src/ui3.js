@@ -310,13 +310,14 @@ function vTrainToday(k) {
   let h = dateBar(k);
   h += recoveryCard(k);
   if (k === todayKey()) h += zwTrainHint(k);
+  if (k === todayKey()) h += athTrainCard(k);
   if (k === todayKey()) h += kxCard(k);
   const wp = weekPlan(weekStart(k)), day = wp.days[weekday(k)];
   h += `<section class="sec"><div class="sec-head"><h2>${k === todayKey() ? 'Heute geplant' : 'Geplant'}</h2>${goBtn('train', 'Woche', 'woche')}</div>${day.warn ? `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(day.warn)}</span></div></div>` : ''}<div class="list">`;
   for (const it of day.items) {
     let act = '';
     if (it.kind === 'gym' && !it.done) act = `<button class="pill-btn is-accent" data-a="gym-start" data-day="${it.day}" data-date="${k}">${k < todayKey() ? 'Nachtragen' : 'Starten'}</button>`;
-    else if (it.kind === 'kraft' && !it.done) act = `<button class="pill-btn" data-a="goto" data-tab="knie" data-sub="kraft">Öffnen</button>`;
+    else if (it.kind === 'kraft' && !it.done) act = k === todayKey() ? `<button class="pill-btn" data-a="ath-start">${icon('play')}Start</button>` : `<button class="pill-btn" data-a="goto" data-tab="knie" data-sub="kraft">Öffnen</button>`;
     else if (it.kind === 'lauf' && !it.done) act = `<button class="pill-btn" data-a="run-add" data-date="${k}">Eintragen</button>`;
     else if ((it.kind === 'lang' || it.kind === 'mob') && !it.done) act = `<button class="pill-btn" data-a="timer-start" data-r="${it.kind === 'lang' ? 'lang' : 'taeglich'}">${icon('play')}Start</button>`;
     h += `<div class="plan-row${it.done ? ' is-done' : ''}${it.moved ? ' is-moved' : ''}"><span class="tgl-box">${icon('check')}</span><span class="row-main"><b>${esc(it.n)}${it.kind === 'gym' && gymDay(it.day) ? ` <em class="est is-blue">Schedule ${gymSched(k)}</em>` : ''}</b>${it.kind === 'gym' && gymDay(it.day) ? `<small>${esc(gymDay(it.day).sub)}, ca. ${gymDay(it.day).min} Min.</small>` : ''}</span>${act}</div>`;
@@ -355,7 +356,7 @@ function vTrainWeek() {
   const ws = ui.trainWeek;
   const wp = weekPlan(ws);
   let h = weekNav(ws, 'train-week', addDays(weekStart(todayKey()), 7));
-  h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Kraft nach dem Oberkörpertraining, kein schweres Beintraining am Tag vor einem Lauf.</p>`;
+  h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Athletik täglich zu Hause (Knie → Kraft & Athletik), am Beintag dazu der Knie-Block. Kein schweres Beintraining am Tag vor einem Lauf.</p>`;
   for (const n of wp.notes) h += `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(n)}</span></div></div>`;
   for (const d of wp.days) {
     const rec = d.isToday ? recovery(d.k) : null;
@@ -402,6 +403,7 @@ function vGymSession() {
   const gs = gymProgress(t);
   let h = `<header class="page-head is-tight sess-head"><button class="icon-btn" data-a="gym-close" aria-label="Zurück">${icon('chevron-left')}</button><div><h1>${esc(gd.n)}</h1><p class="eyebrow-date">Schedule ${t.gym.sched} · ${esc(fmtDate(k, { weekday: 'short', day: 'numeric', month: 'short' }))}${t.time ? ' · ' + t.time + ' Uhr' : ''}</p></div></header>`;
   h += `<div class="sess-prog">${progBar(gs.done, gs.total, gs.done >= gs.total ? 'ok' : '')}<span>${gs.done}/${gs.total} Sätze</span></div>`;
+  if (gd.legs) h += athGymHTML(true);
   for (const ex of gd.ex) {
     const e = t.gym.ex[ex.id] || { s: [] };
     const tg = gymTarget(ex, t.gym.sched, e.alt);
