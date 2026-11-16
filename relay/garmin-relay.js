@@ -32,7 +32,7 @@ const TOKEN_PATH = '/personalapitoken-service/personal-api/personal-api-key/toke
 const DATA_PATH = /^\/[a-z][a-z0-9-]*-service\/[A-Za-z0-9/_.-]+$/; // nur Lesen (GET) von Garmin-Diensten
 const PUSH_HOSTS = /(^|\.)push\.apple\.com$|^fcm\.googleapis\.com$|(^|\.)push\.services\.mozilla\.com$|(^|\.)notify\.windows\.com$/;
 const PUSH_MAX = 80; // geplante Mitteilungen
-const VERSION = 4;
+const VERSION = 5; // v5 (16.11.2026): Platz fürs Mitdenken der Modelle (max_tokens, effort), abgeschnittene Antworten erkennen
 const AI_URL = 'https://api.anthropic.com/v1/messages';
 const AI_MODELS = { haiku: 'claude-haiku-5-5', sonnet: 'claude-sonnet-5-5' };
 const AI_PRICE = { haiku: [0.10, 0.50], sonnet: [2, 10] }; // $ pro Million Token (Eingabe, Ausgabe), Stand Okt./Nov. 2026
@@ -267,7 +267,10 @@ async function aiCall(env, body) {
   const model = AI_MODELS[body.model] ? body.model : 'haiku';
   const messages = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
   if (!messages.length) return { ok: false, status: 400, err: 'messages' };
-  const req = { model: AI_MODELS[model], max_tokens: Math.min(Math.max(Number(body.max_tokens) || 1500, 64), 4000), messages };
+  // Haiku/Sonnet 5.5 denken standardmäßig mit (adaptive thinking); das zählt zu max_tokens. Deshalb mehr Platz und
+  // „effort“ als Bremse (Standard bei Sonnet 5.5: high) – sonst bricht die Antwort mitten im JSON ab.
+  const req = { model: AI_MODELS[model], max_tokens: Math.min(Math.max(Number(body.max_tokens) || 4000, 64), 16000), messages };
+  if (['low', 'medium', 'high'].includes(body.effort)) req.output_config = { effort: body.effort };
   if (typeof body.system === 'string') req.system = body.system.slice(0, 20000);
   let res, j;
   try {
@@ -282,7 +285,9 @@ async function aiCall(env, body) {
   const next = use.m === month ? { m: month, usd: (use.usd || 0) + cost, n: (use.n || 0) + 1 } : { m: month, usd: cost, n: 1 };
   await env.PUSH.put('ai', JSON.stringify(next));
   const text = (j.content || []).filter((c) => c.type === 'text').map((c) => c.text).join('\n');
-  return { ok: true, text, usage: { in: u.input_tokens || 0, out: u.output_tokens || 0, usd: Math.round(cost * 1e6) / 1e6 }, month_usd: Math.round(next.usd * 10000) / 10000 };
+  if (j.stop_reason === 'max_tokens') return { ok: false, status: 502, err: 'cut', msg: 'Antwort abgeschnitten (zu wenig Platz) – bitte nochmal.', text, usage: { in: u.input_tokens || 0, out: u.output_tokens || 0 } };
+  if (j.stop_reason === 'refusal') return { ok: false, status: 502, err: 'refusal', msg: 'Claude hat die Anfrage abgelehnt.' };
+  return { ok: true, text, stop: j.stop_reason || null, usage: { in: u.input_tokens || 0, out: u.output_tokens || 0, usd: Math.round(cost * 1e6) / 1e6 }, month_usd: Math.round(next.usd * 10000) / 10000 };
 }
 
 /* ---------- Wochen-Agent: Sonntag ab 19 Uhr (bis Dienstag nachholen) ---------- */
@@ -303,7 +308,7 @@ async function weekRun(env, force = false) {
   }
   const use = (await env.PUSH.get('ai', 'json')) || {}, budget = Number(env.AI_BUDGET_USD) > 0 ? Number(env.AI_BUDGET_USD) : 1;
   if (use.m === b.date.slice(0, 7) && use.usd >= budget) return { ok: false, err: 'budget' };
-  const r = await aiCall(env, { model: 'sonnet', system: wi.system, max_tokens: 3500, messages: [{ role: 'user', content: wi.report }] });
+  const r = await aiCall(env, { model: 'sonnet', system: wi.system, max_tokens: 16000, effort: 'medium', messages: [{ role: 'user', content: wi.report }] });
   if (!r.ok) return r;
   await env.PUSH.put('weekout', JSON.stringify({ ws: wi.ws, at: Date.now(), text: r.text }));
   const [cfg, sub] = await Promise.all([env.PUSH.get('cfg', 'json'), env.PUSH.get('sub', 'json')]);

@@ -192,7 +192,7 @@ const WURL = 'https://protokoll-test.beispiel.workers.dev';
     await pushCall('setup', {});
   }, WURL);
   await ev(() => aiRefresh(true));
-  ok(await ev(() => aiOn() && AIST.v === 4 && AIST.garmin === true), 'Worker v4: KI und Garmin im Hintergrund aktiv');
+  ok(await ev(() => aiOn() && AIST.v === 5 && AIST.garmin === true), 'Worker v5: KI und Garmin im Hintergrund aktiv');
   ai.next.push('```json\n{"app":"protokoll-frank","v":1,"items":[{"name":"Rührei mit Brot","eaten":{"amount":250,"unit":"g"},"meal":"fruehstueck","values":{"kcal":180,"p":11,"f":11,"c":9,"vd":1.1,"se":18},"estimated":["vd","se"]}]}\n```');
   await ev(() => { sheetFrank('', todayKey()); }); await page.clock.runFor(100);
   ok(!!(await page.$('[data-a="frank-ai"]')), 'Frank-Sheet: „Direkt in der App“');

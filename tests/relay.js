@@ -18,7 +18,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const hdr = (h) => ({ Origin: APP, ...h });
 
   let r = await req('/');
-  ok(r.status === 200 && (await r.text()) === 'Protokoll-Weiterleitung läuft (v4)' && r.headers.get('Access-Control-Allow-Origin') === APP, 'Startseite: läuft (v4), mit CORS-Kopf');
+  ok(r.status === 200 && (await r.text()) === 'Protokoll-Weiterleitung läuft (v5)' && r.headers.get('Access-Control-Allow-Origin') === APP, 'Startseite: läuft (v5), mit CORS-Kopf');
   r = await req('/sleep-service/sleep/dailySleep?date=2026-11-07', { method: 'OPTIONS', headers: hdr({ 'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'authorization' }) });
   ok(r.status === 204 && /Authorization/.test(r.headers.get('Access-Control-Allow-Headers')), 'Vorabanfrage (OPTIONS) erlaubt Authorization');
   r = await req('/sleep-service/sleep/dailySleep?date=2026-11-07', { headers: { Authorization: 'Bearer x' } });
@@ -65,7 +65,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   const preq = (op, body, key, e = env) => worker.fetch(new Request(W + '/push/' + op, { method: 'POST', headers: hdr({ 'Content-Type': 'application/json', ...(key ? { 'X-Push-Key': key } : {}) }), body: JSON.stringify(body || {}) }), e);
   const KEY = 'k' + 'A'.repeat(42), KEY2 = 'z' + 'B'.repeat(42);
   r = await worker.fetch(new Request(W + '/'), env);
-  ok((await r.text()) === 'Protokoll-Weiterleitung läuft (v4) · Mitteilungen bereit', 'Startseite zeigt: Mitteilungen bereit (KV gebunden)');
+  ok((await r.text()) === 'Protokoll-Weiterleitung läuft (v5) · Mitteilungen bereit', 'Startseite zeigt: Mitteilungen bereit (KV gebunden)');
   r = await preq('setup', {}, KEY, {});
   ok(r.status === 501 && (await r.json()).err === 'kv', 'Ohne KV-Speicher: 501 mit Hinweis');
   r = await worker.fetch(new Request(W + '/push/setup', { method: 'POST', headers: { Origin: 'https://fremd.example', 'X-Push-Key': KEY } }), env);
@@ -74,7 +74,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(r.status === 401, 'Ohne gültigen Geräte-Schlüssel: 401');
   r = await preq('setup', {}, KEY);
   const setup = await r.json();
-  ok(r.status === 200 && /^[A-Za-z0-9_-]{87}$/.test(setup.pub) && setup.v === 4, 'Einrichten: VAPID-Schlüssel erzeugt, öffentlicher Teil (65 Byte) zurück');
+  ok(r.status === 200 && /^[A-Za-z0-9_-]{87}$/.test(setup.pub) && setup.v === 5, 'Einrichten: VAPID-Schlüssel erzeugt, öffentlicher Teil (65 Byte) zurück');
   const cfg0 = JSON.parse(store.get('cfg'));
   ok(cfg0.jwk && cfg0.jwk.d && !store.get('cfg').includes(KEY), 'Im Speicher: privater Signier-Schlüssel, vom Geräte-Schlüssel nur der Prüfwert');
   r = await preq('setup', {}, KEY);
@@ -146,4 +146,24 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(r.status === 409, 'Test ohne Abo: 409');
   r = await preq('off', {}, KEY);
   ok(r.status === 200 && !store.has('sched'), 'Ausschalten löscht Abo und Plan');
+
+  /* ---------- v5: Platz zum Mitdenken, abgeschnittene Antworten (Claude nachgebaut) ---------- */
+  const ai = [];
+  let stop = 'max_tokens';
+  global.fetch = async (url, init) => {
+    if (String(url).startsWith('https://api.anthropic.com/')) { const b = JSON.parse(init.body); ai.push(b); return new Response(JSON.stringify({ content: [{ type: 'thinking', thinking: '…' }, { type: 'text', text: '```json\n{"goals":[{"title":"A"}' }], stop_reason: stop, usage: { input_tokens: 1000, output_tokens: 4000 } }), { status: 200 }); }
+    return new Response('{}', { status: 200 });
+  };
+  const env5 = { PUSH: KV, ANTHROPIC_API_KEY: 'sk-test', AI_BUDGET_USD: '1' };
+  const aq = (body) => worker.fetch(new Request(W + '/ai/ask', { method: 'POST', headers: hdr({ 'Content-Type': 'application/json', 'X-Push-Key': KEY }), body: JSON.stringify(body) }), env5);
+  r = await preq('setup', {}, KEY, env5); // Gerät wieder anmelden
+  r = await aq({ model: 'haiku', max_tokens: 6000, effort: 'low', messages: [{ role: 'user', content: 'Hallo' }] });
+  const cut = await r.json();
+  ok(ai[0] && ai[0].max_tokens === 6000 && ai[0].output_config && ai[0].output_config.effort === 'low', 'v5: max_tokens 6000 und effort „low“ gehen an Claude');
+  ok(r.status === 502 && cut.err === 'cut', 'v5: abgeschnittene Antwort (stop_reason max_tokens) wird als Fehler gemeldet, nicht als fertig');
+  r = await aq({ model: 'haiku', max_tokens: 99999, effort: 'extrem', messages: [{ role: 'user', content: 'Hallo' }] });
+  ok(ai[1].max_tokens === 16000 && !ai[1].output_config, 'v5: max_tokens gedeckelt (16.000), unbekannter effort wird nicht weitergegeben');
+  stop = 'end_turn';
+  r = await aq({ model: 'sonnet', messages: [{ role: 'user', content: 'Hallo' }] });
+  ok(r.status === 200 && ai[2].max_tokens === 4000, 'v5: vollständige Antwort ok, Standard 4.000 Token');
 })().catch((e) => { console.error('ABBRUCH', e); process.exit(1); });

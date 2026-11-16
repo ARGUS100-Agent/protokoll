@@ -142,6 +142,14 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(imp.mig === 214 && imp.flex && imp.goal === 'halten' && imp.pm === 5, 'Import eines älteren Backups: 2.14-Umstellung greift erneut');
   await shot('v214-02-nach-import');
 
+  /* ---------- 9. Wochen-Agent: abgeschnittene Antwort retten ---------- */
+  const ag = await ev(() => {
+    const t = '```json\n{"goals":[{"area":"haut","title":"Abendpflege an 5 Tagen","metric":"routine:pflege_pm","agg":"days","cmp":">=","value":1,"need":5,"why":"Hautscore gefallen"},{"area":"knie","title';
+    const j = aiJSON(t), okA = agentApply('2026-11-09', t, 'test-cut');
+    return { cut: j && j._cut, n: j && j.goals.length, okA, a: S.reviews['2026-11-09'].agent, goals: weekGoals('2026-11-16').map((g) => g.title), card: agentCard('2026-11-09') };
+  });
+  ok(ag.cut && ag.n === 1 && ag.okA && ag.a.cut && ag.goals.includes('Abendpflege an 5 Tagen') && ag.card.includes('unvollständig'), 'Abgeschnittene Agenten-Antwort: vollständige Ziele übernommen, Hinweis mit „Neu auswerten“');
+
   ok(!errors.length, errors.length ? errors.join('\n') : 'Keine Konsolenfehler');
   await browser.close();
 })().catch((e) => { console.log('ABBRUCH', e); process.exitCode = 1; });

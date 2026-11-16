@@ -29,8 +29,10 @@ function aiRefresh(force = false) {
   aiChecked = Date.now();
   return aiFetch('status').then((j) => { const was = JSON.stringify(AIST); AIST = j; if (was !== JSON.stringify(j) && !ui.sheet) render(); agentCheck(); return j; }).catch((e) => { AIST = { err: e.message, code: e.code }; return AIST; });
 }
-async function aiAsk({ model = 'haiku', system, content, max = 1500 }) {
-  const j = await aiFetch('ask', { model, system, max_tokens: max, messages: [{ role: 'user', content }] });
+/* Seit 2.14: Haiku/Sonnet 5.5 denken vor der Antwort mit; das zählt zu max_tokens. Mehr Platz plus „effort“
+   (Weiterleitung v5) verhindert abgeschnittene Antworten; v4 deckelt bei 4.000 Token. */
+async function aiAsk({ model = 'haiku', system, content, max = 4000, effort = 'low' }) {
+  const j = await aiFetch('ask', { model, system, max_tokens: max, effort, messages: [{ role: 'user', content }] });
   if (AIST) AIST.usd = j.month_usd;
   return j.text || '';
 }
@@ -49,7 +51,29 @@ function aiImage(file, maxPx = 1280) {
     img.src = url;
   });
 }
-function aiJSON(text) { const t = String(text || ''); const f = t.match(/```(?:json)?\s*([\s\S]*?)```/i); const s = f ? f[1] : t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1); try { return JSON.parse(s); } catch (e) { return null; } }
+function aiJSON(text) { const t = String(text || ''); const f = t.match(/```(?:json)?\s*([\s\S]*?)```/i); const s = f ? f[1] : t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1); try { return JSON.parse(s); } catch (e) { return jsonRepair(t); } }
+/* Abgeschnittene JSON-Antwort retten: bis zum letzten vollständigen Objekt/Array kürzen und offene Klammern
+   schließen. Das Ergebnis trägt _cut = true (z. B. Ziele übernommen, Anpassungen fehlen). */
+function jsonRepair(text) {
+  const t = String(text || ''), i = t.indexOf('{');
+  if (i < 0) return null;
+  const s = t.slice(i).replace(/```[\s\S]*$/, '');
+  for (let end = s.length, n = 0; end > 0 && n < 400; n++) {
+    const cut = Math.max(s.lastIndexOf('}', end - 1), s.lastIndexOf(']', end - 1));
+    if (cut <= 0) return null;
+    const part = s.slice(0, cut + 1), stack = [];
+    let inStr = false, esc = false;
+    for (const ch of part) {
+      if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; continue; }
+      if (ch === '"') inStr = true; else if (ch === '{' || ch === '[') stack.push(ch); else if (ch === '}' || ch === ']') stack.pop();
+    }
+    if (!inStr) {
+      try { const j = JSON.parse(part + stack.reverse().map((c) => (c === '{' ? '}' : ']')).join('')); if (j && typeof j === 'object') { j._cut = true; return j; } } catch (e) { /* weiter kürzen */ }
+    }
+    end = cut;
+  }
+  return null;
+}
 function aiBusy(on, msg) { const el = $('#ai-busy'); if (el) { el.hidden = !on; el.textContent = msg || 'Frank denkt nach …'; } $$('[data-ai]').forEach((b) => { b.disabled = !!on; }); }
 
 /* ---------- Frank: Essen aus Text, Sprache (Diktat) oder Foto ---------- */
@@ -63,7 +87,7 @@ async function frankAI(text, file) {
     const content = [];
     if (file) content.push(await aiImage(file));
     content.push({ type: 'text', text: (text ? text : 'Was ist auf dem Foto und wie viel davon?') + `\n(Datum heute: ${todayKey()}, Uhrzeit ${minToTime(nowMin())})` });
-    const out = await aiAsk({ model: 'haiku', system: FRANK_SYS, content, max: 2500 });
+    const out = await aiAsk({ model: 'haiku', system: FRANK_SYS, content, max: 6000 });
     if (!ui.sheet || ui.sheet !== s) return;
     if (!frankTry(out, true)) frankErr('Frank hat keinen gültigen Code geliefert – bitte genauer beschreiben.');
   } catch (e) { frankErr(e.message); } finally { aiBusy(false); }
@@ -84,7 +108,7 @@ async function frankMicros() {
   aiBusy(true, 'Frank schätzt die Mikronährstoffe …');
   try {
     const list = s.items.map((it) => ({ name: it.name, liquid: it.liquid, values: it.values }));
-    const out = await aiAsk({ model: 'haiku', system: 'Ergänze für jedes Lebensmittel realistische Mikronährstoffe pro 100 g/ml (deutsche Lebensmitteltabellen). Antworte NUR mit JSON: {"items":[{"name":"…","values":{…}}]} mit den Schlüsseln k, ca, mg, fe, zn, cu, vc, ve, b6, cho (mg); se, i, va, vk, b12, fol, vd (µg); epa, dha, ala (g). Gib nur Werte zurück, die du begründet schätzen kannst.', content: [{ type: 'text', text: JSON.stringify(list) }], max: 1500 });
+    const out = await aiAsk({ model: 'haiku', system: 'Ergänze für jedes Lebensmittel realistische Mikronährstoffe pro 100 g/ml (deutsche Lebensmitteltabellen). Antworte NUR mit JSON: {"items":[{"name":"…","values":{…}}]} mit den Schlüsseln k, ca, mg, fe, zn, cu, vc, ve, b6, cho (mg); se, i, va, vk, b12, fol, vd (µg); epa, dha, ala (g). Gib nur Werte zurück, die du begründet schätzen kannst.', content: [{ type: 'text', text: JSON.stringify(list) }], max: 6000 });
     const j = aiJSON(out);
     if (!j || !Array.isArray(j.items)) throw new Error('Keine Schätzung erhalten');
     j.items.forEach((x, i) => { const it = s.items[i]; if (!it) return; const v = frankValues(x.values || {}); for (const [k, val] of Object.entries(v)) if (it.values[k] == null && !['kcal', 'p', 'f', 'c', 'sf', 'sug', 'fib', 'na'].includes(k)) { it.values[k] = val; it.est = [...new Set([...(it.est || []), k])]; } });
@@ -99,7 +123,7 @@ async function labPhoto(file) {
   try {
     const ms = bloodMarkers();
     const sys = `Lies den Laborbericht. Ordne Werte diesen Parametern zu (id: Name, Einheit der App): ${ms.map((m) => `${m.id}: ${m.n} (${m.unit || ''})`).join('; ')}. Rechne in die Einheit der App um, wenn das Labor eine andere nutzt. Antworte NUR mit JSON: {"date":"YYYY-MM-DD","values":{"id":Zahl},"other":[{"name":"…","value":Zahl,"unit":"…"}],"note":"…"}`;
-    const out = await aiAsk({ model: 'haiku', system: sys, content: [await aiImage(file, 1800), { type: 'text', text: 'Laborbericht' }], max: 1500 });
+    const out = await aiAsk({ model: 'haiku', system: sys, content: [await aiImage(file, 1800), { type: 'text', text: 'Laborbericht' }], max: 6000 });
     const j = aiJSON(out);
     if (!j || !j.values) throw new Error('Keine Werte erkannt – Foto schärfer oder näher aufnehmen.');
     const vals = {};
@@ -124,7 +148,7 @@ async function receiptPhoto(file) {
   openSheet(`<h3 class="sheet-title">Kassenbon</h3><p class="hint" id="ai-busy">Frank liest den Kassenbon …</p>`);
   try {
     const items = S.shop.items.map((x) => `${x.id}: ${x.n}`).join('\n');
-    const out = await aiAsk({ model: 'haiku', system: `Lies den Kassenbon und ordne die Positionen diesen Einkaufsartikeln zu (id: Name). Antworte NUR mit JSON: {"bought":[{"id":"…","line":"Text vom Bon"}],"other":["nicht zuordenbare Positionen"]}. Nur sichere Zuordnungen.\n${items}`, content: [await aiImage(file, 1800), { type: 'text', text: 'Kassenbon' }], max: 1500 });
+    const out = await aiAsk({ model: 'haiku', system: `Lies den Kassenbon und ordne die Positionen diesen Einkaufsartikeln zu (id: Name). Antworte NUR mit JSON: {"bought":[{"id":"…","line":"Text vom Bon"}],"other":["nicht zuordenbare Positionen"]}. Nur sichere Zuordnungen.\n${items}`, content: [await aiImage(file, 1800), { type: 'text', text: 'Kassenbon' }], max: 6000 });
     const j = aiJSON(out);
     if (!j || !Array.isArray(j.bought)) throw new Error('Kassenbon nicht lesbar – Foto gerade und scharf aufnehmen.');
     const hits = j.bought.filter((b) => S.shop.items.some((x) => x.id === b.id));
@@ -153,7 +177,7 @@ async function askGo() {
   aiBusy(true);
   try {
     const rep = frankReportText(weekStart(todayKey()));
-    const out = await aiAsk({ model: 'haiku', system: 'Du bist Frank, Ernährungs- und Gewohnheits-Coach. Antworte auf Deutsch, kurz und konkret (höchstens 8 Sätze), mit Bezug auf die Daten. Keine Diagnosen; bei Warnzeichen zum Arzt raten. Unterscheide belegte Empfehlungen von Vermutungen.', content: [{ type: 'text', text: `Meine Daten:\n${rep}\n\nFrage: ${q}` }], max: 900 });
+    const out = await aiAsk({ model: 'haiku', system: 'Du bist Frank, Ernährungs- und Gewohnheits-Coach. Antworte auf Deutsch, kurz und konkret (höchstens 8 Sätze), mit Bezug auf die Daten. Keine Diagnosen; bei Warnzeichen zum Arzt raten. Unterscheide belegte Empfehlungen von Vermutungen.', content: [{ type: 'text', text: `Meine Daten:\n${rep}\n\nFrage: ${q}` }], max: 6000 });
     const el = $('#ask-a'); if (el) el.innerHTML = `<div class="card ask-a">${esc(out).replace(/\n/g, '<br>')}</div>`;
   } catch (e) { toast(e.message); } finally { aiBusy(false); }
 }
@@ -174,8 +198,8 @@ function agentParams() {
   for (const [k, x] of Object.entries(AGENT_KEYS)) { const [lo, hi] = x.lim(); p[k] = { name: x.n, value: x.get(), unit: x.u, min: lo, max: hi }; }
   return { params: p, habits: HABITS.map((h) => ({ id: h.id, name: h.n, on: !(S.settings.habitsOff || []).includes(h.id) })), routines: { am: rtCfg().am, day: rtCfg().day, pm: rtCfg().pm }, experiments: Object.entries(EXPS).map(([id, x]) => ({ id, name: x.n })), experimentRunning: expCur() ? expCur().id : null, deloadAdvice: kxDeloadAdvice() ? kxDeloadAdvice().why || 'läuft' : null };
 }
-const AGENT_SYS = `Du bist Frank, der Wochen-Agent der Protokoll-App. Du bekommst den Wochenbericht und die einstellbaren Werte. Werte die Woche aus, setze 3–5 messbare Ziele für die neue Woche und passe Einstellungen an, wo die Daten es klar nahelegen (lieber wenige, begründete Änderungen; keine Änderung ohne Grund). Antworte NUR mit einem JSON-Codeblock:
-{"review":{"good":[],"work":[],"more":[],"less":[],"tips":[]},"goals":[{"area":"…","title":"…","metric":"…","agg":"days|sum|avg|max","cmp":">=|<=","value":…,"need":5,"when":"HH:MM|wake+30|stop-30|bed-60","why":"…","tip":"…","example":"…"}],"changes":[{"key":"p.lo","value":190,"why":"…"},{"key":"habit.atem","value":"off","why":"…"},{"key":"routine.pm.nsdr","value":"add","why":"…"}],"experiment":null,"deload":false,"message":"2–3 Sätze in Du-Form, direkt und motivierend"}
+const AGENT_SYS = `Du bist Frank, der Wochen-Agent der Protokoll-App. Du bekommst den Wochenbericht und die einstellbaren Werte. Werte die Woche aus, setze 3–5 messbare Ziele für die neue Woche und passe Einstellungen an, wo die Daten es klar nahelegen (lieber wenige, begründete Änderungen; keine Änderung ohne Grund). Antworte NUR mit einem JSON-Codeblock, kompakt (ohne Einrückung, Texte kurz: why/tip/example je höchstens 120 Zeichen, review-Listen je höchstens 3 Punkte), in dieser Reihenfolge:
+{"goals":[{"area":"…","title":"…","metric":"…","agg":"days|sum|avg|max","cmp":">=|<=","value":…,"need":5,"when":"HH:MM|wake+30|stop-30|bed-60","why":"…","tip":"…","example":"…"}],"changes":[{"key":"p.lo","value":190,"why":"…"},{"key":"habit.atem","value":"off","why":"…"},{"key":"routine.pm.nsdr","value":"add","why":"…"}],"experiment":null,"deload":false,"message":"2–3 Sätze in Du-Form, direkt und motivierend","review":{"good":[],"work":[],"more":[],"less":[],"tips":[]}}
 Messgrößen (metric): Nährstoffe kcal, p, fatPct, c, sf, fs, sug, fib, na, fluid, upf, alk, ferm, pp, pre, vc, vd, vk, va, ve, b12, fol, b6, mg, zn, fe, se, i, ca, k, cu, cho, o3, plants (agg max); item:<id>, habit:<id>, routine:<id> (IDs in eckigen Klammern im Bericht); tag:whey|milbona|ag1|upf|alkohol (<= 0); caf, caf_last, caf_bed, caf_stop (<= 0), bed_delay, rh_win (Nacht im Schlaffenster, >= 1 mit need); sleepScore, sleepDur, bedTime, wakeTime, hrv, rhr, bbMorning, readiness, stress, steps, hd:lastMeal, hd:screenFree; train, gym, run, run_km, sauna (sum); mob, knee_str, lang, knee_am (avg <=); skin (avg), spots; manual (mit need).
 changes.key: einer der Parameter (Wert innerhalb min–max), "habit.<id>" mit "on"/"off", "routine.<am|day|pm>.<schritt-id>" mit "add"/"remove". experiment: null oder {"id":"…"} (nur wenn keins läuft). deload: true, wenn eine leichtere Trainingswoche jetzt sinnvoll ist. Keine Supplement-Dosen, keine medizinischen Ratschläge; Koffein-Regeln (90 Min. nach dem Aufwachen, Stopp je Dosis) bleiben.`;
 function agentWeek() {
@@ -221,7 +245,7 @@ function agentApply(ws, text, src) {
   if (j.deload === true && !deloadOn(todayKey())) { const g = S.settings.gym = S.settings.gym || {}; g.deload = weekStart(todayKey()); g.deloads = [...new Set([...(g.deloads || []), g.deload])]; changes.push({ key: 'deload', n: 'Leichtere Trainingswoche', from: 'normal', to: 'diese Woche', why: '' }); }
   const gl = frankGoalsParse(j), gw = addDays(ws, 7), today = todayKey();
   if (gl && gl.goals.length) { const from = gw === weekStart(today) && today > gw ? today : null; S.reviews[gw] = { ...(S.reviews[gw] || {}), goals: gl.goals.map((g) => (from ? { ...g, from } : g)), goalsAt: new Date().toISOString(), ticks: {}, byAgent: true }; }
-  S.reviews[ws] = { ...(S.reviews[ws] || {}), frank: gl && gl.review ? gl.review : (S.reviews[ws] || {}).frank, agent: { at: new Date().toISOString(), src: src || null, changes, msg: frankText(j.message, 400), goals: gl ? gl.goals.length : 0 } };
+  S.reviews[ws] = { ...(S.reviews[ws] || {}), frank: gl && gl.review ? gl.review : (S.reviews[ws] || {}).frank, agent: { at: new Date().toISOString(), src: src || null, changes, msg: frankText(j.message, 400), goals: gl ? gl.goals.length : 0, cut: !!j._cut } };
   markDirty('settings'); markDirty('reviews'); invalidate(); goalSnap = null;
   return true;
 }
@@ -242,13 +266,14 @@ async function agentRunNow(ws) {
   const p = agentPayload(ws);
   if (!p) return;
   toast('Wochen-Agent wertet aus …');
-  try { const text = await aiAsk({ model: 'sonnet', system: p.system, content: [{ type: 'text', text: p.report }], max: 3500 }); if (agentApply(p.ws, text, 'app:' + Date.now())) { render(); const a = S.reviews[p.ws].agent; toast(`Wochen-Agent: ${a.goals} Ziele, ${a.changes.length} Anpassungen`); } else toast('Antwort nicht lesbar – später nochmal'); } catch (e) { toast(e.message); }
+  try { const text = await aiAsk({ model: 'sonnet', system: p.system, content: [{ type: 'text', text: p.report }], max: 16000, effort: 'medium' }); if (agentApply(p.ws, text, 'app:' + Date.now())) { render(); const a = S.reviews[p.ws].agent; toast(`Wochen-Agent: ${a.goals} Ziele, ${a.changes.length} Anpassungen`); } else toast('Antwort nicht lesbar – später nochmal'); } catch (e) { toast(e.message); }
 }
 function agentCard(ws) {
   const a = S.reviews[ws] && S.reviews[ws].agent;
   if (!a) return '';
   return `<section class="card agent-card"><div class="sec-head"><h2>${icon('bot')} Wochen-Agent</h2><span class="count">KW ${isoWeek(ws)}</span></div>${a.msg ? `<p>${esc(a.msg)}</p>` : ''}
     ${a.goals ? `<p class="hint">${a.goals} Wochenziele für KW ${isoWeek(addDays(ws, 7))} gesetzt (Karte „Wochenziele“).</p>` : ''}
+    ${a.cut ? `<p class="hint">${icon('triangle-alert')} Die Antwort war unvollständig – übernommen ist, was ankam. <button class="link-btn" data-a="agent-run">Neu auswerten</button></p>` : ''}
     ${a.changes.length ? `<div class="list">${a.changes.map((c, i) => `<div class="ag-row${c.undone ? ' is-undone' : ''}"><span><b>${esc(c.n)}: ${esc(String(c.from))} → ${esc(String(c.to))}${c.u ? ' ' + esc(c.u) : ''}</b>${c.why ? `<small>${esc(c.why)}</small>` : ''}</span>${c.undone ? '<em>zurückgenommen</em>' : AGENT_KEYS[c.key] || c.key.startsWith('habit.') || c.key.startsWith('routine.') ? `<button class="icon-btn sm" data-a="agent-undo" data-ws="${ws}" data-i="${i}" aria-label="Rückgängig">${icon('undo-2')}</button>` : ''}</div>`).join('')}</div>` : '<p class="hint">Keine Einstellungen geändert.</p>'}</section>`;
 }
 function agentUndo(ws, i) {
@@ -276,11 +301,11 @@ function setKiHTML() {
   if (!pushOn()) return '<p class="hint">Zuerst „Mitteilungen“ einrichten – Frank-KI und Garmin im Hintergrund laufen über dieselbe Weiterleitung.</p>';
   const s = AIST || {};
   const ok = (b) => (b ? `<em class="est is-ok">${icon('check')} aktiv</em>` : '<em class="est">fehlt</em>');
-  return `<div class="list"><div class="row is-static"><span class="row-main"><b>Weiterleitung</b><small>${s.v ? `Version ${s.v}` : s.err ? esc(s.err) : 'wird geprüft …'}</small></span>${s.v >= 4 ? ok(true) : '<em class="est">v4 nötig</em>'}</div>
+  return `<div class="list"><div class="row is-static"><span class="row-main"><b>Weiterleitung</b><small>${s.v ? `Version ${s.v}` : s.err ? esc(s.err) : 'wird geprüft …'}</small></span>${s.v >= 5 ? ok(true) : s.v >= 4 ? '<em class="est">v5 empfohlen</em>' : '<em class="est">v4 nötig</em>'}</div>
     <div class="row is-static"><span class="row-main"><b>Frank-KI (Claude)</b><small>${s.ai ? `diesen Monat ${fmt((s.usd || 0), 3)} $ von ${fmt(s.budget || 1, 2)} $` : 'Geheimnis ANTHROPIC_API_KEY'}</small></span>${ok(s.ai)}</div>
     <div class="row is-static"><span class="row-main"><b>Garmin im Hintergrund</b><small>${s.garmin ? (s.brief ? `Briefing zuletzt ${esc(s.brief.date)}` : 'Morgen-Briefing aktiv') : 'Geheimnis GARMIN_KEY'}</small></span>${ok(s.garmin)}</div></div>
     <h5>Einrichten (einmal, ca. 10 Min.)</h5><ol class="steps-ol">
-      <li>Neuen Worker-Code kopieren (Version 4): Einstellungen → Garmin Connect → „Code kopieren“, in Cloudflare im Worker einfügen und „Deploy“.</li>
+      <li>Neuen Worker-Code kopieren (Version 5): Einstellungen → Garmin Connect → „Code kopieren“, in Cloudflare im Worker einfügen und „Deploy“.</li>
       <li>Claude-API-Schlüssel: auf console.anthropic.com anmelden, unter Billing ein kleines Guthaben aufladen und ein Ausgabenlimit setzen, unter API Keys einen Schlüssel erstellen.</li>
       <li>Cloudflare → dein Worker → Einstellungen → Variablen und Geheimnisse → Hinzufügen → Typ „Geheimnis“: Name ANTHROPIC_API_KEY, Wert = dein Schlüssel. Optional AI_BUDGET_USD (Standard 1).</li>
       <li>Für Garmin im Hintergrund genauso: Geheimnis GARMIN_KEY = derselbe Garmin-Schlüssel wie in der App.</li>
