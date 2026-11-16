@@ -88,7 +88,8 @@ function pushPlan(now = Date.now()) {
     const todos = todosOpen().filter((t) => t.date && t.date <= k);
     if (todos.length) add('todo', r.wake + 60, 'todo', todos.length === 1 ? `To-do: ${todos[0].t.slice(0, 80)}` : `${todos.length} To-dos fällig`, todos.length === 1 ? (todos[0].date < k ? 'Überfällig – heute erledigen oder neu planen.' : 'Steht für heute an.') : pushList(todos.map((t) => t.t.slice(0, 50)), 4), '#todos');
     const kw = kneeWeek(k);
-    if (kw >= 1 && kw <= 12 && kneeAm(k) == null) add('todo', r.wake + 20, 'knie', 'Knie heute Morgen?', 'Schmerz 0–10 eintragen – ein Tipp reicht, die App passt Training und Lauf daran an.', '#heute');
+    if (mcOn()) { const st = mcState(k); if (!st.done) add('todo', r.wake + 20, 'mcheck', 'Morgen-Check (20 Sek.)', `${st.eve.length ? 'Gestern Abend, ' : ''}Knie, Hautbild${st.weigh ? ', Gewicht' : ''} – ein paar Tipps, dann ist der Tag eingetragen.`, '#mcheck'); }
+    else if (kw >= 1 && kw <= 12 && kneeAm(k) == null) add('todo', r.wake + 20, 'knie', 'Knie heute Morgen?', 'Schmerz 0–10 eintragen – ein Tipp reicht, die App passt Training und Lauf daran an.', '#heute');
     if (isT && backupDue()) add('todo', r.wake + 90, 'backup', 'Backup fällig', 'Einstellungen → Backup & Daten: einmal sichern, dann sind deine Daten sicher.', '#set');
     if (weekday(k) === 6 && !weekGoals(addDays(weekStart(k), 7)).length) add('todo', Math.min(18 * 60, r.bed - 120), 'review', 'Wochenrückblick fertig', 'Schick ihn Frank – er gibt dir 3 Ziele für die neue Woche zurück.', '#woche');
     /* Offene Posten im Standardtag (Blöcke mit Uhrzeit, nah beieinander zusammengefasst) */
@@ -96,7 +97,7 @@ function pushPlan(now = Date.now()) {
     for (const b of S.settings.plan) {
       const t = resolveBlockTime(b, d);
       if (t == null) continue;
-      const open = b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !d.checks[it.id]);
+      const open = b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !itemDone(d, it));
       if (open.length) blocks.push({ t: t + 45, id: b.id, n: b.n, labels: open.map((it) => itemLabel(it, d)) });
     }
     blocks.sort((a, b) => a.t - b.t);
@@ -226,6 +227,7 @@ function pushNav(url) {
   const h = String(url || '').replace(/^#/, '');
   if (!h) return;
   closeSheet();
+  if (h === 'mcheck') { mcScroll(); return; }
   if (h === 'rhythmus') { go('heute', { scrollTop: true }); sheetRhythm(todayKey()); return; }
   if (h.startsWith('hq-')) { const id = h.slice(3).replace(/-/g, '_'); go('heute', { scrollTop: true }); setTimeout(() => sheetHabitAsk(id, todayKey()), 50); return; }
   if (h === 'blutdruck') { A['bp-go'](); return; }

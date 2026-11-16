@@ -1,7 +1,8 @@
 /* ============================================================
    SCHLAFRHYTHMUS (seit 2.9.0)
    Ein Zielfenster für alle Tage aus deinen Garmin-Nächten: Einschlafen und Aufwachen
-   je ±15 Min. um den Median der letzten 14 Nächte. Schläfst du im Schnitt kürzer als
+   je ±30 Min. um den Median der letzten 14 Nächte (bis 2.13 ±15 Min.; seit 2.14 ±30 – normale Schwankung
+   soll nicht als Fehltreffer zählen, Wunsch vom 16.11.2026). Schläfst du im Schnitt kürzer als
    dein Schlafbedarf, zieht das Fenster das Einschlafen um bis zu 30 Min. vor (wandert
    so mit jeder Nacht ein Stück). Das Fenster steuert den Tagesrhythmus (Schlafenszeit,
    Koffein-Stopp, Bildschirm-Pause, Mitteilungen); ein eingestelltes „Morgen raus“ geht vor.
@@ -9,7 +10,7 @@
    zusammen als die Schlafdauer allein (UK Biobank, Windred 2024).
    ============================================================ */
 /*icons: moon sunrise bed clock waves brain dumbbell alarm-clock check*/
-const RH_WIN = 15, RH_NIGHTS = 14, RH_MIN = 4, RH_PULL = 30;
+const RH_WIN = 30, RH_NIGHTS = 14, RH_MIN = 4, RH_PULL = 30;
 
 /* Nacht, die am Morgen des Tages k endet (Garmin speichert sie beim Aufwach-Tag) */
 function rhNight(k) {

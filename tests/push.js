@@ -123,7 +123,7 @@ const T = (hm, d = '2026-11-10') => Date.parse(`${d}T${hm}:00+01:00`);
   const win = find(/^Heute geschafft$/);
   ok(win && hm(win) === '21:45' && win.body.includes('Laufen') && win.body.includes('12.345 Schritte'), 'Geschafft am Abend: ' + (win ? win.body : '–'));
   const tomorrow = s.filter((x) => x.at > T('00:00', '2026-11-11') && x.at < T('23:59', '2026-11-11'));
-  ok(tomorrow.some((x) => x.title === 'To-do: Rezept abholen' && hm(x) === '07:30 +1' && x.body.startsWith('Überfällig')) && tomorrow.some((x) => x.title === 'Knie heute Morgen?' && hm(x) === '06:50 +1'), 'Morgen: überfälliges To-do und Knie-Morgencheck nach dem Aufstehen (Mittwoch wie meist 06:30)');
+  ok(tomorrow.some((x) => x.title === 'To-do: Rezept abholen' && hm(x) === '07:30 +1' && x.body.startsWith('Überfällig')) && tomorrow.some((x) => x.title === 'Morgen-Check (20 Sek.)' && x.url === '#mcheck' && hm(x) === '06:50 +1'), 'Morgen: überfälliges To-do und Morgen-Check (Knie, Haut, Gewicht) nach dem Aufstehen (Mittwoch wie meist 06:30)');
   ok(!s.some((x) => x.at > T('22:30') && x.at < T('06:30', '2026-11-11')), 'Stille Zeit zwischen Schlafenszeit und Aufstehen');
 
   /* ---------- Versand über den Zeitplan ---------- */
@@ -160,7 +160,7 @@ const T = (hm, d = '2026-11-10') => Date.parse(`${d}T${hm}:00+01:00`);
   const heute = s.filter((x) => x.at < T('23:59'));
   ok(!heute.some((x) => x.title === 'Noch offen: Mittag') && !heute.some((x) => x.title === 'Wann musst du morgen raus?'), 'Mittag abgehakt, morgen 08:00 eingestellt → neuer Plan nach 20 Sek.');
   ok(hm(find(/^Schlafenszeit/)) === '23:35' && find(/^Schlafenszeit/).title === 'Schlafenszeit 23:45' && hm(find(/^Koffein-Stopp/)) === '15:30', 'Morgen 08:00 raus: Schlafenszeit 23:45 (Erinnerung 23:35), Koffein-Stopp 15:45');
-  ok(hm(s.find((x) => x.title === 'Knie heute Morgen?')) === '08:20 +1', 'Morgen früh richtet sich nach „morgen raus 08:00“');
+  ok(hm(s.find((x) => x.title === 'Morgen-Check (20 Sek.)')) === '08:20 +1', 'Morgen früh richtet sich nach „morgen raus 08:00“');
   // Kategorie aus
   await ev(() => { ui.setOpen = 'push'; go('set'); });
   await page.click('[data-a="push-cat"][data-id="rhythm"]');

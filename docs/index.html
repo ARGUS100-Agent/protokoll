@@ -184,6 +184,8 @@ a.btn.is-accent { color: var(--accent-ink); }
 .item { display: grid; grid-template-columns: 1fr auto; align-items: center; border-top: 1px solid var(--line); }
 .item-hit { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 10px 8px 10px 16px; text-align: left; }
 .item-txt { min-width: 0; }
+.item.is-covered { grid-template-columns: 1fr; }
+.item.is-covered .item-hit { cursor: default; padding-right: 16px; }
 .item-txt b { display: block; font-size: 16px; font-weight: 600; line-height: 1.3; }
 .item-txt small { display: block; margin-top: 2px; color: var(--ink-3); font-size: 13px; line-height: 1.35; }
 .item.is-on .item-txt b { color: var(--ink-2); }
@@ -1224,6 +1226,24 @@ label.pill-btn { cursor: pointer; }
 .ath-day.is-done b { color: var(--st-ok); }
 .ath-day.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
 .ath-gym .row-main small { white-space: normal; }
+.kx-sug.kx-switch > .ic { color: var(--accent); }
+/* Morgen-Check (2.14) */
+.mcheck { box-shadow: inset 0 0 0 1px rgba(255, 194, 102, .35); }
+.mcheck .sec-head h2 { display: flex; align-items: center; gap: 8px; }
+.mc-part { padding: 12px 0 4px; border-top: 1px solid var(--line); }
+.mc-part:first-of-type { border-top: 0; padding-top: 4px; }
+.mc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.mc-head b { display: flex; align-items: center; gap: 6px; font-size: 15px; }
+.mc-head .ic { width: 16px; height: 16px; }
+.mc-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 7px 0; }
+.mc-row span { font-size: 14.5px; line-height: 1.35; }
+.mc-yn { display: flex; gap: 6px; }
+.mc-yn .chip { min-width: 52px; justify-content: center; }
+.mc-yn .chip.is-no { background: rgba(242, 96, 92, .16); color: var(--st-over); border-color: rgba(242, 96, 92, .45); }
+.mc-w { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.mc-w .mini-in { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); }
+.rt-note { margin: 4px 16px 6px; display: flex; gap: 6px; align-items: flex-start; }
+.rt-note .ic { width: 15px; height: 15px; flex: none; margin-top: 2px; }
 
 </style>
 </head>
@@ -1247,6 +1267,7 @@ const ICONS = {
   'bell': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></svg>',
   'bell-off': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742" /> <path d="m2 2 20 20" /> <path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05" /></svg>',
   'bell-ring': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /></svg>',
+  'bike': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5" /> <circle cx="5.5" cy="17.5" r="3.5" /> <circle cx="15" cy="5" r="1" /> <path d="M12 17.5V14l-3-3 4-3 2 3h2" /></svg>',
   'bot': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg>',
   'brain': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5" /> <path d="M15 13a4.17 4.17 0 01-3-4 4.17 4.17 0 01-3 4" /> <path d="M17.707 6.294A3 3 0 1012 5a3 3 0 10-5.707 1.294" /> <path d="M17.996 5.125a4 4 0 012.526 5.77" /> <path d="M18 18a4 4 0 002-7.465" /> <path d="M19.967 17.482a4 4 0 11-7.967.517 4 4 0 11-7.967-.517" /> <path d="M6 18a4 4 0 01-2-7.465" /> <path d="M6.004 5.125a4 4 0 00-2.526 5.77" /></svg>',
   'calendar-check': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /> <path d="m9 15 2 2 4-4" /></svg>',
@@ -1358,7 +1379,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.13.0';
+const APP_VERSION = '2.14.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -1702,7 +1723,7 @@ const EXTRA_ITEMS = [
 const HABITS = [
   { id: 'licht_morgen', n: 'Morgenlicht + 30 Min. Spaziergang', when: 'nach dem Aufstehen' },
   { id: 'licht_nachmittag', n: 'Nachmittagslicht', when: 'später Nachmittag, ein paar Minuten draußen' },
-  { id: 'koffein', n: 'Koffein nur 10:00–14:30', when: '90–120 Min. nach dem Aufwachen bis 8 Std. vor dem Schlafen', detail: { type: 'time', key: 'caffeineEnd', label: 'Letztes Koffein um' } },
+  { id: 'koffein', n: 'Koffein im Fenster', when: '90 Min. nach dem Aufwachen bis zum Stopp je Getränk', detail: { type: 'time', key: 'caffeineEnd', label: 'Letztes Koffein um' } },
   { id: 'alkohol', n: 'Kein Alkohol 8 Std. vor dem Schlafen', when: 'ab 14:30' },
   { id: 'mahlzeit', n: 'Letzte große Mahlzeit 2–3 Std. vor dem Schlafen', when: 'bis ca. 20:30', detail: { type: 'time', key: 'lastMeal', label: 'Letzte große Mahlzeit um' } },
   { id: 'bildschirm', n: '60 Min. vor dem Schlafen keine Bildschirme', when: 'mindestens 30 Min.', detail: { type: 'chips', key: 'screenFree', label: 'Bildschirmfrei vor dem Schlafen', options: [0, 15, 30, 45, 60, 90], unit: 'Min.' } },
@@ -1868,7 +1889,7 @@ const CAF_PRESETS = [
 const TRAIN_TYPES = [
   { id: 'Oberkörper A', gym: 1, ic: 'dumbbell' }, { id: 'Unterkörper & Rumpf', gym: 2, legs: true, ic: 'dumbbell' }, { id: 'Oberkörper B', gym: 3, ic: 'dumbbell' },
   { id: 'Gym (frei)', hard: true }, { id: 'Push', hard: true }, { id: 'Pull', hard: true }, { id: 'Beine', hard: true, legs: true },
-  { id: 'Laufen', run: true, hard: true }, { id: 'Cardio', hard: true }, { id: 'Rad', hard: true }, { id: 'Schwimmen', hard: true }, { id: 'HIIT', hard: true }, { id: 'BJJ', hard: true, ic: 'hand' },
+  { id: 'Laufen', run: true, hard: true }, { id: 'Cardio', hard: true }, { id: 'Rad', hard: true }, { id: 'Ergometer', hard: true, ic: 'bike' }, { id: 'Schwimmen', hard: true }, { id: 'HIIT', hard: true }, { id: 'BJJ', hard: true, ic: 'hand' },
   { id: 'Knie-Kraft', light: true }, { id: 'Mobility', light: true }, { id: 'Spaziergang', light: true }, { id: 'Sport', hard: true }, { id: 'Sonstiges' },
 ];
 /* Dein 3er-Split (Schedule A = schwer, wenige Wdh.; Schedule B = mehr Wdh.) */
@@ -2903,6 +2924,27 @@ function hasData(d) {
   if (!d) return false;
   return Object.keys(d.checks || {}).length > 0 || (d.entries || []).length > 0;
 }
+/* Erster Tag mit eigenen Einträgen. Tage davor kennt die App nur aus Garmin – dort fehlen Koffein, Sauna,
+   Gewohnheiten usw. nicht wirklich, sie wurden nur nicht erfasst (für Muster und Gewohnheits-Statistik). */
+function trackStart() {
+  const c = trackStart.c || (trackStart.c = { v: -1, k: null });
+  if (c.v === calcVersion) return c.k;
+  let first = null;
+  for (const [k, d] of Object.entries(S.days || {})) {
+    if (first && k >= first) continue;
+    // automatisch abgehakte Gewohnheiten (Schritte, Garmin) zählen nicht als eigener Eintrag
+    const ownHab = Object.keys(d.habits || {}).some((id) => !(d.ha && d.ha[id]) && !(d.gh && d.gh[id]));
+    if (hasData(d) || ownHab || (d.caf || []).length || (d.sauna || []).length) first = k;
+  }
+  c.v = calcVersion; c.k = first;
+  return first;
+}
+function tracked(k) { const s = trackStart(); return !!s && k >= s; }
+/* Prepmymeal: Gerichte, die einzeln eingetragen werden, decken den Beutel des Tages ab */
+function pmmFood(fid) { const f = FOOD[fid]; return fid === 'prepmymeal' || /^pmm_/.test(fid) || !!(f && /prepmymeal/i.test(f.n || '')); }
+function pmmEntryGrams(d) { return ((d && d.entries) || []).filter((e) => pmmFood(e.food)).reduce((a, e) => a + (Number(e.g) || 0), 0); }
+function itemCovered(d, it) { return !!(d && it && it.cg === 'pmm' && !(d.checks || {})[it.id] && pmmEntryGrams(d) > 0); }
+function itemDone(d, it) { return !!(d && it && ((d.checks || {})[it.id] || itemCovered(d, it))); }
 
 /* ---------- Standardtag-Posten ---------- */
 function allPlanItems() {
@@ -3699,6 +3741,35 @@ function migrate5() {
   S.meta.schema = 5;
   markDirty('meta');
 }
+/* 2.14 (Entscheidungen vom 16.11.2026 nach der Backup-Auswertung). Merker in den Einstellungen,
+   damit es auch nach dem Import eines älteren Backups noch einmal greift. */
+function migrate214() {
+  const st = S.settings;
+  if (!st || (st.mig || 0) >= 214) return;
+  // Neue, leere Installation: Standardwerte gelten schon (Routinen-Vorschlag mit Morgen-Check); die persönlichen
+  // Entscheidungen unten betreffen nur bestehende Daten
+  if (!Object.keys(S.days || {}).length) { st.mig = 214; markDirty('settings'); return; }
+  // Routinen: Morgen-Check als erster Morgenschritt, Abendroutine auf 5 Punkte (abgefragt am Morgen)
+  const R = rtCfg();
+  if (!R.am.includes('mcheck')) R.am.unshift('mcheck');
+  const oldPm = ['mahlzeit', 'warm_dusche', 'block:schlaf', 'skin:pflege_pm', 'handy', 'todo_morgen', 'bildschirm', 'dimmen'];
+  const newPm = ['skin:pflege_pm', 'block:schlaf', 'bildschirm', 'mahlzeit', 'warm_dusche'];
+  R.pm = newPm.concat((R.pm || []).filter((id) => !oldPm.includes(id) && !newPm.includes(id)));
+  // Selten Genutztes aus: Licht dimmen, To-do-Liste, Handyzeit
+  st.habitsOff = [...new Set([...(st.habitsOff || []), 'dimmen', 'todo_morgen', 'handy'])];
+  st.mcheck = { on: true, weight: 'daily', ...(st.mcheck || {}) };
+  // Flexible Woche statt fester Tage, Läufe raus, BJJ und Ergometer als Wochenziele
+  st.weekFlex = { on: true, gym: 3, bjj: 2, ergo: 1, ...(st.weekFlex || {}) };
+  // Kalorien: halten (Erhaltungsbedarf aus Essen + Gewichtstrend)
+  st.energy = { ...(st.energy || {}), goal: 'halten', auto: true };
+  // Experiment „1 statt 2 Monster“ anbieten (Start mit einem Tipp auf Heute)
+  if (!st.exp && !(st.expHist || []).some((x) => x.id === 'caf_dose')) st.expOffer = 'caf_dose';
+  st.mig = 214;
+  markDirty('settings'); invalidate();
+  // Sauna und „Kein Alkohol“ für die letzten 4 Wochen automatisch nachtragen
+  for (let i = 1; i <= 28; i++) { try { autoHabits(addDays(todayKey(), -i)); } catch (e) { /* egal */ } }
+  try { energyApply(); } catch (e) { /* egal */ }
+}
 
 /* ---------- Bereiche ---------- */
 function areaById(id) { return AREAS.find((a) => a.id === id) || (id === 'mehr' ? MORE_TAB : null); }
@@ -3769,18 +3840,21 @@ function cafSources(k) {
   return out.sort((a, b) => a.t - b.t);
 }
 function cafLevel(src, m) { const hl = hlMin(); let s = 0; for (const x of src) if (m >= x.t) s += x.mg * Math.pow(0.5, (m - x.t) / hl); return s; }
+function cafRelevant(x) { return x.src === 'caf' || x.mg >= 25; }
 function cafInfo(k) {
   const src = cafSources(addDays(k, -1)).map((x) => ({ ...x, t: x.t - 1440 })).concat(cafSources(k));
   const today = src.filter((x) => x.t >= 0);
   const total = today.reduce((a, x) => a + x.mg, 0);
   const isT = k === todayKey();
   const now = isT ? nowMin() : null;
-  const last = today.length ? today[today.length - 1].t : null;
+  // „Letztes Koffein“: nur Getränke und größere Mengen – ein Stück Schokolade am Nachmittag zählt nicht als letzter Kaffee
+  const rel = today.filter((x) => cafRelevant(x));
+  const last = rel.length ? rel[rel.length - 1].t : null;
   const lLast = last != null ? cafLevel(src, last) : 0;
   const below = (thr) => (last == null ? null : lLast <= thr ? last : last + hlMin() * Math.log2(lLast / thr));
   const cut = cafCutoff(k);
   const late = today.filter((x) => x.t > cafCutoff(k, x.mg) && (x.src === 'caf' || x.mg >= 15)).map((x) => ({ ...x, stop: cafCutoff(k, x.mg) }));
-  const start = cafStart(k), early = today.filter((x) => x.t < start - 15 && (x.src === 'caf' || x.mg >= 15));
+  const start = cafStart(k), early = today.filter((x) => x.t < start - 15 && cafRelevant(x));
   const bed = sleepAbs(k);
   return { src, today, total, now, nowLevel: isT ? cafLevel(src, now) : null, last, below50: below(50), below25: below(25), late, bed, bedLevel: cafLevel(src, bed), cut, start, early };
 }
@@ -3798,9 +3872,10 @@ function syncCafHabit(k) {
   const src = cafSources(k);
   if (!src.length) return;
   const a = cafStart(k);
-  const ok = src.every((x) => x.t >= a - 30 && x.t <= cafCutoff(k, x.mg));
+  const rel = src.filter((x) => cafRelevant(x));
+  const ok = rel.every((x) => x.t >= a - 30 && x.t <= cafCutoff(k, x.mg));
   d.hd = d.hd || {};
-  d.hd.caffeineEnd = minToTime(src[src.length - 1].t);
+  if (rel.length) d.hd.caffeineEnd = minToTime(rel[rel.length - 1].t); else delete d.hd.caffeineEnd;
   if (ok) d.habits.koffein = true; else delete d.habits.koffein;
 }
 
@@ -3889,7 +3964,43 @@ function recovery(k) {
   if (am != null && am > 3) notes.push(`Knie heute ${am}/10 – kein Lauf, Beintraining nur schmerzfrei.`);
   return { level, sig: sigOut, text: normal ? 'Normale Erholung – Training wie geplant.' : text, notes, normal, ready };
 }
-function weekTpl(i) { return (S.settings.week || DEFAULT_WEEK)[i] || {}; }
+/* Flexible Woche (Wunsch vom 16.11.2026): keine festen Tage, sondern Wochenziele für Gym, BJJ und Ergometer.
+   Die Gym-Tage laufen der Reihe nach (1 → 2 → 3), egal an welchem Wochentag. Lange Routine, Sauna und
+   Spaziergang bleiben in der Standardwoche, Läufe fallen weg. */
+function weekFlex() { const f = S.settings.weekFlex; return f && f.on ? { gym: 3, bjj: 2, ergo: 1, ...f } : null; }
+function weekTpl(i) {
+  const t = (S.settings.week || DEFAULT_WEEK)[i] || {};
+  if (!weekFlex()) return t;
+  const { gym, lauf, ...rest } = t; // eslint-disable-line no-unused-vars
+  return rest;
+}
+function isBjj(t) { return trainType(t).id === 'BJJ'; }
+function isErgo(t) { const id = trainType(t).id; return id === 'Ergometer' || id === 'Rad'; }
+function isGymT(t) { return !!trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id); }
+/* Nächster Gym-Tag in der Reihenfolge, nach dem zuletzt trainierten (inclToday: Einheiten von heute zählen mit) */
+function gymNext(k, inclToday = false) {
+  for (let i = inclToday ? 0 : 1; i < 90; i++) {
+    const tr = ((peekDay(addDays(k, -i)) || {}).trainings || []).filter((t) => trainType(t).gym);
+    if (tr.length) { const last = Number(trainType(tr[tr.length - 1]).gym); return (last % GYM_DAYS.length) + 1; }
+  }
+  return 1;
+}
+/* Gym-Tag für heute im Trainingsbereich: was du heute schon trainiert hast, sonst der nächste der Reihe */
+function gymToday(k) {
+  if (!weekFlex()) return Number(weekTpl(weekday(k)).gym) || null;
+  const tr = ((peekDay(k) || {}).trainings || []).filter((t) => trainType(t).gym);
+  return tr.length ? Number(trainType(tr[tr.length - 1]).gym) : gymNext(k);
+}
+/* Stand der flexiblen Woche */
+function flexWeek(ws) {
+  const f = weekFlex();
+  if (!f) return null;
+  const today = todayKey(), keys = weekKeys(ws);
+  const tr = keys.filter((k) => k <= today).flatMap((k) => ((peekDay(k) || {}).trainings || []));
+  const gym = tr.filter(isGymT).length, bjj = tr.filter(isBjj).length, ergo = tr.filter(isErgo).length;
+  const daysLeft = keys.filter((k) => k >= today).length;
+  return { goal: f, gym, bjj, ergo, daysLeft, left: { gym: Math.max(0, f.gym - gym), bjj: Math.max(0, f.bjj - bjj), ergo: Math.max(0, f.ergo - ergo) } };
+}
 function weekKeys(ws) { return Array.from({ length: 7 }, (_, i) => addDays(ws, i)); }
 function kneeSessions(d) { return (d && d.knee && d.knee.sess) || []; }
 function dayDone(k) {
@@ -3923,6 +4034,7 @@ function weekPlan(ws) {
     items.push({ kind: 'mob', n: 'Mobilität', done: done.mob });
     for (const g of done.gym) if (g !== Number(tpl.gym)) items.push({ kind: 'gym', day: g, n: gymDay(g).n, done: true, extra: true });
     if (done.run && !tpl.lauf) items.push({ kind: 'lauf', n: 'Lauf', done: true, extra: true });
+    for (const t of ((peekDay(k) || {}).trainings || [])) { if (isBjj(t)) items.push({ kind: 'bjj', n: 'BJJ', done: true, extra: true }); else if (isErgo(t)) items.push({ kind: 'ergo', n: trainType(t).id === 'Rad' ? 'Rad' : 'Ergometer', done: true, extra: true }); }
     if (done.sauna) items.push({ kind: 'sauna', n: `Sauna ${done.sauna} Min.`, done: true });
     return { k, i, tpl, items, done, past: k < today, isToday: k === today };
   });
@@ -3955,7 +4067,14 @@ function weekPlan(ws) {
   }
   const km = kmWeek(ws), kmPrev = kmWeek(addDays(ws, -7));
   if (kmPrev > 0 && km > kmPrev * 1.1) notes.push(`Laufumfang ${fmt(km, 1)} km – mehr als 10 % über der Vorwoche (${fmt(kmPrev, 1)} km).`);
-  return { days, notes, sauna: saunaWeek(ws, days) };
+  /* Flexible Woche: heute den nächsten Gym-Tag vorschlagen, solange das Wochenziel offen ist */
+  const fw = flexWeek(ws);
+  if (fw) {
+    const td = days.find((d) => d.isToday);
+    if (td && fw.left.gym > 0 && !td.done.gymAny && nowMin() < sleepMin() - 180) { const g = gymNext(td.k); td.items.unshift({ kind: 'gym', day: g, n: 'Möglich: ' + gymDay(g).n, done: false, flex: true }); }
+    if (fw.left.gym > fw.daysLeft && fw.daysLeft > 0) notes.push(`Noch ${fw.left.gym} Gym-Einheiten, aber nur noch ${fw.daysLeft} ${fw.daysLeft === 1 ? 'Tag' : 'Tage'} – lieber eine auslassen als zwei an einem Tag.`);
+  }
+  return { days, notes, sauna: saunaWeek(ws, days), flex: fw };
 }
 function saunaWeek(ws, days) {
   const goal = Number(S.settings.sauna.goal) || 60;
@@ -3976,7 +4095,7 @@ function saunaWeek(ws, days) {
       if (r <= 0) break;
       const m = Math.min(per, r);
       const after = d.items.find((x) => x.kind === 'gym' || x.kind === 'lauf');
-      sugg.push({ k: d.k, min: m, after: after ? after.n.replace('Nachholen: ', '') : null });
+      sugg.push({ k: d.k, min: m, after: after ? after.n.replace('Nachholen: ', '').replace('Möglich: ', '') : null });
       r -= m;
     }
   }
@@ -4394,7 +4513,9 @@ function weekReview(ws) {
   for (const k of past) for (const t of (peekDay(k) || {}).trainings || []) if (!trainType(t).light || t.type === 'Knie-Kraft') trs.push(t);
   r.trainings = trs.filter((t) => !trainType(t).light);
   r.trainMin = r.trainings.reduce((a, t) => a + (Number(t.dur) || 0), 0);
-  r.gymPlanned = keys.filter((k, i) => weekTpl(i).gym).length;
+  const fwr = flexWeek(ws);
+  r.gymPlanned = fwr ? fwr.goal.gym : keys.filter((k, i) => weekTpl(i).gym).length;
+  r.flex = fwr;
   r.gymDone = r.trainings.filter((t) => trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id)).length; // auch Krafttraining von Garmin
   r.sauna = keys.reduce((a, k) => a + saunaMin(peekDay(k)), 0); r.saunaGoal = Number(S.settings.sauna.goal) || 60;
   const caf = past.filter((k) => peekDay(k)).map((k) => cafInfo(k));
@@ -4834,7 +4955,7 @@ function dayArcSVG(k) {
     if (t == null) continue;
     const req = b.items.filter((it) => !it.opt && itemInVariant(it, variant));
     if (!req.length) continue;
-    const done = req.filter((it) => d.checks[it.id]).length;
+    const done = req.filter((it) => itemDone(d, it)).length;
     const [x, y] = pos(t);
     const full = done === req.length, part = done > 0 && !full;
     s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" class="arc-dot ${full ? 'is-full' : part ? 'is-part' : ''}"/>`;
@@ -4975,7 +5096,7 @@ function banners(k) {
 /* Aktueller Block für „Als Nächstes“ */
 function nowBlock(k) {
   const d = getDay(k), variant = dayVariant(k), now = nowMin();
-  const blocks = S.settings.plan.map((b) => ({ b, t: resolveBlockTime(b, d), open: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !d.checks[it.id]) })).filter((x) => x.t != null);
+  const blocks = S.settings.plan.map((b) => ({ b, t: resolveBlockTime(b, d), open: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !itemDone(d, it)) })).filter((x) => x.t != null);
   blocks.sort((a, b) => a.t - b.t);
   const due = blocks.filter((x) => x.t <= now + 30 && x.open.length);
   if (due.length) return due[due.length - 1].b;
@@ -4984,7 +5105,7 @@ function nowBlock(k) {
 }
 function openBlocksLine(k, current) {
   const d = getDay(k), variant = dayVariant(k);
-  const rest = S.settings.plan.filter((b) => b !== current && resolveBlockTime(b, d) != null).map((b) => ({ b, n: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !d.checks[it.id]).length })).filter((x) => x.n);
+  const rest = S.settings.plan.filter((b) => b !== current && resolveBlockTime(b, d) != null).map((b) => ({ b, n: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !itemDone(d, it)).length })).filter((x) => x.n);
   if (!rest.length) return '';
   return `<p class="open-line">Noch offen: ${rest.map((x) => `<button class="link-btn" data-a="goto" data-tab="ern" data-sub="plan" data-anchor="b-${x.b.id}">${esc(x.b.n)} (${x.n})</button>`).join(', ')}</p>`;
 }
@@ -5120,20 +5241,23 @@ function blockCard(b, k, opts = {}) {
   const items = b.items.filter((it) => itemInVariant(it, variant));
   if (!items.length) return '';
   const req = items.filter((it) => !it.opt);
-  const done = req.filter((it) => d.checks[it.id]).length;
+  const done = req.filter((it) => itemDone(d, it)).length;
   const t = resolveBlockTime(b, d);
   const allOpt = req.length === 0;
   const collapsed = b.id === 'vielfalt' && !ui.exp.has('blk:vielfalt') && !opts.now;
   return `<div class="block${opts.now ? ' is-now' : ''}" id="b-${b.id}">
     <div class="block-head">
       <div><h3>${opts.now ? '<span class="now-tag">Als Nächstes</span>' : ''}${esc(b.n)}</h3><span class="block-meta">${t != null ? (b.time === 'training' && !d.training ? 'Training ' : '') + minToTime(t) + ' Uhr' : 'über den Tag'}${allOpt ? '' : `, ${done}/${req.length} erledigt`}</span></div>
-      ${allOpt ? (b.id === 'vielfalt' ? `<button class="pill-btn" data-a="expand" data-key="blk:vielfalt">${collapsed ? 'Zeigen' : 'Ausblenden'}</button>` : '') : done < req.length ? `<button class="pill-btn" data-a="check-block" data-id="${b.id}">Alle abhaken</button>` : `<button class="pill-btn is-ghost" data-a="uncheck-block" data-id="${b.id}">Zurücksetzen</button>`}
+      ${allOpt ? (b.id === 'vielfalt' ? `<button class="pill-btn" data-a="expand" data-key="blk:vielfalt">${collapsed ? 'Zeigen' : 'Ausblenden'}</button>` : '') : done < req.length ? `<button class="pill-btn" data-a="check-block" data-id="${b.id}">Alle abhaken</button>` : req.some((it) => d.checks[it.id]) ? `<button class="pill-btn is-ghost" data-a="uncheck-block" data-id="${b.id}">Zurücksetzen</button>` : ''}
     </div>
     ${collapsed ? '' : `<div class="items">${items.map((it) => itemRow(it, k, d, variant)).join('')}</div>`}
     ${b.id === 'getraenke' && !opts.now ? waterQuick(k) : ''}
   </div>`;
 }
 function itemRow(it, k, d, variant) {
+  if (itemCovered(d, it)) {
+    return `<div class="item is-on is-covered"><div class="item-hit is-static"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(itemLabel(it, d))}</b><small>Erledigt über deine Einträge: ${fmt(pmmEntryGrams(d))} g Prepmymeal-Gerichte. Nicht zusätzlich abhaken, sonst zählt es doppelt.</small></span></div></div>`;
+  }
   const on = !!d.checks[it.id];
   const fid = itemFoodId(it, d), f = FOOD[fid];
   const amt = itemAmount(it, d, variant);
@@ -5914,8 +6038,8 @@ function areaStatus(id, k = todayKey()) {
         const logged = (d.trainings || []).filter((t) => !trainType(t).light);
         const plan = day.items.filter((x) => ['gym', 'lauf'].includes(x.kind) && !x.done);
         const rec = recovery(k);
-        const v = logged.length ? esc(logged.map((t) => t.type).join(', ')) : plan.length ? esc(plan.map((x) => x.n).join(' + ')) : 'Ruhetag';
-        return { v, s: `${logged.length ? 'erledigt' : plan.length ? 'geplant' : 'heute frei'} · Sauna ${fmt(wp.sauna.done)}/${fmt(wp.sauna.goal)} Min.${rec.ready ? ` · Bereitschaft ${fmt(rec.ready.score)}` : rec.level !== 'none' ? ` · Erholung ${rec.normal ? 'normal' : ({ green: 'gut', yellow: 'mittel', red: 'schlecht' })[rec.level]}` : ''}`, st: logged.length ? 'ok' : rec.level === 'red' ? 'over' : rec.level === 'yellow' ? 'under' : 'none', small: true };
+        const v = logged.length ? esc(logged.map((t) => t.type).join(', ')) : plan.length ? esc(plan.map((x) => x.n.replace('Möglich: ', '')).join(' + ')) : 'Ruhetag';
+        return { v, s: `${logged.length ? 'erledigt' : plan.length ? (plan.every((x) => x.flex) ? 'möglich' : 'geplant') : 'heute frei'} · Sauna ${fmt(wp.sauna.done)}/${fmt(wp.sauna.goal)} Min.${rec.ready ? ` · Bereitschaft ${fmt(rec.ready.score)}` : rec.level !== 'none' ? ` · Erholung ${rec.normal ? 'normal' : ({ green: 'gut', yellow: 'mittel', red: 'schlecht' })[rec.level]}` : ''}`, st: logged.length ? 'ok' : rec.level === 'red' ? 'over' : rec.level === 'yellow' ? 'under' : 'none', small: true };
       }
       case 'knie': {
         const w = kneeWeek(k), dd = dayDone(k);
@@ -5992,6 +6116,7 @@ function vHeute() {
     <h1>${greeting()}</h1></header>`;
   h += banners(k);
   h += kneeAlertCards(k);
+  h += mcCard(k);
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
@@ -6001,7 +6126,7 @@ function vHeute() {
   h += sleepHelpCard(k);
   h += routineCard(k);
   if (weekday(k) <= 2) h += agentCard(addDays(weekStart(k), -7));
-  h += kneeMorningCard(k, true);
+  if (!mcVisible(k)) h += kneeMorningCard(k, true);
   h += sundayCard(k);
   h += todoCard();
   h += reviewReadyCard(k);
@@ -6142,7 +6267,7 @@ function vSupp() {
 /* ============================================================
    TRAINING & SAUNA
    ============================================================ */
-const PLAN_IC = { gym: 'dumbbell', kraft: 'footprints', lauf: 'activity', lang: 'stretch-horizontal', mob: 'person-standing', walk: 'footprints', sauna: 'thermometer', vorlauf: 'timer' };
+const PLAN_IC = { gym: 'dumbbell', kraft: 'footprints', lauf: 'activity', lang: 'stretch-horizontal', mob: 'person-standing', walk: 'footprints', sauna: 'thermometer', vorlauf: 'timer', bjj: 'hand', ergo: 'bike' };
 function vTrain() {
   if (ui.gymSess) return vGymSession();
   const sub = getSub('train', 'heute');
@@ -6223,7 +6348,11 @@ function vTrainWeek() {
   const ws = ui.trainWeek;
   const wp = weekPlan(ws);
   let h = weekNav(ws, 'train-week', addDays(weekStart(todayKey()), 7));
-  h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Athletik täglich zu Hause (Knie → Kraft & Athletik), am Beintag dazu der Knie-Block. Kein schweres Beintraining am Tag vor einem Lauf.</p>`;
+  if (wp.flex) {
+    const f = wp.flex, row = (n, v, g) => `<div class="kv"><span>${n}</span><b>${v}/${g}</b>${progBar(v, g, v >= g ? 'ok' : '')}</div>`;
+    h += `<section class="sec"><div class="sec-head"><h2>Diese Woche</h2><span class="count">keine festen Tage</span></div><div class="kv-grid is-3">${row('Gym', f.gym, f.goal.gym)}${row('BJJ', f.bjj, f.goal.bjj)}${row('Ergometer', f.ergo, f.goal.ergo)}</div>
+      <p class="sec-sub">Schedule ${gymSched(ws)}. Gym-Tage der Reihe nach – als Nächstes: <b>${esc(gymDay(gymNext(todayKey(), true)).n)}</b>. Knie-Athletik täglich zu Hause, am Beintag dazu der Knie-Block. BJJ und Ergometer trägt Garmin automatisch ein (Ergometer = Indoor-Radfahren).</p></section>`;
+  } else h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Athletik täglich zu Hause (Knie → Kraft & Athletik), am Beintag dazu der Knie-Block. Kein schweres Beintraining am Tag vor einem Lauf.</p>`;
   for (const n of wp.notes) h += `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(n)}</span></div></div>`;
   for (const d of wp.days) {
     const rec = d.isToday ? recovery(d.k) : null;
@@ -6238,7 +6367,7 @@ function vTrainWeek() {
 }
 function vGymPlan() {
   const k = todayKey();
-  const tplDay = weekTpl(weekday(k)).gym;
+  const tplDay = gymToday(k);
   const dayN = ui.gymDay || tplDay || 1;
   const gd = gymDay(dayN), sched = gymSched(k);
   const alt = S.settings.gym.kneeAlt;
@@ -6847,7 +6976,10 @@ Object.assign(SET_VIEWS, {
     const wk = S.settings.week;
     const g = S.settings.gym;
     const cur = gymSched(todayKey());
-    return `<p class="hint">Standardwoche für den Wochenplan-Vorschlag. Täglich Mobilität ist immer dabei.</p>
+    const fx = weekFlex();
+    const flexHtml = `<button class="row-check${fx ? ' is-on' : ''}" data-a="week-flex"><span class="tgl-box">${icon('check')}</span><span>Flexible Woche: keine festen Tage, nur Wochenziele (Gym-Tage der Reihe nach)</span></button>
+      ${fx ? `<div class="form">${[['gym', 'Gym pro Woche'], ['bjj', 'BJJ pro Woche'], ['ergo', 'Ergometer pro Woche']].map(([f, l]) => `<div class="frow"><span class="flabel">${l}</span><div class="fin"><input type="text" inputmode="numeric" data-c="week-goal" data-f="${f}" value="${fx[f]}"><span class="unit">×</span></div></div>`).join('')}</div>` : ''}`;
+    return `${flexHtml}<p class="hint">${fx ? 'Standardwoche für lange Routine, Sauna und Spaziergang. Gym-Tage und Läufe der Standardwoche gelten in der flexiblen Woche nicht.' : 'Standardwoche für den Wochenplan-Vorschlag. Täglich Mobilität ist immer dabei.'}</p>
       <div class="wk-edit">${WD_LONG.map((w, i) => { const t = wk[i] || {}; const chip = (key, l) => `<button class="chip chip-xs${t[key] ? ' is-on' : ''}" data-a="week-flag" data-i="${i}" data-k="${key}">${l}</button>`; return `<div class="wk-row"><b>${w}</b><div class="chips chips-tight"><button class="chip chip-xs${!t.gym ? ' is-on' : ''}" data-a="week-gym" data-i="${i}" data-v="0">kein Gym</button>${GYM_DAYS.map((gd) => `<button class="chip chip-xs${Number(t.gym) === gd.day ? ' is-on' : ''}" data-a="week-gym" data-i="${i}" data-v="${gd.day}">Tag ${gd.day}</button>`).join('')}</div><div class="chips chips-tight">${chip('kraft', 'Knie-Kraft')}${chip('lauf', 'Lauf')}${chip('lang', 'Lange Routine')}${chip('sauna', 'Sauna')}${chip('walk', 'Spaziergang')}</div></div>`; }).join('')}</div>
       <button class="link-btn" data-a="week-reset">Standardwoche wiederherstellen</button>
       <h5>Gym-Split</h5><div class="frow is-wide"><span class="flabel">Schedule diese Woche (wechselt wöchentlich)</span><div class="chips chips-tight">${['A', 'B'].map((s) => `<button class="chip chip-xs${cur === s ? ' is-on' : ''}" data-a="gym-sched" data-v="${s}">Schedule ${s}</button>`).join('')}</div></div>
@@ -7617,6 +7749,7 @@ const A = {
       if (data.settings && data.settings.todos) S.settings.todos = byId(S.settings.todos, data.settings.todos);
     }
     buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia
+    try { migrate214(); } catch (e) { /* egal */ } // 2.14: Morgen-Check, flexible Woche, Kalorien halten
     await DB.clear();
     if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
     if (PUSH) await pushSave(); // Mitteilungen ebenso
@@ -7760,7 +7893,7 @@ const C = {
     mutDay(k, (d) => { if (v == null) delete d.health[key]; else d.health[key] = v; if (key === 'weight' && v != null && k === todayKey()) { S.settings.profile.weight = v; markDirty('settings'); } });
     flashSaved(el);
     if (el.closest('.quick-health')) { const allSet = $$('.quick-health input').every((i) => i.value.trim()); if (allSet) render(); }
-    if (el.closest('.sunday')) render();
+    if (el.closest('.sunday') || el.closest('.mcheck')) render();
   },
   'health-dur': (el) => { const k = el.dataset.date, key = el.dataset.k; const v = timeToMin(el.value); mutDay(k, (d) => { if (v == null) delete d.health[key]; else d.health[key] = v; }); flashSaved(el); },
   'habit-detail': (el) => {
@@ -8310,6 +8443,7 @@ Object.assign(A, {
   'week-flag': (el) => { const w = S.settings.week[Number(el.dataset.i)]; const key = el.dataset.k; if (w[key]) delete w[key]; else w[key] = true; saveSettings(); },
   'week-gym': (el) => { const w = S.settings.week[Number(el.dataset.i)]; const v = Number(el.dataset.v); if (!v) delete w.gym; else w.gym = v; saveSettings(); },
   'week-reset': () => { S.settings.week = clone(DEFAULT_WEEK); saveSettings(); toast('Standardwoche wiederhergestellt'); },
+  'week-flex': () => { const f = S.settings.weekFlex = { gym: 3, bjj: 2, ergo: 1, ...(S.settings.weekFlex || {}) }; f.on = !f.on; saveSettings(); toast(f.on ? 'Flexible Woche: Wochenziele statt fester Tage' : 'Feste Tage laut Standardwoche'); },
 
   /* Termine */
   'todo-suggest': (el) => { const i = $('#todo-new'); if (i) { i.value = el.dataset.v; i.focus(); } },
@@ -8333,6 +8467,7 @@ Object.assign(C, {
     flashSaved(el);
   },
   'gym-meta': (el) => { const v = parseNum(el.value); mutTraining((t) => { t.dur = v; }); flashSaved(el); },
+  'week-goal': (el) => { const v = parseNum(el.value); if (v == null || v < 0 || v > 14) { toast('0 bis 14 pro Woche'); return; } const f = S.settings.weekFlex = { gym: 3, bjj: 2, ergo: 1, on: true, ...(S.settings.weekFlex || {}) }; f[el.dataset.f] = Math.round(v); saveSettings(false); flashSaved(el); },
   'train-metric': (el) => { ui.trainMetric = el.value; render(); },
   'caf-time': (el) => { const k = el.dataset.date; if (!el.value) return; mutDay(k, (d) => { const c = (d.caf || []).find((x) => x.id === el.dataset.id); if (c) c.t = el.value; syncCafHabit(k); }); render(); },
   'skin-range': (el) => { const k = el.dataset.date, v = Number(el.value); mutDay(k, (d) => { d.skin = d.skin || {}; d.skin.score = v; }); render(); },
@@ -9043,28 +9178,28 @@ const MU_OUT = {
 function muHealth(k, f) { const d = peekDay(k); const v = d && d.health ? d.health[f] : null; return v == null || v === '' ? null : Number(v); }
 function muTrain(k, f) { const d = peekDay(k); if (!d) return null; return (d.trainings || []).some((t) => !trainType(t).light && f(t)); }
 const MU_FEAT = {
-  cafLate: { n: () => `Koffein nach dem Koffein-Stopp (${cafStopText()})`, bad: () => (cafMode() === 'dose' ? 'Letzten Kaffee spätestens zu deinem Stopp je Getränk trinken (Kaffee ~8 Std., Monster Zero ~11 Std. vor dem Schlafen – die App zeigt dir die Uhrzeiten), danach entkoffeiniert oder Kräutertee.' : `Letzten Kaffee spätestens ${cafStopText()} trinken (die App zeigt dir die Uhrzeit), danach entkoffeiniert oder Kräutertee.`), good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).late.length > 0 : null) },
-  cafBed: { n: () => 'viel Koffein zur Schlafenszeit (über 50 mg)', bad: () => `Weniger Koffein am Nachmittag: der Rest im Körper zur Schlafenszeit stört den Tiefschlaf.`, good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).bedLevel >= 50 : null) },
+  cafLate: { own: true, n: () => `Koffein nach dem Koffein-Stopp (${cafStopText()})`, bad: () => (cafMode() === 'dose' ? 'Letzten Kaffee spätestens zu deinem Stopp je Getränk trinken (Kaffee ~8 Std., Monster Zero ~11 Std. vor dem Schlafen – die App zeigt dir die Uhrzeiten), danach entkoffeiniert oder Kräutertee.' : `Letzten Kaffee spätestens ${cafStopText()} trinken (die App zeigt dir die Uhrzeit), danach entkoffeiniert oder Kräutertee.`), good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).late.length > 0 : null) },
+  cafBed: { own: true, n: () => 'viel Koffein zur Schlafenszeit (über 50 mg)', bad: () => `Weniger Koffein am Nachmittag: der Rest im Körper zur Schlafenszeit stört den Tiefschlaf.`, good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).bedLevel >= 50 : null) },
   alk: { n: () => 'Alkohol', bad: () => `Alkohol weglassen oder früher am Abend, mindestens 8 Std. vor dem Schlafen.`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? (computeTotals(k, false).tot.alk || 0) > 0 : null) },
   lateMeal: { n: () => 'später letzter Mahlzeit (ab 21 Uhr)', bad: () => `Letzte große Mahlzeit bis ca. 20:30, danach höchstens etwas Leichtes.`, good: () => ``, f: (k) => { const d = peekDay(k); const t = d && d.hd && d.hd.lastMeal ? timeVal(d.hd.lastMeal, true) : null; return t == null ? null : t >= 1260; } },
-  screen: { n: () => 'bildschirmfreiem Abend', bad: () => ``, good: () => `Bildschirmfreie Abende beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.bildschirm) : null; } },
-  light: { n: () => 'Morgenlicht', bad: () => ``, good: () => `Morgenlicht beibehalten: 10–30 Min. raus nach dem Aufstehen.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.licht_morgen) : null; } },
+  screen: { own: true, n: () => 'bildschirmfreiem Abend', bad: () => ``, good: () => `Bildschirmfreie Abende beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.bildschirm) : null; } },
+  light: { own: true, n: () => 'Morgenlicht', bad: () => ``, good: () => `Morgenlicht beibehalten: 10–30 Min. raus nach dem Aufstehen.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.licht_morgen) : null; } },
   eveTrain: { n: () => 'Training am Abend (ab 18 Uhr)', bad: () => `Training lieber vor 18 Uhr legen oder danach länger runterfahren.`, good: () => ``, f: (k) => muTrain(k, (t) => (timeToMin(t.time) || 0) >= 1080) },
   train: { n: () => 'Training', bad: () => `An Trainingstagen auf Schlaf und Essen nach dem Training achten.`, good: () => `Training tut dir gut, Rhythmus halten.`, f: (k) => muTrain(k, () => true) },
-  sauna: { n: () => 'Sauna', bad: () => `Sauna früher am Abend und danach gut trinken.`, good: () => `Sauna beibehalten, am besten direkt nach dem Training.`, f: (k) => (peekDay(k) ? saunaMin(peekDay(k)) > 0 : null) },
-  mgSupp: { n: () => 'Magnesium am Abend', bad: () => ``, good: () => `Magnesium am Abend beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.checks && d.checks.s_mg) : null; } },
+  sauna: { own: true, n: () => 'Sauna', bad: () => `Sauna früher am Abend und danach gut trinken.`, good: () => `Sauna beibehalten, am besten direkt nach dem Training.`, f: (k) => (peekDay(k) ? saunaMin(peekDay(k)) > 0 : null) },
+  mgSupp: { own: true, n: () => 'Magnesium am Abend', bad: () => ``, good: () => `Magnesium am Abend beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.checks && d.checks.s_mg) : null; } },
   whey: { n: () => 'Whey oder Proteinshake', bad: () => `Whey testweise weglassen (Haut-Phase 2), Protein aus Skyr, Eiern, Fisch.`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? dayTags(k).has('whey') : null) },
   milbona: { n: () => 'Milbona-Shake', bad: () => `Milbona-Shakes testweise weglassen (Haut-Phase 2).`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? dayTags(k).has('milbona') : null) },
   ag1: { n: () => 'AG1', bad: () => `AG1 testweise pausieren (Haut-Phase 3).`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? dayTags(k).has('ag1') : null) },
   sugar: { n: () => 'viel freiem Zucker (über 50 g)', bad: () => `Freien Zucker unter 50 g halten: Süßes und Säfte reduzieren.`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? (computeTotals(k, false).tot.fs || 0) > 50 : null) },
   sleepLow: { n: () => 'schlechtem Schlaf (Sleep Score unter 70)', bad: () => `Schlaf zuerst verbessern: Koffein-Stopp, bildschirmfrei, feste Zeiten.`, good: () => ``, f: (k) => { const v = muHealth(k, 'sleepScore'); return v == null ? null : v < 70; } },
-  shave: { n: () => 'Rasur', bad: () => `Rasur schonend: neue Klinge, mit dem Strich, danach Physiogel.`, good: () => ``, f: (k) => { const d = peekDay(k); return d ? !!(d.skin && d.skin.rasur) : null; } },
+  shave: { own: true, n: () => 'Rasur', bad: () => `Rasur schonend: neue Klinge, mit dem Strich, danach Physiogel.`, good: () => ``, f: (k) => { const d = peekDay(k); return d ? !!(d.skin && d.skin.rasur) : null; } },
   carePm: { n: () => 'Pflege am Abend', bad: () => ``, good: () => `Pflege am Abend beibehalten.`, f: (k) => { const d = peekDay(k); return d && d.skin && d.skin.score != null ? !!d.skin.pflege_pm : null; } },
   run: { n: () => 'Lauf', bad: () => `Laufumfang langsamer steigern, vorher die Routine „Vor dem Lauf“.`, good: () => ``, f: (k) => muTrain(k, (t) => trainType(t).run) },
   longRun: { n: () => 'Lauf über 6 km', bad: () => `Lange Läufe kürzer halten, höchstens +10 % pro Woche.`, good: () => ``, f: (k) => muTrain(k, (t) => trainType(t).run && (Number(t.km) || 0) > 6) },
   legs: { n: () => 'Beintag', bad: () => `Am Beintag die Knie-Varianten nutzen (Hip Thrust, Beinpresse Füße hoch).`, good: () => ``, f: (k) => muTrain(k, (t) => trainType(t).legs) },
-  mob: { n: () => 'Mobility-Routine', bad: () => ``, good: () => `Mobility täglich beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).mob : null) },
-  kneeStr: { n: () => 'Knie-Kraft', bad: () => ``, good: () => `Knie-Kraft beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).kraft : null) },
+  mob: { own: true, n: () => 'Mobility-Routine', bad: () => ``, good: () => `Mobility täglich beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).mob : null) },
+  kneeStr: { own: true, n: () => 'Knie-Kraft', bad: () => ``, good: () => `Knie-Kraft beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).kraft : null) },
 };
 const MU_HYPO = [
   ['cafLate', 'sleep'], ['cafBed', 'sleep'], ['alk', 'sleep'], ['lateMeal', 'sleep'], ['screen', 'sleep'], ['light', 'sleep'], ['eveTrain', 'sleep'], ['sauna', 'sleep'], ['mgSupp', 'sleep'],
@@ -9079,7 +9214,8 @@ function muster(days = 56) {
   const keys = [];
   for (let i = days; i >= 1; i--) keys.push(addDays(today, -i));
   const fcache = {}, ocache = {};
-  const F = (id, k) => { const c = (fcache[id] = fcache[id] || {}); if (!(k in c)) { try { c[k] = MU_FEAT[id].f(k); } catch (e) { c[k] = null; } } return c[k]; };
+  // Selbst erfasste Merkmale erst ab dem ersten eigenen Eintrag: davor gab es nur Garmin, „nichts eingetragen“ heißt dort nicht „nicht gemacht“
+  const F = (id, k) => { const c = (fcache[id] = fcache[id] || {}); if (!(k in c)) { if (MU_FEAT[id].own && !tracked(k)) c[k] = null; else { try { c[k] = MU_FEAT[id].f(k); } catch (e) { c[k] = null; } } } return c[k]; };
   const O = (id, k) => { const c = (ocache[id] = ocache[id] || {}); if (!(k in c)) c[k] = MU_OUT[id].at(k); return c[k]; };
   const found = [];
   let outDays = 0;
@@ -9127,7 +9263,7 @@ function habitPatterns(days = 28) {
         if (!itemInVariant(it, dayVariant(k))) continue;
         const arr = weekday(k) >= 5 ? we : wd;
         arr[1]++;
-        if (peekDay(k).checks[it.id]) arr[0]++;
+        if (itemDone(peekDay(k), it)) arr[0]++;
       }
       const n = wd[1] + we[1];
       if (n < 7) continue;
@@ -9172,10 +9308,10 @@ function habitPatterns(days = 28) {
     if (a - b >= 45) out.push({ area: 'schlaf', w: (a - b) / 90, text: `Am Wochenende schläfst du Ø ${fmt((a - b) / 60, 1)} Std. später ein (${minToTime(Math.round(a) % 1440)} statt ${minToTime(Math.round(b) % 1440)}).`, tip: 'Gleichmäßige Zeiten stabilisieren den Schlaf, höchstens 1 Std. Unterschied.' });
   }
   /* Gewohnheiten, die selten klappen */
-  const hk = keys.filter((k) => peekDay(k));
+  const hk = keys.filter((k) => peekDay(k) && tracked(k));
   if (hk.length >= 7) {
     for (const hb of HABITS) {
-      if (['sauna', 'gesicht', 'koffein'].includes(hb.id)) continue;
+      if (['sauna', 'gesicht', 'koffein', 'kein_kalt', 'schritte'].includes(hb.id) || (S.settings.habitsOff || []).includes(hb.id)) continue;
       const done = hk.filter((k) => { const d = peekDay(k); return d.habits && d.habits[hb.id]; }).length;
       const r = done / hk.length;
       if (done > 0 && r < 0.4) out.push({ area: 'schlaf', w: (0.4 - r) * 0.8, text: `${hb.n}: nur an ${pc(r)} der Tage.`, tip: hb.when ? `Zeitpunkt: ${habitWhen(hb)}.` : '' });
@@ -9246,7 +9382,7 @@ function frankReportText(ws) {
     if (overs.length) L.push(`Über Maximum: ${overs.join(', ')}`);
     // Standardtag: was oft ausgelassen wurde
     const skip = {}, plan = {};
-    for (const k of lk) { const d = peekDay(k), v = dayVariant(k); for (const { it, block } of allPlanItems()) { if (!block || it.opt || !itemInVariant(it, v)) continue; plan[it.id] = (plan[it.id] || 0) + 1; if (!d.checks[it.id]) skip[it.id] = (skip[it.id] || 0) + 1; } }
+    for (const k of lk) { const d = peekDay(k), v = dayVariant(k); for (const { it, block } of allPlanItems()) { if (!block || it.opt || !itemInVariant(it, v)) continue; plan[it.id] = (plan[it.id] || 0) + 1; if (!itemDone(d, it)) skip[it.id] = (skip[it.id] || 0) + 1; } }
     const pTot = Object.values(plan).reduce((a, x) => a + x, 0), sTot = Object.values(skip).reduce((a, x) => a + x, 0);
     const sk = Object.entries(skip).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([id, n]) => { const f = findItem(id); return `${f ? itemLabel(f.it, null) : id} [item:${id}] ${n}×`; });
     L.push(`Standardtag: ${pTot ? fmt((1 - sTot / pTot) * 100) : '–'} % abgehakt${sk.length ? ` · oft ausgelassen: ${sk.join(', ')}` : ''}`);
@@ -9260,7 +9396,7 @@ function frankReportText(ws) {
   }
   // Training
   L.push('', `## Training & Sauna`);
-  L.push(`Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · Gym ${r.gymDone}/${r.gymPlanned} geplant · Läufe ${r.q.runs} (${f0(r.km, 1)} km, Vorwoche ${f0(r.kmPrev, 1)} km) · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.`);
+  L.push(r.flex ? `Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · flexible Woche ohne feste Tage: Gym ${r.gymDone}/${r.flex.goal.gym} · BJJ ${r.flex.bjj}/${r.flex.goal.bjj} · Ergometer ${r.flex.ergo}/${r.flex.goal.ergo} · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.` : `Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · Gym ${r.gymDone}/${r.gymPlanned} geplant · Läufe ${r.q.runs} (${f0(r.km, 1)} km, Vorwoche ${f0(r.kmPrev, 1)} km) · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.`);
   const steps = mean(r.past.map((k) => muHealth(k, 'steps')).filter((v) => v != null));
   if (steps != null) L.push(`Schritte Ø ${fmt(steps)}`);
   const ims = r.past.map((k) => muHealth(k, 'intensity')).filter((v) => v != null);
@@ -9301,7 +9437,7 @@ function frankReportText(ws) {
   { const al = typeof athReportLine === 'function' ? athReportLine(ws) : ''; if (al) L.push(al); }
   { const zl = typeof zwReportLine === 'function' ? zwReportLine(ws) : ''; if (zl) L.push(zl); }
   // Gewohnheiten
-  const hab = HABITS.map((h) => `${h.n.split(' (')[0]} [habit:${h.id}] ${r.past.filter((k) => { const d = peekDay(k); return d && d.habits && d.habits[h.id]; }).length}/7`);
+  const hab = HABITS.filter((h) => !(S.settings.habitsOff || []).includes(h.id)).map((h) => `${habitName(h, we > todayKey() ? todayKey() : we).split(' (')[0]} [habit:${h.id}] ${r.past.filter((k) => { const d = peekDay(k); return d && d.habits && d.habits[h.id]; }).length}/7`);
   L.push('', `## Gewohnheiten`, hab.join(' · '));
   // Ziele dieser Woche
   const goals = weekGoals(ws);
@@ -9418,7 +9554,8 @@ const GAR_HRV = { BALANCED: 'Ausgeglichen', UNBALANCED: 'Unausgeglichen', LOW: '
 const GAR_TYPES = [
   [/meditation|breath/, null],
   [/run|jog/, 'Laufen'],
-  [/cycl|bik|ride|spin/, 'Rad'],
+  [/indoor_cycl|virtual_ride|spin/, 'Ergometer'],
+  [/cycl|bik|ride/, 'Rad'],
   [/swim/, 'Schwimmen'],
   [/strength|weight_lift/, 'Gym (frei)'],
   [/hiit|interval|tabata|bootcamp/, 'HIIT'],
@@ -9781,6 +9918,7 @@ function garTrainingIndex() {
    sonst ein ausgefallener Gym-Tag davor, sonst der nächste geplante (vorgezogen) – jeweils in derselben Woche.
    Hast du selbst eine Einheit gestartet, gilt deine. */
 function garGymDay(k) {
+  if (weekFlex()) return gymNext(k, true); // flexible Woche: einfach der nächste Gym-Tag der Reihe
   const ws = weekStart(k), done = new Set();
   for (const x of weekKeys(ws)) for (const t of ((peekDay(x) || {}).trainings || [])) { const g = trainType(t).gym; if (g) done.add(Number(g)); }
   const own = Number(weekTpl(weekday(k)).gym);
@@ -10389,6 +10527,25 @@ function weightTrend(k, days = 28) {
   const sxx = pts.reduce((a, p) => a + (p[0] - mx) ** 2, 0), sxy = pts.reduce((a, p) => a + (p[0] - mx) * (p[1] - my), 0);
   return { n, last: pts[n - 1][1], slope: sxx ? (sxy / sxx) * 7 : null }; // kg pro Woche
 }
+/* Erhaltungsbedarf aus deinen eigenen Daten (seit 2.14.0): Ø gegessen der letzten 3 Wochen, korrigiert um den
+   Gewichtstrend (1 kg ≈ 7.700 kcal). Uhren schätzen den Verbrauch oft 20–30 % daneben (Passler 2019; Le 2022:
+   Garmin beim Gehen 32 % mittlerer Fehler) – Essen + Waage über Wochen sind die genauere Grundlage.
+   Wenige Wiegungen schwanken stark (Wasser, Salz, Darminhalt) → Korrektur gedeckelt: ±300 kcal bis 6 Messungen,
+   danach ±600 kcal. Unvollständig erfasste Tage (unter 60 % des Medians) zählen nicht. */
+function maintEstimate(k = todayKey()) {
+  const rows = rangeKeys(21, addDays(k, -1)).map((x) => ({ k: x, v: dayIntake(x) })).filter((r) => r.v != null && r.v > 0);
+  if (!rows.length) return null;
+  const vs = rows.map((r) => r.v).sort((a, b) => a - b), med = vs[Math.floor(vs.length / 2)];
+  const full = rows.filter((r) => r.v >= med * 0.6);
+  if (full.length < 7) return { n: full.length, est: null };
+  const intake = Math.round(mean(full.map((r) => r.v)));
+  const wt = weightTrend(addDays(k, -1)); // 4 Wochen: mehr Wiegungen, stabilerer Trend (wie in der Karte angezeigt)
+  if (wt.slope == null || wt.n < 3) return { n: full.length, intake, wt, est: null };
+  const cap = wt.n >= 6 ? 600 : 300;
+  const raw = Math.round((-wt.slope * 7700) / 7);
+  const corr = clamp(raw, -cap, cap);
+  return { n: full.length, intake, wt, raw, corr, capped: corr !== raw, est: Math.round((intake + corr) / 10) * 10 };
+}
 /* Kennzahlen bis einschließlich gestern (heute ist noch nicht fertig) */
 function energyStats(k = todayKey()) {
   const cfg = energyCfg();
@@ -10401,15 +10558,20 @@ function energyStats(k = todayKey()) {
   const bal = last7.length ? Math.round(mean(last7.map((r) => r.intake - r.burn))) : null;
   const wt = weightTrend(addDays(k, -1));
   const g = ENERGY_GOALS.find((x) => x[0] === cfg.goal) || ENERGY_GOALS[0];
+  const me = maintEstimate(k);
   let offset = g[2];
   const why = [`${g[2] >= 0 ? '+' : '−'}${Math.abs(g[2])} für „${g[1]}“`];
-  if (wt.last != null && cfg.wHi && wt.last > cfg.wHi) { offset -= 150; why.push(`−150, weil du über ${fmt(cfg.wHi)} kg liegst`); } else if (wt.last != null && cfg.wLo && wt.last < cfg.wLo && cfg.goal !== 'defi') { offset += 100; why.push(`+100, weil du unter ${fmt(cfg.wLo)} kg liegst`); }
-  if (wt.slope != null && cfg.goal !== 'defi') {
-    if (wt.slope > 0.35) { offset -= 100; why.push(`−100, weil das Gewicht schneller steigt als 0,35 kg pro Woche`); } else if (wt.slope < -0.15 && cfg.goal !== 'halten') { offset += 100; why.push('+100, weil das Gewicht sinkt'); }
+  let base = tdee, src = 'garmin';
+  if (me && me.est) { base = me.est; src = 'eigen'; }
+  const own = S.settings.energy || {}; // Standard-Ziel = aktuelles Gewicht: dann keine Korrektur (sonst springt sie mit jeder Wiegung)
+  if (wt.last != null && own.wHi != null && cfg.wHi && wt.last > cfg.wHi) { offset -= 150; why.push(`−150, weil du über ${fmt(cfg.wHi)} kg liegst`); } else if (wt.last != null && own.wLo != null && cfg.wLo && wt.last < cfg.wLo && cfg.goal !== 'defi') { offset += 100; why.push(`+100, weil du unter ${fmt(cfg.wLo)} kg liegst`); }
+  // Gewichtstrend: steckt beim eigenen Erhaltungsbedarf schon drin, sonst als Korrektur auf den Garmin-Verbrauch
+  if (src === 'garmin' && wt.slope != null && cfg.goal !== 'defi') {
+    if (wt.slope > 0.35 || (cfg.goal === 'halten' && wt.slope > 0.15)) { offset -= 100; why.push(`−100, weil das Gewicht steigt`); } else if (wt.slope < -0.15) { offset += 100; why.push('+100, weil das Gewicht sinkt'); }
   }
   offset = clamp(offset, -600, 500);
-  const target = tdee ? Math.round((tdee + offset) / 50) * 50 : null;
-  return { cfg, rows, tdee, burns: burns.length, bal, full: last7.length, wt, offset, why, target };
+  const target = base ? Math.round((base + offset) / 50) * 50 : null;
+  return { cfg, rows, tdee, burns: burns.length, bal, full: last7.length, wt, offset, why, target, me, base, src };
 }
 /* Kalorienziel automatisch nachziehen (einmal am Tag, nur mit genug Garmin-Tagen) */
 function energyApply() {
@@ -10437,14 +10599,17 @@ function energyCard(k) {
   h += `<div class="kv-grid is-3">${kv('Gestern', y && y.burn != null && y.intake != null ? sign(Math.round(y.intake - y.burn)) : '–', y && y.burn != null ? `${y.intake != null ? fmt(y.intake) : '–'} gegessen · ${fmt(y.burn)} verbraucht` : 'noch kein Verbrauch')}
     ${kv('Ø 7 Tage', st.bal != null ? sign(st.bal) : '–', st.full ? `kcal/Tag aus ${st.full} vollständigen Tagen` : 'noch keine vollständigen Tage')}
     ${kv('Ø Verbrauch', fmt(st.tdee), `kcal/Tag (${st.burns} Tage, Garmin)`)}</div>`;
-  h += `<p class="sec-sub">${cfg.auto ? `Dein Kalorienziel: <b>${fmt(st.target)} kcal</b> = Ø Verbrauch ${fmt(st.tdee)} ${st.why.join(', ')}.` : `Vorschlag: ${fmt(st.target)} kcal (Ø Verbrauch ${st.why.join(', ')}). Das Ziel stellst du gerade selbst ein.`}</p>`;
+  const how = st.src === 'eigen'
+    ? `Erhaltungsbedarf ${fmt(st.base)} kcal aus deinen Daten: Ø gegessen ${fmt(st.me.intake)} kcal (${st.me.n} Tage), Gewicht ${st.me.wt.slope >= 0 ? '+' : '−'}${fmt(Math.abs(st.me.wt.slope), 2)} kg/Woche → ${st.me.corr >= 0 ? '+' : '−'}${fmt(Math.abs(st.me.corr))} kcal${st.me.capped ? ` (gedeckelt, ${st.me.wt.n < 6 ? 'erst ab 6 Wiegungen voll' : 'Schwankung'})` : ''}`
+    : `Ø Verbrauch ${fmt(st.tdee)} laut Garmin (bis genug eigene Daten da sind: 7 erfasste Tage und 3 Wiegungen über eine Woche)`;
+  h += `<p class="sec-sub">${cfg.auto ? `Dein Kalorienziel: <b>${fmt(st.target)} kcal</b> = ${how}, ${st.why.join(', ')}.` : `Vorschlag: ${fmt(st.target)} kcal (${how}, ${st.why.join(', ')}). Das Ziel stellst du gerade selbst ein.`}</p>`;
   const wt = st.wt;
   h += `<p class="sec-sub">${icon('scale')} ${wt.last != null ? `Gewicht ${fmt(wt.last, 1)} kg` : 'Noch kein Gewicht'}${wt.slope != null ? ` · Trend ${wt.slope >= 0 ? '+' : '−'}${fmt(Math.abs(wt.slope), 2)} kg pro Woche` : wt.n ? ' · Trend ab 2 Messungen über eine Woche' : ''} · Ziel ${cfg.wLo ? fmt(cfg.wLo) : '–'}–${cfg.wHi ? fmt(cfg.wHi) : '–'} kg</p>`;
   h += `<div class="chips chips-tight">${ENERGY_GOALS.map(([id, n]) => `<button class="chip chip-xs${cfg.goal === id ? ' is-on' : ''}" data-a="energy-goal" data-v="${id}">${esc(n)}</button>`).join('')}</div>
     <div class="form"><div class="frow"><span class="flabel">Gewichtsziel von</span><div class="fin"><input type="text" inputmode="decimal" data-c="energy-w" data-f="wLo" value="${numIn(cfg.wLo, 1)}"><span class="unit">kg</span></div></div>
     <div class="frow"><span class="flabel">bis</span><div class="fin"><input type="text" inputmode="decimal" data-c="energy-w" data-f="wHi" value="${numIn(cfg.wHi, 1)}"><span class="unit">kg</span></div></div></div>
     <div class="row-btns"><button class="pill-btn" data-a="energy-auto">${cfg.auto ? 'Ziel selbst einstellen' : 'Ziel wieder automatisch'}</button></div>
-    <p class="hint">Garmin schätzt den Verbrauch, das kann 10–15 % daneben liegen. Deshalb korrigiert die App über deinen Gewichtstrend: am besten jeden Sonntag nüchtern wiegen.</p></section>`;
+    <p class="hint">Uhren schätzen den Verbrauch oft 20–30 % daneben. Sobald genug Daten da sind, rechnet die App deinen Erhaltungsbedarf aus dem, was du isst, und deinem Gewichtstrend (1 kg ≈ 7.700 kcal). Dafür täglich morgens wiegen (Morgen-Check) und das Essen weiter eintragen.</p></section>`;
   return h;
 }
 /* Zeile für Wochenrückblick und Bericht an Frank */
@@ -10473,7 +10638,8 @@ Object.assign(C, {
 /* ============================================================
    SCHLAFRHYTHMUS (seit 2.9.0)
    Ein Zielfenster für alle Tage aus deinen Garmin-Nächten: Einschlafen und Aufwachen
-   je ±15 Min. um den Median der letzten 14 Nächte. Schläfst du im Schnitt kürzer als
+   je ±30 Min. um den Median der letzten 14 Nächte (bis 2.13 ±15 Min.; seit 2.14 ±30 – normale Schwankung
+   soll nicht als Fehltreffer zählen, Wunsch vom 16.11.2026). Schläfst du im Schnitt kürzer als
    dein Schlafbedarf, zieht das Fenster das Einschlafen um bis zu 30 Min. vor (wandert
    so mit jeder Nacht ein Stück). Das Fenster steuert den Tagesrhythmus (Schlafenszeit,
    Koffein-Stopp, Bildschirm-Pause, Mitteilungen); ein eingestelltes „Morgen raus“ geht vor.
@@ -10481,7 +10647,7 @@ Object.assign(C, {
    zusammen als die Schlafdauer allein (UK Biobank, Windred 2024).
    ============================================================ */
 /*icons: moon sunrise bed clock waves brain dumbbell alarm-clock check*/
-const RH_WIN = 15, RH_NIGHTS = 14, RH_MIN = 4, RH_PULL = 30;
+const RH_WIN = 30, RH_NIGHTS = 14, RH_MIN = 4, RH_PULL = 30;
 
 /* Nacht, die am Morgen des Tages k endet (Garmin speichert sie beim Aufwach-Tag) */
 function rhNight(k) {
@@ -10922,9 +11088,9 @@ Object.assign(INFO, {
   handy: { was: 'Social Media und Bildschirmzeit unter deinem Limit; das Handy nur bewusst und produktiv nutzen.', wofuer: 'Weniger Ablenkung, mehr Fokus, bessere Abende und besserer Schlaf.', zaehlung: 'Abends Bildschirmzeit und Social-Media-Minuten aus iPhone-Einstellungen → Bildschirmzeit eintragen (die App kann sie nicht selbst lesen). Tipp: Für Social-Media-Apps in iOS ein App-Limit setzen.' },
 });
 const ROUTINE_DEFAULT = {
-  am: ['r_wasser', 'licht_morgen', 'block:morgen', 'skin:pflege_am', 'meditation', 'caf_start', 'knee:mob'],
+  am: ['mcheck', 'r_wasser', 'licht_morgen', 'block:morgen', 'skin:pflege_am', 'meditation', 'caf_start', 'knee:mob'],
   day: ['atem', 'gehen_essen', 'schritte', 'knee:kraft', 'kein_kalt', 'sauna_woche', 'licht_nachmittag'],
-  pm: ['mahlzeit', 'warm_dusche', 'block:schlaf', 'skin:pflege_pm', 'handy', 'todo_morgen', 'bildschirm', 'dimmen'],
+  pm: ['skin:pflege_pm', 'block:schlaf', 'bildschirm', 'mahlzeit', 'warm_dusche'], // seit 2.14: abends nur Erinnerung, abgefragt im Morgen-Check
   custom: [{ id: 'r_wasser', n: 'Großes Glas Wasser (Prise Salz)' }],
 };
 const ROUTINE_PARTS = [['am', 'Morgenroutine', 'sunrise'], ['day', 'Tagsüber', 'sun'], ['pm', 'Abendroutine', 'moon']];
@@ -10979,6 +11145,13 @@ function autoHabits(k = todayKey()) {
     if (free != null) { const v = coldViolations(k); if (v.length) want.kein_kalt = false; else if (k < todayKey() || nowMin() >= free) want.kein_kalt = true; }
   }
   if (!off.includes('handy') && d0.hd && d0.hd.screen != null) { const c = phoneCfg(); want.handy = Number(d0.hd.social || 0) <= c.social && Number(d0.hd.screen) <= c.total; }
+  // Sauna: eingetragene Saunagänge belegen die Gewohnheit
+  if (!off.includes('sauna')) { if (saunaMin(d0) > 0) want.sauna = true; else if (d0.ha && d0.ha.sauna) want.sauna = false; }
+  // Kein Alkohol: abgeschlossener Tag mit Einträgen und ohne Alkohol (ein Alkohol-Eintrag nimmt den Haken wieder weg)
+  if (!off.includes('alkohol') && hasData(d0)) {
+    const alk = (computeTotals(k, false).tot.alk || 0) > 0;
+    if (alk) { if (d0.ha && d0.ha.alkohol) want.alkohol = false; } else if (k < todayKey()) want.alkohol = true;
+  }
   const ch = Object.entries(want).filter(([id, v]) => !(v && no.includes(id)) && !!d0.habits[id] !== v);
   if (!ch.length) return;
   mutDay(k, (d) => { for (const [id, v] of ch) { if (v) { d.habits[id] = true; d.ha = { ...(d.ha || {}), [id]: 1 }; } else { delete d.habits[id]; if (d.ha) delete d.ha[id]; } } });
@@ -10990,6 +11163,7 @@ function rtBlockItems(b, variant) { const inV = b.items.filter((it) => itemInVar
 function rtStep(id, k) {
   const d = getDay(k), r = rhythm(k), variant = dayVariant(k);
   const hb = HABITS.find((h) => h.id === id);
+  if (id === 'mcheck') { if (!mcOn()) return null; const st = mcState(k); return { id, n: 'Morgen-Check', sub: 'Gestern Abend, Knie, Haut, Gewicht · 20 Sek.', t: r.wake + 15, done: st.done, part: !st.done && st.open < 4, go: 'mcheck' }; }
   if (id === 'caf_start') { const st = cafStart(k); return { id, n: `Koffein frühestens ${minToTime(st)}`, sub: '90 Min. nach dem Aufwachen', t: st, info: true, done: k < todayKey() || (k === todayKey() && nowMin() >= st) }; }
   if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
@@ -11000,7 +11174,7 @@ function rtStep(id, k) {
     if (!b) return null;
     const its = rtBlockItems(b, variant);
     if (!its.length) return null;
-    const done = its.filter((it) => d.checks[it.id]).length;
+    const done = its.filter((it) => itemDone(d, it)).length;
     return { id, n: b.n, sub: its.map((it) => itemLabel(it, d)).slice(0, 4).join(', ') + (its.length > 4 ? ' …' : ''), t: resolveBlockTime(b, d), done: done === its.length, part: done > 0 && done < its.length, cnt: `${done}/${its.length}` };
   }
   if (id.startsWith('skin:')) { const sr = (S.settings.skin.routine || []).find((x) => x.id === id.slice(5)); if (!sr) return null; return { id, n: sr.n, sub: 'Haut-Protokoll', done: !!(d.skin && d.skin[sr.id]) }; }
@@ -11030,7 +11204,7 @@ function routineCard(k = todayKey()) {
     const real = steps.filter((s) => !s.info), done = real.filter((s) => s.done).length;
     const open = ui.exp.has('rt:' + part) || (!ui.exp.has('rtc:' + part) && part === cur);
     h += `<div class="rt-part${open ? ' is-open' : ''}"><button class="rt-head" data-a="rt-toggle" data-part="${part}" aria-expanded="${open}">${icon(ic)}<b>${esc(n)}</b><span class="rt-cnt${done === real.length ? ' is-ok' : ''}">${done}/${real.length}</span>${icon(open ? 'chevron-up' : 'chevron-down')}</button>`;
-    if (open) h += `<div class="rt-steps">${steps.map((s) => rtRow(s, k)).join('')}</div>`;
+    if (open) h += `<div class="rt-steps">${part === 'pm' && mcOn() ? `<p class="hint rt-note">${icon('sunrise')} Abhaken musst du hier nichts – das fragt dich morgen früh der Morgen-Check.</p>` : ''}${steps.map((s) => rtRow(s, k)).join('')}</div>`;
     h += '</div>';
   }
   return h + '</section>';
@@ -11105,9 +11279,15 @@ function pushHabits(k, r, d, add, off, isT) {
   const inR = (id, part) => (rtCfg()[part] || []).includes(id);
   if (inR('meditation', 'am')) ask('meditation', r.wake + 45, 'Meditation 13 Min.', 'Antippen, Timer starten oder abhaken. Regelmäßig zählt: 13 Min. täglich über 8 Wochen.');
   if (inR('atem', 'day')) ask('atem', 16 * 60, 'Atemübung 5 Min.', 'Zyklisches Seufzen: 2× durch die Nase ein, lang durch den Mund aus. Antippen startet den Timer.');
-  ask('warm_dusche', r.bed - 120, 'Zeit für die warme Dusche', `In der nächsten Stunde, 40–42 °C, mind. 10 Min. – danach schläfst du schneller ein. Bett um ${minToTime(r.bed)}.`);
-  if (!off('handy') && !(d.hd && d.hd.screen != null)) add('habits', r.bed - 75, 'handy', 'Bildschirmzeit heute?', `Kurz eintragen (Einstellungen → Bildschirmzeit). Limit Social Media ${fmt(phoneCfg().social)} Min.`, '#hq-handy');
-  ask('todo_morgen', r.bed - 30, 'To-do-Liste für morgen', '5 Min. aufschreiben, was morgen ansteht – dann ist der Kopf frei zum Einschlafen.');
+  if (mcOn()) {
+    // Seit 2.14: abends eine Erinnerung ohne Abhaken – abgefragt wird morgen früh im Morgen-Check
+    const rem = mcEveReminder(k);
+    if (rem) add('habits', r.bed - 120, 'abend', `Abendroutine (Bett ${minToTime(r.bed)})`, `${rem}. Abhaken musst du nichts – das fragt dich morgen der Morgen-Check.`, '#heute');
+  } else {
+    ask('warm_dusche', r.bed - 120, 'Zeit für die warme Dusche', `In der nächsten Stunde, 40–42 °C, mind. 10 Min. – danach schläfst du schneller ein. Bett um ${minToTime(r.bed)}.`);
+    if (!off('handy') && !(d.hd && d.hd.screen != null)) add('habits', r.bed - 75, 'handy', 'Bildschirmzeit heute?', `Kurz eintragen (Einstellungen → Bildschirmzeit). Limit Social Media ${fmt(phoneCfg().social)} Min.`, '#hq-handy');
+    ask('todo_morgen', r.bed - 30, 'To-do-Liste für morgen', '5 Min. aufschreiben, was morgen ansteht – dann ist der Kopf frei zum Einschlafen.');
+  }
   const free = coldFree(k);
   if (free != null && !off('kein_kalt') && coldUser()) add('habits', free - 360 + 5, 'kalt', 'Kein Kältebad bis ' + minToTime(free % 1440), 'Kälte direkt nach dem Krafttraining bremst den Muskelaufbau. Sauna oder warm duschen ist okay.', '#train');
   const wd = weekday(k), g = S.settings.sauna.goal, sv = weekSauna(addDays(k, -1));
@@ -11119,6 +11299,7 @@ Object.assign(A, {
   'rt-step': (el) => {
     const id = el.dataset.id, k = curDate(el), s = rtStep(id, k);
     if (!s) return;
+    if (id === 'mcheck') { mcScroll(); return; }
     if (s.go) { if (s.goSub) ui.sub[s.go] = s.goSub; go(s.go, { date: k }); return; }
     if (s.ask === 'handy') { sheetHandy(k); return; }
     if (id.startsWith('block:')) {
@@ -11166,8 +11347,8 @@ Object.assign(A, {
 function setRoutinesHTML() {
   const R = rtCfg();
   const label = (id) => { const s = rtStep(id, todayKey()); if (s) return s.n; const hb = HABITS.find((h) => h.id === id); return hb ? hb.n : id; };
-  const catalog = ['caf_start', 'knee:mob', 'knee:kraft', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
-  let h = '';
+  const catalog = ['mcheck', 'caf_start', 'knee:mob', 'knee:kraft', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
+  let h = mcSetHTML();
   for (const [part, n] of ROUTINE_PARTS) {
     const ids = R[part] || [];
     h += `<h5>${esc(n)}</h5><div class="list rt-edit">${ids.map((id, i) => `<div class="rt-erow"><span>${esc(label(id))}</span><button class="icon-btn sm ghost" data-a="rt-move" data-part="${part}" data-i="${i}" data-d="-1" aria-label="Nach oben">${icon('chevron-up')}</button><button class="icon-btn sm ghost" data-a="rt-move" data-part="${part}" data-i="${i}" data-d="1" aria-label="Nach unten">${icon('chevron-down')}</button><button class="icon-btn sm ghost" data-a="rt-del" data-part="${part}" data-i="${i}" aria-label="Entfernen">${icon('x')}</button></div>`).join('')}</div>
@@ -11215,7 +11396,19 @@ function kxStep(ex, alt) {
   return 2.5;
 }
 const kxRound = (w, step) => Math.max(0, Math.round(w / step) * step);
-const e1rm = (w, r) => (w > 0 && r > 0 ? w * (1 + Math.min(r, 15) / 30) : null);
+/* Wdh. in Reserve je RIR-Stufe (0–1 → 0,5); ohne Angabe 0 (vorsichtig) */
+const kxRirVal = (rir) => (rir == null ? 0 : Number(rir) === 1 ? 0.5 : Number(rir));
+/* Geschätztes 1RM (Epley) aus Gewicht, Wdh. und Wdh. in Reserve */
+const e1rm = (w, r, rir = null) => (w > 0 && r > 0 ? w * (1 + Math.min(r + kxRirVal(rir), 20) / 30) : null);
+/* Ziel-RIR des ersten Arbeitssatzes: 2 Wdh. in Reserve, die folgenden Sätze landen dann bei 0–1.
+   Belege: Nähe zum Muskelversagen treibt den Muskelaufbau (Robinson 2024, Meta-Regression, 55 Studien),
+   0 und 1–2 Wdh. in Reserve wirken ähnlich (Refalo 2024); Pyramide und gleiche Sätze wirken bei gleicher
+   Satzzahl gleich (Angleri 2017) – gleiche Arbeitssätze lassen sich aber sauber steigern. */
+const KX_RIR = 2;
+/* Aufwärmsätze: deutlich leichter als der schwerste Satz oder 4+ Wdh. in Reserve */
+function kxWarm(s, top) { return (s.w != null && top > 0 && s.w < top * 0.8) || Number(s.rir) >= 4; }
+/* Arbeitsgewicht für den ersten Satz: hi Wdh. mit 2 in Reserve, abgerundet */
+function kxWorkW(best, hi, step) { return Math.max(0, Math.floor((best / (1 + (hi + KX_RIR) / 30)) / step + 1e-9) * step); }
 /* Verlauf einer Übung: Einheiten mit Sätzen (neueste zuerst) */
 function kxHistory(exId, beforeKey, excludeId, days = 150) {
   const out = [];
@@ -11226,16 +11419,21 @@ function kxHistory(exId, beforeKey, excludeId, days = 150) {
       if (!t.gym || !t.gym.ex || !t.gym.ex[exId] || t.id === excludeId) continue;
       const e = t.gym.ex[exId];
       const sets = (e.s || []).filter((s) => s.r != null && (s.d || s.w != null)).map((s) => ({ w: s.w != null ? Number(s.w) : null, r: Number(s.r), rir: s.rir ?? null }));
-      if (sets.length) out.push({ k, sched: t.gym.sched, alt: !!e.alt, sets, best: Math.max(0, ...sets.map((s) => e1rm(s.w, s.r) || 0)) });
+      if (sets.length) out.push({ k, sched: t.gym.sched, alt: !!e.alt, sets, best: Math.max(0, ...sets.map((s) => e1rm(s.w, s.r, s.rir) || 0)) });
     }
   }
   return out;
 }
 function lastGymKey(beforeKey) {
-  for (let i = 0; i < 120; i++) { const k = addDays(beforeKey, -i), d = peekDay(k); if (d && (d.trainings || []).some((t) => t.gym && Object.keys(t.gym.ex || {}).length)) return k; }
+  // jede Gym-Einheit zählt, auch Krafttraining von Garmin ohne eingetragene Sätze
+  for (let i = 0; i < 120; i++) { const k = addDays(beforeKey, -i), d = peekDay(k); if (d && (d.trainings || []).some((t) => (t.gym && Object.keys(t.gym.ex || {}).length) || isGymT(t))) return k; }
   return null;
 }
 function deloadOn(k) { const g = S.settings.gym || {}; return !!g.deload && g.deload === weekStart(k); }
+/* Unterschiedliche Gewichte in den Sätzen (Rampe, Pyramide, Drop) – mehr als ein Gewichtsschritt bzw. 5 % */
+function kxUneven(ws) { const w = ws.map((s) => s.w).filter((v) => v != null); if (w.length < 2) return false; const a = Math.min(...w), b = Math.max(...w); return b - a > Math.max(2.5, b * 0.05); }
+/* Realistische Wdh. bei gleichem Gewicht: erster Satz oben im Bereich, danach je 1 weniger (nicht unter die Untergrenze) */
+function kxReps(sets, lo, hi) { return Array.from({ length: sets }, (_, i) => Math.max(lo, hi - i)); }
 /* Vorschlag für die nächste Einheit */
 function kxSuggest(exId, sched, alt, k, excludeId) {
   const ex = kxEx(exId);
@@ -11253,15 +11451,22 @@ function kxSuggest(exId, sched, alt, k, excludeId) {
     const best = Math.max(...hist.slice(0, 3).map((h) => h.best));
     const bw = hist[0].sets.every((s) => s.w == null);
     if (bw) { out.reps = Array(sets).fill(lo); out.tag = 'same'; out.why = `Erste Einheit in Schedule ${sched}: Zielbereich ${lo}–${hi} Wdh.`; }
-    else { out.w = kxRound((best / (1 + (lo + hi) / 2 / 30)) * 0.97, step); out.reps = Array(sets).fill(lo); out.tag = 'new'; out.why = `Aus deinen letzten Sätzen umgerechnet (geschätztes 1RM ${fmt(best, 1)} kg) für ${lo}–${hi} Wdh.`; }
+    else { out.w = kxWorkW(best, hi, step); out.reps = kxReps(sets, lo, hi); out.tag = 'new'; out.why = `Aus deinen letzten Sätzen umgerechnet (geschätztes 1RM ${fmt(best, 1)} kg): alle Arbeitssätze mit ${fmt(out.w, 1)} kg, erster Satz ${hi} Wdh. mit ~2 in Reserve, danach landest du bei 0–1.`; }
   } else {
-    const ws = same.sets.filter((s) => s.w != null), bw = !ws.length;
+    const all = same.sets.filter((s) => s.w != null), top0 = all.length ? Math.max(...all.map((s) => s.w)) : 0;
+    let ws = all.filter((s) => !kxWarm(s, top0)); if (!ws.length) ws = all; // Aufwärmsätze zählen nicht
+    const bw = !ws.length;
     if (bw) {
       const all = same.sets.every((s) => s.r >= hi);
       out.reps = same.sets.slice(0, sets).map((s) => Math.min(hi, s.r + 1));
       while (out.reps.length < sets) out.reps.push(lo);
       out.tag = all ? 'up' : 'same';
       out.why = all ? `Obergrenze ${hi} Wdh. in allen Sätzen: Zusatzgewicht oder schwerere Variante.` : 'Gleiche Ausführung, je Satz 1 Wdh. mehr.';
+    } else if (kxUneven(ws)) {
+      // Letztes Mal unterschiedliche Gewichte (Rampe/Pyramide): auf gleiche Arbeitssätze umstellen
+      const best = Math.max(...ws.map((s) => e1rm(s.w, s.r, s.rir) || 0)), b = ws.reduce((a, s2) => ((e1rm(s2.w, s2.r, s2.rir) || 0) > (e1rm(a.w, a.r, a.rir) || 0) ? s2 : a));
+      out.w = kxWorkW(best, hi, step); out.reps = kxReps(sets, lo, hi); out.tag = 'switch';
+      out.why = `Letztes Mal ${ws.map((s2) => fmt(s2.w, 1)).join('/')} kg. Besser für Muskelaufbau: leichte Aufwärmsätze (nicht eintragen), dann alle Arbeitssätze mit dem gleichen Gewicht nah ans Versagen. Aus deinem stärksten Satz (${fmt(b.w, 1)} kg × ${b.r}${b.rir != null ? `, ${RIR_LABEL[b.rir] || b.rir} in Reserve` : ''}) gerechnet: ${fmt(out.w, 1)} kg.`;
     } else {
       const top = Math.max(...ws.map((s) => s.w)), atTop = ws.filter((s) => s.w === top);
       const rirs = atTop.map((s) => s.rir).filter((v) => v != null), rir = rirs.length ? mean(rirs) : null;
@@ -11282,7 +11487,7 @@ function kxSuggest(exId, sched, alt, k, excludeId) {
       }
     }
   }
-  if (factor < 1 && out.w != null) { out.w = kxRound(out.w * factor, step); out.extra.push(`Nach ${gap} Tagen Pause ${Math.round((1 - factor) * 100)} % leichter – in 1–2 Einheiten bist du wieder da.`); }
+  if (factor < 1 && out.w != null) { const w2 = kxRound(out.w * factor, step); out.w = w2 < out.w ? w2 : Math.max(0, out.w - step); out.extra.push(`Nach ${gap} Tagen Pause ${Math.round((1 - factor) * 100)} % leichter – in 1–2 Einheiten bist du wieder da.`); }
   if (dl) { if (out.w != null) out.w = kxRound(out.w * 0.9, step); out.sets = Math.max(1, sets - 1); out.reps = out.reps.slice(0, out.sets); out.extra.push('Leichtere Woche: ein Satz weniger, ~10 % leichter, 3–4 Wdh. in Reserve.'); }
   return out;
 }
@@ -11298,7 +11503,8 @@ function kxStalls(k = todayKey()) {
   }
   return out;
 }
-/* Sätze pro Muskel in einer Woche (erledigte Sätze; Hilfsmuskeln zählen halb) */
+/* Harte Sätze pro Muskel in einer Woche (erledigte Arbeitssätze; Hilfsmuskeln zählen halb).
+   Aufwärmsätze (deutlich leichter als der schwerste Satz oder 4+ Wdh. in Reserve) zählen nicht. */
 function kxWeekSets(ws) {
   const m = {};
   for (const k of weekKeys(ws)) {
@@ -11306,7 +11512,9 @@ function kxWeekSets(ws) {
     for (const t of (d && d.trainings) || []) {
       if (!t.gym || !t.gym.ex) continue;
       for (const [id, e] of Object.entries(t.gym.ex)) {
-        const n = (e.s || []).filter((s) => s.d || (s.r != null && s.w != null)).length;
+        const done = (e.s || []).filter((s) => s.d || (s.r != null && s.w != null));
+        const top = Math.max(0, ...done.map((s) => Number(s.w) || 0));
+        const n = done.filter((s) => !kxWarm({ w: s.w != null ? Number(s.w) : null, rir: s.rir }, top)).length;
         if (!n) continue;
         for (const [mu, f] of Object.entries(MUSCLES[id] || {})) m[mu] = (m[mu] || 0) + n * f;
       }
@@ -11349,6 +11557,15 @@ function kxMotivation(k = todayKey()) {
   const logs = rangeKeys(28, k).some((x) => dayDone(x).gymAny);
   if (!logs) return null;
   if (m.gap != null && m.gap >= 7) return { lvl: 2, t: `${m.gap} Tage ohne Gym.`, s: m.gap >= 10 ? 'Die Pause ist vorbei – heute zählt nur, dass du hingehst. Die App startet dich ~10 % leichter, nach 1–2 Einheiten bist du wieder auf Stand.' : 'Kein Drama, aber jetzt wieder rein: Heute die Grundübungen, 45 Minuten reichen.' };
+  /* Flexible Woche: nur erinnern, wenn das Wochenziel sonst nicht mehr klappt oder die letzte Einheit länger her ist */
+  const fw = flexWeek(weekStart(k));
+  if (fw) {
+    if (dayDone(k).gymAny || !fw.left.gym) return null;
+    const nx = m.todayGym ? m.todayGym.n.replace('Möglich: ', '') : gymDay(gymNext(k)).n;
+    if (fw.left.gym >= fw.daysLeft) return { lvl: 1, t: `Noch ${fw.left.gym} Gym-Einheit${fw.left.gym > 1 ? 'en' : ''} diese Woche, noch ${fw.daysLeft} ${fw.daysLeft === 1 ? 'Tag' : 'Tage'}.`, s: `Heute passt: ${nx}.` };
+    if (m.gap != null && m.gap >= 3) return { lvl: 0, t: `Heute: ${nx}?`, s: `${m.gap} Tage seit dem letzten Gym.` };
+    return null;
+  }
   if (m.missed.length >= 2) return { lvl: 2, t: `${m.missed.length} Einheiten diese Woche ausgefallen.`, s: 'Muskeln wachsen nicht vom Planen. Heute eine Einheit – auch kurz ist besser als keine.' };
   if (m.missed.length === 1 && m.todayGym) return { lvl: 1, t: `${m.missed[0].n} ist ausgefallen – heute nachholen?`, s: 'Eine Einheit nachholen hält den Wochenrhythmus.' };
   if (m.todayGym) return { lvl: 0, t: `Heute: ${m.todayGym.n}.`, s: '' };
@@ -11365,14 +11582,14 @@ function kxCard(k = todayKey()) {
   if (dl && dl.on) h += `<div class="banner">${icon('sparkles')}<div><b>Leichtere Woche läuft</b><span>Ein Satz weniger, ~10 % leichter, 3–4 Wdh. in Reserve. Die Vorschläge sind schon angepasst.</span></div><button class="pill-btn sm" data-a="kx-deload" data-v="off">Beenden</button></div>`;
   else if (dl) h += `<div class="banner">${icon('sparkles')}<div><b>Leichtere Woche empfohlen</b><span>${esc(dl.why)}</span></div><button class="pill-btn sm" data-a="kx-deload" data-v="on">Diese Woche</button></div>`;
   const rows = MUSCLE_ORDER.map((mu) => { const v = sets[mu] || 0, pv = last[mu] || 0; const st2 = v >= 12 ? (v > 22 ? 'over' : 'ok') : v >= 8 ? 'under' : 'none'; return `<div class="kx-row"><span>${mu}</span><div class="kx-bar"><i class="st-${st2}" style="width:${clamp((v / 20) * 100, 0, 100)}%"></i><b style="left:60%"></b></div><em>${fmt(v, v % 1 ? 1 : 0)}</em><small>${pv ? `Vorw. ${fmt(pv, pv % 1 ? 1 : 0)}` : ''}</small></div>`; }).join('');
-  h += `<div class="kx-sets"><p class="flabel-s">Sätze pro Muskel diese Woche (Richtwert 12–20)</p>${rows}</div>`;
+  h += `<div class="kx-sets"><p class="flabel-s">Harte Sätze pro Muskel diese Woche (Richtwert 12–20, Aufwärmen zählt nicht)</p>${rows}</div>`;
   if (st.length) h += `<p class="kx-st">${icon('minus')}<span><b>Stillstand:</b> ${esc(st.map((x) => x.n).join(', '))}. Tipps: Schlaf und Eiweiß prüfen, Wiederholungsbereich wechseln (Schedule A/B macht das schon), Technik filmen; bleibt es so, eine leichtere Woche.</span></p>`;
-  return h + '<p class="hint">Vorschläge stehen in jeder Übung der Einheit. Doppelte Progression: erst Wiederholungen, dann Gewicht – saubere Ausführung geht vor. Optional pro Satz antippen, wie viele Wdh. noch drin waren (RIR).</p></section>';
+  return h + '<p class="hint">So rechnet der Autopilot: 1–2 leichte Aufwärmsätze (nicht eintragen), dann alle Arbeitssätze mit dem gleichen Gewicht. Erster Satz mit ~2 Wdh. in Reserve, die letzten bei 0–1 – nah am Muskelversagen wächst der Muskel am meisten (Robinson 2024), ob Pyramide oder gleiche Sätze ist dabei egal (Angleri 2017), gleiche Sätze lassen sich aber sauber steigern. Doppelte Progression: erst Wiederholungen, dann Gewicht. Pro Satz antippen, wie viele Wdh. noch drin waren (RIR).</p></section>';
 }
 function kxExHTML(ex, t, e, k) {
   const sg = kxSuggest(ex.id, t.gym.sched, !!e.alt, k, t.id);
   if (!sg) return '';
-  const ic = { up: 'trending-up', down: 'trending-down', same: 'minus', new: 'sparkles' }[sg.tag];
+  const ic = { up: 'trending-up', down: 'trending-down', same: 'minus', new: 'sparkles', switch: 'repeat' }[sg.tag];
   const plan = sg.w != null ? `${sg.sets} × ${fmt(sg.w, 1)} kg × ${sg.reps.join('/')}` : `${sg.sets} × ${sg.reps.join('/')} Wdh.`;
   return `<div class="kx-sug kx-${sg.tag}">${icon(ic)}<div><b>Vorschlag: ${esc(plan)}</b><small>${esc(sg.why)}${sg.extra.length ? ' ' + esc(sg.extra.join(' ')) : ''}</small></div>${sg.w != null || sg.reps.length ? `<button class="pill-btn sm" data-a="kx-apply" data-ex="${ex.id}">Übernehmen</button>` : ''}</div>`;
 }
@@ -11590,6 +11807,8 @@ const EXPS = {
   caf_frueh: { n: 'Koffein 2 Std. früher stoppen', a: 'Koffein-Stopp 2 Std. früher', b: 'normaler Koffein-Stopp', hint: 'A-Tage: letztes Koffein 2 Std. vor deinem üblichen Stopp.', comply: (k, arm) => { if (arm === 'B') return true; const c = cafInfo(k); return c.last == null || c.last <= cafCutoff(k) - 120; } },
   dusche: { n: 'Warm duschen vor dem Schlafen', a: 'MIT warmer Dusche', b: 'OHNE warme Dusche', hint: 'A-Tage: 1–2 Std. vor dem Schlafen 10 Min. warm duschen.', comply: (k, arm) => { const d = peekDay(k); return !!d && !!(d.habits || {}).warm_dusche === (arm === 'A'); } },
   screen90: { n: '90 Min. bildschirmfrei vor dem Schlafen', a: '90 Min. ohne Bildschirm', b: 'wie sonst', hint: 'A-Tage: ab 90 Min. vor dem Schlafen kein Handy, Laptop, TV.', comply: (k, arm) => { if (arm === 'B') return true; const d = peekDay(k); return !!d && Number((d.hd || {}).screenFree) >= 90; } },
+  // seit 2.14 (Wunsch vom 16.11.2026). Gezählt werden nur eingetragene Getränke.
+  caf_dose: { n: '1 statt 2 Monster', a: 'höchstens 1 Dose (bis 200 mg Koffein)', b: '2 Dosen wie gewohnt', hint: 'A-Tage: nur eine Dose Monster Zero (oder bis 200 mg Koffein aus Getränken). B-Tage: wie gewohnt zwei. Getränke wie immer eintragen.', comply: (k, arm) => { const d = peekDay(k); const mg = ((d && d.caf) || []).reduce((a, c) => a + (Number(c.mg) || 0), 0); return arm === 'A' ? mg > 0 && mg <= 200 : mg >= 280; } },
 };
 const EXP_METRICS = [['sleepScore', 'Sleep Score', '', 3], ['deep', 'Tiefschlaf', 'Min.', 8], ['hrv', 'HRV', 'ms', 3]];
 function expCur() { const e = S.settings.exp; return e && e.id && EXPS[e.id] ? e : null; }
@@ -11624,7 +11843,11 @@ function expResult(e) {
   return { rows, res, done, comply: rows.length ? rows.filter((r) => r.ok).length / rows.length : null };
 }
 function expTodayCard(k = todayKey()) {
-  const e = expCur(); if (!e) return '';
+  const e = expCur();
+  // Vorgeschlagenes Experiment (einmalig angeboten, z. B. nach der Backup-Auswertung)
+  const off = S.settings.expOffer;
+  if (!e && off && EXPS[off]) return `<div class="banner exp-banner">${icon('flask-conical')}<div><b>Experiment bereit: ${esc(EXPS[off].n)}</b><span>14 Tage, zufällig A: ${esc(EXPS[off].a)} oder B: ${esc(EXPS[off].b)}. Gemessen: Sleep Score, Tiefschlaf, HRV der Nacht danach.</span></div><div class="banner-acts"><button class="pill-btn sm is-accent" data-a="exp-start" data-id="${off}">Starten</button><button class="pill-btn sm is-ghost" data-a="exp-offer-off">Später</button></div></div>`;
+  if (!e) return '';
   const arm = expArm(k), x = EXPS[e.id];
   const day = Object.keys(e.plan).sort().indexOf(k) + 1;
   if (!arm) return '';
@@ -11650,7 +11873,8 @@ function expResHTML(r) {
   return `<div class="exp-res">${r.res.map((x) => x.ma == null ? `<div><span>${esc(x.n)}</span><small>noch zu wenige Nächte (A ${x.nA}, B ${x.nB}, je 3 nötig)</small></div>` : `<div><span>${esc(x.n)}</span><b>${x.diff >= 0 ? '+' : '−'}${fmt(Math.abs(x.diff), 1)} ${esc(x.u)}</b><small>A Ø ${fmt(x.ma, 1)} · B Ø ${fmt(x.mb, 1)} · ${esc(x.verdict)}${r.done ? '' : ' (vorläufig)'}</small></div>`).join('')}</div>`;
 }
 Object.assign(A, {
-  'exp-start': (el) => { if (expStart(el.dataset.id)) { render(); toast(`Experiment gestartet: ${EXPS[el.dataset.id].n}`); } },
+  'exp-start': (el) => { if (expStart(el.dataset.id)) { delete S.settings.expOffer; markDirty('settings'); render(); toast(`Experiment gestartet: ${EXPS[el.dataset.id].n}`); } },
+  'exp-offer-off': () => { delete S.settings.expOffer; saveSettings(); toast('Findest du unter Wochenrückblick → Experimente'); },
   'exp-end': () => { const e = expCur(); if (!e) return; const r = expResult(e); if (r.done) S.settings.expHist = [...(S.settings.expHist || []), { id: e.id, start: e.start, days: e.days, res: r.res.map((x) => ({ ...x })) }]; delete S.settings.exp; saveSettings(); toast(r.done ? 'Experiment gespeichert' : 'Experiment abgebrochen'); },
 });
 function pushExp(k, r, add) {
@@ -12516,6 +12740,121 @@ Object.assign(A, {
   'tm-pain': (el) => { const t = ui.timer; if (!t) return; const v = Number(el.dataset.v); t.pain = t.pain === v ? null : v; timerRender(); },
 });
 
+/* ---- morgen.js ---- */
+/* ============================================================
+   MORGEN-CHECK (seit 2.14.0, Wunsch vom 16.11.2026)
+   Abends musst du nichts mehr abhaken – im Dunkeln mit Bildschirm aus geht das ohnehin schlecht.
+   Morgens fragt die App kurz ab, was gestern Abend geklappt hat (die Schritte der Abendroutine,
+   Ja/Nein oder „Alles ja“), dazu Knie-Schmerz 0–10, Hautbild 1–10 und das Gewicht.
+   Eine Mitteilung nach dem Aufwachen öffnet den Check. Abends kommt nur noch eine Erinnerung.
+   ============================================================ */
+/*icons: sunrise check x scale moon*/
+function mcCfg() { return { on: true, weight: 'daily', ...(S.settings.mcheck || {}) }; }
+function mcOn() { return mcCfg().on !== false; }
+/* Kürzere, klare Fragen für die Schritte der Abendroutine */
+const MC_ASK = {
+  'skin:pflege_pm': 'Hautpflege (Zeniac + Physiogel)',
+  bildschirm: 'Bildschirm mind. 30 Min. vor dem Schlafen aus',
+  mahlzeit: 'Letzte große Mahlzeit mind. 2 Std. vorher',
+  warm_dusche: 'Warm geduscht',
+  dimmen: 'Licht gedimmt',
+  todo_morgen: 'To-do-Liste für heute geschrieben',
+  nsdr: 'NSDR / Yoga Nidra',
+  alkohol: 'Kein Alkohol am Abend',
+};
+/* Abendschritte des Vortags, die sich als Ja/Nein abfragen lassen (Bildschirmzeit braucht Zahlen → bleibt in der Routine) */
+function mcEve(k) {
+  const y = addDays(k, -1), d = getDay(y), mc = d.mc || {};
+  return (rtCfg().pm || []).filter((id) => id !== 'handy' && !id.startsWith('bp_')).map((id) => {
+    const s = rtStep(id, y);
+    if (!s || s.info) return null;
+    const ans = id in mc ? !!mc[id] : s.done ? true : s.no ? false : null;
+    // Plan-Blöcke: deren Posten nennen (z. B. „Magnesium vor dem Schlafen“)
+    const n = MC_ASK[id] || (id.startsWith('block:') ? `${s.sub.replace(/\s*\(.*?\)/g, '')} (${s.n})` : s.n);
+    return { id, n, ans };
+  }).filter(Boolean);
+}
+function mcWeighDay(k) { return mcCfg().weight === 'daily' || [0, 2, 4].includes(weekday(k)); }
+function mcState(k = todayKey()) {
+  const d = getDay(k), skip = d.mcSkip || {};
+  const eve = mcEve(k);
+  const knee = !!(kneeCfg().start && kneeWeek(k) >= 1);
+  const skin = !!skinPhase(k);
+  const weigh = mcWeighDay(k);
+  const parts = {
+    eve: eve.every((x) => x.ans != null),
+    knee: !knee || kneeAm(k) != null,
+    skin: !skin || (d.skin && d.skin.score != null),
+    weight: !weigh || (d.health && d.health.weight != null) || !!skip.weight,
+  };
+  return { eve, knee, skin, weigh, parts, done: Object.values(parts).every(Boolean), open: Object.values(parts).filter((v) => !v).length };
+}
+function mcVisible(k = todayKey()) {
+  if (!mcOn() || k !== todayKey()) return false;
+  const r = rhythm(k), now = nowMin();
+  return now >= Math.min(r.wake, 300) - 60 && now < r.bed - 180 && !mcState(k).done;
+}
+/* Einen Abendschritt für gestern setzen (true = ja, false = nein) */
+function mcSet(k, id, v) {
+  const y = addDays(k, -1);
+  if (id.startsWith('skin:')) { const x = id.slice(5); mutDay(y, (d) => { d.skin = d.skin || {}; if (v) d.skin[x] = true; else delete d.skin[x]; }); }
+  else if (id.startsWith('block:')) {
+    const b = S.settings.plan.find((x) => x.id === id.slice(6));
+    if (b) {
+      const its = rtBlockItems(b, dayVariant(y)), t = resolveBlockTime(b, getDay(y));
+      mutDay(y, (d) => { for (const it of its) { if (v) { if (!d.checks[it.id]) { d.checks[it.id] = 1; persistRotation(d, it); if (t != null) { d.ct = d.ct || {}; d.ct[it.id] = minToTime(t % 1440); } } } else { delete d.checks[it.id]; if (d.ct) delete d.ct[it.id]; } } });
+    }
+  } else if ((rtCfg().custom || []).some((x) => x.id === id)) mutDay(y, (d) => { d.rt = d.rt || {}; if (v) d.rt[id] = true; else delete d.rt[id]; });
+  else if (HABITS.some((h) => h.id === id)) setHabit(y, id, v);
+  mutDay(y, (d) => { d.mc = { ...(d.mc || {}), [id]: v ? 1 : 0 }; });
+}
+function mcCard(k = todayKey()) {
+  if (!mcVisible(k)) return '';
+  const st = mcState(k), d = getDay(k), kn = kneeDay(peekDay(k)), am = kneeAm(k), sc = d.skin && d.skin.score;
+  const yes = (on) => (on === true ? ' is-on' : ''), no = (on) => (on === false ? ' is-on is-no' : '');
+  const openEve = st.eve.filter((x) => x.ans == null).length;
+  let h = `<section class="card mcheck" id="mcheck"><div class="sec-head"><h2>${icon('sunrise')} Morgen-Check</h2><span class="count">noch ${st.open} ${st.open === 1 ? 'Punkt' : 'Punkte'}</span></div>`;
+  if (st.eve.length) {
+    h += `<div class="mc-part"><div class="mc-head"><b>${icon('moon')} Gestern Abend</b>${openEve ? `<button class="pill-btn sm is-accent" data-a="mc-all" data-date="${k}">${icon('check')}Alles ja</button>` : ''}</div>`;
+    h += st.eve.map((x) => `<div class="mc-row"><span>${esc(x.n)}</span><div class="mc-yn"><button class="chip chip-sm${yes(x.ans)}" data-a="mc-eve" data-id="${esc(x.id)}" data-v="1" data-date="${k}" aria-pressed="${x.ans === true}">Ja</button><button class="chip chip-sm${no(x.ans)}" data-a="mc-eve" data-id="${esc(x.id)}" data-v="0" data-date="${k}" aria-pressed="${x.ans === false}">Nein</button></div></div>`).join('');
+    h += '</div>';
+  }
+  if (st.knee) {
+    h += `<div class="mc-part knee-am"><div class="mc-head"><b>Knie heute Morgen</b>${am != null ? `<span class="count">${am}/10</span>` : ''}</div><p class="hint">0 = kein Schmerz, 10 = stärkster</p>${scale0('knee-am', am, k)}
+      <div class="chips chips-tight flag-chips"><span class="hint">Bemerkt:</span>${KNEE_FLAGS.map((f) => `<button class="chip chip-xs${(kn.flags || []).includes(f) ? ' is-on is-red' : ''}" data-a="knee-flag" data-v="${esc(f)}" data-date="${k}">${esc(f)}</button>`).join('')}</div></div>`;
+  }
+  if (st.skin) h += `<div class="mc-part"><div class="mc-head"><b>Hautbild</b>${sc != null ? `<span class="count">${sc}/10</span>` : ''}</div><p class="hint">1 = sehr schlecht, 10 = sehr gut</p>${scale10('skin-score', sc, k)}</div>`;
+  if (st.weigh) {
+    const w = d.health && d.health.weight;
+    h += `<div class="mc-part"><div class="mc-head"><b>${icon('scale')} Gewicht</b></div><div class="mc-w"><label class="mini-in"><input type="text" inputmode="decimal" data-c="health" data-k="weight" data-date="${k}" value="${numIn(w, 1)}" placeholder="–" aria-label="Gewicht in kg"><span>kg</span></label>${w == null && !(d.mcSkip || {}).weight ? `<button class="link-btn" data-a="mc-skip" data-f="weight" data-date="${k}">heute nicht gewogen</button>` : ''}</div><p class="hint">Morgens nach dem Klo, vor dem Essen. Täglich gewogen ergibt den genauesten Trend – daraus rechnet die App deine Erhaltungskalorien.</p></div>`;
+  }
+  return h + '</section>';
+}
+function mcScroll() {
+  go('heute', { scrollTop: true });
+  setTimeout(() => { const el = document.getElementById('mcheck'); if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' }); else toast('Morgen-Check ist für heute erledigt'); }, 60);
+}
+/* Abends: eine Erinnerung statt Haken (wird in pushHabits genutzt) */
+function mcEveReminder(k) {
+  const y = k, steps = (rtCfg().pm || []).map((id) => rtStep(id, y)).filter((s) => s && !s.info && !s.done).map((s) => MC_ASK[s.id] || (s.id.startsWith('block:') ? s.sub.replace(/\s*\(.*?\)/g, '') : s.n));
+  if (!steps.length) return null;
+  return steps.slice(0, 4).join(' · ');
+}
+function mcSetHTML() {
+  const c = mcCfg();
+  return `<h5>Morgen-Check</h5><button class="row-check${c.on ? ' is-on' : ''}" data-a="mc-toggle"><span class="tgl-box">${icon('check')}</span><span>Morgens die Abendroutine von gestern abfragen, dazu Knie, Hautbild und Gewicht (abends nichts abhaken)</span></button>
+    ${c.on ? `<div class="frow is-wide"><span class="flabel">Gewicht</span><div class="chips chips-tight">${[['daily', 'täglich'], ['mwf', 'Mo, Mi, Fr']].map(([v, l]) => `<button class="chip chip-xs${c.weight === v ? ' is-on' : ''}" data-a="mc-weight" data-v="${v}">${l}</button>`).join('')}</div></div>` : ''}
+    <p class="hint">Welche Punkte abgefragt werden, bestimmt die Abendroutine unten.</p>`;
+}
+Object.assign(A, {
+  'mc-eve': (el) => { mcSet(curDate(el), el.dataset.id, el.dataset.v === '1'); render(); },
+  'mc-all': (el) => { const k = curDate(el); for (const x of mcEve(k)) if (x.ans == null) mcSet(k, x.id, true); render(); toast('Gestern Abend: alles erledigt'); },
+  'mc-skip': (el) => { const k = curDate(el); mutDay(k, (d) => { d.mcSkip = { ...(d.mcSkip || {}), [el.dataset.f]: true }; }); render(); },
+  'mc-open': () => mcScroll(),
+  'mc-toggle': () => { const c = S.settings.mcheck = { ...mcCfg() }; c.on = !c.on; saveSettings(); },
+  'mc-weight': (el) => { const c = S.settings.mcheck = { ...mcCfg() }; c.weight = el.dataset.v; saveSettings(); },
+});
+
 /* ---- push.js ---- */
 /* ============================================================
    MITTEILUNGEN (Push) – Wunsch vom 10.11.2026
@@ -12607,7 +12946,8 @@ function pushPlan(now = Date.now()) {
     const todos = todosOpen().filter((t) => t.date && t.date <= k);
     if (todos.length) add('todo', r.wake + 60, 'todo', todos.length === 1 ? `To-do: ${todos[0].t.slice(0, 80)}` : `${todos.length} To-dos fällig`, todos.length === 1 ? (todos[0].date < k ? 'Überfällig – heute erledigen oder neu planen.' : 'Steht für heute an.') : pushList(todos.map((t) => t.t.slice(0, 50)), 4), '#todos');
     const kw = kneeWeek(k);
-    if (kw >= 1 && kw <= 12 && kneeAm(k) == null) add('todo', r.wake + 20, 'knie', 'Knie heute Morgen?', 'Schmerz 0–10 eintragen – ein Tipp reicht, die App passt Training und Lauf daran an.', '#heute');
+    if (mcOn()) { const st = mcState(k); if (!st.done) add('todo', r.wake + 20, 'mcheck', 'Morgen-Check (20 Sek.)', `${st.eve.length ? 'Gestern Abend, ' : ''}Knie, Hautbild${st.weigh ? ', Gewicht' : ''} – ein paar Tipps, dann ist der Tag eingetragen.`, '#mcheck'); }
+    else if (kw >= 1 && kw <= 12 && kneeAm(k) == null) add('todo', r.wake + 20, 'knie', 'Knie heute Morgen?', 'Schmerz 0–10 eintragen – ein Tipp reicht, die App passt Training und Lauf daran an.', '#heute');
     if (isT && backupDue()) add('todo', r.wake + 90, 'backup', 'Backup fällig', 'Einstellungen → Backup & Daten: einmal sichern, dann sind deine Daten sicher.', '#set');
     if (weekday(k) === 6 && !weekGoals(addDays(weekStart(k), 7)).length) add('todo', Math.min(18 * 60, r.bed - 120), 'review', 'Wochenrückblick fertig', 'Schick ihn Frank – er gibt dir 3 Ziele für die neue Woche zurück.', '#woche');
     /* Offene Posten im Standardtag (Blöcke mit Uhrzeit, nah beieinander zusammengefasst) */
@@ -12615,7 +12955,7 @@ function pushPlan(now = Date.now()) {
     for (const b of S.settings.plan) {
       const t = resolveBlockTime(b, d);
       if (t == null) continue;
-      const open = b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !d.checks[it.id]);
+      const open = b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !itemDone(d, it));
       if (open.length) blocks.push({ t: t + 45, id: b.id, n: b.n, labels: open.map((it) => itemLabel(it, d)) });
     }
     blocks.sort((a, b) => a.t - b.t);
@@ -12745,6 +13085,7 @@ function pushNav(url) {
   const h = String(url || '').replace(/^#/, '');
   if (!h) return;
   closeSheet();
+  if (h === 'mcheck') { mcScroll(); return; }
   if (h === 'rhythmus') { go('heute', { scrollTop: true }); sheetRhythm(todayKey()); return; }
   if (h.startsWith('hq-')) { const id = h.slice(3).replace(/-/g, '_'); go('heute', { scrollTop: true }); setTimeout(() => sheetHabitAsk(id, todayKey()), 50); return; }
   if (h === 'blutdruck') { A['bp-go'](); return; }
@@ -12947,6 +13288,7 @@ function registerSW() {
   try { migrate3(); } catch (e) { /* egal */ }
   try { migrate4(); } catch (e) { /* egal */ }
   try { migrate5(); } catch (e) { /* egal */ }
+  try { migrate214(); } catch (e) { /* egal */ }
   try { energyApply(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);

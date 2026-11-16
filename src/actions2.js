@@ -433,6 +433,7 @@ Object.assign(A, {
   'week-flag': (el) => { const w = S.settings.week[Number(el.dataset.i)]; const key = el.dataset.k; if (w[key]) delete w[key]; else w[key] = true; saveSettings(); },
   'week-gym': (el) => { const w = S.settings.week[Number(el.dataset.i)]; const v = Number(el.dataset.v); if (!v) delete w.gym; else w.gym = v; saveSettings(); },
   'week-reset': () => { S.settings.week = clone(DEFAULT_WEEK); saveSettings(); toast('Standardwoche wiederhergestellt'); },
+  'week-flex': () => { const f = S.settings.weekFlex = { gym: 3, bjj: 2, ergo: 1, ...(S.settings.weekFlex || {}) }; f.on = !f.on; saveSettings(); toast(f.on ? 'Flexible Woche: Wochenziele statt fester Tage' : 'Feste Tage laut Standardwoche'); },
 
   /* Termine */
   'todo-suggest': (el) => { const i = $('#todo-new'); if (i) { i.value = el.dataset.v; i.focus(); } },
@@ -456,6 +457,7 @@ Object.assign(C, {
     flashSaved(el);
   },
   'gym-meta': (el) => { const v = parseNum(el.value); mutTraining((t) => { t.dur = v; }); flashSaved(el); },
+  'week-goal': (el) => { const v = parseNum(el.value); if (v == null || v < 0 || v > 14) { toast('0 bis 14 pro Woche'); return; } const f = S.settings.weekFlex = { gym: 3, bjj: 2, ergo: 1, on: true, ...(S.settings.weekFlex || {}) }; f[el.dataset.f] = Math.round(v); saveSettings(false); flashSaved(el); },
   'train-metric': (el) => { ui.trainMetric = el.value; render(); },
   'caf-time': (el) => { const k = el.dataset.date; if (!el.value) return; mutDay(k, (d) => { const c = (d.caf || []).find((x) => x.id === el.dataset.id); if (c) c.t = el.value; syncCafHabit(k); }); render(); },
   'skin-range': (el) => { const k = el.dataset.date, v = Number(el.value); mutDay(k, (d) => { d.skin = d.skin || {}; d.skin.score = v; }); render(); },

@@ -186,6 +186,35 @@ function migrate5() {
   S.meta.schema = 5;
   markDirty('meta');
 }
+/* 2.14 (Entscheidungen vom 16.11.2026 nach der Backup-Auswertung). Merker in den Einstellungen,
+   damit es auch nach dem Import eines älteren Backups noch einmal greift. */
+function migrate214() {
+  const st = S.settings;
+  if (!st || (st.mig || 0) >= 214) return;
+  // Neue, leere Installation: Standardwerte gelten schon (Routinen-Vorschlag mit Morgen-Check); die persönlichen
+  // Entscheidungen unten betreffen nur bestehende Daten
+  if (!Object.keys(S.days || {}).length) { st.mig = 214; markDirty('settings'); return; }
+  // Routinen: Morgen-Check als erster Morgenschritt, Abendroutine auf 5 Punkte (abgefragt am Morgen)
+  const R = rtCfg();
+  if (!R.am.includes('mcheck')) R.am.unshift('mcheck');
+  const oldPm = ['mahlzeit', 'warm_dusche', 'block:schlaf', 'skin:pflege_pm', 'handy', 'todo_morgen', 'bildschirm', 'dimmen'];
+  const newPm = ['skin:pflege_pm', 'block:schlaf', 'bildschirm', 'mahlzeit', 'warm_dusche'];
+  R.pm = newPm.concat((R.pm || []).filter((id) => !oldPm.includes(id) && !newPm.includes(id)));
+  // Selten Genutztes aus: Licht dimmen, To-do-Liste, Handyzeit
+  st.habitsOff = [...new Set([...(st.habitsOff || []), 'dimmen', 'todo_morgen', 'handy'])];
+  st.mcheck = { on: true, weight: 'daily', ...(st.mcheck || {}) };
+  // Flexible Woche statt fester Tage, Läufe raus, BJJ und Ergometer als Wochenziele
+  st.weekFlex = { on: true, gym: 3, bjj: 2, ergo: 1, ...(st.weekFlex || {}) };
+  // Kalorien: halten (Erhaltungsbedarf aus Essen + Gewichtstrend)
+  st.energy = { ...(st.energy || {}), goal: 'halten', auto: true };
+  // Experiment „1 statt 2 Monster“ anbieten (Start mit einem Tipp auf Heute)
+  if (!st.exp && !(st.expHist || []).some((x) => x.id === 'caf_dose')) st.expOffer = 'caf_dose';
+  st.mig = 214;
+  markDirty('settings'); invalidate();
+  // Sauna und „Kein Alkohol“ für die letzten 4 Wochen automatisch nachtragen
+  for (let i = 1; i <= 28; i++) { try { autoHabits(addDays(todayKey(), -i)); } catch (e) { /* egal */ } }
+  try { energyApply(); } catch (e) { /* egal */ }
+}
 
 /* ---------- Bereiche ---------- */
 function areaById(id) { return AREAS.find((a) => a.id === id) || (id === 'mehr' ? MORE_TAB : null); }
@@ -256,18 +285,21 @@ function cafSources(k) {
   return out.sort((a, b) => a.t - b.t);
 }
 function cafLevel(src, m) { const hl = hlMin(); let s = 0; for (const x of src) if (m >= x.t) s += x.mg * Math.pow(0.5, (m - x.t) / hl); return s; }
+function cafRelevant(x) { return x.src === 'caf' || x.mg >= 25; }
 function cafInfo(k) {
   const src = cafSources(addDays(k, -1)).map((x) => ({ ...x, t: x.t - 1440 })).concat(cafSources(k));
   const today = src.filter((x) => x.t >= 0);
   const total = today.reduce((a, x) => a + x.mg, 0);
   const isT = k === todayKey();
   const now = isT ? nowMin() : null;
-  const last = today.length ? today[today.length - 1].t : null;
+  // „Letztes Koffein“: nur Getränke und größere Mengen – ein Stück Schokolade am Nachmittag zählt nicht als letzter Kaffee
+  const rel = today.filter((x) => cafRelevant(x));
+  const last = rel.length ? rel[rel.length - 1].t : null;
   const lLast = last != null ? cafLevel(src, last) : 0;
   const below = (thr) => (last == null ? null : lLast <= thr ? last : last + hlMin() * Math.log2(lLast / thr));
   const cut = cafCutoff(k);
   const late = today.filter((x) => x.t > cafCutoff(k, x.mg) && (x.src === 'caf' || x.mg >= 15)).map((x) => ({ ...x, stop: cafCutoff(k, x.mg) }));
-  const start = cafStart(k), early = today.filter((x) => x.t < start - 15 && (x.src === 'caf' || x.mg >= 15));
+  const start = cafStart(k), early = today.filter((x) => x.t < start - 15 && cafRelevant(x));
   const bed = sleepAbs(k);
   return { src, today, total, now, nowLevel: isT ? cafLevel(src, now) : null, last, below50: below(50), below25: below(25), late, bed, bedLevel: cafLevel(src, bed), cut, start, early };
 }
@@ -285,9 +317,10 @@ function syncCafHabit(k) {
   const src = cafSources(k);
   if (!src.length) return;
   const a = cafStart(k);
-  const ok = src.every((x) => x.t >= a - 30 && x.t <= cafCutoff(k, x.mg));
+  const rel = src.filter((x) => cafRelevant(x));
+  const ok = rel.every((x) => x.t >= a - 30 && x.t <= cafCutoff(k, x.mg));
   d.hd = d.hd || {};
-  d.hd.caffeineEnd = minToTime(src[src.length - 1].t);
+  if (rel.length) d.hd.caffeineEnd = minToTime(rel[rel.length - 1].t); else delete d.hd.caffeineEnd;
   if (ok) d.habits.koffein = true; else delete d.habits.koffein;
 }
 
@@ -376,7 +409,43 @@ function recovery(k) {
   if (am != null && am > 3) notes.push(`Knie heute ${am}/10 – kein Lauf, Beintraining nur schmerzfrei.`);
   return { level, sig: sigOut, text: normal ? 'Normale Erholung – Training wie geplant.' : text, notes, normal, ready };
 }
-function weekTpl(i) { return (S.settings.week || DEFAULT_WEEK)[i] || {}; }
+/* Flexible Woche (Wunsch vom 16.11.2026): keine festen Tage, sondern Wochenziele für Gym, BJJ und Ergometer.
+   Die Gym-Tage laufen der Reihe nach (1 → 2 → 3), egal an welchem Wochentag. Lange Routine, Sauna und
+   Spaziergang bleiben in der Standardwoche, Läufe fallen weg. */
+function weekFlex() { const f = S.settings.weekFlex; return f && f.on ? { gym: 3, bjj: 2, ergo: 1, ...f } : null; }
+function weekTpl(i) {
+  const t = (S.settings.week || DEFAULT_WEEK)[i] || {};
+  if (!weekFlex()) return t;
+  const { gym, lauf, ...rest } = t; // eslint-disable-line no-unused-vars
+  return rest;
+}
+function isBjj(t) { return trainType(t).id === 'BJJ'; }
+function isErgo(t) { const id = trainType(t).id; return id === 'Ergometer' || id === 'Rad'; }
+function isGymT(t) { return !!trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id); }
+/* Nächster Gym-Tag in der Reihenfolge, nach dem zuletzt trainierten (inclToday: Einheiten von heute zählen mit) */
+function gymNext(k, inclToday = false) {
+  for (let i = inclToday ? 0 : 1; i < 90; i++) {
+    const tr = ((peekDay(addDays(k, -i)) || {}).trainings || []).filter((t) => trainType(t).gym);
+    if (tr.length) { const last = Number(trainType(tr[tr.length - 1]).gym); return (last % GYM_DAYS.length) + 1; }
+  }
+  return 1;
+}
+/* Gym-Tag für heute im Trainingsbereich: was du heute schon trainiert hast, sonst der nächste der Reihe */
+function gymToday(k) {
+  if (!weekFlex()) return Number(weekTpl(weekday(k)).gym) || null;
+  const tr = ((peekDay(k) || {}).trainings || []).filter((t) => trainType(t).gym);
+  return tr.length ? Number(trainType(tr[tr.length - 1]).gym) : gymNext(k);
+}
+/* Stand der flexiblen Woche */
+function flexWeek(ws) {
+  const f = weekFlex();
+  if (!f) return null;
+  const today = todayKey(), keys = weekKeys(ws);
+  const tr = keys.filter((k) => k <= today).flatMap((k) => ((peekDay(k) || {}).trainings || []));
+  const gym = tr.filter(isGymT).length, bjj = tr.filter(isBjj).length, ergo = tr.filter(isErgo).length;
+  const daysLeft = keys.filter((k) => k >= today).length;
+  return { goal: f, gym, bjj, ergo, daysLeft, left: { gym: Math.max(0, f.gym - gym), bjj: Math.max(0, f.bjj - bjj), ergo: Math.max(0, f.ergo - ergo) } };
+}
 function weekKeys(ws) { return Array.from({ length: 7 }, (_, i) => addDays(ws, i)); }
 function kneeSessions(d) { return (d && d.knee && d.knee.sess) || []; }
 function dayDone(k) {
@@ -410,6 +479,7 @@ function weekPlan(ws) {
     items.push({ kind: 'mob', n: 'Mobilität', done: done.mob });
     for (const g of done.gym) if (g !== Number(tpl.gym)) items.push({ kind: 'gym', day: g, n: gymDay(g).n, done: true, extra: true });
     if (done.run && !tpl.lauf) items.push({ kind: 'lauf', n: 'Lauf', done: true, extra: true });
+    for (const t of ((peekDay(k) || {}).trainings || [])) { if (isBjj(t)) items.push({ kind: 'bjj', n: 'BJJ', done: true, extra: true }); else if (isErgo(t)) items.push({ kind: 'ergo', n: trainType(t).id === 'Rad' ? 'Rad' : 'Ergometer', done: true, extra: true }); }
     if (done.sauna) items.push({ kind: 'sauna', n: `Sauna ${done.sauna} Min.`, done: true });
     return { k, i, tpl, items, done, past: k < today, isToday: k === today };
   });
@@ -442,7 +512,14 @@ function weekPlan(ws) {
   }
   const km = kmWeek(ws), kmPrev = kmWeek(addDays(ws, -7));
   if (kmPrev > 0 && km > kmPrev * 1.1) notes.push(`Laufumfang ${fmt(km, 1)} km – mehr als 10 % über der Vorwoche (${fmt(kmPrev, 1)} km).`);
-  return { days, notes, sauna: saunaWeek(ws, days) };
+  /* Flexible Woche: heute den nächsten Gym-Tag vorschlagen, solange das Wochenziel offen ist */
+  const fw = flexWeek(ws);
+  if (fw) {
+    const td = days.find((d) => d.isToday);
+    if (td && fw.left.gym > 0 && !td.done.gymAny && nowMin() < sleepMin() - 180) { const g = gymNext(td.k); td.items.unshift({ kind: 'gym', day: g, n: 'Möglich: ' + gymDay(g).n, done: false, flex: true }); }
+    if (fw.left.gym > fw.daysLeft && fw.daysLeft > 0) notes.push(`Noch ${fw.left.gym} Gym-Einheiten, aber nur noch ${fw.daysLeft} ${fw.daysLeft === 1 ? 'Tag' : 'Tage'} – lieber eine auslassen als zwei an einem Tag.`);
+  }
+  return { days, notes, sauna: saunaWeek(ws, days), flex: fw };
 }
 function saunaWeek(ws, days) {
   const goal = Number(S.settings.sauna.goal) || 60;
@@ -463,7 +540,7 @@ function saunaWeek(ws, days) {
       if (r <= 0) break;
       const m = Math.min(per, r);
       const after = d.items.find((x) => x.kind === 'gym' || x.kind === 'lauf');
-      sugg.push({ k: d.k, min: m, after: after ? after.n.replace('Nachholen: ', '') : null });
+      sugg.push({ k: d.k, min: m, after: after ? after.n.replace('Nachholen: ', '').replace('Möglich: ', '') : null });
       r -= m;
     }
   }
@@ -881,7 +958,9 @@ function weekReview(ws) {
   for (const k of past) for (const t of (peekDay(k) || {}).trainings || []) if (!trainType(t).light || t.type === 'Knie-Kraft') trs.push(t);
   r.trainings = trs.filter((t) => !trainType(t).light);
   r.trainMin = r.trainings.reduce((a, t) => a + (Number(t.dur) || 0), 0);
-  r.gymPlanned = keys.filter((k, i) => weekTpl(i).gym).length;
+  const fwr = flexWeek(ws);
+  r.gymPlanned = fwr ? fwr.goal.gym : keys.filter((k, i) => weekTpl(i).gym).length;
+  r.flex = fwr;
   r.gymDone = r.trainings.filter((t) => trainType(t).gym || ['Gym (frei)', 'Push', 'Pull', 'Beine'].includes(trainType(t).id)).length; // auch Krafttraining von Garmin
   r.sauna = keys.reduce((a, k) => a + saunaMin(peekDay(k)), 0); r.saunaGoal = Number(S.settings.sauna.goal) || 60;
   const caf = past.filter((k) => peekDay(k)).map((k) => cafInfo(k));

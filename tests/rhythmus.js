@@ -39,15 +39,15 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(r1.src === 'fenster' && r1.bed === 1365 && r1.next === 420, 'Fenster steuert die Schlafenszeit: ins Bett 22:45, morgen raus 07:00');
   ok(r1.caf === Math.round((1365 - cafDoseFor90) / 5) * 5, 'Koffein-Stopp folgt dem Fenster (Kaffee 90 mg: ~8,1 Std. vor 22:45 → 14:40)');
   ok(r1.tomorrowWake === 420 && r1.tomorrowSrc === 'fenster', 'Morgen: Aufstehen laut Fenster');
-  ok(r1.recent === 7 && r1.hit === 5, 'Letzte 7 Nächte: 5 im Fenster (23:40 und 23:20 zu spät)');
+  ok(r1.recent === 7 && r1.hit === 6, 'Letzte 7 Nächte: 6 im Fenster (±30 Min. seit 2.14; 23:40 zu spät, 23:20 noch drin)');
 
   /* ---------- 3. Heute-Zeile, Karte unter Garmin ---------- */
   await ev(() => go('heute')); await page.clock.runFor(300);
   const line = await page.textContent('.rhythm');
-  ok(line.includes('Schlafenszeit 22:45') && line.includes('Einschlafen 22:45–23:15') && line.includes('dein Fenster 06:45–07:15'), 'Heute: Schlafenszeit mit Fenster');
+  ok(line.includes('Schlafenszeit 22:45') && line.includes('Einschlafen 22:30–23:30') && line.includes('dein Fenster 06:30–07:30'), 'Heute: Schlafenszeit mit Fenster');
   await ev(() => { ui.sub.garmin = 'eintragen'; go('garmin'); }); await page.clock.runFor(300);
   const card = await page.textContent('#rhythmus-card');
-  ok(card.includes('23:00') && card.includes('07:00') && card.includes('5 von 7') && (await page.$$('#rhythmus-card .rh-row')).length === 7, 'Garmin & Schlaf: Karte mit Fenster, 7 Nächten und Regelmäßigkeit');
+  ok(card.includes('23:00') && card.includes('07:00') && card.includes('6 von 7') && (await page.$$('#rhythmus-card .rh-row')).length === 7, 'Garmin & Schlaf: Karte mit Fenster, 7 Nächten und Regelmäßigkeit');
   await shot('karte');
 
   /* ---------- 4. „Morgen raus“ geht vor ---------- */

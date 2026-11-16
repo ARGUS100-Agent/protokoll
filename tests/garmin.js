@@ -192,7 +192,7 @@ function fixtures(path, q) {
   const walk7 = d7.tr.find((t) => t.gid === '9006');
   ok(walk7 && walk7.type === 'Spaziergang' && walk7.dur === 35 && d7.tr.length === 3, 'Spaziergang am 07.11. als Training');
   const d6 = await H('2026-11-06');
-  ok(d6.tr.length === 1 && d6.tr[0].type === 'Rad' && d6.tr[0].km === 15 && d6.tr[0].dur === 30, 'Indoor-Cycling als Rad, Meditation nicht als Training');
+  ok(d6.tr.length === 1 && d6.tr[0].type === 'Ergometer' && d6.tr[0].km === 15 && d6.tr[0].dur === 30, 'Indoor-Cycling als Ergometer (seit 2.14), Meditation nicht als Training');
   ok(d8.tr.length === 1 && d8.tr[0].type === 'Spaziergang' && d8.tr[0].time === '07:40', 'Spaziergang heute übernommen');
   ok(await ev(() => !peekDay('2026-10-30')), 'Tage ohne Garmin-Daten werden nicht angelegt');
 

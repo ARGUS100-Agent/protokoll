@@ -181,7 +181,7 @@ function dayArcSVG(k) {
     if (t == null) continue;
     const req = b.items.filter((it) => !it.opt && itemInVariant(it, variant));
     if (!req.length) continue;
-    const done = req.filter((it) => d.checks[it.id]).length;
+    const done = req.filter((it) => itemDone(d, it)).length;
     const [x, y] = pos(t);
     const full = done === req.length, part = done > 0 && !full;
     s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" class="arc-dot ${full ? 'is-full' : part ? 'is-part' : ''}"/>`;

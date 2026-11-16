@@ -165,6 +165,8 @@ a.btn.is-accent { color: var(--accent-ink); }
 .item { display: grid; grid-template-columns: 1fr auto; align-items: center; border-top: 1px solid var(--line); }
 .item-hit { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 10px 8px 10px 16px; text-align: left; }
 .item-txt { min-width: 0; }
+.item.is-covered { grid-template-columns: 1fr; }
+.item.is-covered .item-hit { cursor: default; padding-right: 16px; }
 .item-txt b { display: block; font-size: 16px; font-weight: 600; line-height: 1.3; }
 .item-txt small { display: block; margin-top: 2px; color: var(--ink-3); font-size: 13px; line-height: 1.35; }
 .item.is-on .item-txt b { color: var(--ink-2); }
@@ -1205,3 +1207,21 @@ label.pill-btn { cursor: pointer; }
 .ath-day.is-done b { color: var(--st-ok); }
 .ath-day.is-today { box-shadow: inset 0 0 0 2px var(--accent); }
 .ath-gym .row-main small { white-space: normal; }
+.kx-sug.kx-switch > .ic { color: var(--accent); }
+/* Morgen-Check (2.14) */
+.mcheck { box-shadow: inset 0 0 0 1px rgba(255, 194, 102, .35); }
+.mcheck .sec-head h2 { display: flex; align-items: center; gap: 8px; }
+.mc-part { padding: 12px 0 4px; border-top: 1px solid var(--line); }
+.mc-part:first-of-type { border-top: 0; padding-top: 4px; }
+.mc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.mc-head b { display: flex; align-items: center; gap: 6px; font-size: 15px; }
+.mc-head .ic { width: 16px; height: 16px; }
+.mc-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 7px 0; }
+.mc-row span { font-size: 14.5px; line-height: 1.35; }
+.mc-yn { display: flex; gap: 6px; }
+.mc-yn .chip { min-width: 52px; justify-content: center; }
+.mc-yn .chip.is-no { background: rgba(242, 96, 92, .16); color: var(--st-over); border-color: rgba(242, 96, 92, .45); }
+.mc-w { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.mc-w .mini-in { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); }
+.rt-note { margin: 4px 16px 6px; display: flex; gap: 6px; align-items: flex-start; }
+.rt-note .ic { width: 15px; height: 15px; flex: none; margin-top: 2px; }

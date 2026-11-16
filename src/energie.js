@@ -28,6 +28,25 @@ function weightTrend(k, days = 28) {
   const sxx = pts.reduce((a, p) => a + (p[0] - mx) ** 2, 0), sxy = pts.reduce((a, p) => a + (p[0] - mx) * (p[1] - my), 0);
   return { n, last: pts[n - 1][1], slope: sxx ? (sxy / sxx) * 7 : null }; // kg pro Woche
 }
+/* Erhaltungsbedarf aus deinen eigenen Daten (seit 2.14.0): Ø gegessen der letzten 3 Wochen, korrigiert um den
+   Gewichtstrend (1 kg ≈ 7.700 kcal). Uhren schätzen den Verbrauch oft 20–30 % daneben (Passler 2019; Le 2022:
+   Garmin beim Gehen 32 % mittlerer Fehler) – Essen + Waage über Wochen sind die genauere Grundlage.
+   Wenige Wiegungen schwanken stark (Wasser, Salz, Darminhalt) → Korrektur gedeckelt: ±300 kcal bis 6 Messungen,
+   danach ±600 kcal. Unvollständig erfasste Tage (unter 60 % des Medians) zählen nicht. */
+function maintEstimate(k = todayKey()) {
+  const rows = rangeKeys(21, addDays(k, -1)).map((x) => ({ k: x, v: dayIntake(x) })).filter((r) => r.v != null && r.v > 0);
+  if (!rows.length) return null;
+  const vs = rows.map((r) => r.v).sort((a, b) => a - b), med = vs[Math.floor(vs.length / 2)];
+  const full = rows.filter((r) => r.v >= med * 0.6);
+  if (full.length < 7) return { n: full.length, est: null };
+  const intake = Math.round(mean(full.map((r) => r.v)));
+  const wt = weightTrend(addDays(k, -1)); // 4 Wochen: mehr Wiegungen, stabilerer Trend (wie in der Karte angezeigt)
+  if (wt.slope == null || wt.n < 3) return { n: full.length, intake, wt, est: null };
+  const cap = wt.n >= 6 ? 600 : 300;
+  const raw = Math.round((-wt.slope * 7700) / 7);
+  const corr = clamp(raw, -cap, cap);
+  return { n: full.length, intake, wt, raw, corr, capped: corr !== raw, est: Math.round((intake + corr) / 10) * 10 };
+}
 /* Kennzahlen bis einschließlich gestern (heute ist noch nicht fertig) */
 function energyStats(k = todayKey()) {
   const cfg = energyCfg();
@@ -40,15 +59,20 @@ function energyStats(k = todayKey()) {
   const bal = last7.length ? Math.round(mean(last7.map((r) => r.intake - r.burn))) : null;
   const wt = weightTrend(addDays(k, -1));
   const g = ENERGY_GOALS.find((x) => x[0] === cfg.goal) || ENERGY_GOALS[0];
+  const me = maintEstimate(k);
   let offset = g[2];
   const why = [`${g[2] >= 0 ? '+' : '−'}${Math.abs(g[2])} für „${g[1]}“`];
-  if (wt.last != null && cfg.wHi && wt.last > cfg.wHi) { offset -= 150; why.push(`−150, weil du über ${fmt(cfg.wHi)} kg liegst`); } else if (wt.last != null && cfg.wLo && wt.last < cfg.wLo && cfg.goal !== 'defi') { offset += 100; why.push(`+100, weil du unter ${fmt(cfg.wLo)} kg liegst`); }
-  if (wt.slope != null && cfg.goal !== 'defi') {
-    if (wt.slope > 0.35) { offset -= 100; why.push(`−100, weil das Gewicht schneller steigt als 0,35 kg pro Woche`); } else if (wt.slope < -0.15 && cfg.goal !== 'halten') { offset += 100; why.push('+100, weil das Gewicht sinkt'); }
+  let base = tdee, src = 'garmin';
+  if (me && me.est) { base = me.est; src = 'eigen'; }
+  const own = S.settings.energy || {}; // Standard-Ziel = aktuelles Gewicht: dann keine Korrektur (sonst springt sie mit jeder Wiegung)
+  if (wt.last != null && own.wHi != null && cfg.wHi && wt.last > cfg.wHi) { offset -= 150; why.push(`−150, weil du über ${fmt(cfg.wHi)} kg liegst`); } else if (wt.last != null && own.wLo != null && cfg.wLo && wt.last < cfg.wLo && cfg.goal !== 'defi') { offset += 100; why.push(`+100, weil du unter ${fmt(cfg.wLo)} kg liegst`); }
+  // Gewichtstrend: steckt beim eigenen Erhaltungsbedarf schon drin, sonst als Korrektur auf den Garmin-Verbrauch
+  if (src === 'garmin' && wt.slope != null && cfg.goal !== 'defi') {
+    if (wt.slope > 0.35 || (cfg.goal === 'halten' && wt.slope > 0.15)) { offset -= 100; why.push(`−100, weil das Gewicht steigt`); } else if (wt.slope < -0.15) { offset += 100; why.push('+100, weil das Gewicht sinkt'); }
   }
   offset = clamp(offset, -600, 500);
-  const target = tdee ? Math.round((tdee + offset) / 50) * 50 : null;
-  return { cfg, rows, tdee, burns: burns.length, bal, full: last7.length, wt, offset, why, target };
+  const target = base ? Math.round((base + offset) / 50) * 50 : null;
+  return { cfg, rows, tdee, burns: burns.length, bal, full: last7.length, wt, offset, why, target, me, base, src };
 }
 /* Kalorienziel automatisch nachziehen (einmal am Tag, nur mit genug Garmin-Tagen) */
 function energyApply() {
@@ -76,14 +100,17 @@ function energyCard(k) {
   h += `<div class="kv-grid is-3">${kv('Gestern', y && y.burn != null && y.intake != null ? sign(Math.round(y.intake - y.burn)) : '–', y && y.burn != null ? `${y.intake != null ? fmt(y.intake) : '–'} gegessen · ${fmt(y.burn)} verbraucht` : 'noch kein Verbrauch')}
     ${kv('Ø 7 Tage', st.bal != null ? sign(st.bal) : '–', st.full ? `kcal/Tag aus ${st.full} vollständigen Tagen` : 'noch keine vollständigen Tage')}
     ${kv('Ø Verbrauch', fmt(st.tdee), `kcal/Tag (${st.burns} Tage, Garmin)`)}</div>`;
-  h += `<p class="sec-sub">${cfg.auto ? `Dein Kalorienziel: <b>${fmt(st.target)} kcal</b> = Ø Verbrauch ${fmt(st.tdee)} ${st.why.join(', ')}.` : `Vorschlag: ${fmt(st.target)} kcal (Ø Verbrauch ${st.why.join(', ')}). Das Ziel stellst du gerade selbst ein.`}</p>`;
+  const how = st.src === 'eigen'
+    ? `Erhaltungsbedarf ${fmt(st.base)} kcal aus deinen Daten: Ø gegessen ${fmt(st.me.intake)} kcal (${st.me.n} Tage), Gewicht ${st.me.wt.slope >= 0 ? '+' : '−'}${fmt(Math.abs(st.me.wt.slope), 2)} kg/Woche → ${st.me.corr >= 0 ? '+' : '−'}${fmt(Math.abs(st.me.corr))} kcal${st.me.capped ? ` (gedeckelt, ${st.me.wt.n < 6 ? 'erst ab 6 Wiegungen voll' : 'Schwankung'})` : ''}`
+    : `Ø Verbrauch ${fmt(st.tdee)} laut Garmin (bis genug eigene Daten da sind: 7 erfasste Tage und 3 Wiegungen über eine Woche)`;
+  h += `<p class="sec-sub">${cfg.auto ? `Dein Kalorienziel: <b>${fmt(st.target)} kcal</b> = ${how}, ${st.why.join(', ')}.` : `Vorschlag: ${fmt(st.target)} kcal (${how}, ${st.why.join(', ')}). Das Ziel stellst du gerade selbst ein.`}</p>`;
   const wt = st.wt;
   h += `<p class="sec-sub">${icon('scale')} ${wt.last != null ? `Gewicht ${fmt(wt.last, 1)} kg` : 'Noch kein Gewicht'}${wt.slope != null ? ` · Trend ${wt.slope >= 0 ? '+' : '−'}${fmt(Math.abs(wt.slope), 2)} kg pro Woche` : wt.n ? ' · Trend ab 2 Messungen über eine Woche' : ''} · Ziel ${cfg.wLo ? fmt(cfg.wLo) : '–'}–${cfg.wHi ? fmt(cfg.wHi) : '–'} kg</p>`;
   h += `<div class="chips chips-tight">${ENERGY_GOALS.map(([id, n]) => `<button class="chip chip-xs${cfg.goal === id ? ' is-on' : ''}" data-a="energy-goal" data-v="${id}">${esc(n)}</button>`).join('')}</div>
     <div class="form"><div class="frow"><span class="flabel">Gewichtsziel von</span><div class="fin"><input type="text" inputmode="decimal" data-c="energy-w" data-f="wLo" value="${numIn(cfg.wLo, 1)}"><span class="unit">kg</span></div></div>
     <div class="frow"><span class="flabel">bis</span><div class="fin"><input type="text" inputmode="decimal" data-c="energy-w" data-f="wHi" value="${numIn(cfg.wHi, 1)}"><span class="unit">kg</span></div></div></div>
     <div class="row-btns"><button class="pill-btn" data-a="energy-auto">${cfg.auto ? 'Ziel selbst einstellen' : 'Ziel wieder automatisch'}</button></div>
-    <p class="hint">Garmin schätzt den Verbrauch, das kann 10–15 % daneben liegen. Deshalb korrigiert die App über deinen Gewichtstrend: am besten jeden Sonntag nüchtern wiegen.</p></section>`;
+    <p class="hint">Uhren schätzen den Verbrauch oft 20–30 % daneben. Sobald genug Daten da sind, rechnet die App deinen Erhaltungsbedarf aus dem, was du isst, und deinem Gewichtstrend (1 kg ≈ 7.700 kcal). Dafür täglich morgens wiegen (Morgen-Check) und das Essen weiter eintragen.</p></section>`;
   return h;
 }
 /* Zeile für Wochenrückblick und Bericht an Frank */

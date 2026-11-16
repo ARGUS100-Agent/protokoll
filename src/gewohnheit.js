@@ -34,9 +34,9 @@ Object.assign(INFO, {
   handy: { was: 'Social Media und Bildschirmzeit unter deinem Limit; das Handy nur bewusst und produktiv nutzen.', wofuer: 'Weniger Ablenkung, mehr Fokus, bessere Abende und besserer Schlaf.', zaehlung: 'Abends Bildschirmzeit und Social-Media-Minuten aus iPhone-Einstellungen → Bildschirmzeit eintragen (die App kann sie nicht selbst lesen). Tipp: Für Social-Media-Apps in iOS ein App-Limit setzen.' },
 });
 const ROUTINE_DEFAULT = {
-  am: ['r_wasser', 'licht_morgen', 'block:morgen', 'skin:pflege_am', 'meditation', 'caf_start', 'knee:mob'],
+  am: ['mcheck', 'r_wasser', 'licht_morgen', 'block:morgen', 'skin:pflege_am', 'meditation', 'caf_start', 'knee:mob'],
   day: ['atem', 'gehen_essen', 'schritte', 'knee:kraft', 'kein_kalt', 'sauna_woche', 'licht_nachmittag'],
-  pm: ['mahlzeit', 'warm_dusche', 'block:schlaf', 'skin:pflege_pm', 'handy', 'todo_morgen', 'bildschirm', 'dimmen'],
+  pm: ['skin:pflege_pm', 'block:schlaf', 'bildschirm', 'mahlzeit', 'warm_dusche'], // seit 2.14: abends nur Erinnerung, abgefragt im Morgen-Check
   custom: [{ id: 'r_wasser', n: 'Großes Glas Wasser (Prise Salz)' }],
 };
 const ROUTINE_PARTS = [['am', 'Morgenroutine', 'sunrise'], ['day', 'Tagsüber', 'sun'], ['pm', 'Abendroutine', 'moon']];
@@ -91,6 +91,13 @@ function autoHabits(k = todayKey()) {
     if (free != null) { const v = coldViolations(k); if (v.length) want.kein_kalt = false; else if (k < todayKey() || nowMin() >= free) want.kein_kalt = true; }
   }
   if (!off.includes('handy') && d0.hd && d0.hd.screen != null) { const c = phoneCfg(); want.handy = Number(d0.hd.social || 0) <= c.social && Number(d0.hd.screen) <= c.total; }
+  // Sauna: eingetragene Saunagänge belegen die Gewohnheit
+  if (!off.includes('sauna')) { if (saunaMin(d0) > 0) want.sauna = true; else if (d0.ha && d0.ha.sauna) want.sauna = false; }
+  // Kein Alkohol: abgeschlossener Tag mit Einträgen und ohne Alkohol (ein Alkohol-Eintrag nimmt den Haken wieder weg)
+  if (!off.includes('alkohol') && hasData(d0)) {
+    const alk = (computeTotals(k, false).tot.alk || 0) > 0;
+    if (alk) { if (d0.ha && d0.ha.alkohol) want.alkohol = false; } else if (k < todayKey()) want.alkohol = true;
+  }
   const ch = Object.entries(want).filter(([id, v]) => !(v && no.includes(id)) && !!d0.habits[id] !== v);
   if (!ch.length) return;
   mutDay(k, (d) => { for (const [id, v] of ch) { if (v) { d.habits[id] = true; d.ha = { ...(d.ha || {}), [id]: 1 }; } else { delete d.habits[id]; if (d.ha) delete d.ha[id]; } } });
@@ -102,6 +109,7 @@ function rtBlockItems(b, variant) { const inV = b.items.filter((it) => itemInVar
 function rtStep(id, k) {
   const d = getDay(k), r = rhythm(k), variant = dayVariant(k);
   const hb = HABITS.find((h) => h.id === id);
+  if (id === 'mcheck') { if (!mcOn()) return null; const st = mcState(k); return { id, n: 'Morgen-Check', sub: 'Gestern Abend, Knie, Haut, Gewicht · 20 Sek.', t: r.wake + 15, done: st.done, part: !st.done && st.open < 4, go: 'mcheck' }; }
   if (id === 'caf_start') { const st = cafStart(k); return { id, n: `Koffein frühestens ${minToTime(st)}`, sub: '90 Min. nach dem Aufwachen', t: st, info: true, done: k < todayKey() || (k === todayKey() && nowMin() >= st) }; }
   if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
@@ -112,7 +120,7 @@ function rtStep(id, k) {
     if (!b) return null;
     const its = rtBlockItems(b, variant);
     if (!its.length) return null;
-    const done = its.filter((it) => d.checks[it.id]).length;
+    const done = its.filter((it) => itemDone(d, it)).length;
     return { id, n: b.n, sub: its.map((it) => itemLabel(it, d)).slice(0, 4).join(', ') + (its.length > 4 ? ' …' : ''), t: resolveBlockTime(b, d), done: done === its.length, part: done > 0 && done < its.length, cnt: `${done}/${its.length}` };
   }
   if (id.startsWith('skin:')) { const sr = (S.settings.skin.routine || []).find((x) => x.id === id.slice(5)); if (!sr) return null; return { id, n: sr.n, sub: 'Haut-Protokoll', done: !!(d.skin && d.skin[sr.id]) }; }
@@ -142,7 +150,7 @@ function routineCard(k = todayKey()) {
     const real = steps.filter((s) => !s.info), done = real.filter((s) => s.done).length;
     const open = ui.exp.has('rt:' + part) || (!ui.exp.has('rtc:' + part) && part === cur);
     h += `<div class="rt-part${open ? ' is-open' : ''}"><button class="rt-head" data-a="rt-toggle" data-part="${part}" aria-expanded="${open}">${icon(ic)}<b>${esc(n)}</b><span class="rt-cnt${done === real.length ? ' is-ok' : ''}">${done}/${real.length}</span>${icon(open ? 'chevron-up' : 'chevron-down')}</button>`;
-    if (open) h += `<div class="rt-steps">${steps.map((s) => rtRow(s, k)).join('')}</div>`;
+    if (open) h += `<div class="rt-steps">${part === 'pm' && mcOn() ? `<p class="hint rt-note">${icon('sunrise')} Abhaken musst du hier nichts – das fragt dich morgen früh der Morgen-Check.</p>` : ''}${steps.map((s) => rtRow(s, k)).join('')}</div>`;
     h += '</div>';
   }
   return h + '</section>';
@@ -217,9 +225,15 @@ function pushHabits(k, r, d, add, off, isT) {
   const inR = (id, part) => (rtCfg()[part] || []).includes(id);
   if (inR('meditation', 'am')) ask('meditation', r.wake + 45, 'Meditation 13 Min.', 'Antippen, Timer starten oder abhaken. Regelmäßig zählt: 13 Min. täglich über 8 Wochen.');
   if (inR('atem', 'day')) ask('atem', 16 * 60, 'Atemübung 5 Min.', 'Zyklisches Seufzen: 2× durch die Nase ein, lang durch den Mund aus. Antippen startet den Timer.');
-  ask('warm_dusche', r.bed - 120, 'Zeit für die warme Dusche', `In der nächsten Stunde, 40–42 °C, mind. 10 Min. – danach schläfst du schneller ein. Bett um ${minToTime(r.bed)}.`);
-  if (!off('handy') && !(d.hd && d.hd.screen != null)) add('habits', r.bed - 75, 'handy', 'Bildschirmzeit heute?', `Kurz eintragen (Einstellungen → Bildschirmzeit). Limit Social Media ${fmt(phoneCfg().social)} Min.`, '#hq-handy');
-  ask('todo_morgen', r.bed - 30, 'To-do-Liste für morgen', '5 Min. aufschreiben, was morgen ansteht – dann ist der Kopf frei zum Einschlafen.');
+  if (mcOn()) {
+    // Seit 2.14: abends eine Erinnerung ohne Abhaken – abgefragt wird morgen früh im Morgen-Check
+    const rem = mcEveReminder(k);
+    if (rem) add('habits', r.bed - 120, 'abend', `Abendroutine (Bett ${minToTime(r.bed)})`, `${rem}. Abhaken musst du nichts – das fragt dich morgen der Morgen-Check.`, '#heute');
+  } else {
+    ask('warm_dusche', r.bed - 120, 'Zeit für die warme Dusche', `In der nächsten Stunde, 40–42 °C, mind. 10 Min. – danach schläfst du schneller ein. Bett um ${minToTime(r.bed)}.`);
+    if (!off('handy') && !(d.hd && d.hd.screen != null)) add('habits', r.bed - 75, 'handy', 'Bildschirmzeit heute?', `Kurz eintragen (Einstellungen → Bildschirmzeit). Limit Social Media ${fmt(phoneCfg().social)} Min.`, '#hq-handy');
+    ask('todo_morgen', r.bed - 30, 'To-do-Liste für morgen', '5 Min. aufschreiben, was morgen ansteht – dann ist der Kopf frei zum Einschlafen.');
+  }
   const free = coldFree(k);
   if (free != null && !off('kein_kalt') && coldUser()) add('habits', free - 360 + 5, 'kalt', 'Kein Kältebad bis ' + minToTime(free % 1440), 'Kälte direkt nach dem Krafttraining bremst den Muskelaufbau. Sauna oder warm duschen ist okay.', '#train');
   const wd = weekday(k), g = S.settings.sauna.goal, sv = weekSauna(addDays(k, -1));
@@ -231,6 +245,7 @@ Object.assign(A, {
   'rt-step': (el) => {
     const id = el.dataset.id, k = curDate(el), s = rtStep(id, k);
     if (!s) return;
+    if (id === 'mcheck') { mcScroll(); return; }
     if (s.go) { if (s.goSub) ui.sub[s.go] = s.goSub; go(s.go, { date: k }); return; }
     if (s.ask === 'handy') { sheetHandy(k); return; }
     if (id.startsWith('block:')) {
@@ -278,8 +293,8 @@ Object.assign(A, {
 function setRoutinesHTML() {
   const R = rtCfg();
   const label = (id) => { const s = rtStep(id, todayKey()); if (s) return s.n; const hb = HABITS.find((h) => h.id === id); return hb ? hb.n : id; };
-  const catalog = ['caf_start', 'knee:mob', 'knee:kraft', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
-  let h = '';
+  const catalog = ['mcheck', 'caf_start', 'knee:mob', 'knee:kraft', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
+  let h = mcSetHTML();
   for (const [part, n] of ROUTINE_PARTS) {
     const ids = R[part] || [];
     h += `<h5>${esc(n)}</h5><div class="list rt-edit">${ids.map((id, i) => `<div class="rt-erow"><span>${esc(label(id))}</span><button class="icon-btn sm ghost" data-a="rt-move" data-part="${part}" data-i="${i}" data-d="-1" aria-label="Nach oben">${icon('chevron-up')}</button><button class="icon-btn sm ghost" data-a="rt-move" data-part="${part}" data-i="${i}" data-d="1" aria-label="Nach unten">${icon('chevron-down')}</button><button class="icon-btn sm ghost" data-a="rt-del" data-part="${part}" data-i="${i}" aria-label="Entfernen">${icon('x')}</button></div>`).join('')}</div>

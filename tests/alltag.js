@@ -182,13 +182,15 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
     }
     energyApply();
   });
-  const en = await ev(() => { const s = energyStats('2026-11-10'); return { tdee: s.tdee, bal: s.bal, target: s.target, kcal: S.settings.targets.kcal }; });
+  const en = await ev(() => { const s = energyStats('2026-11-10'); return { tdee: s.tdee, bal: s.bal, target: s.target, kcal: S.settings.targets.kcal, src: s.src, me: s.me }; });
   ok(en.tdee === 2800 && en.bal === 100, `Verbrauch Ø ${en.tdee} kcal laut Garmin, Bilanz Ø +${en.bal} kcal`);
-  ok(en.target === 2950 && en.kcal.lo === 2850 && en.kcal.hi === 3050, `Kalorienziel automatisch: 2800 + 150 (Muskeln auf, Fett runter) = ${en.target}`);
+  // seit 2.14: Erhaltungsbedarf aus Essen + Gewichtstrend (14 Tage à 2.900 kcal, Gewicht leicht steigend → etwas weniger)
+  const want = Math.round((en.me.est + 150) / 50) * 50;
+  ok(en.src === 'eigen' && en.me.intake === 2900 && en.me.corr < 0 && en.me.corr > -300 && en.target === want && en.kcal.lo === want - 100 && en.kcal.hi === want + 100, `Kalorienziel automatisch: Erhalt ${en.me.est} (2.900 gegessen, Trend ${en.me.corr} kcal) + 150 (Muskeln auf, Fett runter) = ${en.target}`);
   await ev(() => { ui.ernSub = 'uebersicht'; go('ern', { date: '2026-11-10' }); });
   ok((await page.textContent('#energie')).includes('Energiebilanz'), 'Ernährung: Karte Energiebilanz');
   await ev(() => { S.settings.energy = { ...(S.settings.energy || {}), wHi: 79.5 }; energyApply(); });
-  ok((await ev(() => energyStats('2026-11-10').target)) === 2800, 'Über dem Gewichtsziel: Ziel 150 kcal niedriger');
+  ok((await ev(() => energyStats('2026-11-10').target)) === want - 150, 'Über dem Gewichtsziel: Ziel 150 kcal niedriger');
 
   /* ---------- 7. Ziele im Rhythmus ---------- */
   const gl = await ev(() => {

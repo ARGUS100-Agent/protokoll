@@ -251,6 +251,7 @@ const A = {
       if (data.settings && data.settings.todos) S.settings.todos = byId(S.settings.todos, data.settings.todos);
     }
     buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia
+    try { migrate214(); } catch (e) { /* egal */ } // 2.14: Morgen-Check, flexible Woche, Kalorien halten
     await DB.clear();
     if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
     if (PUSH) await pushSave(); // Mitteilungen ebenso
@@ -394,7 +395,7 @@ const C = {
     mutDay(k, (d) => { if (v == null) delete d.health[key]; else d.health[key] = v; if (key === 'weight' && v != null && k === todayKey()) { S.settings.profile.weight = v; markDirty('settings'); } });
     flashSaved(el);
     if (el.closest('.quick-health')) { const allSet = $$('.quick-health input').every((i) => i.value.trim()); if (allSet) render(); }
-    if (el.closest('.sunday')) render();
+    if (el.closest('.sunday') || el.closest('.mcheck')) render();
   },
   'health-dur': (el) => { const k = el.dataset.date, key = el.dataset.k; const v = timeToMin(el.value); mutDay(k, (d) => { if (v == null) delete d.health[key]; else d.health[key] = v; }); flashSaved(el); },
   'habit-detail': (el) => {

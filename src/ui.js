@@ -118,7 +118,7 @@ function banners(k) {
 /* Aktueller Block für „Als Nächstes“ */
 function nowBlock(k) {
   const d = getDay(k), variant = dayVariant(k), now = nowMin();
-  const blocks = S.settings.plan.map((b) => ({ b, t: resolveBlockTime(b, d), open: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !d.checks[it.id]) })).filter((x) => x.t != null);
+  const blocks = S.settings.plan.map((b) => ({ b, t: resolveBlockTime(b, d), open: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !itemDone(d, it)) })).filter((x) => x.t != null);
   blocks.sort((a, b) => a.t - b.t);
   const due = blocks.filter((x) => x.t <= now + 30 && x.open.length);
   if (due.length) return due[due.length - 1].b;
@@ -127,7 +127,7 @@ function nowBlock(k) {
 }
 function openBlocksLine(k, current) {
   const d = getDay(k), variant = dayVariant(k);
-  const rest = S.settings.plan.filter((b) => b !== current && resolveBlockTime(b, d) != null).map((b) => ({ b, n: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !d.checks[it.id]).length })).filter((x) => x.n);
+  const rest = S.settings.plan.filter((b) => b !== current && resolveBlockTime(b, d) != null).map((b) => ({ b, n: b.items.filter((it) => !it.opt && itemInVariant(it, variant) && !itemDone(d, it)).length })).filter((x) => x.n);
   if (!rest.length) return '';
   return `<p class="open-line">Noch offen: ${rest.map((x) => `<button class="link-btn" data-a="goto" data-tab="ern" data-sub="plan" data-anchor="b-${x.b.id}">${esc(x.b.n)} (${x.n})</button>`).join(', ')}</p>`;
 }
@@ -263,20 +263,23 @@ function blockCard(b, k, opts = {}) {
   const items = b.items.filter((it) => itemInVariant(it, variant));
   if (!items.length) return '';
   const req = items.filter((it) => !it.opt);
-  const done = req.filter((it) => d.checks[it.id]).length;
+  const done = req.filter((it) => itemDone(d, it)).length;
   const t = resolveBlockTime(b, d);
   const allOpt = req.length === 0;
   const collapsed = b.id === 'vielfalt' && !ui.exp.has('blk:vielfalt') && !opts.now;
   return `<div class="block${opts.now ? ' is-now' : ''}" id="b-${b.id}">
     <div class="block-head">
       <div><h3>${opts.now ? '<span class="now-tag">Als Nächstes</span>' : ''}${esc(b.n)}</h3><span class="block-meta">${t != null ? (b.time === 'training' && !d.training ? 'Training ' : '') + minToTime(t) + ' Uhr' : 'über den Tag'}${allOpt ? '' : `, ${done}/${req.length} erledigt`}</span></div>
-      ${allOpt ? (b.id === 'vielfalt' ? `<button class="pill-btn" data-a="expand" data-key="blk:vielfalt">${collapsed ? 'Zeigen' : 'Ausblenden'}</button>` : '') : done < req.length ? `<button class="pill-btn" data-a="check-block" data-id="${b.id}">Alle abhaken</button>` : `<button class="pill-btn is-ghost" data-a="uncheck-block" data-id="${b.id}">Zurücksetzen</button>`}
+      ${allOpt ? (b.id === 'vielfalt' ? `<button class="pill-btn" data-a="expand" data-key="blk:vielfalt">${collapsed ? 'Zeigen' : 'Ausblenden'}</button>` : '') : done < req.length ? `<button class="pill-btn" data-a="check-block" data-id="${b.id}">Alle abhaken</button>` : req.some((it) => d.checks[it.id]) ? `<button class="pill-btn is-ghost" data-a="uncheck-block" data-id="${b.id}">Zurücksetzen</button>` : ''}
     </div>
     ${collapsed ? '' : `<div class="items">${items.map((it) => itemRow(it, k, d, variant)).join('')}</div>`}
     ${b.id === 'getraenke' && !opts.now ? waterQuick(k) : ''}
   </div>`;
 }
 function itemRow(it, k, d, variant) {
+  if (itemCovered(d, it)) {
+    return `<div class="item is-on is-covered"><div class="item-hit is-static"><span class="tgl-box">${icon('check')}</span><span class="item-txt"><b>${esc(itemLabel(it, d))}</b><small>Erledigt über deine Einträge: ${fmt(pmmEntryGrams(d))} g Prepmymeal-Gerichte. Nicht zusätzlich abhaken, sonst zählt es doppelt.</small></span></div></div>`;
+  }
   const on = !!d.checks[it.id];
   const fid = itemFoodId(it, d), f = FOOD[fid];
   const amt = itemAmount(it, d, variant);

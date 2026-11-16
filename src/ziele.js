@@ -299,28 +299,28 @@ const MU_OUT = {
 function muHealth(k, f) { const d = peekDay(k); const v = d && d.health ? d.health[f] : null; return v == null || v === '' ? null : Number(v); }
 function muTrain(k, f) { const d = peekDay(k); if (!d) return null; return (d.trainings || []).some((t) => !trainType(t).light && f(t)); }
 const MU_FEAT = {
-  cafLate: { n: () => `Koffein nach dem Koffein-Stopp (${cafStopText()})`, bad: () => (cafMode() === 'dose' ? 'Letzten Kaffee spätestens zu deinem Stopp je Getränk trinken (Kaffee ~8 Std., Monster Zero ~11 Std. vor dem Schlafen – die App zeigt dir die Uhrzeiten), danach entkoffeiniert oder Kräutertee.' : `Letzten Kaffee spätestens ${cafStopText()} trinken (die App zeigt dir die Uhrzeit), danach entkoffeiniert oder Kräutertee.`), good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).late.length > 0 : null) },
-  cafBed: { n: () => 'viel Koffein zur Schlafenszeit (über 50 mg)', bad: () => `Weniger Koffein am Nachmittag: der Rest im Körper zur Schlafenszeit stört den Tiefschlaf.`, good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).bedLevel >= 50 : null) },
+  cafLate: { own: true, n: () => `Koffein nach dem Koffein-Stopp (${cafStopText()})`, bad: () => (cafMode() === 'dose' ? 'Letzten Kaffee spätestens zu deinem Stopp je Getränk trinken (Kaffee ~8 Std., Monster Zero ~11 Std. vor dem Schlafen – die App zeigt dir die Uhrzeiten), danach entkoffeiniert oder Kräutertee.' : `Letzten Kaffee spätestens ${cafStopText()} trinken (die App zeigt dir die Uhrzeit), danach entkoffeiniert oder Kräutertee.`), good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).late.length > 0 : null) },
+  cafBed: { own: true, n: () => 'viel Koffein zur Schlafenszeit (über 50 mg)', bad: () => `Weniger Koffein am Nachmittag: der Rest im Körper zur Schlafenszeit stört den Tiefschlaf.`, good: () => ``, f: (k) => (peekDay(k) ? cafInfo(k).bedLevel >= 50 : null) },
   alk: { n: () => 'Alkohol', bad: () => `Alkohol weglassen oder früher am Abend, mindestens 8 Std. vor dem Schlafen.`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? (computeTotals(k, false).tot.alk || 0) > 0 : null) },
   lateMeal: { n: () => 'später letzter Mahlzeit (ab 21 Uhr)', bad: () => `Letzte große Mahlzeit bis ca. 20:30, danach höchstens etwas Leichtes.`, good: () => ``, f: (k) => { const d = peekDay(k); const t = d && d.hd && d.hd.lastMeal ? timeVal(d.hd.lastMeal, true) : null; return t == null ? null : t >= 1260; } },
-  screen: { n: () => 'bildschirmfreiem Abend', bad: () => ``, good: () => `Bildschirmfreie Abende beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.bildschirm) : null; } },
-  light: { n: () => 'Morgenlicht', bad: () => ``, good: () => `Morgenlicht beibehalten: 10–30 Min. raus nach dem Aufstehen.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.licht_morgen) : null; } },
+  screen: { own: true, n: () => 'bildschirmfreiem Abend', bad: () => ``, good: () => `Bildschirmfreie Abende beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.bildschirm) : null; } },
+  light: { own: true, n: () => 'Morgenlicht', bad: () => ``, good: () => `Morgenlicht beibehalten: 10–30 Min. raus nach dem Aufstehen.`, f: (k) => { const d = peekDay(k); return d ? !!(d.habits && d.habits.licht_morgen) : null; } },
   eveTrain: { n: () => 'Training am Abend (ab 18 Uhr)', bad: () => `Training lieber vor 18 Uhr legen oder danach länger runterfahren.`, good: () => ``, f: (k) => muTrain(k, (t) => (timeToMin(t.time) || 0) >= 1080) },
   train: { n: () => 'Training', bad: () => `An Trainingstagen auf Schlaf und Essen nach dem Training achten.`, good: () => `Training tut dir gut, Rhythmus halten.`, f: (k) => muTrain(k, () => true) },
-  sauna: { n: () => 'Sauna', bad: () => `Sauna früher am Abend und danach gut trinken.`, good: () => `Sauna beibehalten, am besten direkt nach dem Training.`, f: (k) => (peekDay(k) ? saunaMin(peekDay(k)) > 0 : null) },
-  mgSupp: { n: () => 'Magnesium am Abend', bad: () => ``, good: () => `Magnesium am Abend beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.checks && d.checks.s_mg) : null; } },
+  sauna: { own: true, n: () => 'Sauna', bad: () => `Sauna früher am Abend und danach gut trinken.`, good: () => `Sauna beibehalten, am besten direkt nach dem Training.`, f: (k) => (peekDay(k) ? saunaMin(peekDay(k)) > 0 : null) },
+  mgSupp: { own: true, n: () => 'Magnesium am Abend', bad: () => ``, good: () => `Magnesium am Abend beibehalten.`, f: (k) => { const d = peekDay(k); return d ? !!(d.checks && d.checks.s_mg) : null; } },
   whey: { n: () => 'Whey oder Proteinshake', bad: () => `Whey testweise weglassen (Haut-Phase 2), Protein aus Skyr, Eiern, Fisch.`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? dayTags(k).has('whey') : null) },
   milbona: { n: () => 'Milbona-Shake', bad: () => `Milbona-Shakes testweise weglassen (Haut-Phase 2).`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? dayTags(k).has('milbona') : null) },
   ag1: { n: () => 'AG1', bad: () => `AG1 testweise pausieren (Haut-Phase 3).`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? dayTags(k).has('ag1') : null) },
   sugar: { n: () => 'viel freiem Zucker (über 50 g)', bad: () => `Freien Zucker unter 50 g halten: Süßes und Säfte reduzieren.`, good: () => ``, f: (k) => (hasData(peekDay(k)) ? (computeTotals(k, false).tot.fs || 0) > 50 : null) },
   sleepLow: { n: () => 'schlechtem Schlaf (Sleep Score unter 70)', bad: () => `Schlaf zuerst verbessern: Koffein-Stopp, bildschirmfrei, feste Zeiten.`, good: () => ``, f: (k) => { const v = muHealth(k, 'sleepScore'); return v == null ? null : v < 70; } },
-  shave: { n: () => 'Rasur', bad: () => `Rasur schonend: neue Klinge, mit dem Strich, danach Physiogel.`, good: () => ``, f: (k) => { const d = peekDay(k); return d ? !!(d.skin && d.skin.rasur) : null; } },
+  shave: { own: true, n: () => 'Rasur', bad: () => `Rasur schonend: neue Klinge, mit dem Strich, danach Physiogel.`, good: () => ``, f: (k) => { const d = peekDay(k); return d ? !!(d.skin && d.skin.rasur) : null; } },
   carePm: { n: () => 'Pflege am Abend', bad: () => ``, good: () => `Pflege am Abend beibehalten.`, f: (k) => { const d = peekDay(k); return d && d.skin && d.skin.score != null ? !!d.skin.pflege_pm : null; } },
   run: { n: () => 'Lauf', bad: () => `Laufumfang langsamer steigern, vorher die Routine „Vor dem Lauf“.`, good: () => ``, f: (k) => muTrain(k, (t) => trainType(t).run) },
   longRun: { n: () => 'Lauf über 6 km', bad: () => `Lange Läufe kürzer halten, höchstens +10 % pro Woche.`, good: () => ``, f: (k) => muTrain(k, (t) => trainType(t).run && (Number(t.km) || 0) > 6) },
   legs: { n: () => 'Beintag', bad: () => `Am Beintag die Knie-Varianten nutzen (Hip Thrust, Beinpresse Füße hoch).`, good: () => ``, f: (k) => muTrain(k, (t) => trainType(t).legs) },
-  mob: { n: () => 'Mobility-Routine', bad: () => ``, good: () => `Mobility täglich beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).mob : null) },
-  kneeStr: { n: () => 'Knie-Kraft', bad: () => ``, good: () => `Knie-Kraft beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).kraft : null) },
+  mob: { own: true, n: () => 'Mobility-Routine', bad: () => ``, good: () => `Mobility täglich beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).mob : null) },
+  kneeStr: { own: true, n: () => 'Knie-Kraft', bad: () => ``, good: () => `Knie-Kraft beibehalten.`, f: (k) => (peekDay(k) ? dayDone(k).kraft : null) },
 };
 const MU_HYPO = [
   ['cafLate', 'sleep'], ['cafBed', 'sleep'], ['alk', 'sleep'], ['lateMeal', 'sleep'], ['screen', 'sleep'], ['light', 'sleep'], ['eveTrain', 'sleep'], ['sauna', 'sleep'], ['mgSupp', 'sleep'],
@@ -335,7 +335,8 @@ function muster(days = 56) {
   const keys = [];
   for (let i = days; i >= 1; i--) keys.push(addDays(today, -i));
   const fcache = {}, ocache = {};
-  const F = (id, k) => { const c = (fcache[id] = fcache[id] || {}); if (!(k in c)) { try { c[k] = MU_FEAT[id].f(k); } catch (e) { c[k] = null; } } return c[k]; };
+  // Selbst erfasste Merkmale erst ab dem ersten eigenen Eintrag: davor gab es nur Garmin, „nichts eingetragen“ heißt dort nicht „nicht gemacht“
+  const F = (id, k) => { const c = (fcache[id] = fcache[id] || {}); if (!(k in c)) { if (MU_FEAT[id].own && !tracked(k)) c[k] = null; else { try { c[k] = MU_FEAT[id].f(k); } catch (e) { c[k] = null; } } } return c[k]; };
   const O = (id, k) => { const c = (ocache[id] = ocache[id] || {}); if (!(k in c)) c[k] = MU_OUT[id].at(k); return c[k]; };
   const found = [];
   let outDays = 0;
@@ -383,7 +384,7 @@ function habitPatterns(days = 28) {
         if (!itemInVariant(it, dayVariant(k))) continue;
         const arr = weekday(k) >= 5 ? we : wd;
         arr[1]++;
-        if (peekDay(k).checks[it.id]) arr[0]++;
+        if (itemDone(peekDay(k), it)) arr[0]++;
       }
       const n = wd[1] + we[1];
       if (n < 7) continue;
@@ -428,10 +429,10 @@ function habitPatterns(days = 28) {
     if (a - b >= 45) out.push({ area: 'schlaf', w: (a - b) / 90, text: `Am Wochenende schläfst du Ø ${fmt((a - b) / 60, 1)} Std. später ein (${minToTime(Math.round(a) % 1440)} statt ${minToTime(Math.round(b) % 1440)}).`, tip: 'Gleichmäßige Zeiten stabilisieren den Schlaf, höchstens 1 Std. Unterschied.' });
   }
   /* Gewohnheiten, die selten klappen */
-  const hk = keys.filter((k) => peekDay(k));
+  const hk = keys.filter((k) => peekDay(k) && tracked(k));
   if (hk.length >= 7) {
     for (const hb of HABITS) {
-      if (['sauna', 'gesicht', 'koffein'].includes(hb.id)) continue;
+      if (['sauna', 'gesicht', 'koffein', 'kein_kalt', 'schritte'].includes(hb.id) || (S.settings.habitsOff || []).includes(hb.id)) continue;
       const done = hk.filter((k) => { const d = peekDay(k); return d.habits && d.habits[hb.id]; }).length;
       const r = done / hk.length;
       if (done > 0 && r < 0.4) out.push({ area: 'schlaf', w: (0.4 - r) * 0.8, text: `${hb.n}: nur an ${pc(r)} der Tage.`, tip: hb.when ? `Zeitpunkt: ${habitWhen(hb)}.` : '' });
@@ -502,7 +503,7 @@ function frankReportText(ws) {
     if (overs.length) L.push(`Über Maximum: ${overs.join(', ')}`);
     // Standardtag: was oft ausgelassen wurde
     const skip = {}, plan = {};
-    for (const k of lk) { const d = peekDay(k), v = dayVariant(k); for (const { it, block } of allPlanItems()) { if (!block || it.opt || !itemInVariant(it, v)) continue; plan[it.id] = (plan[it.id] || 0) + 1; if (!d.checks[it.id]) skip[it.id] = (skip[it.id] || 0) + 1; } }
+    for (const k of lk) { const d = peekDay(k), v = dayVariant(k); for (const { it, block } of allPlanItems()) { if (!block || it.opt || !itemInVariant(it, v)) continue; plan[it.id] = (plan[it.id] || 0) + 1; if (!itemDone(d, it)) skip[it.id] = (skip[it.id] || 0) + 1; } }
     const pTot = Object.values(plan).reduce((a, x) => a + x, 0), sTot = Object.values(skip).reduce((a, x) => a + x, 0);
     const sk = Object.entries(skip).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([id, n]) => { const f = findItem(id); return `${f ? itemLabel(f.it, null) : id} [item:${id}] ${n}×`; });
     L.push(`Standardtag: ${pTot ? fmt((1 - sTot / pTot) * 100) : '–'} % abgehakt${sk.length ? ` · oft ausgelassen: ${sk.join(', ')}` : ''}`);
@@ -516,7 +517,7 @@ function frankReportText(ws) {
   }
   // Training
   L.push('', `## Training & Sauna`);
-  L.push(`Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · Gym ${r.gymDone}/${r.gymPlanned} geplant · Läufe ${r.q.runs} (${f0(r.km, 1)} km, Vorwoche ${f0(r.kmPrev, 1)} km) · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.`);
+  L.push(r.flex ? `Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · flexible Woche ohne feste Tage: Gym ${r.gymDone}/${r.flex.goal.gym} · BJJ ${r.flex.bjj}/${r.flex.goal.bjj} · Ergometer ${r.flex.ergo}/${r.flex.goal.ergo} · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.` : `Einheiten ${r.trainings.length} (${fmt(r.trainMin)} Min.) · Gym ${r.gymDone}/${r.gymPlanned} geplant · Läufe ${r.q.runs} (${f0(r.km, 1)} km, Vorwoche ${f0(r.kmPrev, 1)} km) · Sauna ${fmt(r.sauna)}/${fmt(r.saunaGoal)} Min.`);
   const steps = mean(r.past.map((k) => muHealth(k, 'steps')).filter((v) => v != null));
   if (steps != null) L.push(`Schritte Ø ${fmt(steps)}`);
   const ims = r.past.map((k) => muHealth(k, 'intensity')).filter((v) => v != null);
@@ -557,7 +558,7 @@ function frankReportText(ws) {
   { const al = typeof athReportLine === 'function' ? athReportLine(ws) : ''; if (al) L.push(al); }
   { const zl = typeof zwReportLine === 'function' ? zwReportLine(ws) : ''; if (zl) L.push(zl); }
   // Gewohnheiten
-  const hab = HABITS.map((h) => `${h.n.split(' (')[0]} [habit:${h.id}] ${r.past.filter((k) => { const d = peekDay(k); return d && d.habits && d.habits[h.id]; }).length}/7`);
+  const hab = HABITS.filter((h) => !(S.settings.habitsOff || []).includes(h.id)).map((h) => `${habitName(h, we > todayKey() ? todayKey() : we).split(' (')[0]} [habit:${h.id}] ${r.past.filter((k) => { const d = peekDay(k); return d && d.habits && d.habits[h.id]; }).length}/7`);
   L.push('', `## Gewohnheiten`, hab.join(' · '));
   // Ziele dieser Woche
   const goals = weekGoals(ws);

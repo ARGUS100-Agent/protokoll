@@ -223,6 +223,27 @@ function hasData(d) {
   if (!d) return false;
   return Object.keys(d.checks || {}).length > 0 || (d.entries || []).length > 0;
 }
+/* Erster Tag mit eigenen Einträgen. Tage davor kennt die App nur aus Garmin – dort fehlen Koffein, Sauna,
+   Gewohnheiten usw. nicht wirklich, sie wurden nur nicht erfasst (für Muster und Gewohnheits-Statistik). */
+function trackStart() {
+  const c = trackStart.c || (trackStart.c = { v: -1, k: null });
+  if (c.v === calcVersion) return c.k;
+  let first = null;
+  for (const [k, d] of Object.entries(S.days || {})) {
+    if (first && k >= first) continue;
+    // automatisch abgehakte Gewohnheiten (Schritte, Garmin) zählen nicht als eigener Eintrag
+    const ownHab = Object.keys(d.habits || {}).some((id) => !(d.ha && d.ha[id]) && !(d.gh && d.gh[id]));
+    if (hasData(d) || ownHab || (d.caf || []).length || (d.sauna || []).length) first = k;
+  }
+  c.v = calcVersion; c.k = first;
+  return first;
+}
+function tracked(k) { const s = trackStart(); return !!s && k >= s; }
+/* Prepmymeal: Gerichte, die einzeln eingetragen werden, decken den Beutel des Tages ab */
+function pmmFood(fid) { const f = FOOD[fid]; return fid === 'prepmymeal' || /^pmm_/.test(fid) || !!(f && /prepmymeal/i.test(f.n || '')); }
+function pmmEntryGrams(d) { return ((d && d.entries) || []).filter((e) => pmmFood(e.food)).reduce((a, e) => a + (Number(e.g) || 0), 0); }
+function itemCovered(d, it) { return !!(d && it && it.cg === 'pmm' && !(d.checks || {})[it.id] && pmmEntryGrams(d) > 0); }
+function itemDone(d, it) { return !!(d && it && ((d.checks || {})[it.id] || itemCovered(d, it))); }
 
 /* ---------- Standardtag-Posten ---------- */
 function allPlanItems() {

@@ -29,7 +29,19 @@ function kxStep(ex, alt) {
   return 2.5;
 }
 const kxRound = (w, step) => Math.max(0, Math.round(w / step) * step);
-const e1rm = (w, r) => (w > 0 && r > 0 ? w * (1 + Math.min(r, 15) / 30) : null);
+/* Wdh. in Reserve je RIR-Stufe (0–1 → 0,5); ohne Angabe 0 (vorsichtig) */
+const kxRirVal = (rir) => (rir == null ? 0 : Number(rir) === 1 ? 0.5 : Number(rir));
+/* Geschätztes 1RM (Epley) aus Gewicht, Wdh. und Wdh. in Reserve */
+const e1rm = (w, r, rir = null) => (w > 0 && r > 0 ? w * (1 + Math.min(r + kxRirVal(rir), 20) / 30) : null);
+/* Ziel-RIR des ersten Arbeitssatzes: 2 Wdh. in Reserve, die folgenden Sätze landen dann bei 0–1.
+   Belege: Nähe zum Muskelversagen treibt den Muskelaufbau (Robinson 2024, Meta-Regression, 55 Studien),
+   0 und 1–2 Wdh. in Reserve wirken ähnlich (Refalo 2024); Pyramide und gleiche Sätze wirken bei gleicher
+   Satzzahl gleich (Angleri 2017) – gleiche Arbeitssätze lassen sich aber sauber steigern. */
+const KX_RIR = 2;
+/* Aufwärmsätze: deutlich leichter als der schwerste Satz oder 4+ Wdh. in Reserve */
+function kxWarm(s, top) { return (s.w != null && top > 0 && s.w < top * 0.8) || Number(s.rir) >= 4; }
+/* Arbeitsgewicht für den ersten Satz: hi Wdh. mit 2 in Reserve, abgerundet */
+function kxWorkW(best, hi, step) { return Math.max(0, Math.floor((best / (1 + (hi + KX_RIR) / 30)) / step + 1e-9) * step); }
 /* Verlauf einer Übung: Einheiten mit Sätzen (neueste zuerst) */
 function kxHistory(exId, beforeKey, excludeId, days = 150) {
   const out = [];
@@ -40,16 +52,21 @@ function kxHistory(exId, beforeKey, excludeId, days = 150) {
       if (!t.gym || !t.gym.ex || !t.gym.ex[exId] || t.id === excludeId) continue;
       const e = t.gym.ex[exId];
       const sets = (e.s || []).filter((s) => s.r != null && (s.d || s.w != null)).map((s) => ({ w: s.w != null ? Number(s.w) : null, r: Number(s.r), rir: s.rir ?? null }));
-      if (sets.length) out.push({ k, sched: t.gym.sched, alt: !!e.alt, sets, best: Math.max(0, ...sets.map((s) => e1rm(s.w, s.r) || 0)) });
+      if (sets.length) out.push({ k, sched: t.gym.sched, alt: !!e.alt, sets, best: Math.max(0, ...sets.map((s) => e1rm(s.w, s.r, s.rir) || 0)) });
     }
   }
   return out;
 }
 function lastGymKey(beforeKey) {
-  for (let i = 0; i < 120; i++) { const k = addDays(beforeKey, -i), d = peekDay(k); if (d && (d.trainings || []).some((t) => t.gym && Object.keys(t.gym.ex || {}).length)) return k; }
+  // jede Gym-Einheit zählt, auch Krafttraining von Garmin ohne eingetragene Sätze
+  for (let i = 0; i < 120; i++) { const k = addDays(beforeKey, -i), d = peekDay(k); if (d && (d.trainings || []).some((t) => (t.gym && Object.keys(t.gym.ex || {}).length) || isGymT(t))) return k; }
   return null;
 }
 function deloadOn(k) { const g = S.settings.gym || {}; return !!g.deload && g.deload === weekStart(k); }
+/* Unterschiedliche Gewichte in den Sätzen (Rampe, Pyramide, Drop) – mehr als ein Gewichtsschritt bzw. 5 % */
+function kxUneven(ws) { const w = ws.map((s) => s.w).filter((v) => v != null); if (w.length < 2) return false; const a = Math.min(...w), b = Math.max(...w); return b - a > Math.max(2.5, b * 0.05); }
+/* Realistische Wdh. bei gleichem Gewicht: erster Satz oben im Bereich, danach je 1 weniger (nicht unter die Untergrenze) */
+function kxReps(sets, lo, hi) { return Array.from({ length: sets }, (_, i) => Math.max(lo, hi - i)); }
 /* Vorschlag für die nächste Einheit */
 function kxSuggest(exId, sched, alt, k, excludeId) {
   const ex = kxEx(exId);
@@ -67,15 +84,22 @@ function kxSuggest(exId, sched, alt, k, excludeId) {
     const best = Math.max(...hist.slice(0, 3).map((h) => h.best));
     const bw = hist[0].sets.every((s) => s.w == null);
     if (bw) { out.reps = Array(sets).fill(lo); out.tag = 'same'; out.why = `Erste Einheit in Schedule ${sched}: Zielbereich ${lo}–${hi} Wdh.`; }
-    else { out.w = kxRound((best / (1 + (lo + hi) / 2 / 30)) * 0.97, step); out.reps = Array(sets).fill(lo); out.tag = 'new'; out.why = `Aus deinen letzten Sätzen umgerechnet (geschätztes 1RM ${fmt(best, 1)} kg) für ${lo}–${hi} Wdh.`; }
+    else { out.w = kxWorkW(best, hi, step); out.reps = kxReps(sets, lo, hi); out.tag = 'new'; out.why = `Aus deinen letzten Sätzen umgerechnet (geschätztes 1RM ${fmt(best, 1)} kg): alle Arbeitssätze mit ${fmt(out.w, 1)} kg, erster Satz ${hi} Wdh. mit ~2 in Reserve, danach landest du bei 0–1.`; }
   } else {
-    const ws = same.sets.filter((s) => s.w != null), bw = !ws.length;
+    const all = same.sets.filter((s) => s.w != null), top0 = all.length ? Math.max(...all.map((s) => s.w)) : 0;
+    let ws = all.filter((s) => !kxWarm(s, top0)); if (!ws.length) ws = all; // Aufwärmsätze zählen nicht
+    const bw = !ws.length;
     if (bw) {
       const all = same.sets.every((s) => s.r >= hi);
       out.reps = same.sets.slice(0, sets).map((s) => Math.min(hi, s.r + 1));
       while (out.reps.length < sets) out.reps.push(lo);
       out.tag = all ? 'up' : 'same';
       out.why = all ? `Obergrenze ${hi} Wdh. in allen Sätzen: Zusatzgewicht oder schwerere Variante.` : 'Gleiche Ausführung, je Satz 1 Wdh. mehr.';
+    } else if (kxUneven(ws)) {
+      // Letztes Mal unterschiedliche Gewichte (Rampe/Pyramide): auf gleiche Arbeitssätze umstellen
+      const best = Math.max(...ws.map((s) => e1rm(s.w, s.r, s.rir) || 0)), b = ws.reduce((a, s2) => ((e1rm(s2.w, s2.r, s2.rir) || 0) > (e1rm(a.w, a.r, a.rir) || 0) ? s2 : a));
+      out.w = kxWorkW(best, hi, step); out.reps = kxReps(sets, lo, hi); out.tag = 'switch';
+      out.why = `Letztes Mal ${ws.map((s2) => fmt(s2.w, 1)).join('/')} kg. Besser für Muskelaufbau: leichte Aufwärmsätze (nicht eintragen), dann alle Arbeitssätze mit dem gleichen Gewicht nah ans Versagen. Aus deinem stärksten Satz (${fmt(b.w, 1)} kg × ${b.r}${b.rir != null ? `, ${RIR_LABEL[b.rir] || b.rir} in Reserve` : ''}) gerechnet: ${fmt(out.w, 1)} kg.`;
     } else {
       const top = Math.max(...ws.map((s) => s.w)), atTop = ws.filter((s) => s.w === top);
       const rirs = atTop.map((s) => s.rir).filter((v) => v != null), rir = rirs.length ? mean(rirs) : null;
@@ -96,7 +120,7 @@ function kxSuggest(exId, sched, alt, k, excludeId) {
       }
     }
   }
-  if (factor < 1 && out.w != null) { out.w = kxRound(out.w * factor, step); out.extra.push(`Nach ${gap} Tagen Pause ${Math.round((1 - factor) * 100)} % leichter – in 1–2 Einheiten bist du wieder da.`); }
+  if (factor < 1 && out.w != null) { const w2 = kxRound(out.w * factor, step); out.w = w2 < out.w ? w2 : Math.max(0, out.w - step); out.extra.push(`Nach ${gap} Tagen Pause ${Math.round((1 - factor) * 100)} % leichter – in 1–2 Einheiten bist du wieder da.`); }
   if (dl) { if (out.w != null) out.w = kxRound(out.w * 0.9, step); out.sets = Math.max(1, sets - 1); out.reps = out.reps.slice(0, out.sets); out.extra.push('Leichtere Woche: ein Satz weniger, ~10 % leichter, 3–4 Wdh. in Reserve.'); }
   return out;
 }
@@ -112,7 +136,8 @@ function kxStalls(k = todayKey()) {
   }
   return out;
 }
-/* Sätze pro Muskel in einer Woche (erledigte Sätze; Hilfsmuskeln zählen halb) */
+/* Harte Sätze pro Muskel in einer Woche (erledigte Arbeitssätze; Hilfsmuskeln zählen halb).
+   Aufwärmsätze (deutlich leichter als der schwerste Satz oder 4+ Wdh. in Reserve) zählen nicht. */
 function kxWeekSets(ws) {
   const m = {};
   for (const k of weekKeys(ws)) {
@@ -120,7 +145,9 @@ function kxWeekSets(ws) {
     for (const t of (d && d.trainings) || []) {
       if (!t.gym || !t.gym.ex) continue;
       for (const [id, e] of Object.entries(t.gym.ex)) {
-        const n = (e.s || []).filter((s) => s.d || (s.r != null && s.w != null)).length;
+        const done = (e.s || []).filter((s) => s.d || (s.r != null && s.w != null));
+        const top = Math.max(0, ...done.map((s) => Number(s.w) || 0));
+        const n = done.filter((s) => !kxWarm({ w: s.w != null ? Number(s.w) : null, rir: s.rir }, top)).length;
         if (!n) continue;
         for (const [mu, f] of Object.entries(MUSCLES[id] || {})) m[mu] = (m[mu] || 0) + n * f;
       }
@@ -163,6 +190,15 @@ function kxMotivation(k = todayKey()) {
   const logs = rangeKeys(28, k).some((x) => dayDone(x).gymAny);
   if (!logs) return null;
   if (m.gap != null && m.gap >= 7) return { lvl: 2, t: `${m.gap} Tage ohne Gym.`, s: m.gap >= 10 ? 'Die Pause ist vorbei – heute zählt nur, dass du hingehst. Die App startet dich ~10 % leichter, nach 1–2 Einheiten bist du wieder auf Stand.' : 'Kein Drama, aber jetzt wieder rein: Heute die Grundübungen, 45 Minuten reichen.' };
+  /* Flexible Woche: nur erinnern, wenn das Wochenziel sonst nicht mehr klappt oder die letzte Einheit länger her ist */
+  const fw = flexWeek(weekStart(k));
+  if (fw) {
+    if (dayDone(k).gymAny || !fw.left.gym) return null;
+    const nx = m.todayGym ? m.todayGym.n.replace('Möglich: ', '') : gymDay(gymNext(k)).n;
+    if (fw.left.gym >= fw.daysLeft) return { lvl: 1, t: `Noch ${fw.left.gym} Gym-Einheit${fw.left.gym > 1 ? 'en' : ''} diese Woche, noch ${fw.daysLeft} ${fw.daysLeft === 1 ? 'Tag' : 'Tage'}.`, s: `Heute passt: ${nx}.` };
+    if (m.gap != null && m.gap >= 3) return { lvl: 0, t: `Heute: ${nx}?`, s: `${m.gap} Tage seit dem letzten Gym.` };
+    return null;
+  }
   if (m.missed.length >= 2) return { lvl: 2, t: `${m.missed.length} Einheiten diese Woche ausgefallen.`, s: 'Muskeln wachsen nicht vom Planen. Heute eine Einheit – auch kurz ist besser als keine.' };
   if (m.missed.length === 1 && m.todayGym) return { lvl: 1, t: `${m.missed[0].n} ist ausgefallen – heute nachholen?`, s: 'Eine Einheit nachholen hält den Wochenrhythmus.' };
   if (m.todayGym) return { lvl: 0, t: `Heute: ${m.todayGym.n}.`, s: '' };
@@ -179,14 +215,14 @@ function kxCard(k = todayKey()) {
   if (dl && dl.on) h += `<div class="banner">${icon('sparkles')}<div><b>Leichtere Woche läuft</b><span>Ein Satz weniger, ~10 % leichter, 3–4 Wdh. in Reserve. Die Vorschläge sind schon angepasst.</span></div><button class="pill-btn sm" data-a="kx-deload" data-v="off">Beenden</button></div>`;
   else if (dl) h += `<div class="banner">${icon('sparkles')}<div><b>Leichtere Woche empfohlen</b><span>${esc(dl.why)}</span></div><button class="pill-btn sm" data-a="kx-deload" data-v="on">Diese Woche</button></div>`;
   const rows = MUSCLE_ORDER.map((mu) => { const v = sets[mu] || 0, pv = last[mu] || 0; const st2 = v >= 12 ? (v > 22 ? 'over' : 'ok') : v >= 8 ? 'under' : 'none'; return `<div class="kx-row"><span>${mu}</span><div class="kx-bar"><i class="st-${st2}" style="width:${clamp((v / 20) * 100, 0, 100)}%"></i><b style="left:60%"></b></div><em>${fmt(v, v % 1 ? 1 : 0)}</em><small>${pv ? `Vorw. ${fmt(pv, pv % 1 ? 1 : 0)}` : ''}</small></div>`; }).join('');
-  h += `<div class="kx-sets"><p class="flabel-s">Sätze pro Muskel diese Woche (Richtwert 12–20)</p>${rows}</div>`;
+  h += `<div class="kx-sets"><p class="flabel-s">Harte Sätze pro Muskel diese Woche (Richtwert 12–20, Aufwärmen zählt nicht)</p>${rows}</div>`;
   if (st.length) h += `<p class="kx-st">${icon('minus')}<span><b>Stillstand:</b> ${esc(st.map((x) => x.n).join(', '))}. Tipps: Schlaf und Eiweiß prüfen, Wiederholungsbereich wechseln (Schedule A/B macht das schon), Technik filmen; bleibt es so, eine leichtere Woche.</span></p>`;
-  return h + '<p class="hint">Vorschläge stehen in jeder Übung der Einheit. Doppelte Progression: erst Wiederholungen, dann Gewicht – saubere Ausführung geht vor. Optional pro Satz antippen, wie viele Wdh. noch drin waren (RIR).</p></section>';
+  return h + '<p class="hint">So rechnet der Autopilot: 1–2 leichte Aufwärmsätze (nicht eintragen), dann alle Arbeitssätze mit dem gleichen Gewicht. Erster Satz mit ~2 Wdh. in Reserve, die letzten bei 0–1 – nah am Muskelversagen wächst der Muskel am meisten (Robinson 2024), ob Pyramide oder gleiche Sätze ist dabei egal (Angleri 2017), gleiche Sätze lassen sich aber sauber steigern. Doppelte Progression: erst Wiederholungen, dann Gewicht. Pro Satz antippen, wie viele Wdh. noch drin waren (RIR).</p></section>';
 }
 function kxExHTML(ex, t, e, k) {
   const sg = kxSuggest(ex.id, t.gym.sched, !!e.alt, k, t.id);
   if (!sg) return '';
-  const ic = { up: 'trending-up', down: 'trending-down', same: 'minus', new: 'sparkles' }[sg.tag];
+  const ic = { up: 'trending-up', down: 'trending-down', same: 'minus', new: 'sparkles', switch: 'repeat' }[sg.tag];
   const plan = sg.w != null ? `${sg.sets} × ${fmt(sg.w, 1)} kg × ${sg.reps.join('/')}` : `${sg.sets} × ${sg.reps.join('/')} Wdh.`;
   return `<div class="kx-sug kx-${sg.tag}">${icon(ic)}<div><b>Vorschlag: ${esc(plan)}</b><small>${esc(sg.why)}${sg.extra.length ? ' ' + esc(sg.extra.join(' ')) : ''}</small></div>${sg.w != null || sg.reps.length ? `<button class="pill-btn sm" data-a="kx-apply" data-ex="${ex.id}">Übernehmen</button>` : ''}</div>`;
 }

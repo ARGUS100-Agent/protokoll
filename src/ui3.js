@@ -47,8 +47,8 @@ function areaStatus(id, k = todayKey()) {
         const logged = (d.trainings || []).filter((t) => !trainType(t).light);
         const plan = day.items.filter((x) => ['gym', 'lauf'].includes(x.kind) && !x.done);
         const rec = recovery(k);
-        const v = logged.length ? esc(logged.map((t) => t.type).join(', ')) : plan.length ? esc(plan.map((x) => x.n).join(' + ')) : 'Ruhetag';
-        return { v, s: `${logged.length ? 'erledigt' : plan.length ? 'geplant' : 'heute frei'} · Sauna ${fmt(wp.sauna.done)}/${fmt(wp.sauna.goal)} Min.${rec.ready ? ` · Bereitschaft ${fmt(rec.ready.score)}` : rec.level !== 'none' ? ` · Erholung ${rec.normal ? 'normal' : ({ green: 'gut', yellow: 'mittel', red: 'schlecht' })[rec.level]}` : ''}`, st: logged.length ? 'ok' : rec.level === 'red' ? 'over' : rec.level === 'yellow' ? 'under' : 'none', small: true };
+        const v = logged.length ? esc(logged.map((t) => t.type).join(', ')) : plan.length ? esc(plan.map((x) => x.n.replace('Möglich: ', '')).join(' + ')) : 'Ruhetag';
+        return { v, s: `${logged.length ? 'erledigt' : plan.length ? (plan.every((x) => x.flex) ? 'möglich' : 'geplant') : 'heute frei'} · Sauna ${fmt(wp.sauna.done)}/${fmt(wp.sauna.goal)} Min.${rec.ready ? ` · Bereitschaft ${fmt(rec.ready.score)}` : rec.level !== 'none' ? ` · Erholung ${rec.normal ? 'normal' : ({ green: 'gut', yellow: 'mittel', red: 'schlecht' })[rec.level]}` : ''}`, st: logged.length ? 'ok' : rec.level === 'red' ? 'over' : rec.level === 'yellow' ? 'under' : 'none', small: true };
       }
       case 'knie': {
         const w = kneeWeek(k), dd = dayDone(k);
@@ -125,6 +125,7 @@ function vHeute() {
     <h1>${greeting()}</h1></header>`;
   h += banners(k);
   h += kneeAlertCards(k);
+  h += mcCard(k);
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
@@ -134,7 +135,7 @@ function vHeute() {
   h += sleepHelpCard(k);
   h += routineCard(k);
   if (weekday(k) <= 2) h += agentCard(addDays(weekStart(k), -7));
-  h += kneeMorningCard(k, true);
+  if (!mcVisible(k)) h += kneeMorningCard(k, true);
   h += sundayCard(k);
   h += todoCard();
   h += reviewReadyCard(k);
@@ -275,7 +276,7 @@ function vSupp() {
 /* ============================================================
    TRAINING & SAUNA
    ============================================================ */
-const PLAN_IC = { gym: 'dumbbell', kraft: 'footprints', lauf: 'activity', lang: 'stretch-horizontal', mob: 'person-standing', walk: 'footprints', sauna: 'thermometer', vorlauf: 'timer' };
+const PLAN_IC = { gym: 'dumbbell', kraft: 'footprints', lauf: 'activity', lang: 'stretch-horizontal', mob: 'person-standing', walk: 'footprints', sauna: 'thermometer', vorlauf: 'timer', bjj: 'hand', ergo: 'bike' };
 function vTrain() {
   if (ui.gymSess) return vGymSession();
   const sub = getSub('train', 'heute');
@@ -356,7 +357,11 @@ function vTrainWeek() {
   const ws = ui.trainWeek;
   const wp = weekPlan(ws);
   let h = weekNav(ws, 'train-week', addDays(weekStart(todayKey()), 7));
-  h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Athletik täglich zu Hause (Knie → Kraft & Athletik), am Beintag dazu der Knie-Block. Kein schweres Beintraining am Tag vor einem Lauf.</p>`;
+  if (wp.flex) {
+    const f = wp.flex, row = (n, v, g) => `<div class="kv"><span>${n}</span><b>${v}/${g}</b>${progBar(v, g, v >= g ? 'ok' : '')}</div>`;
+    h += `<section class="sec"><div class="sec-head"><h2>Diese Woche</h2><span class="count">keine festen Tage</span></div><div class="kv-grid is-3">${row('Gym', f.gym, f.goal.gym)}${row('BJJ', f.bjj, f.goal.bjj)}${row('Ergometer', f.ergo, f.goal.ergo)}</div>
+      <p class="sec-sub">Schedule ${gymSched(ws)}. Gym-Tage der Reihe nach – als Nächstes: <b>${esc(gymDay(gymNext(todayKey(), true)).n)}</b>. Knie-Athletik täglich zu Hause, am Beintag dazu der Knie-Block. BJJ und Ergometer trägt Garmin automatisch ein (Ergometer = Indoor-Radfahren).</p></section>`;
+  } else h += `<p class="sec-sub">Schedule ${gymSched(ws)} diese Woche. Knie-Athletik täglich zu Hause (Knie → Kraft & Athletik), am Beintag dazu der Knie-Block. Kein schweres Beintraining am Tag vor einem Lauf.</p>`;
   for (const n of wp.notes) h += `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(n)}</span></div></div>`;
   for (const d of wp.days) {
     const rec = d.isToday ? recovery(d.k) : null;
@@ -371,7 +376,7 @@ function vTrainWeek() {
 }
 function vGymPlan() {
   const k = todayKey();
-  const tplDay = weekTpl(weekday(k)).gym;
+  const tplDay = gymToday(k);
   const dayN = ui.gymDay || tplDay || 1;
   const gd = gymDay(dayN), sched = gymSched(k);
   const alt = S.settings.gym.kneeAlt;

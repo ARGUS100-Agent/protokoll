@@ -33,6 +33,7 @@ function registerSW() {
   try { migrate3(); } catch (e) { /* egal */ }
   try { migrate4(); } catch (e) { /* egal */ }
   try { migrate5(); } catch (e) { /* egal */ }
+  try { migrate214(); } catch (e) { /* egal */ }
   try { energyApply(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);

@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.13.0';
+const APP_VERSION = '2.14.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -349,7 +349,7 @@ const EXTRA_ITEMS = [
 const HABITS = [
   { id: 'licht_morgen', n: 'Morgenlicht + 30 Min. Spaziergang', when: 'nach dem Aufstehen' },
   { id: 'licht_nachmittag', n: 'Nachmittagslicht', when: 'später Nachmittag, ein paar Minuten draußen' },
-  { id: 'koffein', n: 'Koffein nur 10:00–14:30', when: '90–120 Min. nach dem Aufwachen bis 8 Std. vor dem Schlafen', detail: { type: 'time', key: 'caffeineEnd', label: 'Letztes Koffein um' } },
+  { id: 'koffein', n: 'Koffein im Fenster', when: '90 Min. nach dem Aufwachen bis zum Stopp je Getränk', detail: { type: 'time', key: 'caffeineEnd', label: 'Letztes Koffein um' } },
   { id: 'alkohol', n: 'Kein Alkohol 8 Std. vor dem Schlafen', when: 'ab 14:30' },
   { id: 'mahlzeit', n: 'Letzte große Mahlzeit 2–3 Std. vor dem Schlafen', when: 'bis ca. 20:30', detail: { type: 'time', key: 'lastMeal', label: 'Letzte große Mahlzeit um' } },
   { id: 'bildschirm', n: '60 Min. vor dem Schlafen keine Bildschirme', when: 'mindestens 30 Min.', detail: { type: 'chips', key: 'screenFree', label: 'Bildschirmfrei vor dem Schlafen', options: [0, 15, 30, 45, 60, 90], unit: 'Min.' } },

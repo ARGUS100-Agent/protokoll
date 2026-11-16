@@ -401,7 +401,10 @@ Object.assign(SET_VIEWS, {
     const wk = S.settings.week;
     const g = S.settings.gym;
     const cur = gymSched(todayKey());
-    return `<p class="hint">Standardwoche für den Wochenplan-Vorschlag. Täglich Mobilität ist immer dabei.</p>
+    const fx = weekFlex();
+    const flexHtml = `<button class="row-check${fx ? ' is-on' : ''}" data-a="week-flex"><span class="tgl-box">${icon('check')}</span><span>Flexible Woche: keine festen Tage, nur Wochenziele (Gym-Tage der Reihe nach)</span></button>
+      ${fx ? `<div class="form">${[['gym', 'Gym pro Woche'], ['bjj', 'BJJ pro Woche'], ['ergo', 'Ergometer pro Woche']].map(([f, l]) => `<div class="frow"><span class="flabel">${l}</span><div class="fin"><input type="text" inputmode="numeric" data-c="week-goal" data-f="${f}" value="${fx[f]}"><span class="unit">×</span></div></div>`).join('')}</div>` : ''}`;
+    return `${flexHtml}<p class="hint">${fx ? 'Standardwoche für lange Routine, Sauna und Spaziergang. Gym-Tage und Läufe der Standardwoche gelten in der flexiblen Woche nicht.' : 'Standardwoche für den Wochenplan-Vorschlag. Täglich Mobilität ist immer dabei.'}</p>
       <div class="wk-edit">${WD_LONG.map((w, i) => { const t = wk[i] || {}; const chip = (key, l) => `<button class="chip chip-xs${t[key] ? ' is-on' : ''}" data-a="week-flag" data-i="${i}" data-k="${key}">${l}</button>`; return `<div class="wk-row"><b>${w}</b><div class="chips chips-tight"><button class="chip chip-xs${!t.gym ? ' is-on' : ''}" data-a="week-gym" data-i="${i}" data-v="0">kein Gym</button>${GYM_DAYS.map((gd) => `<button class="chip chip-xs${Number(t.gym) === gd.day ? ' is-on' : ''}" data-a="week-gym" data-i="${i}" data-v="${gd.day}">Tag ${gd.day}</button>`).join('')}</div><div class="chips chips-tight">${chip('kraft', 'Knie-Kraft')}${chip('lauf', 'Lauf')}${chip('lang', 'Lange Routine')}${chip('sauna', 'Sauna')}${chip('walk', 'Spaziergang')}</div></div>`; }).join('')}</div>
       <button class="link-btn" data-a="week-reset">Standardwoche wiederherstellen</button>
       <h5>Gym-Split</h5><div class="frow is-wide"><span class="flabel">Schedule diese Woche (wechselt wöchentlich)</span><div class="chips chips-tight">${['A', 'B'].map((s) => `<button class="chip chip-xs${cur === s ? ' is-on' : ''}" data-a="gym-sched" data-v="${s}">Schedule ${s}</button>`).join('')}</div></div>

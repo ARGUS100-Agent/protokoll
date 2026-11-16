@@ -21,7 +21,8 @@ const GAR_HRV = { BALANCED: 'Ausgeglichen', UNBALANCED: 'Unausgeglichen', LOW: '
 const GAR_TYPES = [
   [/meditation|breath/, null],
   [/run|jog/, 'Laufen'],
-  [/cycl|bik|ride|spin/, 'Rad'],
+  [/indoor_cycl|virtual_ride|spin/, 'Ergometer'],
+  [/cycl|bik|ride/, 'Rad'],
   [/swim/, 'Schwimmen'],
   [/strength|weight_lift/, 'Gym (frei)'],
   [/hiit|interval|tabata|bootcamp/, 'HIIT'],
@@ -384,6 +385,7 @@ function garTrainingIndex() {
    sonst ein ausgefallener Gym-Tag davor, sonst der nächste geplante (vorgezogen) – jeweils in derselben Woche.
    Hast du selbst eine Einheit gestartet, gilt deine. */
 function garGymDay(k) {
+  if (weekFlex()) return gymNext(k, true); // flexible Woche: einfach der nächste Gym-Tag der Reihe
   const ws = weekStart(k), done = new Set();
   for (const x of weekKeys(ws)) for (const t of ((peekDay(x) || {}).trainings || [])) { const g = trainType(t).gym; if (g) done.add(Number(g)); }
   const own = Number(weekTpl(weekday(k)).gym);

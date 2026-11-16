@@ -12,6 +12,8 @@ const EXPS = {
   caf_frueh: { n: 'Koffein 2 Std. früher stoppen', a: 'Koffein-Stopp 2 Std. früher', b: 'normaler Koffein-Stopp', hint: 'A-Tage: letztes Koffein 2 Std. vor deinem üblichen Stopp.', comply: (k, arm) => { if (arm === 'B') return true; const c = cafInfo(k); return c.last == null || c.last <= cafCutoff(k) - 120; } },
   dusche: { n: 'Warm duschen vor dem Schlafen', a: 'MIT warmer Dusche', b: 'OHNE warme Dusche', hint: 'A-Tage: 1–2 Std. vor dem Schlafen 10 Min. warm duschen.', comply: (k, arm) => { const d = peekDay(k); return !!d && !!(d.habits || {}).warm_dusche === (arm === 'A'); } },
   screen90: { n: '90 Min. bildschirmfrei vor dem Schlafen', a: '90 Min. ohne Bildschirm', b: 'wie sonst', hint: 'A-Tage: ab 90 Min. vor dem Schlafen kein Handy, Laptop, TV.', comply: (k, arm) => { if (arm === 'B') return true; const d = peekDay(k); return !!d && Number((d.hd || {}).screenFree) >= 90; } },
+  // seit 2.14 (Wunsch vom 16.11.2026). Gezählt werden nur eingetragene Getränke.
+  caf_dose: { n: '1 statt 2 Monster', a: 'höchstens 1 Dose (bis 200 mg Koffein)', b: '2 Dosen wie gewohnt', hint: 'A-Tage: nur eine Dose Monster Zero (oder bis 200 mg Koffein aus Getränken). B-Tage: wie gewohnt zwei. Getränke wie immer eintragen.', comply: (k, arm) => { const d = peekDay(k); const mg = ((d && d.caf) || []).reduce((a, c) => a + (Number(c.mg) || 0), 0); return arm === 'A' ? mg > 0 && mg <= 200 : mg >= 280; } },
 };
 const EXP_METRICS = [['sleepScore', 'Sleep Score', '', 3], ['deep', 'Tiefschlaf', 'Min.', 8], ['hrv', 'HRV', 'ms', 3]];
 function expCur() { const e = S.settings.exp; return e && e.id && EXPS[e.id] ? e : null; }
@@ -46,7 +48,11 @@ function expResult(e) {
   return { rows, res, done, comply: rows.length ? rows.filter((r) => r.ok).length / rows.length : null };
 }
 function expTodayCard(k = todayKey()) {
-  const e = expCur(); if (!e) return '';
+  const e = expCur();
+  // Vorgeschlagenes Experiment (einmalig angeboten, z. B. nach der Backup-Auswertung)
+  const off = S.settings.expOffer;
+  if (!e && off && EXPS[off]) return `<div class="banner exp-banner">${icon('flask-conical')}<div><b>Experiment bereit: ${esc(EXPS[off].n)}</b><span>14 Tage, zufällig A: ${esc(EXPS[off].a)} oder B: ${esc(EXPS[off].b)}. Gemessen: Sleep Score, Tiefschlaf, HRV der Nacht danach.</span></div><div class="banner-acts"><button class="pill-btn sm is-accent" data-a="exp-start" data-id="${off}">Starten</button><button class="pill-btn sm is-ghost" data-a="exp-offer-off">Später</button></div></div>`;
+  if (!e) return '';
   const arm = expArm(k), x = EXPS[e.id];
   const day = Object.keys(e.plan).sort().indexOf(k) + 1;
   if (!arm) return '';
@@ -72,7 +78,8 @@ function expResHTML(r) {
   return `<div class="exp-res">${r.res.map((x) => x.ma == null ? `<div><span>${esc(x.n)}</span><small>noch zu wenige Nächte (A ${x.nA}, B ${x.nB}, je 3 nötig)</small></div>` : `<div><span>${esc(x.n)}</span><b>${x.diff >= 0 ? '+' : '−'}${fmt(Math.abs(x.diff), 1)} ${esc(x.u)}</b><small>A Ø ${fmt(x.ma, 1)} · B Ø ${fmt(x.mb, 1)} · ${esc(x.verdict)}${r.done ? '' : ' (vorläufig)'}</small></div>`).join('')}</div>`;
 }
 Object.assign(A, {
-  'exp-start': (el) => { if (expStart(el.dataset.id)) { render(); toast(`Experiment gestartet: ${EXPS[el.dataset.id].n}`); } },
+  'exp-start': (el) => { if (expStart(el.dataset.id)) { delete S.settings.expOffer; markDirty('settings'); render(); toast(`Experiment gestartet: ${EXPS[el.dataset.id].n}`); } },
+  'exp-offer-off': () => { delete S.settings.expOffer; saveSettings(); toast('Findest du unter Wochenrückblick → Experimente'); },
   'exp-end': () => { const e = expCur(); if (!e) return; const r = expResult(e); if (r.done) S.settings.expHist = [...(S.settings.expHist || []), { id: e.id, start: e.start, days: e.days, res: r.res.map((x) => ({ ...x })) }]; delete S.settings.exp; saveSettings(); toast(r.done ? 'Experiment gespeichert' : 'Experiment abgebrochen'); },
 });
 function pushExp(k, r, add) {
