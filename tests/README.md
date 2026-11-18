@@ -20,6 +20,7 @@ node tests/blutdruck.js /tmp/out # 2.11: Blutdruck-Messwoche (ESC 2024), Einordn
 node tests/zwick.js /tmp/out     # 2.12: Zwickt’s – Stelle und Seite wählen, Schmerz 0–10, Stufen akut/Aufbau, Timer, Warnzeichen, Verlauf, BJJ (Garmin, Frage am Morgen), Bericht
 node tests/athletik.js /tmp/out  # 2.13: Knie Kraft & Athletik – Einheiten A/B/C, Timer mit Pausen, Schmerz-Monitoring (leichter Tag), Beintag, Routine, Mitteilung, Bericht
 node tests/v214.js /tmp/out      # 2.14: Statistik ab dem ersten eigenen Eintrag, Prepmymeal-Gerichte decken den Beutel, Sauna/Kein Alkohol automatisch, Kraft-Autopilot mit gleichen Arbeitssätzen, flexible Woche (Gym/BJJ/Ergometer), Morgen-Check, Erhaltungskalorien aus Essen + Gewicht, Experiment „1 statt 2 Monster“, Migration nach Backup-Import
+node tests/v215.js /tmp/out      # 2.15: Trendgewicht, Gewichts-Erklärer, Körpermaße, Phase, Recomp-Ampel, Monatskarte, Physique-Fotos mit Schablone (Kamera), Fotos im Backup, Morgen-Check mit Koffein/Essen/Stimmung/lernender Routine
 ```
 
 `upgrade.js` prüft das Update einer alten Version mit Daten auf die aktuelle (alte `docs/` per `git archive` in einen Ordner, Symlink `cur` darauf, Server auf Port 8768 mit `--directory <ordner>/cur`, dann `node tests/upgrade.js <ordner>`).

@@ -379,8 +379,8 @@ const SET_VIEWS = {
       <div class="sheet-acts"><button class="btn is-accent" data-a="backup-export">${icon('share')}Backup erstellen</button>
       <label class="btn">${icon('upload')}Backup importieren<input type="file" accept="application/json,.json" data-c="backup-import" hidden></label></div>
       <div class="frow is-wide"><span class="flabel">Erinnerung</span><div class="chips chips-tight">${[[0, 'Aus'], [7, 'Wöchentlich'], [14, 'Alle 2 Wochen'], [30, 'Monatlich']].map(([v, l]) => `<button class="chip chip-xs${S.settings.backupDays === v ? ' is-on' : ''}" data-a="backup-days" data-v="${v}">${l}</button>`).join('')}</div></div>
-      <p class="hint">Speicher: ${DB.mode === 'idb' ? 'IndexedDB' : 'localStorage'} auf diesem Gerät. Das Backup enthält alle Bereiche (Ernährung, Training, Knie, Haut-Tagebuch, Blutwerte, Einkauf, Rückblicke) – nur die Fotos nicht.</p>
-      <h5>Wochenfotos</h5><p class="hint">${photoIdx.loaded ? `${photoIdx.keys.length} Fotos gespeichert.` : ''} Fotos sind groß und werden deshalb getrennt als ZIP gesichert (JPEG-Dateien, auch am Mac lesbar).</p>
+      <p class="hint">Speicher: ${DB.mode === 'idb' ? 'IndexedDB' : 'localStorage'} auf diesem Gerät. Das Backup enthält alle Bereiche (Ernährung, Training, Knie, Haut-Tagebuch, Blutwerte, Einkauf, Rückblicke) – und die Fotos, falls unten nicht abgeschaltet.</p>${backupPhotoHTML()}
+      <h5>Fotos in voller Größe</h5><p class="hint">Als ZIP mit JPEG-Dateien, auch am Mac lesbar.</p>
       <div class="sheet-acts"><button class="btn" data-a="photos-export">${icon('images')}Fotos als ZIP sichern</button><label class="btn">${icon('upload')}Fotos-ZIP importieren<input type="file" accept="application/zip,.zip" data-c="photos-import" hidden></label></div>
       <button class="btn is-danger" data-a="wipe-ask">Alle Daten löschen</button>`;
   },

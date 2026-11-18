@@ -110,6 +110,9 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   await page.click('#mcheck [data-a="knee-am"][data-v="2"]'); await page.clock.runFor(100);
   await page.click('#mcheck [data-a="skin-score"][data-v="6"]'); await page.clock.runFor(100);
   ok(!!(await page.$('#mcheck')), 'Ohne Gewicht noch offen');
+  // seit 2.15 fragt der Check auch Stimmung, ggf. Koffein und Essen von gestern
+  for (const f of ['wellbeing', 'energy']) { const b = await page.$(`#mcheck [data-a="mood"][data-f="${f}"][data-v="8"]`); if (b) { await b.click(); await page.clock.runFor(100); } }
+  for (const sel of ['#mcheck [data-a="mc-caf"][data-v="1"]', '#mcheck [data-a="mc-food"][data-v="ok"]']) { const b = await page.$(sel); if (b) { await b.click(); await page.clock.runFor(100); } }
   await page.fill('#mcheck input[data-k="weight"]', '78,9'); await page.dispatchEvent('#mcheck input[data-k="weight"]', 'change'); await page.clock.runFor(300);
   const after = await ev(() => ({ st: mcState(todayKey()), am: kneeAm(todayKey()), sc: getDay(todayKey()).skin.score, w: getDay(todayKey()).health.weight, card: !!document.getElementById('mcheck'), push: pushPlan().filter((x) => x.tag.startsWith('mcheck') && dkey(new Date(x.at)) === todayKey()).length, step: rtStep('mcheck', todayKey()).done }));
   ok(after.st.done && after.am === 2 && after.sc === 6 && after.w === 78.9 && !after.card && after.step, 'Knie 2, Haut 6, Gewicht 78,9 → Morgen-Check fertig, Karte weg, Routine-Schritt erledigt');

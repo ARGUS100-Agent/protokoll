@@ -1237,6 +1237,8 @@ label.pill-btn { cursor: pointer; }
 .mc-head .ic { width: 16px; height: 16px; }
 .mc-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 7px 0; }
 .mc-row span { font-size: 14.5px; line-height: 1.35; }
+.mc-row.is-stack { display: block; padding: 4px 0; }
+.mc-row.is-stack > span { display: block; margin-bottom: 4px; }
 .mc-yn { display: flex; gap: 6px; }
 .mc-yn .chip { min-width: 52px; justify-content: center; }
 .mc-yn .chip.is-no { background: rgba(242, 96, 92, .16); color: var(--st-over); border-color: rgba(242, 96, 92, .45); }
@@ -1244,6 +1246,62 @@ label.pill-btn { cursor: pointer; }
 .mc-w .mini-in { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); }
 .rt-note { margin: 4px 16px 6px; display: flex; gap: 6px; align-items: flex-start; }
 .rt-note .ic { width: 15px; height: 15px; flex: none; margin-top: 2px; }
+
+/* ---------- 2.15: Körper, Fotos mit Schablone, Morgen-Check ---------- */
+.ampel { font-size: 12.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--bg-3); color: var(--ink-3); white-space: nowrap; }
+.ampel.is-ok { background: color-mix(in srgb, var(--st-ok) 18%, transparent); color: var(--st-ok); }
+.ampel.is-warn { background: color-mix(in srgb, var(--st-under) 20%, transparent); color: var(--st-under); }
+.ampel.is-bad { background: color-mix(in srgb, var(--st-over) 18%, transparent); color: var(--st-over); }
+.kv.is-ok b { color: var(--st-ok); }
+.kv.is-warn b { color: var(--st-under); }
+.kv.is-bad b { color: var(--st-over); }
+.meas-form .flabel small, .form .flabel small { display: block; font-size: 12px; font-weight: 500; color: var(--ink-3); margin-top: 2px; }
+.meas-tbl td:nth-child(2), .meas-tbl th:nth-child(2) { text-align: right; }
+.side-list { display: grid; gap: 6px; margin: 6px 0; }
+.side-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 9px 12px; border-radius: 12px; background: var(--bg-2); }
+.side-row span { font-weight: 650; }
+.side-row small { grid-column: 1 / -1; color: var(--ink-3); font-size: 12.5px; }
+.side-row.is-flag { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-under) 55%, transparent); }
+.side-row.is-flag small { color: var(--st-under); }
+.ph-grid.is-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ph-cap .link-btn + .link-btn { margin-left: 8px; }
+.ph-grid.is-3 .ph-cap { display: grid; justify-items: start; gap: 0; }
+.ph-grid.is-3 .ph-cap .link-btn { font-size: 13px; }
+.cmp-slide { position: relative; width: 100%; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 14px; background: var(--bg-2); margin-top: 10px; --x: 50%; }
+.cmp-slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cmp-slide .cmp-top { clip-path: inset(0 0 0 var(--x)); }
+.cmp-slide .cmp-bar { position: absolute; top: 0; bottom: 0; left: var(--x); width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); pointer-events: none; }
+.cmp-slide input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+.cmp-cap { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-3); margin-top: 4px; }
+.tl-box { position: relative; width: 100%; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 14px; background: var(--bg-2); }
+.tl-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tl-date { position: absolute; left: 10px; bottom: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font-size: 12.5px; font-weight: 650; }
+.month-ph { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.month-ph figure { margin: 0; }
+.month-ph figcaption { font-size: 12px; color: var(--ink-3); margin-top: 4px; text-align: center; }
+.mc-learn { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: start; margin: 8px 0 2px; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); }
+.mc-learn > .ic { width: 18px; height: 18px; color: var(--accent); margin-top: 2px; }
+.mc-learn .chips { grid-column: 1 / -1; }
+/* Kamera mit Schablone */
+.cam { position: fixed; inset: 0; z-index: 200; background: #000; color: #fff; overflow: hidden; }
+.cam-v, .cam-g { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cam-g { pointer-events: none; }
+.cam-g:not([src]) { display: none; }
+.is-mirror { transform: scaleX(-1); }
+.cam-guide { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(255,255,255,.35); pointer-events: none; }
+.cam-top { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: calc(var(--safe-t) + 10px) 14px 14px; background: linear-gradient(rgba(0,0,0,.6), transparent); }
+.cam-top b { display: block; font-size: 17px; }
+.cam-top small { display: block; font-size: 12.5px; opacity: .85; margin-top: 2px; }
+.cam-top .icon-btn { color: #fff; background: rgba(255,255,255,.15); }
+.cam-count { position: absolute; inset: 0; display: grid; place-items: center; font-size: 96px; font-weight: 800; text-shadow: 0 2px 12px rgba(0,0,0,.6); pointer-events: none; }
+.cam-bot { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 14px calc(var(--safe-b) + 16px); background: linear-gradient(transparent, rgba(0,0,0,.7)); }
+.cam-op { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 12px; }
+.cam-op input { flex: 1; }
+.cam-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.cam-btn { display: grid; justify-items: center; gap: 3px; color: #fff; font-size: 12px; font-weight: 650; background: none; }
+.cam-btn .ic { width: 24px; height: 24px; }
+.cam-shutter { width: 74px; height: 74px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px #000, 0 0 0 7px #fff; }
+.cam-shutter:active { transform: scale(.94); }
 
 </style>
 </head>
@@ -1271,6 +1329,7 @@ const ICONS = {
   'bot': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /></svg>',
   'brain': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5" /> <path d="M15 13a4.17 4.17 0 01-3-4 4.17 4.17 0 01-3 4" /> <path d="M17.707 6.294A3 3 0 1012 5a3 3 0 10-5.707 1.294" /> <path d="M17.996 5.125a4 4 0 012.526 5.77" /> <path d="M18 18a4 4 0 002-7.465" /> <path d="M19.967 17.482a4 4 0 11-7.967.517 4 4 0 11-7.967-.517" /> <path d="M6 18a4 4 0 01-2-7.465" /> <path d="M6.004 5.125a4 4 0 00-2.526 5.77" /></svg>',
   'calendar-check': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /> <path d="m9 15 2 2 4-4" /></svg>',
+  'calendar-range': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M16 2v3" /> <path d="M3 9h18" /> <path d="M8 2v3" /> <path d="M17 13h-6" /> <path d="M13 17H7" /> <path d="M7 13h.01" /> <path d="M17 17h.01" /></svg>',
   'camera': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></svg>',
   'check': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>',
   'chevron-down': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>',
@@ -1351,6 +1410,7 @@ const ICONS = {
   'sun': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" /> <path d="M12 2v2" /> <path d="M12 20v2" /> <path d="m4.93 4.93 1.41 1.41" /> <path d="m17.66 17.66 1.41 1.41" /> <path d="M2 12h2" /> <path d="M20 12h2" /> <path d="m6.34 17.66-1.41 1.41" /> <path d="m19.07 4.93-1.41 1.41" /></svg>',
   'sunrise': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8" /> <path d="m4.93 10.93 1.41 1.41" /> <path d="M2 18h2" /> <path d="M20 18h2" /> <path d="m19.07 10.93-1.41 1.41" /> <path d="M22 22H2" /> <path d="m8 6 4-4 4 4" /> <path d="M16 18a4 4 0 0 0-8 0" /></svg>',
   'sunset': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10V2" /> <path d="m4.93 10.93 1.41 1.41" /> <path d="M2 18h2" /> <path d="M20 18h2" /> <path d="m19.07 10.93-1.41 1.41" /> <path d="M22 22H2" /> <path d="m16 6-4 4-4-4" /> <path d="M16 18a4 4 0 0 0-8 0" /></svg>',
+  'switch-camera': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" /> <path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5" /> <circle cx="12" cy="12" r="3" /> <path d="m18 22-3-3 3-3" /> <path d="m6 2 3 3-3 3" /></svg>',
   'target': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <circle cx="12" cy="12" r="6" /> <circle cx="12" cy="12" r="2" /></svg>',
   'test-tube-diagonal': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01a2.83 2.83 0 0 1 0-4L17 3" /> <path d="m16 2 6 6" /> <path d="M12 16H4" /></svg>',
   'thermometer': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /></svg>',
@@ -1379,7 +1439,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.14.1';
+const APP_VERSION = '2.15.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -3537,7 +3597,7 @@ function lastDone(routineId, k) {
 
 /* ---------- Backup ---------- */
 function exportData() {
-  return { app: 'protokoll', schema: 5, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, wish: { items: wishItems(), seen: S.wish.seen }, photos: 'Fotos werden getrennt als ZIP gesichert (Einstellungen → Backup & Daten)' };
+  return { app: 'protokoll', schema: 5, version: APP_VERSION, exportedAt: new Date().toISOString(), settings: S.settings, meta: S.meta, foods: S.foods, days: S.days, shop: S.shop, blood: S.blood, knee: S.knee, reviews: S.reviews, wish: { items: wishItems(), seen: S.wish.seen }, photos: [] };
 }
 function backupDue() {
   const n = S.settings.backupDays;
@@ -4627,7 +4687,7 @@ async function loadPhotoIndex() {
 }
 function photoKey(ws, angle) { return `${ws}|${angle}`; }
 function photosOfWeek(ws) { return PHOTO_ANGLES.filter((a) => photoIdx.keys.includes(photoKey(ws, a.id))).map((a) => a.id); }
-function photoWeeks() { return [...new Set(photoIdx.keys.map((k) => k.split('|')[0]))].sort().reverse(); }
+function photoWeeks() { return [...new Set(photoIdx.keys.filter((k) => !isPhys(k.split('|')[1])).map((k) => k.split('|')[0]))].sort().reverse(); }
 async function compressImage(file, maxEdge, q) {
   const url = URL.createObjectURL(file);
   try {
@@ -4741,7 +4801,7 @@ async function importPhotosZip(buf) {
   let list = [];
   if (man) { try { list = JSON.parse(new TextDecoder().decode(man.data)).photos || []; } catch (e) { list = []; } }
   if (!list.length) {
-    for (const e of entries) { const m = e.name.match(/(\d{4}-\d{2}-\d{2})_([a-z]+)\.jpe?g$/i); if (m && PHOTO_ANGLES.some((a) => a.id === m[2])) list.push({ file: e.name, week: weekStart(m[1]), date: m[1], angle: m[2] }); }
+    for (const e of entries) { const m = e.name.match(/(\d{4}-\d{2}-\d{2})_([a-z_]+)\.jpe?g$/i); if (m && PHOTO_ANGLES.concat(PHYS_ANGLES).some((a) => a.id === m[2])) list.push({ file: e.name, week: weekStart(m[1]), date: m[1], angle: m[2] }); }
   }
   let n = 0;
   for (const p of list) {
@@ -5936,8 +5996,8 @@ const SET_VIEWS = {
       <div class="sheet-acts"><button class="btn is-accent" data-a="backup-export">${icon('share')}Backup erstellen</button>
       <label class="btn">${icon('upload')}Backup importieren<input type="file" accept="application/json,.json" data-c="backup-import" hidden></label></div>
       <div class="frow is-wide"><span class="flabel">Erinnerung</span><div class="chips chips-tight">${[[0, 'Aus'], [7, 'Wöchentlich'], [14, 'Alle 2 Wochen'], [30, 'Monatlich']].map(([v, l]) => `<button class="chip chip-xs${S.settings.backupDays === v ? ' is-on' : ''}" data-a="backup-days" data-v="${v}">${l}</button>`).join('')}</div></div>
-      <p class="hint">Speicher: ${DB.mode === 'idb' ? 'IndexedDB' : 'localStorage'} auf diesem Gerät. Das Backup enthält alle Bereiche (Ernährung, Training, Knie, Haut-Tagebuch, Blutwerte, Einkauf, Rückblicke) – nur die Fotos nicht.</p>
-      <h5>Wochenfotos</h5><p class="hint">${photoIdx.loaded ? `${photoIdx.keys.length} Fotos gespeichert.` : ''} Fotos sind groß und werden deshalb getrennt als ZIP gesichert (JPEG-Dateien, auch am Mac lesbar).</p>
+      <p class="hint">Speicher: ${DB.mode === 'idb' ? 'IndexedDB' : 'localStorage'} auf diesem Gerät. Das Backup enthält alle Bereiche (Ernährung, Training, Knie, Haut-Tagebuch, Blutwerte, Einkauf, Rückblicke) – und die Fotos, falls unten nicht abgeschaltet.</p>${backupPhotoHTML()}
+      <h5>Fotos in voller Größe</h5><p class="hint">Als ZIP mit JPEG-Dateien, auch am Mac lesbar.</p>
       <div class="sheet-acts"><button class="btn" data-a="photos-export">${icon('images')}Fotos als ZIP sichern</button><label class="btn">${icon('upload')}Fotos-ZIP importieren<input type="file" accept="application/zip,.zip" data-c="photos-import" hidden></label></div>
       <button class="btn is-danger" data-a="wipe-ask">Alle Daten löschen</button>`;
   },
@@ -6117,6 +6177,9 @@ function vHeute() {
   h += banners(k);
   h += kneeAlertCards(k);
   h += mcCard(k);
+  h += weightWhyHTML(k);
+  h += koerperDueCard(k);
+  h += monthBanner(k);
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
@@ -6505,6 +6568,8 @@ function vLicht() {
     <h5>Schnell eintragen${isT ? ' (jetzt)' : ''}</h5><div class="caf-grid">${S.settings.caf.presets.map((p) => `<button class="caf-btn" data-a="caf-add" data-id="${p.id}" data-date="${k}"><b>${esc(p.n)}</b><small>${fmt(p.mg)} mg</small></button>`).join('')}<button class="caf-btn is-new" data-a="caf-custom" data-date="${k}"><b>${icon('plus')} Eigenes Getränk</b><small>anlegen</small></button></div>`;
   const src = ci.today;
   if (src.length) h += `<div class="list caf-list">${src.map((x) => { const late = x.t > ci.cut; const sub = [x.src === 'caf' ? '' : 'aus Ernährung', late ? 'nach ' + minToTime(ci.cut) : ''].filter(Boolean).join(' · '); return `<div class="caf-row"><span class="row-main"><b>${esc(x.n)}</b>${sub ? `<small${late ? ' class="warn-txt"' : ''}>${sub}</small>` : ''}</span>${x.src === 'caf' ? `<input class="row-time" type="time" value="${minToTime(x.t)}" data-c="caf-time" data-id="${x.id}" data-date="${k}" aria-label="Uhrzeit">` : `<span class="row-side">${minToTime(x.t)}</span>`}<span class="row-side caf-mg">${fmt(x.mg)} mg</span>${x.src === 'caf' ? `<button class="icon-btn sm ghost" data-a="caf-del" data-id="${x.id}" data-date="${k}" aria-label="Löschen">${icon('trash-2')}</button>` : '<span></span>'}</div>`; }).join('')}</div>`;
+  const untimed = (getDay(k).caf || []).filter((x) => timeToMin(x.t) == null);
+  if (untimed.length) h += `<p class="hint">Ohne Uhrzeit (aus dem Morgen-Check): ${untimed.length} × ${esc(untimed[0].n)}, zusammen ${fmt(untimed.reduce((a, x) => a + (Number(x.mg) || 0), 0))} mg. Zählt fürs Experiment, nicht für den Verlauf oben. <button class="link-btn" data-a="caf-del" data-id="${untimed[untimed.length - 1].id}" data-date="${k}">eine löschen</button></p>`;
   h += `<p class="hint">Koffein-Stopp ${cafMode() === 'dose' ? 'je Getränk nach Dosis (Meta-Analyse Gardiner 2023: je mehr Koffein, desto früher)' : `${minToTime(ci.cut)} Uhr (${cafStopText()})`}, Schlafenszeit ${minToTime(ci.bed)} Uhr. Mengen, Halbwertszeit und Getränke änderst du unter ${goBtn('set', 'Einstellungen → Koffein', '', 'link-btn inline')}.</p></section>`;
   /* Weitere Gewohnheiten */
   h += `<section class="sec"><div class="sec-head"><h2>Abend & Schlaf</h2></div>${habitRows(k, ['alkohol', 'mahlzeit', 'bildschirm', 'dimmen', 'nsdr'])}</section>`;
@@ -6641,12 +6706,12 @@ function vHautFotos() {
   const ws = ui.photoWeek;
   const isCur = ws === weekStart(todayKey());
   let h = `<div class="week-nav"><button class="icon-btn" data-a="photo-week" data-d="-7" aria-label="Vorherige Woche">${icon('chevron-left')}</button><span>KW ${isoWeek(ws)} · ${esc(fmtDate(ws, { day: 'numeric', month: 'short' }))} – ${esc(fmtDate(addDays(ws, 6), { day: 'numeric', month: 'short' }))}</span><button class="icon-btn" data-a="photo-week" data-d="7" ${isCur ? 'disabled' : ''} aria-label="Nächste Woche">${icon('chevron-right')}</button></div>`;
-  h += `<p class="sec-sub">Sonntagmorgens, gleiches Licht, gleicher Abstand. Die Bilder bleiben nur auf diesem iPhone.</p><div class="ph-grid">`;
+  h += `<p class="sec-sub">Sonntagmorgens, gleiches Licht, gleicher Abstand. „Mit Schablone“ blendet das letzte Foto ein, damit Pose und Abstand stimmen. Die Fotos sind im Backup enthalten (verkleinert).</p><div class="ph-grid">`;
   for (const a of PHOTO_ANGLES) {
     const key = photoKey(ws, a.id);
     const has = photoIdx.keys.includes(key);
-    h += has ? `<div class="ph-slot"><button class="ph" data-a="photo-view" data-key="${key}" aria-label="${esc(a.n)} ansehen"><img data-photo="${key}" alt="${esc(a.n)}"></button><div class="ph-cap"><b>${esc(a.n)}</b><label class="link-btn">Ersetzen<input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label></div></div>`
-      : `<div class="ph-slot"><label class="ph is-add">${icon('camera')}<span>${esc(a.n)}</span><input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label><div class="ph-cap"><b>${esc(a.n)}</b><small>fehlt</small></div></div>`;
+    h += has ? `<div class="ph-slot"><button class="ph" data-a="photo-view" data-key="${key}" aria-label="${esc(a.n)} ansehen"><img data-photo="${key}" alt="${esc(a.n)}"></button><div class="ph-cap"><b>${esc(a.n)}</b><button class="link-btn" data-a="cam-open" data-ws="${ws}" data-angle="${a.id}">Kamera</button><label class="link-btn">Ersetzen<input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label></div></div>`
+      : `<div class="ph-slot"><label class="ph is-add">${icon('camera')}<span>${esc(a.n)}</span><input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label><div class="ph-cap"><b>${esc(a.n)}</b><button class="link-btn" data-a="cam-open" data-ws="${ws}" data-angle="${a.id}">Mit Schablone</button></div></div>`;
   }
   h += '</div>';
   const weeks = photoWeeks();
@@ -6658,17 +6723,16 @@ function vHautFotos() {
   }
   if (weeks.length) {
     h += `<section class="sec"><div class="sec-head"><h2>Galerie</h2><span class="count">${weeks.length} ${weeks.length === 1 ? 'Woche' : 'Wochen'}</span></div><div class="list">${weeks.map((w) => `<button class="row gal-row" data-a="photo-week-go" data-ws="${w}"><span class="row-main"><b>KW ${isoWeek(w)}</b><small>${esc(fmtDate(w, { day: 'numeric', month: 'short', year: 'numeric' }))} · ${photosOfWeek(w).length}/4</small></span><span class="gal-thumbs">${photosOfWeek(w).map((a) => `<img data-photo="${photoKey(w, a)}" alt="">`).join('')}</span></button>`).join('')}</div>
-      <p class="hint">Fotos sind nicht im normalen Backup (zu groß). Unter Einstellungen → Backup & Daten kannst du sie als ZIP sichern.</p></section>`;
+      <p class="hint">Die Fotos stecken verkleinert im Backup, damit Claude sie mit auswerten kann. Volle Größe: Einstellungen → Backup & Daten → Fotos als ZIP.</p></section>`;
   }
   return h;
 }
 function sheetPhoto(key) {
   const [ws, angle] = key.split('|');
-  const a = PHOTO_ANGLES.find((x) => x.id === angle);
   ui.sheet = { type: 'photo', key };
-  openSheet(`<h3 class="sheet-title">${esc(a ? a.n : angle)}</h3><p class="hint">KW ${isoWeek(ws)}, Woche ab ${esc(fmtDate(ws, { day: 'numeric', month: 'long', year: 'numeric' }))}</p>
+  openSheet(`<h3 class="sheet-title">${esc(angleName(angle))}</h3><p class="hint">KW ${isoWeek(ws)}, Woche ab ${esc(fmtDate(ws, { day: 'numeric', month: 'long', year: 'numeric' }))}</p>
     <div class="ph-full"><img data-photo="${key}" data-full="1" alt=""></div>
-    <div class="sheet-acts"><button class="btn is-danger" data-a="photo-del" data-key="${key}">Foto löschen</button></div>`);
+    <div class="sheet-acts"><button class="btn" data-a="photo-share" data-key="${key}">${icon('share')}In Fotos sichern</button><button class="btn is-danger" data-a="photo-del" data-key="${key}">Foto löschen</button></div>`);
   hydratePhotos($('#sheet'));
 }
 function skinChart() {
@@ -6721,33 +6785,6 @@ function vHautVerlauf() {
 /* ============================================================
    KÖRPER
    ============================================================ */
-function vKoerper() {
-  const k = ui.date, d = getDay(k);
-  let h = areaHead('koerper') + dateBar(k);
-  if (weekday(k) === 6) h += `<div class="banner is-soft">${icon('scale')}<div><b>Sonntagmorgen</b><span>Nüchtern, ohne Kleidung, nach dem Toilettengang – zusammen mit dem Hautcheck und den Wochenfotos.</span></div></div>`;
-  const prev = (f) => { for (let i = 1; i < 60; i++) { const x = peekDay(addDays(k, -i)); if (x && x.health && x.health[f] != null) return x.health[f]; } return null; };
-  const row = (f, n, unit, dec) => { const v = d.health[f]; const pv = prev(f); return `<div class="frow"><span class="flabel">${n}</span><div class="fin"><input type="text" inputmode="decimal" data-c="health" data-k="${f}" data-date="${k}" value="${numIn(v, dec)}" placeholder="${pv != null ? 'zuletzt ' + numIn(pv, dec) : '–'}" aria-label="${n}"><span class="unit">${unit}</span></div></div>`; };
-  h += `<section class="sec"><div class="form">${row('weight', 'Gewicht', 'kg', 1)}${row('waist', 'Bauchumfang (optional)', 'cm', 1)}</div><p class="hint">Bauchumfang auf Nabelhöhe, entspannt ausatmen.</p></section>`;
-  h += bpSection(k);
-  for (const [f, n, unit] of [['weight', 'Gewicht', 'kg'], ['waist', 'Bauchumfang', 'cm']]) {
-    const ser = weightSeries(f);
-    if (!ser.length) { if (f === 'weight') h += chartCard('kw', n, 'Trag dein Gewicht ein, dann siehst du hier Verlauf, gleitenden Schnitt und Veränderung.', emptyChart('Noch kein Eintrag.')); continue; }
-    const lastE = ser[ser.length - 1];
-    const weekAgo = [...ser].reverse().find((x) => daysBetween(x.k, lastE.k) >= 5) || (ser.length >= 2 ? ser[ser.length - 2] : null);
-    const first = ser[0];
-    const vals = ser.map((x) => x.v);
-    const ma = vals.map((_, i) => { const w = vals.slice(Math.max(0, i - 3), i + 1); return w.length >= 2 ? mean(w) : null; });
-    const kv = (l, v, s = '') => `<div class="kv"><span>${l}</span><b>${v}</b>${s ? `<small>${s}</small>` : ''}</div>`;
-    const dl = (a, b) => (a == null || b == null ? '–' : `${a - b >= 0 ? '+' : ''}${fmt(a - b, 1)}`);
-    h += `<div class="kv-grid is-3">${kv(`${n} aktuell`, `${fmt(lastE.v, 1)}`, `${unit} · ${fmtDate(lastE.k, { day: 'numeric', month: 'short' })}`)}${kv('zur Vorwoche', dl(lastE.v, weekAgo && weekAgo.v), weekAgo ? `${unit} seit ${fmtDate(weekAgo.k, { day: 'numeric', month: 'short' })}` : unit)}${kv('seit Start', dl(lastE.v, first.v), `${unit} seit ${fmtDate(first.k, { day: 'numeric', month: 'short' })}`)}</div>`;
-    const legend = `<div class="legend"><span><i class="line-key" style="background:${SERIES.one}"></i>${n}</span><span><i class="line-key" style="background:${SERIES.two}"></i>Ø der letzten 4 Messungen</span></div>`;
-    const body = lineChart({ keys: ser.map((x) => x.k), series: [{ name: n, color: SERIES.one, vals, dots: true }, { name: 'Gleitender Ø', color: SERIES.two, vals: ma }], unit, fmtY: (v) => fmt(v, 1) });
-    const table = `<tr><th>Datum</th><th>${n}</th><th>Ø 4</th></tr>` + ser.map((x, i) => `<tr><td>${shortDate(x.k)}</td><td>${fmt(x.v, 1)} ${unit}</td><td>${ma[i] != null ? fmt(ma[i], 1) : '–'}</td></tr>`).reverse().join('');
-    h += chartCard('k' + f, f === 'weight' ? 'Gewichtsverlauf' : 'Bauchumfang', '', body, table, legend);
-  }
-  return h;
-}
-
 /* ============================================================
    BLUTWERTE
    ============================================================ */
@@ -7544,7 +7581,13 @@ function addEntry(k, food, g, meal) {
 }
 async function shareBackup() {
   await flush();
-  const json = JSON.stringify(exportData());
+  const data = exportData();
+  if (backupPhotoMode() !== 'keine') {
+    toast('Backup wird erstellt …');
+    try { data.photos = await photosForBackup(); } catch (e) { data.photos = []; }
+    data.photoInfo = `${data.photos.length} Fotos (Haut und Körper) im Feld „photos“, verkleinert auf 1080 px als JPEG in Base64. Volle Größe: Fotos-ZIP.`;
+  }
+  const json = JSON.stringify(data);
   const name = `protokoll-backup-${todayKey()}.json`;
   let file = null;
   try { file = new File([json], name, { type: 'application/json' }); } catch (e) { file = null; }
@@ -7755,7 +7798,9 @@ const A = {
     if (PUSH) await pushSave(); // Mitteilungen ebenso
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); Object.keys(S.days).forEach((k) => markDirty('day:' + k));
     await flush();
-    buildFoodIndex(); invalidate(); closeSheet(); render(); toast('Backup importiert');
+    let nPh = 0;
+    if (Array.isArray(data.photos) && data.photos.length) { try { nPh = await importBackupPhotos(data.photos); } catch (e) { /* Fotos optional */ } }
+    buildFoodIndex(); invalidate(); closeSheet(); render(); toast(nPh ? `Backup importiert, dazu ${nPh} Fotos` : 'Backup importiert');
   },
   'wipe-ask': () => {
     ui.sheet = { type: 'wipe' };
@@ -10533,18 +10578,25 @@ function weightTrend(k, days = 28) {
    Wenige Wiegungen schwanken stark (Wasser, Salz, Darminhalt) → Korrektur gedeckelt: ±300 kcal bis 6 Messungen,
    danach ±600 kcal. Unvollständig erfasste Tage (unter 60 % des Medians) zählen nicht. */
 function maintEstimate(k = todayKey()) {
-  const rows = rangeKeys(21, addDays(k, -1)).map((x) => ({ k: x, v: dayIntake(x) })).filter((r) => r.v != null && r.v > 0);
+  const rows = rangeKeys(21, addDays(k, -1)).map((x) => { const d = peekDay(x) || {}; return { k: x, v: dayIntake(x), ok: !!d.foodOk, inc: !!d.incomplete }; }).filter((r) => r.v != null && r.v > 0);
   if (!rows.length) return null;
   const vs = rows.map((r) => r.v).sort((a, b) => a - b), med = vs[Math.floor(vs.length / 2)];
-  const full = rows.filter((r) => r.v >= med * 0.6);
+  // „Passt so“ aus dem Morgen-Check zählt auch an kleinen Tagen, „unvollständig“ nie (seit 2.15)
+  const full = rows.filter((r) => !r.inc && (r.ok || r.v >= med * 0.6));
   if (full.length < 7) return { n: full.length, est: null };
   const intake = Math.round(mean(full.map((r) => r.v)));
-  const wt = weightTrend(addDays(k, -1)); // 4 Wochen: mehr Wiegungen, stabilerer Trend (wie in der Karte angezeigt)
+  const wt = weightRate(addDays(k, -1)); // seit 2.15: Rate aus dem Trendgewicht (stabiler als die Regression)
   if (wt.slope == null || wt.n < 3) return { n: full.length, intake, wt, est: null };
   const cap = wt.n >= 6 ? 600 : 300;
   const raw = Math.round((-wt.slope * 7700) / 7);
   const corr = clamp(raw, -cap, cap);
   return { n: full.length, intake, wt, raw, corr, capped: corr !== raw, est: Math.round((intake + corr) / 10) * 10 };
+}
+/* Gewichtsrate: aus dem Trendgewicht (koerper.js), sonst wie bisher aus der Regression über 4 Wochen */
+function weightRate(k) {
+  const ti = trendInfo(k);
+  if (ti.rate != null) return { n: ti.win === 14 ? ti.n14 : ti.n28, last: ti.last, slope: ti.rate, trend: ti.trend, src: 'trend' };
+  return weightTrend(k);
 }
 /* Kennzahlen bis einschließlich gestern (heute ist noch nicht fertig) */
 function energyStats(k = todayKey()) {
@@ -10556,7 +10608,7 @@ function energyStats(k = todayKey()) {
   const full = rows.filter((r) => r.burn != null && r.intake != null && r.intake >= r.burn * 0.5);
   const last7 = full.filter((r) => r.k >= addDays(k, -7));
   const bal = last7.length ? Math.round(mean(last7.map((r) => r.intake - r.burn))) : null;
-  const wt = weightTrend(addDays(k, -1));
+  const wt = weightRate(addDays(k, -1));
   const g = ENERGY_GOALS.find((x) => x[0] === cfg.goal) || ENERGY_GOALS[0];
   const me = maintEstimate(k);
   let offset = g[2];
@@ -11163,7 +11215,7 @@ function rtBlockItems(b, variant) { const inV = b.items.filter((it) => itemInVar
 function rtStep(id, k) {
   const d = getDay(k), r = rhythm(k), variant = dayVariant(k);
   const hb = HABITS.find((h) => h.id === id);
-  if (id === 'mcheck') { if (!mcOn()) return null; const st = mcState(k); return { id, n: 'Morgen-Check', sub: 'Gestern Abend, Knie, Haut, Gewicht · 20 Sek.', t: r.wake + 15, done: st.done, part: !st.done && st.open < 4, go: 'mcheck' }; }
+  if (id === 'mcheck') { if (!mcOn()) return null; const st = mcState(k); return { id, n: 'Morgen-Check', sub: 'Gestern Abend, Koffein, Knie, Haut, Gewicht, Stimmung · 30 Sek.', t: r.wake + 15, done: st.done, part: !st.done && st.open < 4, go: 'mcheck' }; }
   if (id === 'caf_start') { const st = cafStart(k); return { id, n: `Koffein frühestens ${minToTime(st)}`, sub: '90 Min. nach dem Aufwachen', t: st, info: true, done: k < todayKey() || (k === todayKey() && nowMin() >= st) }; }
   if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
@@ -12765,6 +12817,635 @@ Object.assign(A, {
   'tm-pain': (el) => { const t = ui.timer; if (!t) return; const v = Number(el.dataset.v); t.pain = t.pain === v ? null : v; timerRender(); },
 });
 
+/* ---- koerper.js ---- */
+/* ============================================================
+   KÖRPER & PHYSIQUE (seit 2.15.0, Wunsch vom 18.11.2026: mehr Fortschritt sehen, auch an der Physique)
+   - Trendgewicht: geglätteter Wert statt Tageszahl (jeder Tag zählt 10 %, wie „The Hacker's Diet“), dazu die
+     Wochenrate in kg und %. Iraki 2019: Wochenmittel aus täglichem Wiegen gleichen die Tagesschwankungen aus.
+   - Gewichts-Erklärer: Weicht die Waage deutlich vom Trend ab, nennt die App wahrscheinliche Gründe vom Vortag.
+   - Körpermaße alle 4 Wochen, links/rechts getrennt (Oberschenkel fürs Knie). Taille-zu-Größe (NICE: unter 0,5),
+     Schulter-Bauch-Verhältnis. Körperfett und FFMI nur als Verlauf derselben Methode: Maßband-Formeln erfassen
+     Veränderungen schlecht (Foulis 2023), Waagen schätzen Körperfett ungenau; FFMI nach Kouri 1995.
+   - Phasen-Planer mit Zielrate und Ampel, Recomp-Ampel (Gewicht, Bauch, Kraft), Monatskarte.
+   Fotos mit Schablone: fotos.js
+   ============================================================ */
+/*icons: ruler camera trending-up trending-down target images scale*/
+const TREND_A = 0.1;
+/* Zielrate in % Körpergewicht pro Woche (Aufbau: Iraki 2019) */
+const PHASE_BANDS = { halten: [-0.15, 0.15], recomp: [0, 0.25], aufbau: [0.25, 0.5], defi: [-1, -0.5] };
+const PHASE_TXT = {
+  halten: 'Gewicht halten: Der Trend soll sich kaum bewegen.',
+  recomp: 'Muskeln auf, Fett runter: höchstens minimal zunehmen, Bauch gleich oder kleiner, Kraft steigt.',
+  aufbau: 'Aufbau: 0,25–0,5 % des Körpergewichts pro Woche (Iraki 2019) – schneller wird es vor allem Fett.',
+  defi: 'Fett verlieren: 0,5–1 % pro Woche, Eiweiß hoch lassen und weiter schwer trainieren.',
+};
+const MEAS = [
+  { k: 'hals', n: 'Hals', how: 'Unterhalb des Kehlkopfs, Kopf gerade.' },
+  { k: 'schulter', n: 'Schultern', how: 'Breiteste Stelle, Arme hängen locker.' },
+  { k: 'brust', n: 'Brust', how: 'Auf Höhe der Brustwarzen, normal ausgeatmet.' },
+  { k: 'waist', n: 'Bauch', how: 'Auf Nabelhöhe, entspannt ausgeatmet.' },
+  { k: 'huefte', n: 'Hüfte', how: 'Breiteste Stelle des Gesäßes.' },
+  { k: 'armL', n: 'Oberarm links', how: 'Dickste Stelle, Arm hängt entspannt.' },
+  { k: 'armR', n: 'Oberarm rechts', how: 'Wie links.' },
+  { k: 'ohsL', n: 'Oberschenkel links', how: '15 cm über der Kniescheibe, Bein entspannt.' },
+  { k: 'ohsR', n: 'Oberschenkel rechts', how: 'Wie links.' },
+  { k: 'wadeL', n: 'Wade links', how: 'Dickste Stelle, im Stehen.' },
+  { k: 'wadeR', n: 'Wade rechts', how: 'Wie links.' },
+];
+const MEAS_PAIRS = [['armL', 'armR', 'Oberarm'], ['ohsL', 'ohsR', 'Oberschenkel'], ['wadeL', 'wadeR', 'Wade']];
+const KFA_M = { navy: 'Maßband-Formel', caliper: 'Caliper', waage: 'Waage', dexa: 'DEXA' };
+const KOERPER_SUB = [['heute', 'Heute'], ['masse', 'Maße'], ['fotos', 'Fotos'], ['analyse', 'Auswertung']];
+function koerperCfg() { return { every: 28, ...(S.settings.koerper || {}) }; }
+function dShort(k) { return fmtDate(k, { day: 'numeric', month: 'short' }); }
+function sgn(v, dec = 1) { return v == null ? '–' : `${v > 0 ? '+' : v < 0 ? '−' : '±'}${fmt(Math.abs(v), dec)}`; }
+
+/* ---------- Trendgewicht ---------- */
+function trendCalc(end = todayKey()) {
+  const ser = weightSeries('weight').filter((x) => x.k <= end && Number(x.v) > 30);
+  if (!ser.length) return null;
+  // Startwert: Ø der ersten Woche (höchstens 5 Wiegungen), damit ein Ausreißer am Anfang den Trend nicht verzerrt
+  const head = ser.filter((x) => daysBetween(ser[0].k, x.k) <= 6).slice(0, 5).map((x) => Number(x.v));
+  let t = head.length >= 2 ? mean(head) : Number(ser[0].v), last = ser[0].k;
+  const pts = [{ k: ser[0].k, v: Number(ser[0].v), t, prev: null }];
+  for (let i = 1; i < ser.length; i++) {
+    const v = Number(ser[i].v), g = Math.max(1, daysBetween(last, ser[i].k)), a = 1 - Math.pow(1 - TREND_A, g), prev = t;
+    t += a * (v - t);
+    pts.push({ k: ser[i].k, v, t, prev });
+    last = ser[i].k;
+  }
+  return pts;
+}
+function trendAt(pts, k) { let v = null; for (const p of pts || []) { if (p.k > k) break; v = p.t; } return v; }
+function trendInfo(end = todayKey()) {
+  const pts = trendCalc(end);
+  if (!pts) return { n: 0, pts: [], rate: null };
+  const lp = pts[pts.length - 1], first = pts[0].k, span = daysBetween(first, end);
+  const n14 = pts.filter((p) => p.k > addDays(end, -14)).length, n28 = pts.filter((p) => p.k > addDays(end, -28)).length;
+  let rate = null, win = 0;
+  if (span >= 13 && n14 >= 4) { const a = trendAt(pts, addDays(end, -14)); if (a != null) { rate = (lp.t - a) / 2; win = 14; } }
+  if (rate == null && span >= 20 && n28 >= 3) { const d = Math.min(28, span), a = trendAt(pts, addDays(end, -d)) ?? pts[0].t; rate = (lp.t - a) / (d / 7); win = d; }
+  return { n: pts.length, pts, trend: lp.t, last: lp.v, lastK: lp.k, rate, ratePct: rate != null ? (rate / lp.t) * 100 : null, win, n14, n28 };
+}
+
+/* ---------- Gewichts-Erklärer ---------- */
+function weightWhy(k = todayKey()) {
+  const d = peekDay(k), w = d && d.health ? Number(d.health.weight) : NaN;
+  if (!(w > 30)) return null;
+  const pts = trendCalc(k);
+  if (!pts || pts.length < 4) return null;
+  const p = pts[pts.length - 1];
+  if (p.k !== k || p.prev == null) return null;
+  const diff = w - p.prev, thr = Math.max(0.6, p.prev * 0.007);
+  if (Math.abs(diff) < thr) return { diff, big: false, trend: p.prev, why: [] };
+  const y = addDays(k, -1), why = [];
+  const base = rangeKeys(14, addDays(k, -2)).filter((x) => dayIntake(x) != null && dayIntake(x) > 800);
+  const tot = (x) => computeTotals(x, false).tot;
+  const avg = (f) => (base.length >= 4 ? mean(base.map((x) => Number(tot(x)[f]) || 0)) : null);
+  if (dayIntake(y) != null && dayIntake(y) > 0) {
+    const yt = tot(y), na = avg('na'), c = avg('c'), kc = avg('kcal');
+    const g = (v) => fmt(v / 1000, 1);
+    if (na && yt.na > na * 1.3 && diff > 0) why.push(`viel Salz: ${g(yt.na)} g Natrium (sonst Ø ${g(na)} g) – Salz bindet Wasser`);
+    if (na && yt.na < na * 0.7 && diff < 0) why.push(`wenig Salz: ${g(yt.na)} g Natrium (sonst Ø ${g(na)} g)`);
+    if (c && yt.c > c * 1.25 && diff > 0) why.push(`mehr Kohlenhydrate: ${fmt(yt.c)} g (sonst Ø ${fmt(c)} g) – die Speicher binden Wasser`);
+    if (c && yt.c < c * 0.75 && diff < 0) why.push(`weniger Kohlenhydrate: ${fmt(yt.c)} g (sonst Ø ${fmt(c)} g) – Speicher und Wasser sinken`);
+    if (kc && yt.kcal > kc * 1.2 && diff > 0) why.push(`mehr gegessen: ${fmt(yt.kcal)} kcal (sonst Ø ${fmt(kc)}) – mehr Inhalt im Darm`);
+    if (kc && yt.kcal < kc * 0.75 && diff < 0) why.push(`weniger gegessen: ${fmt(yt.kcal)} kcal (sonst Ø ${fmt(kc)})`);
+  }
+  const yd = peekDay(y);
+  if (yd) {
+    const hard = (yd.trainings || []).some((t) => trainType(t).hard || isGymT(t));
+    if (hard && diff > 0) why.push('hartes Training gestern – beanspruchte Muskeln lagern ein paar Tage Wasser ein');
+    if ((yd.sauna || []).length && diff < 0) why.push('Sauna gestern – das ausgeschwitzte Wasser kommt zurück');
+  }
+  return { diff, big: true, trend: p.prev, why };
+}
+function weightWhyHTML(k, card = false) {
+  const r = weightWhy(k);
+  if (!r || !r.big) return '';
+  const up = r.diff > 0;
+  const txt = r.why.length ? `Wahrscheinlich Wasser: ${r.why.join('; ')}.` : 'In deinen Daten von gestern steckt keine klare Ursache. Schwankungen um rund ein Kilo sind normal (Wasser, Darminhalt).';
+  const inner = `${icon(up ? 'trending-up' : 'trending-down')}<div><b>Waage ${sgn(r.diff)} kg gegenüber deinem Trend (${fmt(r.trend, 1)} kg)</b><span>${esc(txt)} Zählen tut der Trend, nicht der Tageswert.</span></div>`;
+  return card ? `<div class="banner is-soft wwhy">${inner}</div>` : `<div class="banner is-soft wwhy">${inner}</div>`;
+}
+
+/* ---------- Phase ---------- */
+function phaseMode() { const g = energyCfg().goal; return PHASE_BANDS[g] ? g : 'halten'; }
+function phaseStatus(k = todayKey()) {
+  const ti = trendInfo(k), mode = phaseMode(), [lo, hi] = PHASE_BANDS[mode];
+  if (ti.rate == null) return { mode, lo, hi, ti, st: 'none' };
+  const r = ti.ratePct, w = hi - lo;
+  const st = r >= lo && r <= hi ? 'ok' : r >= lo - w * 0.6 - 0.05 && r <= hi + w * 0.6 + 0.05 ? 'near' : 'off';
+  return { mode, lo, hi, ti, st, r };
+}
+const AMPEL = { ok: ['is-ok', 'passt'], near: ['is-warn', 'knapp daneben'], off: ['is-bad', 'daneben'], none: ['', 'zu wenig Daten'] };
+function trendCard(k) {
+  const ti = trendInfo(k), ps = phaseStatus(k);
+  if (!ti.n) return '';
+  const kv = (a, b, c) => `<div class="kv"><span>${a}</span><b>${b}</b>${c ? `<small>${c}</small>` : ''}</div>`;
+  const [cls, lab] = AMPEL[ps.st];
+  const band = ti.trend ? `${sgn((ps.lo * ti.trend) / 100, 2)} bis ${sgn((ps.hi * ti.trend) / 100, 2)} kg/Woche` : '';
+  let h = `<section class="sec trend-card"><div class="sec-head"><h2>${icon('scale')} Trendgewicht</h2><span class="ampel ${cls}">${esc(lab)}</span></div>
+    <div class="kv-grid is-3">${kv('Trend', fmt(ti.trend, 1), 'kg geglättet')}${kv('Pro Woche', ti.rate != null ? sgn(ti.rate, 2) : '–', ti.rate != null ? `kg · ${sgn(ti.ratePct, 2)} %` : 'ab 4 Wiegungen in 2 Wochen')}${kv('Waage', fmt(ti.last, 1), `kg · ${dShort(ti.lastK)}`)}</div>
+    <p class="sec-sub">Phase <b>${esc((ENERGY_GOALS.find((g) => g[0] === ps.mode) || [])[1] || 'Halten')}</b>: Ziel ${esc(band)}. ${ps.st === 'ok' ? 'Du liegst im Ziel.' : ps.st === 'none' ? 'Für die Rate braucht die App mindestens 4 Wiegungen in 2 Wochen.' : ps.r > ps.hi ? 'Du nimmst schneller zu als geplant.' : 'Du nimmst ab, obwohl das nicht geplant ist.'}${ps.st !== 'ok' && ps.st !== 'none' && energyCfg().auto ? ' Das Kalorienziel passt sich über die Erhaltungsrechnung von selbst an.' : ''}</p></section>`;
+  return h;
+}
+function weightChartCard(k) {
+  const pts = (trendCalc(k) || []).slice(-60);
+  if (!pts.length) return chartCard('kw', 'Gewicht', 'Trag dein Gewicht ein, dann siehst du hier Waage und Trend.', emptyChart('Noch kein Eintrag.'));
+  const legend = `<div class="legend"><span><i class="line-key" style="background:${SERIES.two}"></i>Waage</span><span><i class="line-key" style="background:${SERIES.one}"></i>Trend</span></div>`;
+  const body = lineChart({ keys: pts.map((p) => p.k), series: [{ name: 'Waage', color: SERIES.two, vals: pts.map((p) => p.v), dots: true }, { name: 'Trend', color: SERIES.one, vals: pts.map((p) => p.t) }], unit: 'kg', fmtY: (v) => fmt(v, 1) });
+  const table = '<tr><th>Datum</th><th>Waage</th><th>Trend</th></tr>' + pts.map((p) => `<tr><td>${shortDate(p.k)}</td><td>${fmt(p.v, 1)} kg</td><td>${fmt(p.t, 1)} kg</td></tr>`).reverse().join('');
+  return chartCard('kw', 'Gewicht und Trend', '', body, table, legend);
+}
+
+/* ---------- Maße ---------- */
+function measVal(d, f) { if (!d) return null; const v = f === 'waist' ? d.health && d.health.waist : d.meas && d.meas[f]; return v == null || v === '' ? null : Number(v); }
+function measDays() { return Object.keys(S.days).sort().filter((k) => { const m = S.days[k].meas; return m && MEAS.some((x) => x.k !== 'waist' && m[x.k] != null); }); }
+function measSeries(f) { return Object.keys(S.days).sort().map((k) => ({ k, v: measVal(S.days[k], f) })).filter((x) => x.v != null); }
+function measLast(f, before = null) { const s = measSeries(f).filter((x) => !before || x.k < before); return s.length ? s[s.length - 1] : null; }
+function heightM() { const h = Number(S.settings.profile && S.settings.profile.height); return h > 100 && h < 250 ? h / 100 : null; }
+function navyBf(waist, neck, hM) { if (!(waist > neck) || !hM) return null; const v = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(hM * 100)) - 450; return v > 2 && v < 60 ? v : null; }
+/* Körperfett-Verlauf: gemessene Werte (gleiche Methode) oder die Maßband-Formel */
+function kfaSeries() {
+  const out = [], hM = heightM();
+  for (const k of Object.keys(S.days).sort()) {
+    const d = S.days[k], m = d.meas || {};
+    if (m.kfa != null) { out.push({ k, v: Number(m.kfa), m: m.kfaM || 'waage' }); continue; }
+    const w = measVal(d, 'waist'), n = m.hals != null ? Number(m.hals) : (measLast('hals', addDays(k, 1)) || {}).v;
+    if (w != null && n != null && m.hals != null) { const v = navyBf(w, n, hM); if (v != null) out.push({ k, v, m: 'navy' }); }
+  }
+  return out;
+}
+function ffmiOf(weight, bf, hM) { if (!(weight > 30) || bf == null || !hM) return null; const ffm = weight * (1 - bf / 100), f = ffm / (hM * hM); return { ffm, ffmi: f, norm: f + 6.1 * (1.8 - hM) }; }
+function physLastDate() { const ks = photoIdx.keys.filter((x) => (x.split('|')[1] || '').startsWith('p_')).map((x) => x.split('|')[0]).sort(); return ks.length ? ks[ks.length - 1] : null; }
+function koerperDue(k = todayKey()) {
+  const c = koerperCfg(), md = measDays(), lastM = md.length ? md[md.length - 1] : null, lastP = physLastDate();
+  const due = (x) => !x || daysBetween(x, k) >= c.every - 1;
+  return { meas: due(lastM), foto: due(lastP), lastM, lastP, every: c.every };
+}
+function koerperDueCard(k) {
+  const c = koerperCfg();
+  if (k !== todayKey() || c.off || c.snooze === k || nowMin() >= 12 * 60 || !photoIdx.loaded) return '';
+  const st = koerperDue(k);
+  if (!st.meas && !st.foto) return '';
+  const what = [st.meas ? 'Maße' : '', st.foto ? 'Fotos' : ''].filter(Boolean).join(' und ');
+  return `<div class="banner">${icon('ruler')}<div><b>Körper-Check fällig: ${what}</b><span>Alle ${st.every} Tage, morgens nüchtern vor dem Frühstück. Dauert etwa 5 Minuten.</span></div><div class="banner-acts"><button class="pill-btn is-accent" data-a="koerper-go" data-sub="${st.meas ? 'masse' : 'fotos'}">Los</button><button class="link-btn" data-a="koerper-snooze">Morgen</button></div></div>`;
+}
+function sheetMeas(k) {
+  ui.sheet = { type: 'meas', k };
+  const d = getDay(k), m = d.meas || {};
+  const rows = MEAS.map((x) => { const v = measVal(d, x.k), pv = measLast(x.k, k); return `<div class="frow"><span class="flabel">${esc(x.n)}<small>${esc(x.how)}</small></span><div class="fin"><input type="text" inputmode="decimal" data-c="meas" data-f="${x.k}" data-date="${k}" value="${numIn(v, 1)}" placeholder="${pv ? 'zuletzt ' + numIn(pv.v, 1) : '–'}" aria-label="${esc(x.n)}"><span class="unit">cm</span></div></div>`; }).join('');
+  openSheet(`<h3 class="sheet-title">${icon('ruler')} Körpermaße · ${esc(fmtDate(k, { day: 'numeric', month: 'long' }))}</h3>
+    <p class="hint">Morgens nüchtern, immer an denselben Stellen, Maßband anliegend ohne einzuschneiden. Jede Stelle zweimal messen und den Mittelwert eintragen. Leere Felder sind okay.</p>
+    <div class="form meas-form">${rows}</div>
+    <h5>Körperfett (nur falls gemessen)</h5>
+    <div class="form"><div class="frow"><span class="flabel">Körperfett<small>Caliper, Waage oder DEXA – immer dieselbe Methode</small></span><div class="fin"><input type="text" inputmode="decimal" data-c="meas" data-f="kfa" data-date="${k}" value="${numIn(m.kfa, 1)}" placeholder="–" aria-label="Körperfett in Prozent"><span class="unit">%</span></div></div></div>
+    <div class="chips chips-tight">${['caliper', 'waage', 'dexa'].map((id) => `<button class="chip chip-xs${m.kfaM === id ? ' is-on' : ''}" data-a="meas-kfam" data-v="${id}" data-date="${k}">${KFA_M[id]}</button>`).join('')}</div>
+    <div class="sheet-acts"><button class="btn is-accent" data-a="meas-done">Fertig</button></div>`);
+}
+function measTableHTML() {
+  const rows = MEAS.map((x) => {
+    const s = measSeries(x.k);
+    if (!s.length) return '';
+    const last = s[s.length - 1], prev = s.length >= 2 ? s[s.length - 2] : null, first = s[0];
+    return `<tr><td>${esc(x.n)}</td><td><b>${fmt(last.v, 1)}</b></td><td>${prev ? sgn(last.v - prev.v) : '–'}</td><td>${s.length >= 2 ? sgn(last.v - first.v) : '–'}</td></tr>`;
+  }).join('');
+  if (!rows) return '';
+  return `<section class="sec"><div class="sec-head"><h2>Aktuell</h2><span class="count">cm</span></div><div class="table-wrap"><table class="grid-t meas-tbl"><tr><th></th><th>zuletzt</th><th>zur Messung davor</th><th>seit Start</th></tr>${rows}</table></div></section>`;
+}
+function measDerivedHTML(k) {
+  const hM = heightM(), w = measLast('waist'), sch = measLast('schulter');
+  const kv = (a, b, c, cls = '') => `<div class="kv ${cls}"><span>${a}</span><b>${b}</b>${c ? `<small>${c}</small>` : ''}</div>`;
+  let h = '<section class="sec"><div class="sec-head"><h2>Kennzahlen</h2></div><div class="kv-grid">';
+  if (w && hM) { const r = w.v / (hM * 100); h += kv('Taille zu Größe', fmt(r, 2), r < 0.5 ? 'unter 0,5 – gut (NICE)' : 'über 0,5 – NICE rät, darunter zu bleiben', r < 0.5 ? 'is-ok' : 'is-warn'); }
+  else h += kv('Taille zu Größe', '–', hM ? 'Bauchumfang eintragen' : 'Größe im Profil eintragen');
+  if (w && sch) h += kv('Schultern zu Bauch', fmt(sch.v / w.v, 2), 'V-Form: steigt, wenn Schultern wachsen oder der Bauch schrumpft');
+  h += '</div>';
+  const side = MEAS_PAIRS.map(([a, b, n]) => { const L = measLast(a), R = measLast(b); if (!L || !R) return ''; const dlt = L.v - R.v, pct = (Math.abs(dlt) / Math.max(L.v, R.v)) * 100; const flag = pct >= 3 || Math.abs(dlt) >= 1.5; return `<div class="side-row${flag ? ' is-flag' : ''}"><span>${n}</span><b>L ${fmt(L.v, 1)} · R ${fmt(R.v, 1)} cm</b><small>${Math.abs(dlt) < 0.3 ? 'gleich' : `${dlt > 0 ? 'rechts' : 'links'} ${fmt(Math.abs(dlt), 1)} cm dünner (${fmt(pct, 1)} %)`}</small></div>`; }).join('');
+  if (side) {
+    const kneeSide = (kneeCfg() || {}).side;
+    h += `<h5>Seitenvergleich</h5><div class="side-list">${side}</div><p class="hint">Bis etwa 1 cm Unterschied ist normal. Ein dünnerer Oberschenkel am ${kneeSide === 'links' ? 'linken' : kneeSide === 'rechts' ? 'rechten' : 'betroffenen'} Knie-Bein zeigt, ob der Knie-Block dort Muskel aufbaut – wichtig für die Stabilität.</p>`;
+  }
+  const ks = kfaSeries();
+  if (ks.length) {
+    const last = ks[ks.length - 1], same = ks.filter((x) => x.m === last.m), prev = same.length >= 2 ? same[same.length - 2] : null;
+    const ti = trendInfo(last.k), wt = ti.n ? trendAt(ti.pts, last.k) : null, ff = ffmiOf(wt, last.v, hM);
+    h += `<h5>Körperfett & FFMI (grob)</h5><div class="kv-grid">${kv('Körperfett', `${fmt(last.v, 1)} %`, `${KFA_M[last.m] || last.m}, ${dShort(last.k)}${prev ? ` · ${sgn(last.v - prev.v)} %-Punkte` : ''}`)}${ff ? kv('FFMI', fmt(ff.norm, 1), `fettfreie Masse ${fmt(ff.ffm, 1)} kg`) : kv('FFMI', '–', 'Gewicht und Größe nötig')}</div>
+      <p class="hint">Nur den Verlauf mit derselben Methode vergleichen: Maßband-Formeln erfassen Veränderungen beim Körperfett nicht genau (Foulis 2023), Waagen liegen beim Körperfett oft deutlich daneben. Zur Einordnung des FFMI: Ohne Steroide lagen die Sportler in der Studie von Kouri (1995) meist bei 21–23, nach oben bis etwa 25.</p>`;
+  }
+  return h + '</section>';
+}
+function measChartCard() {
+  const avail = MEAS.filter((x) => measSeries(x.k).length >= 1);
+  if (!avail.length) return '';
+  const f = avail.some((x) => x.k === ui.measF) ? ui.measF : avail[0].k, m = MEAS.find((x) => x.k === f), s = measSeries(f);
+  const pair = MEAS_PAIRS.find((p) => p.includes(f));
+  const series = [{ name: m.n, color: SERIES.one, vals: s.map((x) => x.v), dots: true }];
+  let keys = s.map((x) => x.k);
+  if (pair) { const o = pair[0] === f ? pair[1] : pair[0], os = measSeries(o); keys = [...new Set([...keys, ...os.map((x) => x.k)])].sort(); series[0].vals = keys.map((kk) => (s.find((x) => x.k === kk) || {}).v ?? null); series.push({ name: MEAS.find((x) => x.k === o).n, color: SERIES.two, vals: keys.map((kk) => (os.find((x) => x.k === kk) || {}).v ?? null), dots: true }); }
+  const chips = `<div class="chips chips-tight">${avail.map((x) => `<button class="chip chip-xs${x.k === f ? ' is-on' : ''}" data-a="meas-chart" data-v="${x.k}">${esc(x.n)}</button>`).join('')}</div>`;
+  const body = chips + lineChart({ keys, series, unit: 'cm', fmtY: (v) => fmt(v, 1) });
+  const legend = series.length > 1 ? `<div class="legend">${series.map((x) => `<span><i class="line-key" style="background:${x.color}"></i>${esc(x.name)}</span>`).join('')}</div>` : '';
+  return chartCard('kmeas', 'Verlauf', '', body, '', legend);
+}
+
+/* ---------- Kraft-Vergleich (für Recomp-Ampel und Monatskarte) ---------- */
+function bestE1rm(from, to) {
+  const m = {};
+  for (let k = from; k <= to; k = addDays(k, 1)) {
+    const d = peekDay(k);
+    if (!d) continue;
+    for (const t of d.trainings || []) { const ex = t.gym && t.gym.ex; if (!ex) continue; for (const [id, e] of Object.entries(ex)) for (const s of e.s || []) { const v = e1rm(Number(s.w), Number(s.r), s.rir); if (v) m[id] = Math.max(m[id] || 0, v); } }
+  }
+  return m;
+}
+function strengthDelta(a, b) { const ids = Object.keys(a).filter((id) => b[id]); return ids.length >= 2 ? { pct: mean(ids.map((id) => a[id] / b[id] - 1)) * 100, n: ids.length } : null; }
+function recompStatus(k = todayKey()) {
+  const pts = trendCalc(k) || [];
+  const t0 = trendAt(pts, addDays(k, -28)), t1 = trendAt(pts, k);
+  const dW = t0 != null && t1 != null ? t1 - t0 : null;
+  const ws = measSeries('waist'), wNow = ws.length ? ws[ws.length - 1] : null, wPrev = wNow ? ws.filter((x) => x.k <= addDays(wNow.k, -21)).pop() : null;
+  const dB = wNow && wPrev && daysBetween(wNow.k, k) <= 35 ? wNow.v - wPrev.v : null;
+  const sd = strengthDelta(bestE1rm(addDays(k, -27), k), bestE1rm(addDays(k, -55), addDays(k, -28)));
+  const dK = sd ? sd.pct : null;
+  const band = PHASE_BANDS[phaseMode()], wt = t1 || 80;
+  const wOk = dW == null ? null : dW >= ((band[0] * wt) / 100) * 4 - 0.4 && dW <= ((band[1] * wt) / 100) * 4 + 0.4;
+  const bOk = dB == null ? null : dB <= 0.3 ? true : dB >= 1 ? false : null;
+  const kOk = dK == null ? null : dK >= 1 ? true : dK <= -3 ? false : null;
+  const v = [wOk, bOk, kOk], yes = v.filter((x) => x === true).length, no = v.filter((x) => x === false).length, na = [dW, dB, dK].filter((x) => x == null).length;
+  const st = na >= 2 ? 'none' : no >= 2 ? 'off' : no === 0 && yes >= 2 ? 'ok' : 'near';
+  return { dW, dB, dK, nK: sd ? sd.n : 0, wOk, bOk, kOk, st };
+}
+function recompCard(k) {
+  const r = recompStatus(k), [cls, lab] = AMPEL[r.st];
+  const tile = (n, val, ok, sub) => `<div class="kv ${ok === true ? 'is-ok' : ok === false ? 'is-bad' : ''}"><span>${n}</span><b>${val}</b><small>${sub}</small></div>`;
+  return `<section class="sec"><div class="sec-head"><h2>${icon('target')} Recomp-Ampel</h2><span class="ampel ${cls}">${r.st === 'ok' ? 'Muskeln auf, Fett runter' : esc(lab)}</span></div>
+    <div class="kv-grid is-3">${tile('Gewicht 4 Wo.', r.dW != null ? sgn(r.dW) : '–', r.wOk, r.dW != null ? 'kg Trend' : 'mehr wiegen')}${tile('Bauch', r.dB != null ? sgn(r.dB) : '–', r.bOk, r.dB != null ? 'cm zur Messung davor' : 'alle 4 Wochen messen')}${tile('Kraft', r.dK != null ? `${sgn(r.dK)} %` : '–', r.kOk, r.dK != null ? `e1RM, ${r.nK} Übungen` : 'ab 2 Übungen in beiden Zeiträumen')}</div>
+    <p class="hint">Grün heißt: Gewicht passt zur Phase, Bauch gleich oder kleiner, Kraft steigt. Das ist Fortschritt, auch wenn die Waage stillsteht. Kraft = Ø Veränderung des besten geschätzten 1RM je Übung, letzte 4 Wochen gegen die 4 davor.</p></section>`;
+}
+function phaseCard(k) {
+  const ps = phaseStatus(k), [cls, lab] = AMPEL[ps.st], ti = ps.ti, wt = ti.trend || null;
+  const kg = (p) => (wt ? sgn((p * wt) / 100, 2) : sgn(p, 2) + ' %');
+  return `<section class="sec"><div class="sec-head"><h2>${icon('trending-up')} Phase</h2><span class="ampel ${cls}">${esc(lab)}</span></div>
+    <div class="chips chips-tight">${ENERGY_GOALS.map(([id, n]) => `<button class="chip chip-xs${ps.mode === id ? ' is-on' : ''}" data-a="energy-goal" data-v="${id}">${esc(n)}</button>`).join('')}</div>
+    <p class="sec-sub">${esc(PHASE_TXT[ps.mode])} Ziel: ${kg(ps.lo)} bis ${kg(ps.hi)}${wt ? ' kg' : ''} pro Woche (${sgn(ps.lo, 2)} bis ${sgn(ps.hi, 2)} %). Aktuell: ${ti.rate != null ? `${sgn(ti.rate, 2)} kg pro Woche (${sgn(ti.ratePct, 2)} %)` : 'noch zu wenige Wiegungen'}.</p>
+    <p class="hint">Die Phase stellt auch das Kalorienziel ein (Ernährung → Energiebilanz). Beim Aufbau lieber am unteren Rand bleiben, das hält den Fettanteil klein.</p></section>`;
+}
+
+/* ---------- Monatskarte ---------- */
+function monthKeysOf(ym) { const out = []; let k = ym + '-01'; while (k.slice(0, 7) === ym) { out.push(k); k = addDays(k, 1); } return out; }
+function monthStats(ym) {
+  const all = monthKeysOf(ym), today = todayKey(), keys = all.filter((k) => k <= today);
+  if (!keys.length) return null;
+  const first = keys[0], last = keys[keys.length - 1], pts = trendCalc(last) || [];
+  const tA = trendAt(pts, addDays(first, -1)) ?? (pts.find((p) => p.k >= first) || {}).t, tB = trendAt(pts, last);
+  const days = keys.map((k) => ({ k, d: peekDay(k) })).filter((x) => x.d);
+  const avgOf = (fn) => { const v = days.map((x) => fn(x.d, x.k)).filter((x) => x != null && !Number.isNaN(x)); return v.length ? mean(v) : null; };
+  const tr = days.flatMap((x) => x.d.trainings || []);
+  const before = bestE1rm(addDays(first, -365), addDays(first, -1)), inM = bestE1rm(first, last);
+  const prs = Object.keys(inM).filter((id) => before[id] && inM[id] > before[id] * 1.005).map((id) => ({ id, pct: (inM[id] / before[id] - 1) * 100 })).sort((a, b) => b.pct - a.pct);
+  const meas = MEAS.map((m) => { const s = measSeries(m.k), a = s.filter((x) => x.k < first).pop(), b = s.filter((x) => x.k >= first && x.k <= last).pop(); return a && b ? { n: m.n, d: b.v - a.v } : null; }).filter(Boolean);
+  const protein = avgOf((d, k) => (dayIntake(k) != null && dayIntake(k) > 800 ? computeTotals(k, false).tot.p : null));
+  return {
+    ym, first, last, tA, tB, dW: tA != null && tB != null ? tB - tA : null,
+    gym: tr.filter(isGymT).length, bjj: tr.filter(isBjj).length, ergo: tr.filter(isErgo).length,
+    sleep: avgOf((d) => (d.health && d.health.sleepScore != null ? Number(d.health.sleepScore) : null)),
+    skin: avgOf((d) => (d.skin && d.skin.score != null ? Number(d.skin.score) : null)),
+    protein, prs, meas,
+  };
+}
+function monthCard(ym) {
+  const m = monthStats(ym);
+  const prevYm = addDays(ym + '-01', -1).slice(0, 7), nextYm = addDays(monthKeysOf(ym).pop(), 1).slice(0, 7), cur = todayKey().slice(0, 7);
+  const name = fmtDate(ym + '-01', { month: 'long', year: 'numeric' });
+  let h = `<section class="sec month-card"><div class="week-nav"><button class="icon-btn" data-a="kmonth" data-v="${prevYm}" aria-label="Vormonat">${icon('chevron-left')}</button><span>Monatskarte ${esc(name)}</span><button class="icon-btn" data-a="kmonth" data-v="${nextYm}" ${ym >= cur ? 'disabled' : ''} aria-label="Nächster Monat">${icon('chevron-right')}</button></div>`;
+  if (!m) return h + emptyState('Für diesen Monat gibt es noch keine Daten.') + '</section>';
+  const kv = (a, b, c) => `<div class="kv"><span>${a}</span><b>${b}</b>${c ? `<small>${c}</small>` : ''}</div>`;
+  h += `<div class="kv-grid is-3">${kv('Trendgewicht', m.dW != null ? sgn(m.dW) : '–', m.tB != null ? `kg · jetzt ${fmt(m.tB, 1)}` : 'kg')}${kv('Training', `${m.gym}×`, `Gym · BJJ ${m.bjj}× · Ergo ${m.ergo}×`)}${kv('Bestwerte', m.prs.length, m.prs.length === 1 ? 'Übung stärker' : 'Übungen stärker')}${kv('Schlaf', m.sleep != null ? fmt(m.sleep) : '–', 'Ø Sleep Score')}${kv('Eiweiß', m.protein != null ? fmt(m.protein) : '–', 'g Ø pro erfasstem Tag')}${kv('Haut', m.skin != null ? fmt(m.skin, 1) : '–', 'Ø Hautbild')}</div>`;
+  if (m.prs.length) h += `<p class="sec-sub">${icon('trending-up')} Stärker geworden: ${m.prs.slice(0, 4).map((p) => `${esc((kxEx(p.id) || {}).n || p.id)} ${sgn(p.pct)} %`).join(' · ')}</p>`;
+  if (m.meas.length) h += `<p class="sec-sub">${icon('ruler')} Maße zum Vormonat: ${m.meas.map((x) => `${esc(x.n)} ${sgn(x.d)} cm`).join(' · ')}</p>`;
+  h += physMonthPair(m.first, m.last);
+  return h + '</section>';
+}
+function monthBanner(k) {
+  const d = Number(k.slice(8, 10));
+  if (k !== todayKey() || d > 3 || (S.settings.koerper || {}).monthSeen === k.slice(0, 7)) return '';
+  const ym = addDays(k.slice(0, 8) + '01', -1).slice(0, 7);
+  if (!monthStats(ym)) return '';
+  return `<div class="banner is-soft">${icon('calendar-range')}<div><b>Deine Monatskarte ${esc(fmtDate(ym + '-01', { month: 'long' }))} ist fertig</b><span>Gewicht, Maße, Fotos, Bestwerte und Schlaf im Rückblick.</span></div><div class="banner-acts"><button class="pill-btn" data-a="kmonth-open" data-v="${ym}">Ansehen</button></div></div>`;
+}
+
+/* ---------- Ansichten ---------- */
+function vKoerper() {
+  const sub = getSub('koerper', 'heute');
+  let h = areaHead('koerper') + subnav('koerper', sub, KOERPER_SUB);
+  const views = { heute: vKoerperHeute, masse: vKoerperMasse, fotos: vKoerperFotos, analyse: vKoerperAnalyse };
+  return h + (views[sub] || vKoerperHeute)();
+}
+function vKoerperHeute() {
+  const k = ui.date, d = getDay(k);
+  let h = dateBar(k);
+  const prev = (f) => { for (let i = 1; i < 60; i++) { const x = peekDay(addDays(k, -i)); if (x && x.health && x.health[f] != null) return x.health[f]; } return null; };
+  const row = (f, n, unit, dec) => { const v = d.health[f], pv = prev(f); return `<div class="frow"><span class="flabel">${n}</span><div class="fin"><input type="text" inputmode="decimal" data-c="health" data-k="${f}" data-date="${k}" value="${numIn(v, dec)}" placeholder="${pv != null ? 'zuletzt ' + numIn(pv, dec) : '–'}" aria-label="${n}"><span class="unit">${unit}</span></div></div>`; };
+  h += `<section class="sec"><div class="form">${row('weight', 'Gewicht', 'kg', 1)}${row('waist', 'Bauchumfang (optional)', 'cm', 1)}</div><p class="hint">Morgens nach dem Klo, vor dem Essen. Bauchumfang auf Nabelhöhe, entspannt ausatmen.</p></section>`;
+  h += weightWhyHTML(k);
+  h += trendCard(k);
+  h += weightChartCard(k);
+  h += bpSection(k);
+  const ws = measSeries('waist');
+  if (ws.length) {
+    const body = lineChart({ keys: ws.map((x) => x.k), series: [{ name: 'Bauchumfang', color: SERIES.one, vals: ws.map((x) => x.v), dots: true }], unit: 'cm', fmtY: (v) => fmt(v, 1) });
+    const table = '<tr><th>Datum</th><th>Bauch</th></tr>' + ws.map((x) => `<tr><td>${shortDate(x.k)}</td><td>${fmt(x.v, 1)} cm</td></tr>`).reverse().join('');
+    h += chartCard('kwaist', 'Bauchumfang', '', body, table);
+  }
+  return h;
+}
+function vKoerperMasse() {
+  const k = todayKey(), st = koerperDue(k), md = measDays();
+  let h = `<section class="sec"><div class="sec-head"><h2>${icon('ruler')} Körpermaße</h2><span class="count">${st.lastM ? `zuletzt ${esc(dShort(st.lastM))}` : 'noch keine'}</span></div>
+    <p class="sec-sub">Alle ${st.every} Tage morgens nüchtern messen, am besten zusammen mit den Fotos. Links und rechts getrennt: So siehst du, ob das Knie-Bein Muskel verliert oder aufholt.</p>
+    <div class="row-btns"><button class="pill-btn is-accent" data-a="meas-open" data-date="${k}">${icon('ruler')}${md.includes(k) ? 'Heutige Maße bearbeiten' : 'Maße eintragen'}</button>${md.length ? `<button class="pill-btn" data-a="meas-open" data-date="${md[md.length - 1]}">Letzte Messung bearbeiten</button>` : ''}</div></section>`;
+  if (!md.length && !measSeries('waist').length) return h + emptyState('Noch keine Maße. Ein Maßband reicht.');
+  return h + measTableHTML() + measDerivedHTML(k) + measChartCard();
+}
+function vKoerperAnalyse() {
+  const k = todayKey();
+  let h = phaseCard(k) + recompCard(k) + monthCard(ui.kMonth || k.slice(0, 7));
+  h += `<section class="sec"><div class="sec-head"><h2>Zweite Meinung</h2></div><p class="sec-sub">Das Backup enthält Gewicht, Maße und deine Fotos (verkleinert). Lade es bei Claude hoch und frag nach einer Einschätzung deines Fortschritts – zum Beispiel „Vergleiche meine Fotos von Anfang und Ende des Monats“.</p><div class="row-btns"><button class="pill-btn" data-a="backup-export">${icon('share')}Backup erstellen</button></div></section>`;
+  return h;
+}
+
+Object.assign(A, {
+  'koerper-go': (el) => { ui.sub.koerper = el.dataset.sub || 'heute'; go('koerper', { date: todayKey(), scrollTop: true }); },
+  'koerper-snooze': () => { S.settings.koerper = { ...koerperCfg(), snooze: todayKey() }; saveSettings(); },
+  'meas-open': (el) => sheetMeas(el.dataset.date || todayKey()),
+  'meas-done': () => { closeSheet(); render(); },
+  'meas-kfam': (el) => { const k = el.dataset.date; mutDay(k, (d) => { d.meas = d.meas || {}; d.meas.kfaM = d.meas.kfaM === el.dataset.v ? undefined : el.dataset.v; if (!d.meas.kfaM) delete d.meas.kfaM; }); sheetMeas(k); },
+  'meas-chart': (el) => { ui.measF = el.dataset.v; render(); },
+  kmonth: (el) => { ui.kMonth = el.dataset.v; render(); },
+  'kmonth-open': (el) => { S.settings.koerper = { ...koerperCfg(), monthSeen: todayKey().slice(0, 7) }; markDirty('settings'); ui.kMonth = el.dataset.v; ui.sub.koerper = 'analyse'; go('koerper', { scrollTop: true }); },
+});
+Object.assign(C, {
+  meas: (el) => {
+    const k = el.dataset.date, f = el.dataset.f, raw = el.value.trim();
+    const v = raw === '' ? null : parseNum(raw), lim = f === 'kfa' ? [2, 60] : [10, 250];
+    if (raw !== '' && (v == null || v < lim[0] || v > lim[1])) { toast(`Wert prüfen (${lim[0]}–${lim[1]})`); el.classList.add('bad'); return; }
+    el.classList.remove('bad');
+    mutDay(k, (d) => {
+      if (f === 'waist') { if (v == null) delete d.health.waist; else d.health.waist = v; return; }
+      d.meas = d.meas || {};
+      if (v == null) delete d.meas[f]; else d.meas[f] = v;
+      if (!Object.keys(d.meas).length) delete d.meas;
+    });
+    flashSaved(el);
+  },
+});
+
+/* ---- fotos.js ---- */
+/* ============================================================
+   FOTOS MIT SCHABLONE, PHYSIQUE-FOTOS, FOTOS IM BACKUP (seit 2.15.0)
+   - Kamera in der App: blendet das letzte Foto derselben Pose halbtransparent ein (gleiche Haltung, gleicher Abstand),
+     Timer 3 oder 10 s, Front-/Rückkamera. Gilt für Physique-Fotos (Vorne, Seite, Hinten) und die Haut-Wochenfotos.
+   - Vergleich mit Schieber, Zeitraffer je Pose, Monatspaar in der Monatskarte.
+   - Wunsch vom 18.11.2026: Fotos gehören ins normale Backup, damit Claude sie auswerten kann (zweite Meinung).
+     Im Backup verkleinert (1080 px, JPEG 75 %), damit die Datei handlich bleibt; volle Größe weiter als ZIP.
+   ============================================================ */
+/*icons: camera images play switch-camera timer x share*/
+const PHYS_ANGLES = [{ id: 'p_front', n: 'Vorne' }, { id: 'p_side', n: 'Seite' }, { id: 'p_back', n: 'Hinten' }];
+function isPhys(angle) { return String(angle || '').startsWith('p_'); }
+function angleName(a) { const x = PHOTO_ANGLES.concat(PHYS_ANGLES).find((y) => y.id === a); return x ? x.n : a; }
+function physWeeks() { return [...new Set(photoIdx.keys.filter((k) => isPhys(k.split('|')[1])).map((k) => k.split('|')[0]))].sort().reverse(); }
+function physKeysOf(angle) { return photoIdx.keys.filter((k) => k.split('|')[1] === angle).sort(); }
+
+/* ---------- Physique-Ansicht ---------- */
+function vKoerperFotos() {
+  if (!photoIdx.loaded) { loadPhotoIndex().then(() => { if (ui.tab === 'koerper') render(); }); return '<p class="hint">Fotos werden geladen …</p>'; }
+  if (!PhotoDB.ok) return emptyState('Fotos können auf diesem Gerät nicht gespeichert werden (kein IndexedDB).');
+  const cur = weekStart(todayKey()), ws = ui.physWeek || cur, st = koerperDue();
+  let h = `<section class="sec"><div class="sec-head"><h2>${icon('camera')} Physique-Fotos</h2><span class="count">${st.lastP ? `zuletzt KW ${isoWeek(st.lastP)}` : 'noch keine'}</span></div>
+    <p class="sec-sub">Alle ${st.every} Tage morgens nüchtern, gleiches Licht, Handy auf Hüfthöhe etwa 2 m entfernt, Timer an, entspannt stehen. Die Kamera blendet dein letztes Foto als Schablone ein – so stimmen Pose und Abstand.</p>
+    <div class="week-nav"><button class="icon-btn" data-a="phys-week" data-d="-7" aria-label="Vorherige Woche">${icon('chevron-left')}</button><span>KW ${isoWeek(ws)} · ab ${esc(fmtDate(ws, { day: 'numeric', month: 'short' }))}</span><button class="icon-btn" data-a="phys-week" data-d="7" ${ws >= cur ? 'disabled' : ''} aria-label="Nächste Woche">${icon('chevron-right')}</button></div>
+    <div class="ph-grid is-3">`;
+  for (const a of PHYS_ANGLES) {
+    const key = photoKey(ws, a.id), has = photoIdx.keys.includes(key);
+    h += has
+      ? `<div class="ph-slot"><button class="ph" data-a="photo-view" data-key="${key}" aria-label="${esc(a.n)} ansehen"><img data-photo="${key}" alt="${esc(a.n)}"></button><div class="ph-cap"><b>${esc(a.n)}</b><button class="link-btn" data-a="cam-open" data-ws="${ws}" data-angle="${a.id}">Neu</button></div></div>`
+      : `<div class="ph-slot"><button class="ph is-add" data-a="cam-open" data-ws="${ws}" data-angle="${a.id}">${icon('camera')}<span>${esc(a.n)}</span></button><div class="ph-cap"><b>${esc(a.n)}</b><label class="link-btn">aus Fotos<input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label></div></div>`;
+  }
+  h += '</div></section>';
+  h += physCompareHTML() + physTimelapseHTML();
+  const weeks = physWeeks();
+  if (weeks.length) h += `<section class="sec"><div class="sec-head"><h2>Galerie</h2><span class="count">${weeks.length} ${weeks.length === 1 ? 'Check' : 'Checks'}</span></div><div class="list">${weeks.map((w) => `<button class="row gal-row" data-a="phys-week-go" data-ws="${w}"><span class="row-main"><b>KW ${isoWeek(w)}</b><small>${esc(fmtDate(w, { day: 'numeric', month: 'short', year: 'numeric' }))} · ${PHYS_ANGLES.filter((a) => photoIdx.keys.includes(photoKey(w, a.id))).length}/3 Fotos</small></span>${icon('chevron-right')}</button>`).join('')}</div>
+    <p class="hint">Die Fotos sind im Backup enthalten (verkleinert). So kann Claude sie mit auswerten.</p></section>`;
+  return h;
+}
+function physAng() { return PHYS_ANGLES.some((a) => a.id === ui.physAng) ? ui.physAng : 'p_front'; }
+function angChips(cur) { return `<div class="chips chips-tight">${PHYS_ANGLES.map((a) => `<button class="chip chip-xs${a.id === cur ? ' is-on' : ''}" data-a="phys-ang" data-v="${a.id}">${esc(a.n)}</button>`).join('')}</div>`; }
+function physCompareHTML() {
+  const weeks = physWeeks();
+  if (weeks.length < 2) return '';
+  const ang = physAng();
+  const cmp = ui.physCmp && weeks.includes(ui.physCmp[0]) && weeks.includes(ui.physCmp[1]) ? ui.physCmp : [weeks[weeks.length - 1], weeks[0]];
+  const opt = (sel, i) => `<label class="choice-select">${icon('chevron-down')}<select data-c="phys-cmp" data-n="${i}" aria-label="Check ${i + 1}">${weeks.map((w) => `<option value="${w}" ${w === sel ? 'selected' : ''}>KW ${isoWeek(w)} (${fmtDate(w, { day: 'numeric', month: 'short' })})</option>`).join('')}</select></label>`;
+  const ka = photoKey(cmp[0], ang), kb = photoKey(cmp[1], ang), both = photoIdx.keys.includes(ka) && photoIdx.keys.includes(kb);
+  return `<section class="sec"><div class="sec-head"><h2>Vergleich</h2></div>${angChips(ang)}<div class="cmp-sel">${opt(cmp[0], 0)}${opt(cmp[1], 1)}</div>
+    ${both ? `<div class="cmp-slide" style="--x:50%"><img data-photo="${ka}" data-full="1" alt="Vorher"><img class="cmp-top" data-photo="${kb}" data-full="1" alt="Nachher"><i class="cmp-bar"></i><input type="range" min="0" max="100" value="50" data-i="cmp-x" aria-label="Vergleich verschieben"></div><div class="cmp-cap"><span>KW ${isoWeek(cmp[0])}</span><span>KW ${isoWeek(cmp[1])}</span></div>` : `<p class="hint">Für ${esc(angleName(ang))} fehlt in einem der beiden Checks das Foto.</p>`}</section>`;
+}
+function physTimelapseHTML() {
+  const ang = physAng(), keys = physKeysOf(ang);
+  if (keys.length < 2) return '';
+  const k0 = keys[keys.length - 1];
+  return `<section class="sec"><div class="sec-head"><h2>${icon('play')} Zeitraffer</h2><span class="count">${keys.length} Fotos · ${esc(angleName(ang))}</span></div>
+    <div class="tl-box"><img id="tl-img" data-photo="${k0}" data-full="1" alt=""><span class="tl-date" id="tl-date">KW ${isoWeek(k0.split('|')[0])}</span></div>
+    <div class="row-btns"><button class="pill-btn is-accent" data-a="tl-play" data-ang="${ang}">${icon('play')}Abspielen</button></div></section>`;
+}
+function physMonthPair(first, last) {
+  const keys = physKeysOf('p_front');
+  if (!keys.length || !photoIdx.loaded) return '';
+  const wk = (x) => x.split('|')[0];
+  const b = keys.filter((x) => wk(x) <= last && wk(x) >= addDays(first, -6)).pop();
+  if (!b) return '';
+  const a = keys.filter((x) => wk(x) < wk(b) && wk(x) < weekStart(first)).pop();
+  const fig = (x) => `<figure><button class="ph" data-a="photo-view" data-key="${x}"><img data-photo="${x}" alt=""></button><figcaption>KW ${isoWeek(wk(x))}</figcaption></figure>`;
+  return `<div class="month-ph">${a ? fig(a) : ''}${fig(b)}</div>`;
+}
+
+/* ---------- Kamera mit Schablone ---------- */
+const CAM = { stream: null, facing: 'user', timer: 0, ghost: 40, ws: null, angle: null, busy: false, tick: null };
+function camSet() { return isPhys(CAM.angle) ? PHYS_ANGLES : PHOTO_ANGLES; }
+async function camOpen(ws, angle) {
+  if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { toast('Kamera nicht verfügbar – nimm das Foto über „aus Fotos“'); return; }
+  CAM.ws = ws; CAM.angle = angle;
+  let el = document.getElementById('cam');
+  if (!el) { el = document.createElement('div'); el.id = 'cam'; el.className = 'cam'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Kamera'); document.body.appendChild(el); }
+  document.documentElement.classList.add('noscroll');
+  const mir = CAM.facing === 'user' ? ' is-mirror' : '';
+  el.innerHTML = `<video id="cam-v" class="cam-v${mir}" playsinline muted autoplay></video><img id="cam-g" class="cam-g${mir}" alt="" style="opacity:${CAM.ghost / 100}"><div class="cam-guide"></div>
+    <div class="cam-top"><div><b id="cam-t">${esc(angleName(angle))}</b><small id="cam-hint">Schablone wird geladen …</small></div><button class="icon-btn" data-a="cam-close" aria-label="Kamera schließen">${icon('x')}</button></div>
+    <div class="cam-count" id="cam-count"></div>
+    <div class="cam-bot"><label class="cam-op"><span>Schablone</span><input type="range" min="0" max="80" value="${CAM.ghost}" data-i="cam-ghost" aria-label="Deckkraft der Schablone"></label>
+      <div class="cam-row"><button class="cam-btn" data-a="cam-timer">${icon('timer')}<span id="cam-tm">${CAM.timer ? CAM.timer + ' s' : 'Timer aus'}</span></button><button class="cam-shutter" data-a="cam-shot" aria-label="Foto aufnehmen"></button><button class="cam-btn" data-a="cam-flip">${icon('switch-camera')}<span>Wechseln</span></button></div></div>`;
+  await camStart();
+  camGhost();
+}
+async function camStart() {
+  camStop();
+  try {
+    CAM.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: CAM.facing }, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
+    const v = document.getElementById('cam-v');
+    if (!v) { camStop(); return; }
+    v.srcObject = CAM.stream;
+    await v.play().catch(() => {});
+  } catch (e) {
+    camClose(false);
+    toast('Kein Kamerazugriff – erlaube ihn in den Einstellungen oder nimm das Foto über „aus Fotos“');
+  }
+}
+function camStop() { if (CAM.stream) { CAM.stream.getTracks().forEach((t) => t.stop()); CAM.stream = null; } }
+function camClose(rerender = true) {
+  camStop(); clearTimeout(CAM.tick);
+  const el = document.getElementById('cam');
+  if (el) el.remove();
+  document.documentElement.classList.remove('noscroll');
+  if (rerender) render();
+}
+async function camGhost() {
+  const own = photoKey(CAM.ws, CAM.angle), all = photoIdx.keys.filter((k) => k.split('|')[1] === CAM.angle && k !== own).sort();
+  const prev = all.filter((k) => k.split('|')[0] < CAM.ws).pop() || all.pop();
+  const g = document.getElementById('cam-g'), hint = document.getElementById('cam-hint');
+  if (!prev) { if (g) g.removeAttribute('src'); if (hint) hint.textContent = 'Erstes Foto dieser Pose – ab dem nächsten Mal mit Schablone'; return; }
+  const u = await photoUrl(prev, true).catch(() => null);
+  if (g && u) g.src = u;
+  if (hint) hint.textContent = `Schablone: KW ${isoWeek(prev.split('|')[0])} – stell dich so hin, dass ihr euch deckt`;
+}
+function camCountdown(s) {
+  return new Promise((res) => {
+    const el = document.getElementById('cam-count');
+    let n = s;
+    const step = () => { if (el) el.textContent = n > 0 ? String(n) : ''; if (n <= 0) { res(); return; } n--; CAM.tick = setTimeout(step, 1000); };
+    step();
+  });
+}
+async function camShot() {
+  if (CAM.busy) return;
+  const v = document.getElementById('cam-v');
+  if (!v || !v.videoWidth) { toast('Kamera ist noch nicht bereit'); return; }
+  CAM.busy = true;
+  try {
+    if (CAM.timer) await camCountdown(CAM.timer);
+    if (!document.getElementById('cam')) return;
+    const c = document.createElement('canvas');
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+    const blob = await new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('Aufnahme fehlgeschlagen'))), 'image/jpeg', 0.92));
+    await savePhoto(CAM.ws, CAM.angle, blob, todayKey());
+    toast(`${angleName(CAM.angle)} gespeichert`);
+    const next = camSet().find((a) => !photoIdx.keys.includes(photoKey(CAM.ws, a.id)));
+    if (next) { CAM.angle = next.id; const t = document.getElementById('cam-t'); if (t) t.textContent = next.n; camGhost(); }
+    else camClose();
+  } catch (e) { toast('Foto konnte nicht gespeichert werden: ' + (e.message || e)); }
+  finally { CAM.busy = false; }
+}
+function camFlip() {
+  CAM.facing = CAM.facing === 'user' ? 'environment' : 'user';
+  for (const id of ['cam-v', 'cam-g']) { const el = document.getElementById(id); if (el) el.classList.toggle('is-mirror', CAM.facing === 'user'); }
+  camStart();
+}
+
+/* ---------- Zeitraffer ---------- */
+const TL = { on: false, t: null };
+async function tlPlay(ang, btn) {
+  if (TL.on) { TL.on = false; clearTimeout(TL.t); if (btn) btn.innerHTML = `${icon('play')}Abspielen`; return; }
+  const keys = physKeysOf(ang);
+  if (keys.length < 2) return;
+  TL.on = true;
+  if (btn) btn.innerHTML = `${icon('x')}Stopp`;
+  let i = 0;
+  const step = async () => {
+    const img = document.getElementById('tl-img'), lab = document.getElementById('tl-date');
+    if (!TL.on || !img) { TL.on = false; return; }
+    const u = await photoUrl(keys[i], true).catch(() => null);
+    if (u) img.src = u;
+    if (lab) lab.textContent = `KW ${isoWeek(keys[i].split('|')[0])} · ${i + 1}/${keys.length}`;
+    i++;
+    if (i < keys.length) TL.t = setTimeout(step, 750);
+    else { TL.on = false; if (btn) btn.innerHTML = `${icon('play')}Nochmal`; }
+  };
+  step();
+}
+
+/* ---------- Fotos im Backup ---------- */
+function backupPhotoMode() { return ['alle', '12w', 'keine'].includes(S.settings.backupPhotos) ? S.settings.backupPhotos : 'alle'; }
+function blobB64(blob) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(blob); }); }
+function b64Bytes(s) { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+async function photosForBackup(mode = backupPhotoMode()) {
+  if (mode === 'keine' || !PhotoDB.ok) return [];
+  let keys = [];
+  try { keys = ((await PhotoDB.keys()) || []).slice().sort(); } catch (e) { return []; }
+  const cut = addDays(todayKey(), -84), firstOf = {};
+  for (const k of keys) { const a = k.split('|')[1]; if (!firstOf[a]) firstOf[a] = k; }
+  const out = [];
+  for (const key of keys) {
+    const [ws, angle] = key.split('|');
+    if (mode === '12w' && ws < cut && firstOf[angle] !== key) continue;
+    const rec = await PhotoDB.get(key);
+    if (!rec || !rec.full) continue;
+    let blob = new Blob([rec.full], { type: rec.type || 'image/jpeg' });
+    try { blob = (await compressImage(blob, 1080, 0.75)).blob; } catch (e) { /* Original nehmen */ }
+    out.push({ key, kind: isPhys(angle) ? 'koerper' : 'haut', angle, n: angleName(angle), week: ws, date: rec.date || ws, jpg: await blobB64(blob) });
+  }
+  return out;
+}
+async function importBackupPhotos(list) {
+  if (!Array.isArray(list) || !list.length || !PhotoDB.ok) return 0;
+  let have = [];
+  try { have = (await PhotoDB.keys()) || []; } catch (e) { return 0; }
+  let n = 0;
+  for (const p of list) {
+    if (!p || typeof p.key !== 'string' || !p.jpg || have.includes(p.key)) continue;
+    const [ws, angle] = p.key.split('|');
+    if (!ws || !angle) continue;
+    try {
+      const u = b64Bytes(p.jpg), blob = new Blob([u], { type: 'image/jpeg' }), th = await compressImage(blob, 420, 0.78);
+      await PhotoDB.put(p.key, { week: p.week || ws, angle, date: p.date || ws, w: null, h: null, type: 'image/jpeg', full: u.buffer, thumb: await th.blob.arrayBuffer() });
+      n++;
+    } catch (e) { /* einzelnes Foto überspringen */ }
+  }
+  await loadPhotoIndex();
+  return n;
+}
+function backupPhotoHTML() {
+  const m = backupPhotoMode(), n = photoIdx.loaded ? photoIdx.keys.length : null;
+  return `<h5>Fotos im Backup</h5><div class="chips chips-tight">${[['alle', 'alle'], ['12w', 'letzte 12 Wochen + erste Fotos'], ['keine', 'keine']].map(([v, l]) => `<button class="chip chip-xs${m === v ? ' is-on' : ''}" data-a="backup-photos" data-v="${v}">${l}</button>`).join('')}</div>
+    <p class="hint">${n != null ? `${n} Fotos gespeichert (Haut und Körper), im Backup etwa ${fmt(Math.max(0.1, n * 0.2), 1)} MB. ` : ''}Im Backup stecken sie verkleinert (1080 px) – genug, damit Claude sie auswerten kann. Volle Größe sicherst du als ZIP.</p>`;
+}
+
+Object.assign(A, {
+  'cam-open': (el) => camOpen(el.dataset.ws, el.dataset.angle),
+  'cam-close': () => camClose(),
+  'cam-shot': () => camShot(),
+  'cam-flip': () => camFlip(),
+  'cam-timer': () => { CAM.timer = CAM.timer === 0 ? 3 : CAM.timer === 3 ? 10 : 0; const t = document.getElementById('cam-tm'); if (t) t.textContent = CAM.timer ? CAM.timer + ' s' : 'Timer aus'; },
+  'phys-week': (el) => { const cur = weekStart(todayKey()); const w = addDays(ui.physWeek || cur, Number(el.dataset.d)); ui.physWeek = w > cur ? cur : w; render(); },
+  'phys-week-go': (el) => { ui.physWeek = el.dataset.ws; render(); window.scrollTo(0, 0); },
+  'phys-ang': (el) => { ui.physAng = el.dataset.v; TL.on = false; render(); },
+  'tl-play': (el) => tlPlay(el.dataset.ang, el),
+  'backup-photos': (el) => { S.settings.backupPhotos = el.dataset.v; saveSettings(); },
+  'photo-share': async (el) => {
+    const rec = await PhotoDB.get(el.dataset.key).catch(() => null);
+    if (!rec) return;
+    const [ws, angle] = el.dataset.key.split('|');
+    await shareFile(new Blob([rec.full], { type: rec.type || 'image/jpeg' }), `${rec.date || ws}_${angle}.jpg`, angleName(angle));
+  },
+});
+Object.assign(I, {
+  'cam-ghost': (el) => { CAM.ghost = Number(el.value); const g = document.getElementById('cam-g'); if (g) g.style.opacity = String(CAM.ghost / 100); },
+  'cmp-x': (el) => { const box = el.closest('.cmp-slide'); if (box) box.style.setProperty('--x', el.value + '%'); },
+});
+Object.assign(C, {
+  'phys-cmp': (el) => { const weeks = physWeeks(); const cur = ui.physCmp && ui.physCmp.length === 2 ? ui.physCmp.slice() : [weeks[weeks.length - 1], weeks[0]]; cur[Number(el.dataset.n)] = el.value; ui.physCmp = cur; render(); },
+});
+
 /* ---- morgen.js ---- */
 /* ============================================================
    MORGEN-CHECK (seit 2.14.0, Wunsch vom 16.11.2026)
@@ -12806,14 +13487,52 @@ function mcState(k = todayKey()) {
   const knee = !!(kneeCfg().start && kneeWeek(k) >= 1);
   const skin = !!skinPhase(k);
   const weigh = mcWeighDay(k);
+  const caf = mcCafAsk(k), food = mcFoodAsk(k);
   const parts = {
     eve: eve.every((x) => x.ans != null),
+    caf: !caf,
+    food: !food,
     knee: !knee || kneeAm(k) != null,
     skin: !skin || (d.skin && d.skin.score != null),
     weight: !weigh || (d.health && d.health.weight != null) || !!skip.weight,
+    mood: !!(d.mood && d.mood.wellbeing != null && d.mood.energy != null) || !!skip.mood,
   };
-  return { eve, knee, skin, weigh, parts, done: Object.values(parts).every(Boolean), open: Object.values(parts).filter((v) => !v).length };
+  return { eve, caf, food, knee, skin, weigh, parts, done: Object.values(parts).every(Boolean), open: Object.values(parts).filter((v) => !v).length };
 }
+/* Seit 2.15: Koffein von gestern, wenn nichts eingetragen ist (rettet das Experiment „1 statt 2 Monster“) */
+function mcCafAsk(k) {
+  const y = addDays(k, -1), yd = peekDay(y);
+  if (!yd || (yd.caf || []).length || yd.cafMc != null) return null;
+  const uses = rangeKeys(14, addDays(y, -1)).some((x) => ((peekDay(x) || {}).caf || []).length);
+  const e = expCur();
+  return uses || (e && e.id === 'caf_dose') ? { y, exp: !!(e && e.id === 'caf_dose') } : null;
+}
+/* Seit 2.15: Essen gestern auffällig wenig (unter 60 % des Medians) → nachtragen, „passt so“ oder „unvollständig“ */
+function mcFoodAsk(k) {
+  const y = addDays(k, -1), yd = peekDay(y);
+  if (!yd || yd.foodOk || yd.incomplete) return null;
+  const prev = rangeKeys(21, addDays(y, -1)).map((x) => dayIntake(x)).filter((v) => v != null && v > 0).sort((a, b) => a - b);
+  if (prev.length < 5) return null;
+  const med = prev[Math.floor(prev.length / 2)], v = dayIntake(y);
+  if (v != null && v >= med * 0.6) return null;
+  if (v == null && !rangeKeys(3, addDays(y, -1)).some((x) => dayIntake(x) != null)) return null;
+  return { y, v: v || 0, med };
+}
+/* Seit 2.15: lernende Routine – wie oft zuletzt in Folge „Nein“ */
+function mcNoStreak(id, k) {
+  let n = 0;
+  for (let i = 1; i <= 14; i++) {
+    const d = peekDay(addDays(k, -i)), mc = d && d.mc;
+    if (!mc || !(id in mc)) { if (i === 1) continue; break; }
+    if (mc[id] === 0) n++; else break;
+  }
+  return n;
+}
+function mcLearnAsk(k, eve) {
+  const sn = mcCfg().snooze || {};
+  return eve.map((x) => ({ ...x, no: mcNoStreak(x.id, k) })).filter((x) => x.no >= 3 && !(sn[x.id] && sn[x.id] >= k));
+}
+const MC_MOOD = [[2, 'mies'], [4, 'mäßig'], [6, 'okay'], [8, 'gut'], [10, 'top']];
 function mcVisible(k = todayKey()) {
   if (!mcOn() || k !== todayKey()) return false;
   const r = rhythm(k), now = nowMin();
@@ -12842,8 +13561,11 @@ function mcCard(k = todayKey()) {
   if (st.eve.length) {
     h += `<div class="mc-part"><div class="mc-head"><b>${icon('moon')} Gestern Abend</b>${openEve ? `<button class="pill-btn sm is-accent" data-a="mc-all" data-date="${k}">${icon('check')}Alles ja</button>` : ''}</div>`;
     h += st.eve.map((x) => `<div class="mc-row"><span>${esc(x.n)}</span><div class="mc-yn"><button class="chip chip-sm${yes(x.ans)}" data-a="mc-eve" data-id="${esc(x.id)}" data-v="1" data-date="${k}" aria-pressed="${x.ans === true}">Ja</button><button class="chip chip-sm${no(x.ans)}" data-a="mc-eve" data-id="${esc(x.id)}" data-v="0" data-date="${k}" aria-pressed="${x.ans === false}">Nein</button></div></div>`).join('');
+    for (const x of mcLearnAsk(k, st.eve)) h += `<div class="mc-learn">${icon('lightbulb')}<span><b>${esc(x.n)}</b>: ${x.no}× in Folge „Nein“. Was passt besser?</span><div class="chips chips-tight"><button class="chip chip-xs" data-a="mc-learn" data-v="drop" data-id="${esc(x.id)}">Nicht mehr abfragen</button><button class="chip chip-xs" data-a="mc-learn" data-v="remind" data-id="${esc(x.id)}">Abends erinnern</button><button class="chip chip-xs" data-a="mc-learn" data-v="keep" data-id="${esc(x.id)}">Weiter fragen</button></div></div>`;
     h += '</div>';
   }
+  if (st.caf) h += `<div class="mc-part"><div class="mc-head"><b>${icon('coffee')} Koffein gestern</b></div><p class="hint">Für gestern ist kein Koffein eingetragen.${st.caf.exp ? ' Zählt fürs Experiment „1 statt 2 Monster“.' : ''}</p><div class="chips chips-tight">${[0, 1, 2, 3].map((n) => `<button class="chip chip-sm" data-a="mc-caf" data-v="${n}" data-date="${k}">${n === 0 ? 'nichts' : n === 3 ? '3 Monster' : n + ' Monster'}</button>`).join('')}<button class="chip chip-sm" data-a="mc-caf-other" data-date="${k}">Anderes …</button></div></div>`;
+  if (st.food) h += `<div class="mc-part"><div class="mc-head"><b>${icon('salad')} Essen gestern</b></div><p class="hint">${st.food.v ? `Nur ${fmt(st.food.v)} kcal erfasst (sonst um ${fmt(st.food.med)})` : 'Nichts eingetragen'} – fehlt etwas? Unvollständige Tage verfälschen deine Erhaltungskalorien.</p><div class="chips chips-tight"><button class="chip chip-sm is-accent" data-a="mc-food-add" data-date="${k}">Nachtragen</button><button class="chip chip-sm" data-a="mc-food" data-v="ok" data-date="${k}">Passt so</button><button class="chip chip-sm" data-a="mc-food" data-v="inc" data-date="${k}">Unvollständig</button></div></div>`;
   if (st.knee) {
     h += `<div class="mc-part knee-am"><div class="mc-head"><b>Knie heute Morgen</b>${am != null ? `<span class="count">${am}/10</span>` : ''}</div><p class="hint">0 = kein Schmerz, 10 = stärkster</p>${scale0('knee-am', am, k)}
       <div class="chips chips-tight flag-chips"><span class="hint">Bemerkt:</span>${KNEE_FLAGS.map((f) => `<button class="chip chip-xs${(kn.flags || []).includes(f) ? ' is-on is-red' : ''}" data-a="knee-flag" data-v="${esc(f)}" data-date="${k}">${esc(f)}</button>`).join('')}</div></div>`;
@@ -12853,6 +13575,7 @@ function mcCard(k = todayKey()) {
     const w = d.health && d.health.weight;
     h += `<div class="mc-part"><div class="mc-head"><b>${icon('scale')} Gewicht</b></div><div class="mc-w"><label class="mini-in"><input type="text" inputmode="decimal" data-c="health" data-k="weight" data-date="${k}" value="${numIn(w, 1)}" placeholder="–" aria-label="Gewicht in kg"><span>kg</span></label>${w == null && !(d.mcSkip || {}).weight ? `<button class="link-btn" data-a="mc-skip" data-f="weight" data-date="${k}">heute nicht gewogen</button>` : ''}</div><p class="hint">Morgens nach dem Klo, vor dem Essen. Täglich gewogen ergibt den genauesten Trend – daraus rechnet die App deine Erhaltungskalorien.</p></div>`;
   }
+  if (!st.parts.mood) h += `<div class="mc-part"><div class="mc-head"><b>Wie geht's dir heute?</b><button class="link-btn" data-a="mc-skip" data-f="mood" data-date="${k}">überspringen</button></div>${[['wellbeing', 'Befinden'], ['energy', 'Energie']].map(([f, n]) => `<div class="mc-row is-stack"><span>${n}</span><div class="chips chips-tight">${MC_MOOD.map(([v, l]) => `<button class="chip chip-xs${d.mood && d.mood[f] === v ? ' is-on' : ''}" data-a="mood" data-f="${f}" data-v="${v}" data-date="${k}">${l}</button>`).join('')}</div></div>`).join('')}<p class="hint">Fließt in die Muster ein: Was hebt deine Energie, was drückt sie?</p></div>`;
   return h + '</section>';
 }
 function mcScroll() {
@@ -12861,7 +13584,9 @@ function mcScroll() {
 }
 /* Abends: eine Erinnerung statt Haken (wird in pushHabits genutzt) */
 function mcEveReminder(k) {
-  const y = k, steps = (rtCfg().pm || []).map((id) => rtStep(id, y)).filter((s) => s && !s.info && !s.done).map((s) => MC_ASK[s.id] || (s.id.startsWith('block:') ? s.sub.replace(/\s*\(.*?\)/g, '') : s.n));
+  const y = k, focus = mcCfg().focus || [];
+  const ids = (rtCfg().pm || []).slice().sort((a, b) => (focus.includes(b) ? 1 : 0) - (focus.includes(a) ? 1 : 0));
+  const steps = ids.map((id) => rtStep(id, y)).filter((s) => s && !s.info && !s.done).map((s) => (focus.includes(s.id) ? '❗' : '') + (MC_ASK[s.id] || (s.id.startsWith('block:') ? s.sub.replace(/\s*\(.*?\)/g, '') : s.n)));
   if (!steps.length) return null;
   return steps.slice(0, 4).join(' · ');
 }
@@ -12878,6 +13603,23 @@ Object.assign(A, {
   'mc-open': () => mcScroll(),
   'mc-toggle': () => { const c = S.settings.mcheck = { ...mcCfg() }; c.on = !c.on; saveSettings(); },
   'mc-weight': (el) => { const c = S.settings.mcheck = { ...mcCfg() }; c.weight = el.dataset.v; saveSettings(); },
+  'mc-caf': (el) => {
+    const k = curDate(el), y = addDays(k, -1), n = Number(el.dataset.v);
+    const p = (S.settings.caf.presets || []).find((x) => x.id === 'monster_zero') || CAF_PRESETS.find((x) => x.id === 'monster_zero');
+    mutDay(y, (d) => { d.cafMc = n; d.caf = d.caf || []; for (let i = 0; i < n; i++) d.caf.push({ id: uid(), p: p.id, n: p.n, mg: p.mg, ml: p.ml, kcal: p.kcal, sug: p.sug, t: null, mc: 1 }); });
+    render(); toast(n ? `${n} × ${p.n} für gestern eingetragen (ohne Uhrzeit)` : 'Gestern ohne Koffein');
+  },
+  'mc-caf-other': (el) => { const y = addDays(curDate(el), -1); go('licht', { date: y, scrollTop: true }); toast('Koffein für gestern eintragen'); },
+  'mc-food': (el) => { const y = addDays(curDate(el), -1); mutDay(y, (d) => { if (el.dataset.v === 'ok') d.foodOk = 1; else d.incomplete = 1; }); invalidate(); render(); toast(el.dataset.v === 'ok' ? 'Gestern zählt wie eingetragen' : 'Gestern zählt nicht für die Erhaltungskalorien'); },
+  'mc-food-add': (el) => { const y = addDays(curDate(el), -1); go('ern', { date: y, scrollTop: true }); toast('Essen von gestern nachtragen'); },
+  'mc-learn': (el) => {
+    const id = el.dataset.id, v = el.dataset.v, c = S.settings.mcheck = { ...mcCfg() };
+    c.snooze = { ...(c.snooze || {}), [id]: addDays(todayKey(), 14) };
+    if (v === 'drop') { const R = rtCfg(); R.pm = (R.pm || []).filter((x) => x !== id); toast('Wird nicht mehr abgefragt – zurückholen unter Gewohnheiten → Abendroutine'); }
+    else if (v === 'remind') { c.focus = [...new Set([...(c.focus || []), id])]; toast('Kommt abends zuerst in der Erinnerung'); }
+    else toast('Okay, ich frage weiter');
+    saveSettings();
+  },
 });
 
 /* ---- push.js ---- */

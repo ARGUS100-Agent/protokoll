@@ -126,6 +126,9 @@ function vHeute() {
   h += banners(k);
   h += kneeAlertCards(k);
   h += mcCard(k);
+  h += weightWhyHTML(k);
+  h += koerperDueCard(k);
+  h += monthBanner(k);
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
@@ -514,6 +517,8 @@ function vLicht() {
     <h5>Schnell eintragen${isT ? ' (jetzt)' : ''}</h5><div class="caf-grid">${S.settings.caf.presets.map((p) => `<button class="caf-btn" data-a="caf-add" data-id="${p.id}" data-date="${k}"><b>${esc(p.n)}</b><small>${fmt(p.mg)} mg</small></button>`).join('')}<button class="caf-btn is-new" data-a="caf-custom" data-date="${k}"><b>${icon('plus')} Eigenes Getränk</b><small>anlegen</small></button></div>`;
   const src = ci.today;
   if (src.length) h += `<div class="list caf-list">${src.map((x) => { const late = x.t > ci.cut; const sub = [x.src === 'caf' ? '' : 'aus Ernährung', late ? 'nach ' + minToTime(ci.cut) : ''].filter(Boolean).join(' · '); return `<div class="caf-row"><span class="row-main"><b>${esc(x.n)}</b>${sub ? `<small${late ? ' class="warn-txt"' : ''}>${sub}</small>` : ''}</span>${x.src === 'caf' ? `<input class="row-time" type="time" value="${minToTime(x.t)}" data-c="caf-time" data-id="${x.id}" data-date="${k}" aria-label="Uhrzeit">` : `<span class="row-side">${minToTime(x.t)}</span>`}<span class="row-side caf-mg">${fmt(x.mg)} mg</span>${x.src === 'caf' ? `<button class="icon-btn sm ghost" data-a="caf-del" data-id="${x.id}" data-date="${k}" aria-label="Löschen">${icon('trash-2')}</button>` : '<span></span>'}</div>`; }).join('')}</div>`;
+  const untimed = (getDay(k).caf || []).filter((x) => timeToMin(x.t) == null);
+  if (untimed.length) h += `<p class="hint">Ohne Uhrzeit (aus dem Morgen-Check): ${untimed.length} × ${esc(untimed[0].n)}, zusammen ${fmt(untimed.reduce((a, x) => a + (Number(x.mg) || 0), 0))} mg. Zählt fürs Experiment, nicht für den Verlauf oben. <button class="link-btn" data-a="caf-del" data-id="${untimed[untimed.length - 1].id}" data-date="${k}">eine löschen</button></p>`;
   h += `<p class="hint">Koffein-Stopp ${cafMode() === 'dose' ? 'je Getränk nach Dosis (Meta-Analyse Gardiner 2023: je mehr Koffein, desto früher)' : `${minToTime(ci.cut)} Uhr (${cafStopText()})`}, Schlafenszeit ${minToTime(ci.bed)} Uhr. Mengen, Halbwertszeit und Getränke änderst du unter ${goBtn('set', 'Einstellungen → Koffein', '', 'link-btn inline')}.</p></section>`;
   /* Weitere Gewohnheiten */
   h += `<section class="sec"><div class="sec-head"><h2>Abend & Schlaf</h2></div>${habitRows(k, ['alkohol', 'mahlzeit', 'bildschirm', 'dimmen', 'nsdr'])}</section>`;

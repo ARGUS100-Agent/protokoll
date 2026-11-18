@@ -109,7 +109,7 @@ function rtBlockItems(b, variant) { const inV = b.items.filter((it) => itemInVar
 function rtStep(id, k) {
   const d = getDay(k), r = rhythm(k), variant = dayVariant(k);
   const hb = HABITS.find((h) => h.id === id);
-  if (id === 'mcheck') { if (!mcOn()) return null; const st = mcState(k); return { id, n: 'Morgen-Check', sub: 'Gestern Abend, Knie, Haut, Gewicht · 20 Sek.', t: r.wake + 15, done: st.done, part: !st.done && st.open < 4, go: 'mcheck' }; }
+  if (id === 'mcheck') { if (!mcOn()) return null; const st = mcState(k); return { id, n: 'Morgen-Check', sub: 'Gestern Abend, Koffein, Knie, Haut, Gewicht, Stimmung · 30 Sek.', t: r.wake + 15, done: st.done, part: !st.done && st.open < 4, go: 'mcheck' }; }
   if (id === 'caf_start') { const st = cafStart(k); return { id, n: `Koffein frühestens ${minToTime(st)}`, sub: '90 Min. nach dem Aufwachen', t: st, info: true, done: k < todayKey() || (k === todayKey() && nowMin() >= st) }; }
   if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
