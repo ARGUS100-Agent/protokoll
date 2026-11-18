@@ -50,6 +50,7 @@ function vKnieToday() {
   const ms = milestones().find((m) => !m.done);
   if (ms) h += `<p class="hint">${icon('flag')} Nächster Meilenstein: ${esc(ms.n)} (${ms.week ? `Woche ${ms.week[0]}${ms.week[1] !== ms.week[0] ? '–' + ms.week[1] : ''}` : esc(ms.sub)}).</p>`;
   h += musterBox(['knee'], 'Was deinem Knie hilft oder schadet');
+  h += kneePatternHTML();
   return h;
 }
 function insolesCard(k, ins) {
@@ -211,6 +212,7 @@ function vKnieTests() {
     h += chartCard('kt', 'Verlauf', chips, lineChart({ keys: tests.map((x) => x.date), series, unit: sel.unit }), null, legend);
     h += `<div class="table-wrap"><table><tr><th>Datum</th><th>Step-down L/R</th><th>Wand L/R</th><th>Stand L/R</th><th>S&R</th><th>Couch L/R</th></tr>${tests.slice().reverse().map((x) => `<tr data-a="test-edit" data-id="${x.id}"><td>${shortDate(x.date)}</td><td>${sdTxt(x.sdL)}/${sdTxt(x.sdR)}</td><td>${fmtN(x.k2wL)}/${fmtN(x.k2wR)}</td><td>${fmtN(x.balL)}/${fmtN(x.balR)}</td><td>${fmtN(x.sar)}</td><td>${fmtN(x.couchL)}/${fmtN(x.couchR)}</td></tr>`).join('')}</table></div><p class="hint">Zeile antippen zum Bearbeiten.</p>`;
   }
+  h += kneeTestExtraHTML();
   return h;
 }
 function sdTxt(v) { return v === true ? '✓' : v === false ? '✗' : '–'; }
@@ -227,7 +229,8 @@ function sheetTest(id) {
       <div class="frow"><span class="flabel">Knie zur Wand links</span><div class="fin">${num('k2wL', 'cm')}</div></div><div class="frow"><span class="flabel">Knie zur Wand rechts</span><div class="fin">${num('k2wR', 'cm')}</div></div>
       <div class="frow"><span class="flabel">Einbeinstand links</span><div class="fin">${num('balL', 'Sek.')}</div></div><div class="frow"><span class="flabel">Einbeinstand rechts</span><div class="fin">${num('balR', 'Sek.')}</div></div>
       <div class="frow"><span class="flabel">Sit-and-Reach (±)</span><div class="fin">${num('sar', 'cm')}</div></div>
-      <div class="frow"><span class="flabel">Couch-Stretch links</span><div class="fin">${num('couchL', 'cm')}</div></div><div class="frow"><span class="flabel">Couch-Stretch rechts</span><div class="fin">${num('couchR', 'cm')}</div></div></div>
+      <div class="frow"><span class="flabel">Couch-Stretch links</span><div class="fin">${num('couchL', 'cm')}</div></div><div class="frow"><span class="flabel">Couch-Stretch rechts</span><div class="fin">${num('couchR', 'cm')}</div></div>
+      <div class="frow"><span class="flabel">Einbein-Sprung links<small>nur mit stabilem Knie</small></span><div class="fin">${num('hopL', 'cm')}</div></div><div class="frow"><span class="flabel">Einbein-Sprung rechts</span><div class="fin">${num('hopR', 'cm')}</div></div></div>
     <textarea class="note" id="kt-note" rows="2" placeholder="Notiz, z. B. Video vom Step-down gemacht">${esc(t.note || '')}</textarea>
     <div class="sheet-acts"><button class="btn is-accent" data-a="test-save">Speichern</button>${id ? '<button class="btn is-danger" data-a="test-del">Löschen</button>' : ''}</div>`);
 }

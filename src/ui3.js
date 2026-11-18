@@ -129,6 +129,8 @@ function vHeute() {
   h += weightWhyHTML(k);
   h += koerperDueCard(k);
   h += monthBanner(k);
+  h += unknownCard(k);
+  h += bjjCard(k);
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
@@ -164,7 +166,7 @@ function kneeMorningCard(k, compact) {
   const sub = adv && adv.ask ? `Gestern bist du gelaufen (Schmerz ${adv.rp}/10). Wie fühlt sich das Knie heute Morgen an?` : 'Schmerz heute Morgen: 0 = keiner, 10 = stärkster.';
   return `<section class="card knee-am"><div class="sec-head"><h2>Knie heute</h2>${am != null ? `<span class="count">${am}/10</span>` : ''}</div><p class="sec-sub">${esc(sub)}</p>
     ${scale0('knee-am', am, k)}
-    <div class="chips chips-tight flag-chips"><span class="hint">Bemerkt:</span>${KNEE_FLAGS.map((f) => `<button class="chip chip-xs${(kn.flags || []).includes(f) ? ' is-on is-red' : ''}" data-a="knee-flag" data-v="${esc(f)}" data-date="${k}">${esc(f)}</button>`).join('')}</div>
+    <div class="chips chips-tight flag-chips"><span class="hint">Bemerkt:</span>${KNEE_FLAGS.map((f) => `<button class="chip chip-xs${(kn.flags || []).includes(f) ? ' is-on is-red' : ''}" data-a="knee-flag" data-v="${esc(f)}" data-date="${k}">${esc(f)}</button>`).join('')}</div>${kneeMoreHTML(k)}
     ${am != null && adv && !adv.ask ? `<p class="hint">${esc(adv.text)}</p>` : ''}</section>`;
 }
 function sundayCard(k) {
@@ -284,11 +286,13 @@ function vTrain() {
   if (ui.gymSess) return vGymSession();
   const sub = getSub('train', 'heute');
   let h = areaHead('train');
-  h += subnav('train', sub, [['heute', 'Heute'], ['woche', 'Woche'], ['gym', 'Gym-Plan'], ['verlauf', 'Verlauf']]);
+  h += subnav('train', sub, [['heute', 'Heute'], ['woche', 'Woche'], ['gym', 'Gym-Plan'], ['kraft', 'Bestwerte'], ['athletik', 'Athletik'], ['verlauf', 'Verlauf']]);
   if (sub === 'heute' || sub === 'woche') h += goalNotes(['training', 'sauna']);
   if (sub === 'heute') h += vTrainToday(ui.date);
   else if (sub === 'woche') h += vTrainWeek();
   else if (sub === 'gym') h += vGymPlan();
+  else if (sub === 'kraft') h += blockCardHTML() + muscleMapHTML(ui.muWeek || weekStart(todayKey())) + prBoardHTML();
+  else if (sub === 'athletik') h += vTrainAthletik();
   else h += vTrainHistory();
   return h;
 }
@@ -310,6 +314,10 @@ function trainRow(t, k) {
   return `<div class="row-wrap"><button class="row" data-a="training-edit" data-id="${t.id}" data-date="${k}"><span class="area-ic">${icon(tt.run ? 'activity' : tt.gym ? 'dumbbell' : tt.light ? 'person-standing' : 'flame')}</span><span class="row-main"><b>${esc(t.type)}${t.gym ? ` <em class="est is-blue">Schedule ${t.gym.sched}</em>` : ''}${t.gid ? ' <em class="est">Garmin</em>' : ''}</b><small>${esc(parts || 'ohne Details')}</small></span>${icon('pencil', 'row-ic')}</button>${t.gym ? `<button class="pill-btn row-act" data-a="gym-open" data-id="${t.id}" data-date="${k}">Sätze</button>` : ''}</div>`;
 }
 function vTrainToday(k) {
+  if (k === todayKey()) { const u = unknownCard(k); if (u) return u + vTrainTodayRest(k); }
+  return vTrainTodayRest(k);
+}
+function vTrainTodayRest(k) {
   const d = getDay(k);
   let h = dateBar(k);
   h += recoveryCard(k);
@@ -426,7 +434,7 @@ function vGymSession() {
         <label class="set-in"><input type="text" inputmode="numeric" data-c="gym-val" data-ex="${ex.id}" data-i="${i}" data-f="r" value="${s.r ?? ''}" placeholder="${ls && ls.r != null ? ls.r : String(tg.reps).split(/[–\s]/)[0]}"><span>Wdh.</span></label><button class="rir-btn${s.rir != null ? ' is-on' : ''}" data-a="gym-rir" data-ex="${ex.id}" data-i="${i}" aria-label="Wiederholungen in Reserve">${s.rir != null ? 'RIR ' + RIR_LABEL[s.rir] : 'RIR'}</button></div>`;
     }).join('');
     h += `<section class="card gym-card"><div class="gym-head"><div><h3>${esc(tg.n)}</h3><small>${tg.sets} × ${esc(tg.reps)} · ${esc(tg.note)}</small></div>${ex.alt ? `<button class="chip chip-xs${e.alt ? ' is-on' : ''}" data-a="gym-exalt" data-ex="${ex.id}">${icon('footprints')}Knie-Variante</button>` : ''}</div>
-      ${kxExHTML(ex, t, e, k)}
+      ${kxExHTML(ex, t, e, k)}${exToolsHTML(ex, t, e)}
       ${last ? `<p class="hint">Letztes Mal (${esc(fmtDate(last.k, { day: 'numeric', month: 'short' }))}${last.alt ? ', Knie-Variante' : ''}): ${esc(last.sets.map((s) => `${s.w != null ? fmt(s.w, 1) : '–'} × ${s.r ?? '–'}`).join(', '))}</p>` : ''}
       ${rows}<button class="link-btn" data-a="gym-addset" data-ex="${ex.id}">${icon('plus')} Satz</button></section>`;
   }

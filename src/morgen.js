@@ -119,7 +119,7 @@ function mcCard(k = todayKey()) {
   if (st.food) h += `<div class="mc-part"><div class="mc-head"><b>${icon('salad')} Essen gestern</b></div><p class="hint">${st.food.v ? `Nur ${fmt(st.food.v)} kcal erfasst (sonst um ${fmt(st.food.med)})` : 'Nichts eingetragen'} – fehlt etwas? Unvollständige Tage verfälschen deine Erhaltungskalorien.</p><div class="chips chips-tight"><button class="chip chip-sm is-accent" data-a="mc-food-add" data-date="${k}">Nachtragen</button><button class="chip chip-sm" data-a="mc-food" data-v="ok" data-date="${k}">Passt so</button><button class="chip chip-sm" data-a="mc-food" data-v="inc" data-date="${k}">Unvollständig</button></div></div>`;
   if (st.knee) {
     h += `<div class="mc-part knee-am"><div class="mc-head"><b>Knie heute Morgen</b>${am != null ? `<span class="count">${am}/10</span>` : ''}</div><p class="hint">0 = kein Schmerz, 10 = stärkster</p>${scale0('knee-am', am, k)}
-      <div class="chips chips-tight flag-chips"><span class="hint">Bemerkt:</span>${KNEE_FLAGS.map((f) => `<button class="chip chip-xs${(kn.flags || []).includes(f) ? ' is-on is-red' : ''}" data-a="knee-flag" data-v="${esc(f)}" data-date="${k}">${esc(f)}</button>`).join('')}</div></div>`;
+      <div class="chips chips-tight flag-chips"><span class="hint">Bemerkt:</span>${KNEE_FLAGS.map((f) => `<button class="chip chip-xs${(kn.flags || []).includes(f) ? ' is-on is-red' : ''}" data-a="knee-flag" data-v="${esc(f)}" data-date="${k}">${esc(f)}</button>`).join('')}</div>${kneeMoreHTML(k)}</div>`;
   }
   if (st.skin) h += `<div class="mc-part"><div class="mc-head"><b>Hautbild</b>${sc != null ? `<span class="count">${sc}/10</span>` : ''}</div><p class="hint">1 = sehr schlecht, 10 = sehr gut</p>${scale10('skin-score', sc, k)}</div>`;
   if (st.weigh) {

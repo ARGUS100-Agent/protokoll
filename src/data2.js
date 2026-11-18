@@ -440,6 +440,7 @@ const KNEE_TESTS = [
   { id: 'bal', n: 'Einbeinstand', en: 'Single Leg Balance Test', type: 'num', sides: true, unit: 'Sek.', better: 'hi', how: 'Barfuß, Augen offen, Hände an der Hüfte. Zeit, bis du den Fuß absetzen musst (max. 60 Sek.).' },
   { id: 'sar', n: 'Sit-and-Reach', en: 'Sit and Reach Test', type: 'num', sides: false, unit: 'cm', better: 'hi', signed: true, how: 'Langsitz, Beine gestreckt. Wie weit kommen die Fingerspitzen über die Fußsohlen hinaus (+) oder fehlen bis dahin (−)?' },
   { id: 'couch', n: 'Couch-Stretch-Test', en: 'Couch Stretch Test', type: 'num', sides: true, unit: 'cm', better: 'lo', how: 'Knie an der Wand, Unterschenkel an der Wand hoch, Oberkörper aufrecht. Abstand Ferse–Po messen.' },
+  { id: 'hop', n: 'Einbein-Sprung', en: 'Single Leg Hop for Distance', type: 'num', sides: true, unit: 'cm', better: 'hi', how: 'Auf einem Bein so weit wie möglich nach vorn springen und sicher auf demselben Bein landen (2 Sek. halten). Je Seite 3 Versuche, der beste zählt. Nur schmerzfrei und mit stabilem Knie – im Zweifel erst nach Freigabe durch Arzt oder Physio.' },
 ];
 const KNEE_MILESTONES = [
   { id: 'sd', week: [4, 6], n: 'Step-down stabil', sub: 'beide Seiten im Test stabil' },

@@ -1299,3 +1299,48 @@ label.pill-btn { cursor: pointer; }
 .cam-btn .ic { width: 24px; height: 24px; }
 .cam-shutter { width: 74px; height: 74px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px #000, 0 0 0 7px #fff; }
 .cam-shutter:active { transform: scale(.94); }
+
+/* ---------- 2.17: Kraft, Knie, BJJ, Athletik ---------- */
+.pr-list .row.is-on { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.pr-val { display: grid; justify-items: end; text-align: right; }
+.pr-val b { font-size: 20px; }
+.pr-val small { font-size: 12px; color: var(--ink-3); }
+.mu-map { display: block; width: 100%; max-width: 360px; margin: 6px auto; }
+.mu-body { fill: var(--bg-2); stroke: var(--line-2); stroke-width: 1; }
+.mu { stroke: var(--bg); stroke-width: 1; }
+.mu-l0 { fill: var(--bg-4); }
+.mu-l1 { fill: color-mix(in srgb, var(--accent) 30%, var(--bg-3)); }
+.mu-l2 { fill: color-mix(in srgb, var(--accent) 60%, var(--bg-3)); }
+.mu-l3 { fill: var(--accent); }
+.mu-l4 { fill: var(--st-over); }
+.mu-chip.mu-l3, .mu-chip.mu-l4 { color: #fff; }
+.mu-chip.mu-l0 { opacity: .7; }
+.mu-key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+.week-nav.is-mini { margin: 2px 0 4px; }
+.ex-tools { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 4px 0 6px; }
+.ex-tools .link-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
+.ex-tools .ic { width: 15px; height: 15px; }
+.ex-note { font-size: 13px; color: var(--ink-2); margin: 4px 0; }
+.ex-note .ic { width: 14px; height: 14px; vertical-align: -2px; }
+.rest-bar { position: fixed; left: 12px; right: 12px; bottom: calc(var(--safe-b) + 74px); z-index: 40; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 16px; background: var(--bg-2); box-shadow: 0 6px 24px rgba(0,0,0,.35), inset 0 0 0 1px var(--line-2); }
+.rest-bar > span { flex: 1; display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; }
+.rest-bar > span .ic { grid-row: span 2; width: 22px; height: 22px; color: var(--accent); }
+.rest-bar b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.rest-bar small { font-size: 12px; color: var(--ink-3); }
+.rest-bar.is-done { box-shadow: 0 6px 24px rgba(0,0,0,.35), inset 0 0 0 2px var(--st-ok); }
+.pill-btn.sm { min-height: 32px; padding: 5px 11px; font-size: 13px; }
+.fc-video { width: 100%; max-height: 60vh; border-radius: 14px; background: #000; }
+.radar { display: block; width: 100%; max-width: 340px; margin: 4px auto; }
+.radar .grid { fill: none; stroke: var(--line-2); }
+.radar text, .mu-map text { font-size: 8.5px; fill: var(--ink-3); }
+.radar .rd-cur { fill: color-mix(in srgb, var(--accent) 28%, transparent); stroke: var(--accent); stroke-width: 2; }
+.radar .rd-prev { fill: none; stroke: #8f9bb8; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.ergo { display: grid; place-items: center; background: var(--bg); color: var(--ink); }
+.ergo-box { display: grid; justify-items: center; gap: 8px; text-align: center; padding: 24px; }
+.ergo-box small { color: var(--ink-3); font-size: 13px; }
+.ergo-ph { font-size: 24px; }
+.ergo-time { font-size: 88px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.ergo-box p { font-size: 18px; font-weight: 650; color: var(--accent); margin: 0; }
+.bjj-tech { font-size: 20px; font-weight: 700; margin: 6px 0; }
+
+html.noscroll .rest-bar { display: none; }
