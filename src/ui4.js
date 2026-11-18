@@ -389,6 +389,7 @@ Object.assign(SET_VIEWS, {
     return `<div class="form">
       <div class="frow"><span class="flabel">Start 12-Wochen-Plan</span><div class="fin"><input type="date" data-c="knee-cfg" data-f="start" value="${c.start}"></div></div>
       <div class="frow is-wide"><span class="flabel">Seite mit Aufschlag<small class="sub">Standard: keine – beide Seiten gleich</small></span>${chips('knee-side', c.side, [['keine', 'Keine'], ['rechts', 'Rechts'], ['links', 'Links']])}</div>
+      <div class="frow is-wide"><span class="flabel">Langes Band (ca. 1–2 m)<small class="sub">für Knie strecken gegen Band und Spanish Squat; ohne nimmt die App Ersatzübungen</small></span>${chips('knee-longband', c.longBand ? 1 : 0, [[1, 'Vorhanden'], [0, 'Nicht vorhanden']])}</div>
       ${extraSide() ? `<div class="frow"><span class="flabel">Aufschlag Haltezeit</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraSec" value="${c.extraSec}"><span class="unit">Sek.</span></div></div>
       <div class="frow"><span class="flabel">Aufschlag Wiederholungen</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraReps" value="${c.extraReps}"><span class="unit">Wdh.</span></div></div>` : ''}
       <div class="frow"><span class="flabel">Pause zwischen Übungen</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="trans" value="${c.trans}"><span class="unit">Sek.</span></div></div>

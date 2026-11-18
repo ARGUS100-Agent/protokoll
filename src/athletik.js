@@ -75,6 +75,15 @@ const ATH_EX = [
     how: 'Seitlich auf eine niedrige Stufe (10–15 cm) stellen, die Ferse des Standbeins steht erhöht (2–3 cm, z. B. auf einem Buch). Das freie Bein in 3 Sek. Richtung Boden absenken und nur antippen, dann mit dem Standbein wieder ganz strecken. Das Knie darf über die Zehen, das Becken bleibt gerade.',
     benefit: 'Kräftigt den vorderen Oberschenkel bis in die volle Streckung, im Stand und mit wenig Gewicht. Eigene Studien gibt es dazu nicht; das Prinzip – Oberschenkel im schmerzarmen Bereich kräftigen – ist gut belegt.', mistake: 'Mit dem unteren Bein abstoßen, Knie fällt nach innen.', safety: 'Bis 3/10; bei Druck unter der Kniescheibe eine niedrigere Stufe.', prog: 'Höhere Stufe, Kettlebell in der Hand, Schrägbrett.',
     lv: ['', 'Stufe etwas höher (15–20 cm)', '12 kg in der Hand', '2 × 12 kg', '2 × 12 kg, unten 1 Sek. Pause'] },
+  /* Ersatz ohne langes Band (2.16.1): Dominik hat nur die kurzen Loop Bands */
+  { id: 'a_quadset', n: 'Oberschenkel anspannen mit Handtuchrolle', en: 'Quad Set Towel Roll', cat: 'strength', areas: ['vorn'], d: { t: 'reps', s: 2, reps: 10, sets: 3 }, dose: '3 × 10 je Bein, je 5 Sek. halten',
+    how: 'Langsitz oder Rückenlage, eine Handtuchrolle unter das Knie. Das Knie fest nach unten in die Rolle drücken, sodass sich der Oberschenkel anspannt und die Ferse leicht abhebt, 5 Sek. halten, lösen. Ersatz für das Knie-Strecken gegen Band, solange kein langes Band da ist.',
+    benefit: 'Übt die volle Streckung und die Anspannung des vorderen Oberschenkels ohne Last – gerade wenn das Knie gerade nicht mehr ganz gestreckt wird.', mistake: 'Nur mit dem Po drücken oder die Luft anhalten.', safety: 'Nur bis zur schmerzarmen Streckung (bis 3/10).', prog: 'Länger halten, dann Knie strecken gegen ein langes Band.',
+    lv: ['', '8 Sek. halten', '10 Sek. halten', { t: '10 Sek. halten', reps: 2 }, { t: '10 Sek. halten, Ferse höher anheben', reps: 2 }] },
+  { id: 'a_wandtief', n: 'Wandsitzen tief, Unterschenkel senkrecht', en: 'Deep Wall Sit Vertical Shins', cat: 'strength', areas: ['vorn'], d: { t: 'time', s: 1, sec: 45, sets: 2, rest: 60, noX: true }, dose: '2 × 45 Sek., Knie ca. 80–90°',
+    how: 'Rücken an die Wand, die Füße so weit vorn, dass die Unterschenkel senkrecht stehen. Tiefer als beim normalen Wandsitzen heruntergleiten (Knie ca. 80–90°) und halten, Anstrengung etwa 7 von 10. Ersatz für den Spanish Squat, solange kein langes Band oder Gurt da ist.',
+    benefit: 'Hält den Oberschenkel in tieferer Beugung unter Spannung – wie der Spanish Squat, nur mit der Wand statt dem Band. Wandsitzen bei 90° stand auch im Sehnenprogramm von Breda 2021.', mistake: 'Füße zu nah an der Wand, dann wandern die Knie nach vorn.', safety: 'Bis 5/10 Schmerz, wenn er am nächsten Morgen wieder auf dem Ausgangswert ist; bei Druck unter der Kniescheibe weniger tief.', prog: 'Mit Kettlebell auf den Oberschenkeln, dann Spanish Squat mit langem Band.',
+    lv: ['', '12 kg auf den Oberschenkeln', '2 × 12 kg auf den Oberschenkeln', { t: '2 × 12 kg, je Satz 10 Sek. länger', sec: 10 }, { t: '2 × 12 kg, je Satz 15 Sek. länger', sec: 15 }] },
   /* Knie-Block im Gym (2.15): Maschinen, je Phase siehe KB_PLAN */
   { id: 'b_iso', n: 'Beinstrecker isometrisch, einbeinig', en: 'Isometric Single Leg Extension', cat: 'gym', areas: ['vorn'], d: { t: 'time', s: 2, sec: 45, sets: 5, rest: 60 }, dose: '5 × 45 Sek. je Bein, Knie ca. 60°, ~70 % Kraft',
     how: 'Sitz so einstellen, dass das Knie auf Höhe der Drehachse liegt, Polster knapp über dem Knöchel. Ein Gewicht wählen, das du 45 Sek. halten kannst und danach noch etwa 2 weitere Sätze schaffen würdest (Anstrengung ca. 7 von 10). Mit einem Bein bis ca. 60° Kniebeugung anheben – der Unterschenkel zeigt schräg nach vorn unten – und dort halten. Beine abwechseln, das andere ruht.',
@@ -233,9 +242,18 @@ function kpChangeText(lvl) {
   return `Halten +${5 * L} Sek., Wiederholungen +${2 * L} (mit Gewicht +${L}, mit Band +${2 * Math.min(L, 2)}${L >= 2 ? ' und stärkeres Band' : ''}).`;
 }
 const kgF = (w) => fmt(w, w % 1 ? 1 : 0);
+/* Ohne langes Band (Einstellung Knie → Langes Band): Ersatzübungen statt Knie strecken gegen Band und Spanish Squat */
+const ATH_SWAP = { a_tke: 'a_quadset', a_spanish: 'a_wandtief' };
+function athSwap(it) {
+  const to = ATH_SWAP[it.i], ex = to && exById(to);
+  if (!ex || kneeCfg().longBand) return it;
+  const o = { ...it, i: to, from: it.i };
+  if (ex.d.t === 'reps') { o.reps = ex.d.reps; delete o.sec; } else { o.sec = it.sec || ex.d.sec; delete o.reps; }
+  return o;
+}
 function athItems(k = todayKey(), t = athType(k)) {
   const L = athLight(k), lvl = Math.max(0, kpLevel(k) - (L ? 1 : 0)); // leichter Tag: eine Stufe zurück
-  let items = clone((kneePhase().days || {})[t] || []).filter((it) => exById(it.i)).map((it) => kpItem(it, lvl));
+  let items = clone((kneePhase().days || {})[t] || []).filter((it) => exById(it.i)).map(athSwap).map((it) => kpItem(it, lvl));
   if (L) items = items.filter((it) => !exById(it.i).plyo).map((it) => (it.sets > 1 ? { ...it, sets: it.sets - 1 } : it));
   return items;
 }
@@ -396,7 +414,7 @@ function kpCardHTML(k = todayKey()) {
   const ic = { up: 'trending-up', down: 'trending-down', hold: 'minus', manual: 'pencil', phase: 'sparkles', start: 'sparkles' }[st] || 'minus';
   const head = { up: 'Seit Montag eine Stufe höher', down: 'Seit Montag eine Stufe zurück', hold: 'Stufe gehalten', manual: 'Von dir angepasst', phase: 'Neue Phase', start: 'Steigerung läuft ab jetzt' }[st] || '';
   const why = last ? last.why : 'Jeden Montag schaut die App auf die Vorwoche und stellt die Stufe ein.';
-  const lv = [...new Set(Object.values(kneePhase().days || {}).flat().map((it) => kpItem(it, lvl)).filter((x) => x.lvT).map((x) => `${exById(x.i).n}: ${x.lvT}`))];
+  const lv = [...new Set(Object.values(kneePhase().days || {}).flat().map(athSwap).map((it) => kpItem(it, lvl)).filter((x) => x.lvT).map((x) => `${exById(x.i).n}: ${x.lvT}`))];
   const hsr = KB_HSR[ph] ? KB_HSR[ph][Math.min(lvl, KB_HSR[ph].length - 1)] : null;
   const liveT = live.st === 'up' ? 'auf Kurs für die nächste Stufe' : live.kind === 'units' ? `noch ${3 - live.units} ${3 - live.units === 1 ? 'Einheit' : 'Einheiten'} bis zur nächsten Stufe` : live.why;
   return `<section class="card kp-card" id="kp"><div class="sec-head"><h2>Steigerung</h2><span class="count">Stufe ${lvl} von ${max} · ${esc(kneePhase().n)}</span></div>
@@ -497,6 +515,7 @@ Object.assign(A, {
   'ath-type': (el) => { const k = todayKey(), v = el.dataset.v; kneeMut(k, (kn) => { athEnsure(kn, k).t = v; }); render(); },
   'ath-start': () => athStart(todayKey()),
   'tm-pain': (el) => { const t = ui.timer; if (!t) return; const v = Number(el.dataset.v); t.pain = t.pain === v ? null : v; timerRender(); },
+  'knee-longband': (el) => { kneeCfg().longBand = el.dataset.v === '1'; saveSettings(); toast(kneeCfg().longBand ? 'Langes Band: Knie strecken gegen Band und Spanish Squat sind wieder drin' : 'Ohne langes Band: die App nimmt Ersatzübungen'); },
   'kp-adj': (el) => {
     const c = kneeCfg(), p = kpEnsure(todayKey()), ph = c.phase || 1, from = kpLevel(), to = clamp(from + Number(el.dataset.v), 0, KP_MAX[ph] || 3);
     if (to === from) return;

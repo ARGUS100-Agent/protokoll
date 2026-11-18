@@ -43,6 +43,20 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(sd.side === 'keine' && sd.xs === null && sd.steps === 'L15,R15' && sd.dose === '3 × 15 je Seite', `Beide Seiten gleich: ${sd.steps}, „${sd.dose}“`);
   const mg = await ev(() => { kneeCfg().side = 'rechts'; S.settings.mig = 214; mutDay('2026-11-10', (d) => { d.knee = { am: 2 }; }); migrate215(); return { side: kneeCfg().side, mig: S.settings.mig }; });
   ok(mg.side === 'keine' && mg.mig === 215, 'Migration: bestehende Daten mit Aufschlag rechts → beide gleich');
+
+  /* ---------- 2b. Loop Bands, ohne langes Band Ersatzübungen (2.16.1) ---------- */
+  const lb = await ev(() => {
+    kneeCfg().bands = [{ n: 'Rot', kg: 4 }, { n: 'Grün', kg: 4.9 }]; delete kneeCfg().longBand; S.settings.mig = 215; migrate216();
+    const a = athItems(todayKey(), 'A');
+    return { bands: kneeCfg().bands.map((b) => `${b.n} ${b.kg}`).join(', '), lb: kneeCfg().longBand, mig: S.settings.mig, ids: a.map((x) => x.i).join(','), from: a.filter((x) => x.from).map((x) => `${x.from}>${x.i}:${x.sets}x${x.reps || x.sec}`).join(',') };
+  });
+  ok(lb.bands === 'Orange 2.9, Blau 6.7' && lb.lb === false && lb.mig === 216, `Migration: Loop Bands (${lb.bands}), langes Band nicht vorhanden`);
+  ok(lb.from === 'a_tke>a_quadset:3x10,a_spanish>a_wandtief:2x45' && !lb.ids.includes('a_tke'), 'Ohne langes Band: Handtuchrolle statt Knie strecken gegen Band, tiefes Wandsitzen statt Spanish Squat: ' + lb.from);
+  await ev(() => { ui.sub.knie = 'kraft'; go('knie', { scrollTop: true }); }); await page.clock.runFor(300);
+  const lbt = await page.textContent('#main');
+  ok(lbt.includes('statt Knie strecken gegen Band (kein langes Band)') && lbt.includes('Rot') === false && lbt.includes('Orange 2,9 kg'), 'Kraft & Athletik: Ersatz mit Hinweis, Bänder Orange/Blau');
+  await page.click('[data-a="knee-longband"][data-v="1"]'); await page.clock.runFor(200);
+  ok(await ev(() => kneeCfg().longBand === true && athItems(todayKey(), 'A').some((x) => x.i === 'a_tke' && !x.from)), 'Umschalten: mit langem Band wieder Knie strecken gegen Band');
   await ev(() => { ui.tab = 'mehr'; render(); });
 
   /* ---------- 3. Knie-Block in der Gym-Einheit (Tag 1) ---------- */

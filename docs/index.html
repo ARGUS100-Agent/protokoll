@@ -1455,7 +1455,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.16.0';
+const APP_VERSION = '2.16.1';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -2225,7 +2225,7 @@ const KNEE_EX = [
   /* Kräftigen */
   { id: 'k_clamshell', n: 'Clamshells mit Band', en: 'Banded Clamshell', cat: 'strength', areas: ['huefte'], d: { t: 'reps', s: 2, reps: 15, sets: 3 }, dose: '3 × 15 je Seite, 1 Sek. halten', band: true,
     how: 'Seitlage, Band über den Knien, Knie 45° gebeugt, Füße aufeinander. Oberes Knie öffnen, 1 Sek. halten, langsam schließen. Becken dreht nicht nach hinten weg.',
-    benefit: 'Hauptübung gegen das Einknicken des Knies nach innen.', mistake: 'Becken dreht mit nach hinten.', safety: 'Keine.', prog: 'Stärkeres Band (Grün) oder mehr Wiederholungen.' },
+    benefit: 'Hauptübung gegen das Einknicken des Knies nach innen.', mistake: 'Becken dreht mit nach hinten.', safety: 'Keine.', prog: 'Stärkeres Band oder mehr Wiederholungen.' },
   { id: 'k_abduktion', n: 'Seitliches Beinheben', en: 'Side Lying Hip Abduction', cat: 'strength', areas: ['huefte'], d: { t: 'reps', s: 2, reps: 12, sets: 3 }, dose: '3 × 12',
     how: 'Seitlage, unteres Bein angewinkelt. Oberes Bein gestreckt anheben, die Ferse führt leicht nach hinten, Zehen zeigen nach vorn. Langsam senken.',
     benefit: 'Kräftigt den mittleren Gesäßmuskel, der das Knie stabil hält.', mistake: 'Bein nach vorn schwingen oder Fuß nach oben drehen.', safety: 'Keine.', prog: 'Band um die Knöchel.' },
@@ -2356,7 +2356,8 @@ const KNEE_PHASES = [
       C: [{ i: 'a_ergo', sec: 300 }, { i: 'k_pogo', sets: 3, reps: 20 }, { i: 'k_lathops', sets: 3, reps: 10 }, { i: 'a_skater', sets: 3, reps: 6 }, { i: 'a_stufensprung', sets: 3, reps: 6 }, { i: 'a_standup', sets: 2, reps: 5 }, { i: 'a_tiefhocke', sets: 2, sec: 30 }],
     } },
 ];
-const KNEE_BANDS = [{ n: 'Rot', kg: 4.0 }, { n: 'Grün', kg: 4.9 }];
+/* Dominiks Bänder (seit 2.16.1): Blackroll Loop Bands 32 cm, Zugkraft bei 100 % Dehnung laut Hersteller */
+const KNEE_BANDS = [{ n: 'Orange', kg: 2.9 }, { n: 'Blau', kg: 6.7 }];
 
 /* Tests alle 2 Wochen */
 const KNEE_TESTS = [
@@ -3645,7 +3646,7 @@ function defaultSettings2() {
     sauna: { goal: 60 },
     week: clone(DEFAULT_WEEK),
     gym: { anchor: '2026-11-02', first: 'A', kneeAlt: true },
-    knee: { start: '2026-10-26', side: 'keine', extraSec: 15, extraReps: 5, trans: 10, signal: 'voice', phase: 1, ext: 0, bands: clone(KNEE_BANDS), insoles: null, cadence: null, routines: null, video: {}, longShort: false },
+    knee: { start: '2026-10-26', side: 'keine', extraSec: 15, extraReps: 5, trans: 10, signal: 'voice', phase: 1, ext: 0, bands: clone(KNEE_BANDS), longBand: false, insoles: null, cadence: null, routines: null, video: {}, longShort: false },
   };
 }
 function defaultStores() {
@@ -3854,6 +3855,21 @@ function migrate215() {
   if (!st || (st.mig || 0) >= 215) return;
   if (st.knee) st.knee.side = 'keine';
   st.mig = 215;
+  markDirty('settings'); invalidate();
+}
+
+/* 2.16.1 (18.11.2026): Dominiks Bänder sind Blackroll Loop Bands orange und blau (32 cm) – alte Standard-Bänder
+   Rot/Grün ersetzen; ohne langes Band nimmt die App Ersatzübungen (athSwap). */
+function migrate216() {
+  const st = S.settings;
+  if (!st || (st.mig || 0) >= 216) return;
+  const c = st.knee;
+  if (c) {
+    const old = JSON.stringify([{ n: 'Rot', kg: 4 }, { n: 'Grün', kg: 4.9 }]);
+    if (!Array.isArray(c.bands) || JSON.stringify(c.bands.map((b) => ({ n: b.n, kg: b.kg }))) === old) c.bands = clone(KNEE_BANDS);
+    if (c.longBand == null) c.longBand = false;
+  }
+  st.mig = 216;
   markDirty('settings'); invalidate();
 }
 
@@ -7059,6 +7075,7 @@ Object.assign(SET_VIEWS, {
     return `<div class="form">
       <div class="frow"><span class="flabel">Start 12-Wochen-Plan</span><div class="fin"><input type="date" data-c="knee-cfg" data-f="start" value="${c.start}"></div></div>
       <div class="frow is-wide"><span class="flabel">Seite mit Aufschlag<small class="sub">Standard: keine – beide Seiten gleich</small></span>${chips('knee-side', c.side, [['keine', 'Keine'], ['rechts', 'Rechts'], ['links', 'Links']])}</div>
+      <div class="frow is-wide"><span class="flabel">Langes Band (ca. 1–2 m)<small class="sub">für Knie strecken gegen Band und Spanish Squat; ohne nimmt die App Ersatzübungen</small></span>${chips('knee-longband', c.longBand ? 1 : 0, [[1, 'Vorhanden'], [0, 'Nicht vorhanden']])}</div>
       ${extraSide() ? `<div class="frow"><span class="flabel">Aufschlag Haltezeit</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraSec" value="${c.extraSec}"><span class="unit">Sek.</span></div></div>
       <div class="frow"><span class="flabel">Aufschlag Wiederholungen</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraReps" value="${c.extraReps}"><span class="unit">Wdh.</span></div></div>` : ''}
       <div class="frow"><span class="flabel">Pause zwischen Übungen</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="trans" value="${c.trans}"><span class="unit">Sek.</span></div></div>
@@ -7235,9 +7252,10 @@ function vKnieKraft() {
     const sets = Array.from({ length: n }, (_, i) => `<button class="set-dot${(e.sets || [])[i] ? ' is-on' : ''}" data-a="kstr-set" data-ex="${ex.id}" data-i="${i}" data-n="${n}" aria-label="Satz ${i + 1}">${i + 1}</button>`).join('');
     const loads = ex.band ? `<div class="chips chips-tight load-chips">${kneeCfg().bands.map((b) => `<button class="chip chip-xs${e.load === b.n ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="${esc(b.n)}">${esc(b.n)} ${fmt(b.kg, 1)} kg</button>`).join('')}<button class="chip chip-xs${e.load === 'ohne' ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="ohne">ohne</button></div>`
       : ex.kg || ['k_bss', 'k_slrdl', 'k_wadeeinbein', 'k_wadeexz'].includes(ex.id) ? `<label class="mini-in kg-in"><input type="text" inputmode="decimal" data-c="kstr-kg" data-ex="${ex.id}" value="${esc(e.load && e.load !== 'ohne' ? e.load : '')}" placeholder="–"><span>kg</span></label>` : '';
-    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= n ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}${pe.rest ? ` · ${pe.rest % 60 === 0 ? `${pe.rest / 60} Min.` : `${pe.rest} Sek.`} Pause` : ''}${pe.lvT ? ` · ${esc(pe.lvT)}` : ''}${ex.need ? ` · braucht ${esc(ex.need)}` : ''}</small></button>${ex.d.t === 'time' && ex.id !== 'a_ergo' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="${n}" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
+    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= n ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}${pe.rest ? ` · ${pe.rest % 60 === 0 ? `${pe.rest / 60} Min.` : `${pe.rest} Sek.`} Pause` : ''}${pe.lvT ? ` · ${esc(pe.lvT)}` : ''}${ex.need ? ` · braucht ${esc(ex.need)}` : ''}${pe.from && exById(pe.from) ? ` · statt ${esc(exById(pe.from).n)} (kein langes Band)` : ''}</small></button>${ex.d.t === 'time' && ex.id !== 'a_ergo' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="${n}" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
       <div class="kstr-sets">${sets}</div>${loads}${prog ? `<p class="hint prog">${icon('trending-up')} ${esc(prog)}</p>` : ''}</div>`;
   }
+  if (items.some((x) => x.from)) h += `<p class="hint">Ohne langes Band nimmt die App Ersatzübungen. Band gekauft? <button class="link-btn inline" data-a="knee-longband" data-v="1">Jetzt umschalten</button></p>`;
   h += `<p class="flabel-s">Knieschmerz während der Einheit (0–10) · bis 5 okay, wenn er morgen früh wieder auf dem Ausgangswert ist</p>${scale0('kstr-pain', str.pain ?? null, k)}
     <button class="btn ${str.done ? 'is-ghost' : 'is-accent'}" data-a="kstr-done">${str.done ? 'Als nicht erledigt markieren' : `${icon('check')}Einheit abschließen`}</button></section>`;
   h += athGymHTML(false);
@@ -7827,6 +7845,7 @@ const A = {
     buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia
     try { migrate214(); } catch (e) { /* egal */ } // 2.14: Morgen-Check, flexible Woche, Kalorien halten
     try { migrate215(); } catch (e) { /* egal */ } // 2.15: beide Seiten gleich
+    try { migrate216(); } catch (e) { /* egal */ } // 2.16.1: Loop Bands, langes Band
     await DB.clear();
     if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
     if (PUSH) await pushSave(); // Mitteilungen ebenso
@@ -12751,6 +12770,15 @@ const ATH_EX = [
     how: 'Seitlich auf eine niedrige Stufe (10–15 cm) stellen, die Ferse des Standbeins steht erhöht (2–3 cm, z. B. auf einem Buch). Das freie Bein in 3 Sek. Richtung Boden absenken und nur antippen, dann mit dem Standbein wieder ganz strecken. Das Knie darf über die Zehen, das Becken bleibt gerade.',
     benefit: 'Kräftigt den vorderen Oberschenkel bis in die volle Streckung, im Stand und mit wenig Gewicht. Eigene Studien gibt es dazu nicht; das Prinzip – Oberschenkel im schmerzarmen Bereich kräftigen – ist gut belegt.', mistake: 'Mit dem unteren Bein abstoßen, Knie fällt nach innen.', safety: 'Bis 3/10; bei Druck unter der Kniescheibe eine niedrigere Stufe.', prog: 'Höhere Stufe, Kettlebell in der Hand, Schrägbrett.',
     lv: ['', 'Stufe etwas höher (15–20 cm)', '12 kg in der Hand', '2 × 12 kg', '2 × 12 kg, unten 1 Sek. Pause'] },
+  /* Ersatz ohne langes Band (2.16.1): Dominik hat nur die kurzen Loop Bands */
+  { id: 'a_quadset', n: 'Oberschenkel anspannen mit Handtuchrolle', en: 'Quad Set Towel Roll', cat: 'strength', areas: ['vorn'], d: { t: 'reps', s: 2, reps: 10, sets: 3 }, dose: '3 × 10 je Bein, je 5 Sek. halten',
+    how: 'Langsitz oder Rückenlage, eine Handtuchrolle unter das Knie. Das Knie fest nach unten in die Rolle drücken, sodass sich der Oberschenkel anspannt und die Ferse leicht abhebt, 5 Sek. halten, lösen. Ersatz für das Knie-Strecken gegen Band, solange kein langes Band da ist.',
+    benefit: 'Übt die volle Streckung und die Anspannung des vorderen Oberschenkels ohne Last – gerade wenn das Knie gerade nicht mehr ganz gestreckt wird.', mistake: 'Nur mit dem Po drücken oder die Luft anhalten.', safety: 'Nur bis zur schmerzarmen Streckung (bis 3/10).', prog: 'Länger halten, dann Knie strecken gegen ein langes Band.',
+    lv: ['', '8 Sek. halten', '10 Sek. halten', { t: '10 Sek. halten', reps: 2 }, { t: '10 Sek. halten, Ferse höher anheben', reps: 2 }] },
+  { id: 'a_wandtief', n: 'Wandsitzen tief, Unterschenkel senkrecht', en: 'Deep Wall Sit Vertical Shins', cat: 'strength', areas: ['vorn'], d: { t: 'time', s: 1, sec: 45, sets: 2, rest: 60, noX: true }, dose: '2 × 45 Sek., Knie ca. 80–90°',
+    how: 'Rücken an die Wand, die Füße so weit vorn, dass die Unterschenkel senkrecht stehen. Tiefer als beim normalen Wandsitzen heruntergleiten (Knie ca. 80–90°) und halten, Anstrengung etwa 7 von 10. Ersatz für den Spanish Squat, solange kein langes Band oder Gurt da ist.',
+    benefit: 'Hält den Oberschenkel in tieferer Beugung unter Spannung – wie der Spanish Squat, nur mit der Wand statt dem Band. Wandsitzen bei 90° stand auch im Sehnenprogramm von Breda 2021.', mistake: 'Füße zu nah an der Wand, dann wandern die Knie nach vorn.', safety: 'Bis 5/10 Schmerz, wenn er am nächsten Morgen wieder auf dem Ausgangswert ist; bei Druck unter der Kniescheibe weniger tief.', prog: 'Mit Kettlebell auf den Oberschenkeln, dann Spanish Squat mit langem Band.',
+    lv: ['', '12 kg auf den Oberschenkeln', '2 × 12 kg auf den Oberschenkeln', { t: '2 × 12 kg, je Satz 10 Sek. länger', sec: 10 }, { t: '2 × 12 kg, je Satz 15 Sek. länger', sec: 15 }] },
   /* Knie-Block im Gym (2.15): Maschinen, je Phase siehe KB_PLAN */
   { id: 'b_iso', n: 'Beinstrecker isometrisch, einbeinig', en: 'Isometric Single Leg Extension', cat: 'gym', areas: ['vorn'], d: { t: 'time', s: 2, sec: 45, sets: 5, rest: 60 }, dose: '5 × 45 Sek. je Bein, Knie ca. 60°, ~70 % Kraft',
     how: 'Sitz so einstellen, dass das Knie auf Höhe der Drehachse liegt, Polster knapp über dem Knöchel. Ein Gewicht wählen, das du 45 Sek. halten kannst und danach noch etwa 2 weitere Sätze schaffen würdest (Anstrengung ca. 7 von 10). Mit einem Bein bis ca. 60° Kniebeugung anheben – der Unterschenkel zeigt schräg nach vorn unten – und dort halten. Beine abwechseln, das andere ruht.',
@@ -12909,9 +12937,18 @@ function kpChangeText(lvl) {
   return `Halten +${5 * L} Sek., Wiederholungen +${2 * L} (mit Gewicht +${L}, mit Band +${2 * Math.min(L, 2)}${L >= 2 ? ' und stärkeres Band' : ''}).`;
 }
 const kgF = (w) => fmt(w, w % 1 ? 1 : 0);
+/* Ohne langes Band (Einstellung Knie → Langes Band): Ersatzübungen statt Knie strecken gegen Band und Spanish Squat */
+const ATH_SWAP = { a_tke: 'a_quadset', a_spanish: 'a_wandtief' };
+function athSwap(it) {
+  const to = ATH_SWAP[it.i], ex = to && exById(to);
+  if (!ex || kneeCfg().longBand) return it;
+  const o = { ...it, i: to, from: it.i };
+  if (ex.d.t === 'reps') { o.reps = ex.d.reps; delete o.sec; } else { o.sec = it.sec || ex.d.sec; delete o.reps; }
+  return o;
+}
 function athItems(k = todayKey(), t = athType(k)) {
   const L = athLight(k), lvl = Math.max(0, kpLevel(k) - (L ? 1 : 0)); // leichter Tag: eine Stufe zurück
-  let items = clone((kneePhase().days || {})[t] || []).filter((it) => exById(it.i)).map((it) => kpItem(it, lvl));
+  let items = clone((kneePhase().days || {})[t] || []).filter((it) => exById(it.i)).map(athSwap).map((it) => kpItem(it, lvl));
   if (L) items = items.filter((it) => !exById(it.i).plyo).map((it) => (it.sets > 1 ? { ...it, sets: it.sets - 1 } : it));
   return items;
 }
@@ -13072,7 +13109,7 @@ function kpCardHTML(k = todayKey()) {
   const ic = { up: 'trending-up', down: 'trending-down', hold: 'minus', manual: 'pencil', phase: 'sparkles', start: 'sparkles' }[st] || 'minus';
   const head = { up: 'Seit Montag eine Stufe höher', down: 'Seit Montag eine Stufe zurück', hold: 'Stufe gehalten', manual: 'Von dir angepasst', phase: 'Neue Phase', start: 'Steigerung läuft ab jetzt' }[st] || '';
   const why = last ? last.why : 'Jeden Montag schaut die App auf die Vorwoche und stellt die Stufe ein.';
-  const lv = [...new Set(Object.values(kneePhase().days || {}).flat().map((it) => kpItem(it, lvl)).filter((x) => x.lvT).map((x) => `${exById(x.i).n}: ${x.lvT}`))];
+  const lv = [...new Set(Object.values(kneePhase().days || {}).flat().map(athSwap).map((it) => kpItem(it, lvl)).filter((x) => x.lvT).map((x) => `${exById(x.i).n}: ${x.lvT}`))];
   const hsr = KB_HSR[ph] ? KB_HSR[ph][Math.min(lvl, KB_HSR[ph].length - 1)] : null;
   const liveT = live.st === 'up' ? 'auf Kurs für die nächste Stufe' : live.kind === 'units' ? `noch ${3 - live.units} ${3 - live.units === 1 ? 'Einheit' : 'Einheiten'} bis zur nächsten Stufe` : live.why;
   return `<section class="card kp-card" id="kp"><div class="sec-head"><h2>Steigerung</h2><span class="count">Stufe ${lvl} von ${max} · ${esc(kneePhase().n)}</span></div>
@@ -13173,6 +13210,7 @@ Object.assign(A, {
   'ath-type': (el) => { const k = todayKey(), v = el.dataset.v; kneeMut(k, (kn) => { athEnsure(kn, k).t = v; }); render(); },
   'ath-start': () => athStart(todayKey()),
   'tm-pain': (el) => { const t = ui.timer; if (!t) return; const v = Number(el.dataset.v); t.pain = t.pain === v ? null : v; timerRender(); },
+  'knee-longband': (el) => { kneeCfg().longBand = el.dataset.v === '1'; saveSettings(); toast(kneeCfg().longBand ? 'Langes Band: Knie strecken gegen Band und Spanish Squat sind wieder drin' : 'Ohne langes Band: die App nimmt Ersatzübungen'); },
   'kp-adj': (el) => {
     const c = kneeCfg(), p = kpEnsure(todayKey()), ph = c.phase || 1, from = kpLevel(), to = clamp(from + Number(el.dataset.v), 0, KP_MAX[ph] || 3);
     if (to === from) return;
@@ -14476,6 +14514,7 @@ function registerSW() {
   try { migrate5(); } catch (e) { /* egal */ }
   try { migrate214(); } catch (e) { /* egal */ }
   try { migrate215(); } catch (e) { /* egal */ }
+  try { migrate216(); } catch (e) { /* egal */ }
   try { energyApply(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);

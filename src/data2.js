@@ -299,7 +299,7 @@ const KNEE_EX = [
   /* Kräftigen */
   { id: 'k_clamshell', n: 'Clamshells mit Band', en: 'Banded Clamshell', cat: 'strength', areas: ['huefte'], d: { t: 'reps', s: 2, reps: 15, sets: 3 }, dose: '3 × 15 je Seite, 1 Sek. halten', band: true,
     how: 'Seitlage, Band über den Knien, Knie 45° gebeugt, Füße aufeinander. Oberes Knie öffnen, 1 Sek. halten, langsam schließen. Becken dreht nicht nach hinten weg.',
-    benefit: 'Hauptübung gegen das Einknicken des Knies nach innen.', mistake: 'Becken dreht mit nach hinten.', safety: 'Keine.', prog: 'Stärkeres Band (Grün) oder mehr Wiederholungen.' },
+    benefit: 'Hauptübung gegen das Einknicken des Knies nach innen.', mistake: 'Becken dreht mit nach hinten.', safety: 'Keine.', prog: 'Stärkeres Band oder mehr Wiederholungen.' },
   { id: 'k_abduktion', n: 'Seitliches Beinheben', en: 'Side Lying Hip Abduction', cat: 'strength', areas: ['huefte'], d: { t: 'reps', s: 2, reps: 12, sets: 3 }, dose: '3 × 12',
     how: 'Seitlage, unteres Bein angewinkelt. Oberes Bein gestreckt anheben, die Ferse führt leicht nach hinten, Zehen zeigen nach vorn. Langsam senken.',
     benefit: 'Kräftigt den mittleren Gesäßmuskel, der das Knie stabil hält.', mistake: 'Bein nach vorn schwingen oder Fuß nach oben drehen.', safety: 'Keine.', prog: 'Band um die Knöchel.' },
@@ -430,7 +430,8 @@ const KNEE_PHASES = [
       C: [{ i: 'a_ergo', sec: 300 }, { i: 'k_pogo', sets: 3, reps: 20 }, { i: 'k_lathops', sets: 3, reps: 10 }, { i: 'a_skater', sets: 3, reps: 6 }, { i: 'a_stufensprung', sets: 3, reps: 6 }, { i: 'a_standup', sets: 2, reps: 5 }, { i: 'a_tiefhocke', sets: 2, sec: 30 }],
     } },
 ];
-const KNEE_BANDS = [{ n: 'Rot', kg: 4.0 }, { n: 'Grün', kg: 4.9 }];
+/* Dominiks Bänder (seit 2.16.1): Blackroll Loop Bands 32 cm, Zugkraft bei 100 % Dehnung laut Hersteller */
+const KNEE_BANDS = [{ n: 'Orange', kg: 2.9 }, { n: 'Blau', kg: 6.7 }];
 
 /* Tests alle 2 Wochen */
 const KNEE_TESTS = [

@@ -13,7 +13,7 @@ function defaultSettings2() {
     sauna: { goal: 60 },
     week: clone(DEFAULT_WEEK),
     gym: { anchor: '2026-11-02', first: 'A', kneeAlt: true },
-    knee: { start: '2026-10-26', side: 'keine', extraSec: 15, extraReps: 5, trans: 10, signal: 'voice', phase: 1, ext: 0, bands: clone(KNEE_BANDS), insoles: null, cadence: null, routines: null, video: {}, longShort: false },
+    knee: { start: '2026-10-26', side: 'keine', extraSec: 15, extraReps: 5, trans: 10, signal: 'voice', phase: 1, ext: 0, bands: clone(KNEE_BANDS), longBand: false, insoles: null, cadence: null, routines: null, video: {}, longShort: false },
   };
 }
 function defaultStores() {
@@ -222,6 +222,21 @@ function migrate215() {
   if (!st || (st.mig || 0) >= 215) return;
   if (st.knee) st.knee.side = 'keine';
   st.mig = 215;
+  markDirty('settings'); invalidate();
+}
+
+/* 2.16.1 (18.11.2026): Dominiks Bänder sind Blackroll Loop Bands orange und blau (32 cm) – alte Standard-Bänder
+   Rot/Grün ersetzen; ohne langes Band nimmt die App Ersatzübungen (athSwap). */
+function migrate216() {
+  const st = S.settings;
+  if (!st || (st.mig || 0) >= 216) return;
+  const c = st.knee;
+  if (c) {
+    const old = JSON.stringify([{ n: 'Rot', kg: 4 }, { n: 'Grün', kg: 4.9 }]);
+    if (!Array.isArray(c.bands) || JSON.stringify(c.bands.map((b) => ({ n: b.n, kg: b.kg }))) === old) c.bands = clone(KNEE_BANDS);
+    if (c.longBand == null) c.longBand = false;
+  }
+  st.mig = 216;
   markDirty('settings'); invalidate();
 }
 
