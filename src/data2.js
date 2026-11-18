@@ -63,7 +63,8 @@ const GYM_DAYS = [
     { id: 'g_beinbeuger', n: 'Beinbeuger sitzend', A: [3, '8–10'], B: [3, '10–15'], note: 'letzter Satz bis Versagen + Teilwdh. in der Dehnung' },
     { id: 'g_beinstrecker', n: 'Beinstrecker', A: [2, '8–10'], B: [3, '12–15'], note: 'letzter Satz bis Versagen',
       alt: { n: 'Beinstrecker (schmerzfreier Bereich)', A: [2, '8–10'], B: [3, '12–15'], note: 'Knie-Variante: nur im schmerzfreien Bewegungsbereich' } },
-    { id: 'g_waden', n: 'Wadenheben', A: [3, '8–10'], B: [4, '12–15'], note: 'letzter Satz bis Versagen, 2 s Pause unten' },
+    { id: 'g_waden', n: 'Wadenheben', A: [3, '8–10'], B: [4, '12–15'], note: 'letzter Satz bis Versagen, 2 s Pause unten',
+      alt: { n: 'Wadenheben sitzend', A: [3, '8–10'], B: [4, '12–15'], note: 'Knie-Variante: Knie gebeugt statt voll gestreckt unter Last, 2 s Pause unten' } },
     { id: 'g_tibialis', n: 'Tibialis Raises', A: [2, '15'], B: [2, '20–25'], note: 'kontrolliert' },
     { id: 'g_beinheben', n: 'Hängendes Beinheben', A: [3, '8–10'], B: [3, '12–15'], note: 'letzter Satz bis Versagen, ohne Schwung' },
     { id: 'g_pallof', n: 'Pallof Press', A: [3, '10 je Seite'], B: [3, '12 je Seite'], note: 'je Wdh. 2 s halten' },
@@ -198,13 +199,13 @@ const BLOOD_MARKERS = [
 /* ============================================================
    KNIE-RESET & MOBILITY
    ============================================================ */
-const KNEE_CATS = { roll: 'Rollen', mob: 'Mobilisieren', stretch: 'Dehnen', strength: 'Kräftigen', athl: 'Athletik & Sprünge', run: 'Laufstil' };
+const KNEE_CATS = { roll: 'Rollen', mob: 'Mobilisieren', stretch: 'Dehnen', strength: 'Kräftigen', athl: 'Athletik & Sprünge', gym: 'Im Gym (Maschinen)', run: 'Laufstil' };
 const KNEE_AREAS = { huefte: 'Hüfte', vorn: 'Oberschenkel vorn', hinten: 'Oberschenkel hinten', add: 'Adduktoren', wade: 'Wade', fuss: 'Fuß/Sprunggelenk', rumpf: 'Rumpf', bws: 'Brustwirbelsäule' };
 const KNEE_RULES = [
   'Dehnen bis deutlicher Zug (5–7 von 10), nie bis Schmerz. In den Bauch atmen, beim Ausatmen etwas tiefer. Nicht wippen.',
-  'Rechtes Bein: bei seitigen Übungen 15 Sek. länger halten bzw. 5 Wiederholungen mehr – Timer und Zähler machen das automatisch.',
+  'Seitige Übungen: beide Seiten gleich viele Sätze, Sekunden und Wiederholungen – so entsteht kein neues Ungleichgewicht. Eine Seite mit Aufschlag lässt sich in den Einstellungen wählen.',
   'Nie auf Kniescheibe, die Sehne direkt unter der Kniescheibe oder das Wadenbeinköpfchen (außen unter dem Knie) rollen. Rolle nie unter den unteren Rücken.',
-  'Rechts beim Beinbeuger-Rollen nur bis Oberschenkelmitte, Außenseite Richtung Knie auslassen. Beinbeuger-Dehnung rechts nur sanft.',
+  'Auf der Seite mit Beschwerden beim Beinbeuger-Rollen nur bis Oberschenkelmitte, Außenseite Richtung Knie auslassen. Beinbeuger-Dehnung dort nur sanft.',
   'Beim Knien Matte doppelt falten; bei Druck unter der Kniescheibe die Variante im Stehen nehmen.',
   'Vor dem Laufen kein langes Dehnen, nur das 5-Minuten-Aufwärmen. Lange Routinen abends oder an lauffreien Tagen.',
   'Schmerzregel Laufen: bis 3 von 10 okay, wenn das Knie am nächsten Morgen nicht schlechter ist. Sonst nächsten Lauf kürzer/lockerer oder Pause.',
@@ -223,7 +224,7 @@ const KNEE_EX = [
     benefit: 'Freieres Sprunggelenk und weniger Pronation – das Knie muss beim Laufen weniger nach innen ausweichen.', mistake: 'Über die Kniekehle oder direkt über die Achillessehne rollen.', safety: 'Nur Muskel rollen, nicht die Kniekehle.' },
   { id: 'r_beinbeuger', n: 'Beinbeuger rollen', en: 'Foam Roller Hamstring Release', cat: 'roll', areas: ['hinten'], d: { t: 'time', s: 2, sec: 50 }, dose: '40–60 Sek./Bein',
     how: 'Rückseite des Oberschenkels auf die Rolle legen, mit den Händen abstützen und langsam vom Gesäß Richtung Knie rollen. Mitte und Innenseite bearbeiten.',
-    benefit: 'Weniger Zug am Becken und außen am Knie.', mistake: 'Zu schnell rollen oder bis in die Kniekehle.', safety: 'Rechts nur bis Oberschenkelmitte, Mitte und Innenseite; die Außenseite Richtung Knie auslassen.' },
+    benefit: 'Weniger Zug am Becken und außen am Knie.', mistake: 'Zu schnell rollen oder bis in die Kniekehle.', safety: 'Auf der Seite mit Beschwerden nur bis Oberschenkelmitte, Mitte und Innenseite; die Außenseite Richtung Knie auslassen.' },
   { id: 'r_adduktoren', n: 'Adduktoren rollen', en: 'Foam Roller Adductor Release', cat: 'roll', areas: ['add'], d: { t: 'time', s: 2, sec: 50 }, dose: '40–60 Sek./Bein',
     how: 'Bauchlage, ein Bein in Froschposition seitlich anwinkeln, die Rolle liegt längs unter der Oberschenkel-Innenseite. Langsam von der Leiste Richtung Knie und zurück rollen.',
     benefit: 'Weniger Zug, der das Knie nach innen zieht.', mistake: 'Bein gestreckt lassen statt in der Froschposition.', safety: 'Nicht bis auf die Innenseite des Kniegelenks rollen.' },
@@ -267,7 +268,7 @@ const KNEE_EX = [
     benefit: 'Weniger Zug an Kniescheibe und Patellasehne.', mistake: 'Hohlkreuz oder Knie wandert nach vorn.', safety: 'Bei Druck im Knie Fuß mit einem Handtuch greifen.', prog: '60 Sek. halten.' },
   { id: 'd_beinbeuger', n: 'Beinbeuger mit Handtuch', en: 'Supine Hamstring Stretch with Strap', cat: 'stretch', areas: ['hinten'], d: { t: 'time', s: 2, sec: 45 }, dose: '45–60 Sek./Seite',
     how: 'Rückenlage, Handtuch um die Fußsohle, Bein gestreckt anheben, bis Zug in der Muskelmitte entsteht. Das andere Bein bleibt lang am Boden.',
-    benefit: 'Weniger Zug an Becken und Kniekehle.', mistake: 'Zug außen am Knie statt in der Muskelmitte.', safety: 'Rechts nur mittlerer Zug. Der 32-cm-Loop ist zu kurz – Handtuch nehmen.', prog: '60 Sek. halten.' },
+    benefit: 'Weniger Zug an Becken und Kniekehle.', mistake: 'Zug außen am Knie statt in der Muskelmitte.', safety: 'Auf der Seite mit Beschwerden nur mittlerer Zug. Der 32-cm-Loop ist zu kurz – Handtuch nehmen.', prog: '60 Sek. halten.' },
   { id: 'd_rockback', n: 'Adduktoren-Rockback', en: 'Adductor Rock Back', cat: 'stretch', areas: ['add', 'huefte'], d: { t: 'reps', s: 2, reps: 10 }, dose: '8–10×/Seite, 2 Sek. halten', kneel: true,
     how: 'Vierfüßlerstand, ein Bein gestreckt zur Seite. Gesäß langsam nach hinten Richtung Fersen schieben, 2 Sek. halten, zurück. Rücken bleibt gerade.',
     benefit: 'Dehnt die Adduktoren, die das Knie nach innen ziehen.', mistake: 'Runder Rücken.', safety: 'Matte doppelt falten.' },
@@ -296,7 +297,7 @@ const KNEE_EX = [
   { id: 'd_nacken', n: 'Nacken seitlich (optional)', en: 'Neck Side Stretch', cat: 'stretch', areas: ['bws'], d: { t: 'time', s: 2, sec: 30, noX: true }, dose: '30 Sek./Seite',
     how: 'Aufrecht sitzen, Ohr Richtung Schulter neigen, die Gegenschulter sinkt nach unten.', benefit: 'Entspannt den Nacken.', mistake: 'Kopf nach vorn neigen.', safety: 'Sanft.' },
   /* Kräftigen */
-  { id: 'k_clamshell', n: 'Clamshells mit Band', en: 'Banded Clamshell', cat: 'strength', areas: ['huefte'], d: { t: 'reps', s: 2, reps: 15, sets: 3 }, dose: '3 × 15 links / 20 rechts, 1 Sek. halten', band: true,
+  { id: 'k_clamshell', n: 'Clamshells mit Band', en: 'Banded Clamshell', cat: 'strength', areas: ['huefte'], d: { t: 'reps', s: 2, reps: 15, sets: 3 }, dose: '3 × 15 je Seite, 1 Sek. halten', band: true,
     how: 'Seitlage, Band über den Knien, Knie 45° gebeugt, Füße aufeinander. Oberes Knie öffnen, 1 Sek. halten, langsam schließen. Becken dreht nicht nach hinten weg.',
     benefit: 'Hauptübung gegen das Einknicken des Knies nach innen.', mistake: 'Becken dreht mit nach hinten.', safety: 'Keine.', prog: 'Stärkeres Band (Grün) oder mehr Wiederholungen.' },
   { id: 'k_abduktion', n: 'Seitliches Beinheben', en: 'Side Lying Hip Abduction', cat: 'strength', areas: ['huefte'], d: { t: 'reps', s: 2, reps: 12, sets: 3 }, dose: '3 × 12',
@@ -325,7 +326,7 @@ const KNEE_EX = [
     benefit: 'Stärkt das Fußgewölbe gegen Pronation.', mistake: 'Zehen krallen.', safety: 'Keine.', prog: 'Im Einbeinstand.' },
   { id: 'k_wadeexz', n: 'Wadenheben exzentrisch', en: 'Eccentric Calf Raise', cat: 'strength', areas: ['wade'], d: { t: 'reps', s: 1, reps: 15, sets: 3 }, dose: '3 × 15, 1 Sek. hoch, 3 Sek. runter',
     how: 'Auf beiden Beinen in 1 Sek. auf die Zehenspitzen, in 3 Sek. langsam absenken.',
-    benefit: 'Kräftige Waden fangen beim Laufen Last ab, die sonst ins Knie geht.', mistake: 'Zu schnell absenken.', safety: 'Mit Halt an der Wand.', prog: 'Einbeinig an der Treppe.' },
+    benefit: 'Kräftige Waden fangen beim Laufen Last ab, die sonst ins Knie geht.', mistake: 'Zu schnell absenken.', safety: 'Mit Halt an der Wand. Ist die volle Streckung im Knie unangenehm, die Knie leicht gebeugt lassen.', prog: 'Einbeinig an der Treppe.' },
   { id: 'k_wadegebeugt', n: 'Wadenheben gebeugt', en: 'Bent Knee Calf Raise', cat: 'strength', areas: ['wade'], d: { t: 'reps', s: 1, reps: 15, sets: 3 }, dose: '3 × 15',
     how: 'Knie leicht gebeugt halten und auf die Zehenspitzen drücken – trainiert die tiefe Wadenmuskulatur (Soleus).',
     benefit: 'Soleus-Kraft für das Laufen.', mistake: 'Knie strecken sich mit.', safety: 'Mit Halt.' },
@@ -402,32 +403,32 @@ const KNEE_ROUTINES = [
 ];
 const ROUTINE_KIND = { taeglich: 'mob', kurz: 'mob', lang: 'lang', vorlauf: 'vorlauf', pflicht5: 'kraft' };
 
-/* 12-Wochen-Plan Kraft & Athletik (seit 2.13.0): täglich zu Hause 20–25 Min., Einheiten A/B/C im Wechsel,
-   dazu ein Knie-Block am Beintag im Gym. Aufbau nach dem Sehnen-Programm von Breda 2021 (isometrisch → langsam schwer
-   → Sprungkraft → Sport) plus Hüfte/Seite (Außenseite des Knies) und Athletik (Gleichgewicht, Landen, Seitbewegung).
+/* 12-Wochen-Plan Kraft & Athletik (seit 2.13.0): täglich zu Hause, Einheiten A/B/C im Wechsel, dazu ein optionaler
+   Knie-Block im Gym (seit 2.15 in jeder Gym-Einheit zuschaltbar, siehe KB_PLAN in athletik.js). Aufbau nach dem
+   Sehnen-Programm von Breda 2021 (isometrisch → langsam schwer → Sprungkraft → Sport) plus Hüfte/Seite (Außenseite des
+   Knies) und Athletik (Gleichgewicht, Landen, Seitbewegung). 2.15 (Wunsch vom 18.11.2026): neue Übungen ergänzt statt
+   getauscht (Spanish Squat, Knie-Strecken gegen Band, Poliquin Step-up; in Phase 1 auch Copenhagen und einbeiniges
+   Kreuzheben) – Einheiten dadurch ca. 25–30 Min. Steigerung von Woche zu Woche über die Stufe (kpLevel).
    it: { i: Übung, sets, reps|sec, rest: Pause zwischen Sätzen (Sek.) } · plyo-Übungen fallen an leichten Tagen weg */
 const KNEE_PHASES = [
-  { id: 1, n: 'Phase 1', weeks: [1, 3], perWeek: 6, goal: 'Beruhigen und Grundkraft: Sehne isometrisch belasten, Hüfte und Seite kräftigen, noch keine Sprünge.',
+  { id: 1, n: 'Phase 1', weeks: [1, 3], perWeek: 6, goal: 'Beruhigen und Grundkraft: Sehne isometrisch belasten, Streckung zurückholen, Hüfte und Seite kräftigen, noch keine Sprünge.',
     days: {
-      A: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 5, sec: 45, rest: 60 }, { i: 'k_bridge', sets: 3, reps: 12 }, { i: 'k_wadeexz', sets: 3, reps: 15 }, { i: 'a_tibialis', sets: 2, reps: 15 }],
-      B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_clamshell', sets: 2, reps: 15 }, { i: 'k_abduktion', sets: 2, reps: 12 }, { i: 'k_seitstuetz', sets: 2, sec: 30 }, { i: 'k_monster', sets: 2, reps: 10 }],
-      C: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'a_kbdl', sets: 3, reps: 10 }, { i: 'k_einbeinstand', sets: 2, sec: 30 }, { i: 'k_hiphike', sets: 2, reps: 12 }, { i: 'k_deadbug', sets: 2, reps: 8 }, { i: 'a_tiefhocke', sets: 3, sec: 30 }],
-    },
-    gym: [['Beinstrecker isometrisch', '5 × 45 Sek. bei ca. 60° Kniebeugung, etwa 70 % Kraft, 2 Min. Pause – wie Stufe 1 der Studie, an der Maschine genau dosierbar'], ['Abduktoren-Maschine', '3 × 15, langsam'], ['Beintag mit Knie-Varianten', 'Hip Thrust statt Hackenschmidt, wenn die Kniebeuge über 5/10 schmerzt']] },
+      A: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 5, sec: 45, rest: 60 }, { i: 'a_tke', sets: 3, reps: 15 }, { i: 'k_bridge', sets: 3, reps: 12 }, { i: 'a_spanish', sets: 2, sec: 45, rest: 60 }, { i: 'k_wadeexz', sets: 3, reps: 15 }, { i: 'a_tibialis', sets: 2, reps: 15 }],
+      B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_clamshell', sets: 2, reps: 15 }, { i: 'k_abduktion', sets: 2, reps: 12 }, { i: 'k_seitstuetz', sets: 2, sec: 30 }, { i: 'k_monster', sets: 2, reps: 10 }, { i: 'a_copen', sets: 2, sec: 15 }],
+      C: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'a_kbdl', sets: 3, reps: 10 }, { i: 'k_slrdl', sets: 3, reps: 8 }, { i: 'a_poliquin', sets: 3, reps: 10 }, { i: 'k_einbeinstand', sets: 2, sec: 30 }, { i: 'k_hiphike', sets: 2, reps: 12 }, { i: 'k_deadbug', sets: 2, reps: 8 }, { i: 'a_tiefhocke', sets: 3, sec: 30 }],
+    } },
   { id: 2, n: 'Phase 2', weeks: [4, 8], perWeek: 6, goal: 'Kraft: langsam und schwer (3 Sek. runter, 3 Sek. hoch), einbeinig, Seitbewegung; isometrisch an den anderen Tagen.',
     days: {
-      A: [{ i: 'a_ergo', sec: 300 }, { i: 'a_goblet', sets: 4, reps: 8, rest: 90 }, { i: 'a_stepup', sets: 3, reps: 8 }, { i: 'k_wadeeinbein', sets: 3, reps: 12 }, { i: 'a_tibialis', sets: 2, reps: 15 }],
-      B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_monster', sets: 3, reps: 10 }, { i: 'a_copen', sets: 3, sec: 20 }, { i: 'k_seitstuetz', sets: 2, sec: 40 }, { i: 'a_seitausfall', sets: 2, reps: 8 }],
-      C: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_stepdown', sets: 3, reps: 10 }, { i: 'k_slrdl', sets: 3, reps: 8 }, { i: 'a_swing', sets: 3, reps: 15 }, { i: 'a_landen', sets: 3, reps: 6 }],
-    },
-    gym: [['Beinstrecker langsam', '4 × 8–15, 3 Sek. hoch, 3 Sek. runter, schwer (Heavy Slow Resistance)'], ['Beinpresse einbeinig', '3 × 10 je Bein, langsam'], ['Ab- und Adduktoren-Maschine', 'je 3 × 12']] },
+      A: [{ i: 'a_ergo', sec: 300 }, { i: 'a_goblet', sets: 4, reps: 8, rest: 90 }, { i: 'a_stepup', sets: 3, reps: 8 }, { i: 'a_tke', sets: 3, reps: 15 }, { i: 'k_wadeeinbein', sets: 3, reps: 12 }, { i: 'a_tibialis', sets: 2, reps: 15 }],
+      B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'a_spanish', sets: 2, sec: 45, rest: 60 }, { i: 'k_monster', sets: 3, reps: 10 }, { i: 'a_copen', sets: 3, sec: 20 }, { i: 'k_seitstuetz', sets: 2, sec: 40 }, { i: 'a_seitausfall', sets: 2, reps: 8 }],
+      C: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'k_stepdown', sets: 3, reps: 10 }, { i: 'k_slrdl', sets: 3, reps: 8 }, { i: 'a_poliquin', sets: 3, reps: 10 }, { i: 'a_swing', sets: 3, reps: 15 }, { i: 'a_landen', sets: 3, reps: 6 }],
+    } },
   { id: 3, n: 'Phase 3', weeks: [9, 12], perWeek: 6, goal: 'Sprungkraft und Sport: Sprünge jeden dritten Tag, einbeinig schwerer, BJJ-typische Bewegungen; danach als Erhaltung weiter.',
     days: {
       A: [{ i: 'a_ergo', sec: 300 }, { i: 'k_bss', sets: 3, reps: 8, rest: 60 }, { i: 'a_pistol', sets: 3, reps: 6 }, { i: 'k_wadeeinbein', sets: 3, reps: 12 }, { i: 'a_wand1b', sets: 2, sec: 30, rest: 45 }],
       B: [{ i: 'a_ergo', sec: 300 }, { i: 'a_wand60', sets: 3, sec: 45, rest: 60 }, { i: 'a_copen', sets: 2, sec: 30 }, { i: 'a_cossack', sets: 3, reps: 6 }, { i: 'k_seitstuetz', sets: 2, sec: 40 }, { i: 'k_monster', sets: 2, reps: 10 }],
       C: [{ i: 'a_ergo', sec: 300 }, { i: 'k_pogo', sets: 3, reps: 20 }, { i: 'k_lathops', sets: 3, reps: 10 }, { i: 'a_skater', sets: 3, reps: 6 }, { i: 'a_stufensprung', sets: 3, reps: 6 }, { i: 'a_standup', sets: 2, reps: 5 }, { i: 'a_tiefhocke', sets: 2, sec: 30 }],
-    },
-    gym: [['Hackenschmidt oder Beinpresse schwer', '4 × 6, langsam runter'], ['Beinstrecker langsam', '3 × 8, 3 Sek. hoch, 3 Sek. runter'], ['Sprungtage nicht nach dem Beintag', 'Einheit C (Sprünge) frühestens einen Tag später']] },
+    } },
 ];
 const KNEE_BANDS = [{ n: 'Rot', kg: 4.0 }, { n: 'Grün', kg: 4.9 }];
 

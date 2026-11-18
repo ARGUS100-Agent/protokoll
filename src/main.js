@@ -34,6 +34,7 @@ function registerSW() {
   try { migrate4(); } catch (e) { /* egal */ }
   try { migrate5(); } catch (e) { /* egal */ }
   try { migrate214(); } catch (e) { /* egal */ }
+  try { migrate215(); } catch (e) { /* egal */ }
   try { energyApply(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);

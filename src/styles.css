@@ -817,6 +817,7 @@ th { color: var(--ink-3); font-weight: 650; }
 .c-stretch { background: rgba(138, 121, 234, .16); color: var(--screens); }
 .c-strength { background: rgba(54, 196, 125, .13); color: var(--st-ok); }
 .c-run { background: rgba(242, 179, 61, .14); color: var(--st-under); }
+.c-gym { background: var(--accent-soft); color: var(--accent); }
 .ex-body { padding: 0 12px 12px; }
 .ex-body .info { margin-top: 0; }
 .vid-in { display: grid; gap: 4px; margin-top: 10px; color: var(--ink-3); font-size: 12.5px; }
@@ -1225,3 +1226,18 @@ label.pill-btn { cursor: pointer; }
 .mc-w .mini-in { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); }
 .rt-note { margin: 4px 16px 6px; display: flex; gap: 6px; align-items: flex-start; }
 .rt-note .ic { width: 15px; height: 15px; flex: none; margin-top: 2px; }
+/* Knie: Wochen-Steigerung und Knie-Block im Gym (2.15) */
+.kp-dots { display: flex; gap: 6px; margin: 2px 0 10px; }
+.kp-dots i { flex: 1; height: 8px; border-radius: 4px; background: var(--bg-3); }
+.kp-dots i.is-on { background: var(--st-ok); }
+.kp-st { display: flex; gap: 8px; align-items: flex-start; margin: 4px 2px; color: var(--ink-2); font-size: 14px; line-height: 1.45; }
+.kp-st b { color: var(--ink); }
+.kp-st .ic { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--accent); }
+.kp-st.is-up .ic { color: var(--st-ok); }
+.kp-st.is-down .ic, .kp-st.is-hold .ic { color: var(--st-under); }
+.kp-card .pill-btn[disabled] { opacity: .4; }
+.kb .sec-head h2, .kb-offer .sec-head h2 { display: flex; align-items: center; gap: 8px; }
+.kb .sec-head h2 .ic, .kb-offer .sec-head h2 .ic { width: 22px; height: 22px; color: var(--accent); }
+.kb-ex { padding: 12px 0 4px; border-top: 1px solid var(--line); }
+.kb-how { margin: 2px 2px 6px; color: var(--ink-2); font-size: 13px; line-height: 1.5; }
+.ath-day em { font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--st-ok); }

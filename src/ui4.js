@@ -416,9 +416,9 @@ Object.assign(SET_VIEWS, {
     const chips = (act, val, opts) => `<div class="chips chips-tight">${opts.map(([v, l]) => `<button class="chip chip-xs${String(val) === String(v) ? ' is-on' : ''}" data-a="${act}" data-v="${v}">${l}</button>`).join('')}</div>`;
     return `<div class="form">
       <div class="frow"><span class="flabel">Start 12-Wochen-Plan</span><div class="fin"><input type="date" data-c="knee-cfg" data-f="start" value="${c.start}"></div></div>
-      <div class="frow is-wide"><span class="flabel">Seite mit Aufschlag</span>${chips('knee-side', c.side, [['rechts', 'Rechts'], ['links', 'Links']])}</div>
-      <div class="frow"><span class="flabel">Aufschlag Haltezeit</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraSec" value="${c.extraSec}"><span class="unit">Sek.</span></div></div>
-      <div class="frow"><span class="flabel">Aufschlag Wiederholungen</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraReps" value="${c.extraReps}"><span class="unit">Wdh.</span></div></div>
+      <div class="frow is-wide"><span class="flabel">Seite mit Aufschlag<small class="sub">Standard: keine – beide Seiten gleich</small></span>${chips('knee-side', c.side, [['keine', 'Keine'], ['rechts', 'Rechts'], ['links', 'Links']])}</div>
+      ${extraSide() ? `<div class="frow"><span class="flabel">Aufschlag Haltezeit</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraSec" value="${c.extraSec}"><span class="unit">Sek.</span></div></div>
+      <div class="frow"><span class="flabel">Aufschlag Wiederholungen</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="extraReps" value="${c.extraReps}"><span class="unit">Wdh.</span></div></div>` : ''}
       <div class="frow"><span class="flabel">Pause zwischen Übungen</span><div class="fin"><input type="text" inputmode="numeric" data-c="knee-cfg" data-f="trans" value="${c.trans}"><span class="unit">Sek.</span></div></div>
       <div class="frow is-wide"><span class="flabel">Timer-Signal</span>${chips('knee-signal', c.signal, [['voice', 'Ton + Sprache'], ['tone', 'Nur Ton'], ['visual', 'Nur visuell']])}</div>
       <div class="frow is-wide"><span class="flabel">Aktuelle Phase</span>${chips('knee-phase', c.phase, [[1, 'Phase 1'], [2, 'Phase 2'], [3, 'Phase 3']])}</div>

@@ -252,6 +252,7 @@ const A = {
     }
     buildFoodIndex(); upgrade5(); // ältere Backups: Prepmymeal-Beutel, Monster Zero, Saskia
     try { migrate214(); } catch (e) { /* egal */ } // 2.14: Morgen-Check, flexible Woche, Kalorien halten
+    try { migrate215(); } catch (e) { /* egal */ } // 2.15: beide Seiten gleich
     await DB.clear();
     if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
     if (PUSH) await pushSave(); // Mitteilungen ebenso

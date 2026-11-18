@@ -390,6 +390,8 @@ function vGymPlan() {
     return `<div class="gym-ex"><span class="gym-n">${i + 1}</span><div class="row-main"><b>${esc(t.n)}</b><small>${t.sets} × ${esc(t.reps)} · ${esc(t.note)}</small>${last ? `<small class="last">Letztes Mal: ${esc(last.sets.map((s) => `${s.w != null ? fmt(s.w, 1) + ' kg' : ''}${s.r != null ? ' × ' + s.r : ''}`).join(', '))}</small>` : ''}</div></div>`;
   }).join('')}</div>`;
   if (gd.legs) h += `<p class="hint">${icon('footprints')} ${esc(GYM_KNEE_RULE)}</p>`;
+  const kbp = kbPlanItems(k, dayN);
+  h += `<p class="hint">${icon('footprints')} Optional danach: Knie-Block (ca. ${kbMin(kbp.items)} Min.: ${esc(kbp.items.map((x) => exById(x.i).n).join(', '))}) – in der Einheit ganz unten zuschalten.</p>`;
   h += `<button class="btn is-accent" data-a="gym-start" data-day="${dayN}" data-date="${k}">${icon('play')}${esc(gd.n)} heute starten</button>`;
   return h;
 }
@@ -408,7 +410,6 @@ function vGymSession() {
   const gs = gymProgress(t);
   let h = `<header class="page-head is-tight sess-head"><button class="icon-btn" data-a="gym-close" aria-label="Zurück">${icon('chevron-left')}</button><div><h1>${esc(gd.n)}</h1><p class="eyebrow-date">Schedule ${t.gym.sched} · ${esc(fmtDate(k, { weekday: 'short', day: 'numeric', month: 'short' }))}${t.time ? ' · ' + t.time + ' Uhr' : ''}</p></div></header>`;
   h += `<div class="sess-prog">${progBar(gs.done, gs.total, gs.done >= gs.total ? 'ok' : '')}<span>${gs.done}/${gs.total} Sätze</span></div>`;
-  if (gd.legs) h += athGymHTML(true);
   for (const ex of gd.ex) {
     const e = t.gym.ex[ex.id] || { s: [] };
     const tg = gymTarget(ex, t.gym.sched, e.alt);
@@ -426,6 +427,7 @@ function vGymSession() {
       ${last ? `<p class="hint">Letztes Mal (${esc(fmtDate(last.k, { day: 'numeric', month: 'short' }))}${last.alt ? ', Knie-Variante' : ''}): ${esc(last.sets.map((s) => `${s.w != null ? fmt(s.w, 1) : '–'} × ${s.r ?? '–'}`).join(', '))}</p>` : ''}
       ${rows}<button class="link-btn" data-a="gym-addset" data-ex="${ex.id}">${icon('plus')} Satz</button></section>`;
   }
+  h += kbSessionHTML(t, k); // 2.15: optionaler Knie-Block, zählt nicht zur Vollständigkeit
   h += `<section class="card"><h3>Abschluss</h3><div class="form"><div class="frow"><span class="flabel">Dauer</span><div class="fin"><input type="text" inputmode="numeric" data-c="gym-meta" data-f="dur" value="${t.dur ?? ''}" placeholder="${t.start ? Math.max(1, Math.round((Date.now() - t.start) / 60000)) : '–'}"><span class="unit">Min.</span></div></div></div>
     <p class="flabel-s">Intensität (1 = sehr leicht, 10 = maximal)</p>${scale10('gym-int', t.int ?? null, k)}
     <button class="btn is-accent" data-a="gym-finish">${icon('check')}Einheit abschließen</button></section>`;

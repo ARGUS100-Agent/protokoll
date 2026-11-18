@@ -79,7 +79,8 @@ function avgReal(rid) {
 }
 function vKnieRoutines() {
   if (ui.rtEdit) return routineEditor(ui.rtEdit);
-  let h = `<p class="sec-sub">Der Timer führt dich durch jede Übung, sagt Seitenwechsel an und gibt der Seite mit Aufschlag (${kneeCfg().side}) automatisch ${kneeCfg().extraSec} Sek. bzw. ${kneeCfg().extraReps} Wiederholungen mehr.</p>`;
+  const kc = kneeCfg();
+  let h = `<p class="sec-sub">Der Timer führt dich durch jede Übung und sagt Seitenwechsel an. ${extraSide() ? `Die Seite mit Aufschlag (${kc.side}) bekommt automatisch ${kc.extraSec} Sek. bzw. ${kc.extraReps} Wiederholungen mehr.` : 'Beide Seiten bekommen gleich viele Sätze, Sekunden und Wiederholungen.'}</p>`;
   for (const rt of routines()) {
     const short = rt.id === 'lang' && kneeCfg().longShort;
     const sec = routineSec(rt, { short });
@@ -120,7 +121,7 @@ function routineEditor(rid) {
 }
 function sheetExPick() {
   ui.sheet = { type: 'expick' };
-  openSheet(`<h3 class="sheet-title">Übung hinzufügen</h3>${Object.entries(KNEE_CATS).map(([c, n]) => `<h5>${esc(n)}</h5><div class="list">${KNEE_EX.filter((e) => e.cat === c && e.d.t !== 'info').map((e) => `<button class="row" data-a="rt-pick" data-id="${e.id}"><span class="row-main"><b>${esc(e.n)}</b><small>${esc(e.dose)}</small></span>${icon('plus', 'row-ic')}</button>`).join('')}</div>`).join('')}`);
+  openSheet(`<h3 class="sheet-title">Übung hinzufügen</h3>${Object.entries(KNEE_CATS).filter(([c]) => c !== 'gym').map(([c, n]) => `<h5>${esc(n)}</h5><div class="list">${KNEE_EX.filter((e) => e.cat === c && e.d.t !== 'info').map((e) => `<button class="row" data-a="rt-pick" data-id="${e.id}"><span class="row-main"><b>${esc(e.n)}</b><small>${esc(e.dose)}</small></span>${icon('plus', 'row-ic')}</button>`).join('')}</div>`).join('')}`);
 }
 
 /* ---------- Kraft & Athletik (seit 2.13: täglich zu Hause, Einheiten A/B/C) ---------- */
@@ -131,9 +132,11 @@ function vKnieKraft() {
   const t = athType(k), items = athItems(k, t);
   let h = phaseGateCard();
   h += `<div class="phase-bar knee-phases">${KNEE_PHASES.map((p) => `<div class="phase-seg${p.id === ph.id ? ' is-now' : ''}" style="flex:${p.weeks[1] - p.weeks[0] + 1};--pc:${PHASE_COLORS[p.id - 1]}"><i style="width:${p.id < ph.id ? 100 : p.id > ph.id ? 0 : clamp(((w - p.weeks[0] + 1) / (p.weeks[1] - p.weeks[0] + 1)) * 100, 4, 100)}%"></i><span>P${p.id} · W${p.weeks[0]}–${p.weeks[1]}</span></div>`).join('')}</div>`;
-  h += `<p class="sec-sub">${esc(ph.goal)} Zu Hause ${ph.perWeek}× pro Woche, ca. 20–25 Min., Einheiten A, B und C im Wechsel.${(kneeCfg().ext || 0) ? ` Phase um ${kneeCfg().ext} Woche(n) verlängert.` : ''}</p>`;
+  h += `<p class="sec-sub">${esc(ph.goal)} Zu Hause ${ph.perWeek}× pro Woche, ca. 25–30 Min., Einheiten A, B und C im Wechsel; dazu optional der Knie-Block im Gym.${(kneeCfg().ext || 0) ? ` Phase um ${kneeCfg().ext} Woche(n) verlängert.` : ''}</p>`;
+  h += kpCardHTML(k);
   h += athLightBanner(k);
-  if (athLegsDay(k)) h += `<div class="banner is-soft">${icon('dumbbell')}<div><b>Heute Beintag</b><span>Zu Hause eine leichtere Einheit (nicht A), den Knie-Block machst du im Gym – siehe unten.</span></div></div>`;
+  const hw = athHeavyWhy(k);
+  if (hw) h += `<div class="banner is-soft">${icon('dumbbell')}<div><b>${esc(hw.t)}</b><span>${esc(hw.s)}</span></div></div>`;
   h += `<section class="sec"><div class="sec-head"><h2>Einheit ${t} · ${esc(ATH_TYPES[t])}</h2>${str.done ? `<span class="st st-ok">${icon('check')}erledigt</span>` : `<span class="count">ca. ${athMin(k, t)} Min.</span>`}</div>
     <div class="chips chips-tight ath-types">${Object.entries(ATH_TYPES).map(([v, n]) => `<button class="chip chip-xs${v === t ? ' is-on' : ''}" data-a="ath-type" data-v="${v}">${v} · ${esc(n)}</button>`).join('')}</div>
     ${str.done ? '' : `<button class="btn is-accent" data-a="ath-start">${icon('play')}Mit Timer starten</button>`}`;
@@ -147,7 +150,7 @@ function vKnieKraft() {
     const sets = Array.from({ length: n }, (_, i) => `<button class="set-dot${(e.sets || [])[i] ? ' is-on' : ''}" data-a="kstr-set" data-ex="${ex.id}" data-i="${i}" data-n="${n}" aria-label="Satz ${i + 1}">${i + 1}</button>`).join('');
     const loads = ex.band ? `<div class="chips chips-tight load-chips">${kneeCfg().bands.map((b) => `<button class="chip chip-xs${e.load === b.n ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="${esc(b.n)}">${esc(b.n)} ${fmt(b.kg, 1)} kg</button>`).join('')}<button class="chip chip-xs${e.load === 'ohne' ? ' is-on' : ''}" data-a="kstr-load" data-ex="${ex.id}" data-v="ohne">ohne</button></div>`
       : ex.kg || ['k_bss', 'k_slrdl', 'k_wadeeinbein', 'k_wadeexz'].includes(ex.id) ? `<label class="mini-in kg-in"><input type="text" inputmode="decimal" data-c="kstr-kg" data-ex="${ex.id}" value="${esc(e.load && e.load !== 'ohne' ? e.load : '')}" placeholder="–"><span>kg</span></label>` : '';
-    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= n ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}${pe.rest ? ` · ${pe.rest % 60 === 0 ? `${pe.rest / 60} Min.` : `${pe.rest} Sek.`} Pause` : ''}</small></button>${ex.d.t === 'time' && ex.id !== 'a_ergo' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="${n}" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
+    h += `<div class="kstr${(e.sets || []).filter(Boolean).length >= n ? ' is-done' : ''}"><div class="kstr-top"><button class="link-row" data-a="ex-show" data-id="${ex.id}"><b>${esc(ex.n)}</b><small>${esc(doseText(ex, it))}${pe.rest ? ` · ${pe.rest % 60 === 0 ? `${pe.rest / 60} Min.` : `${pe.rest} Sek.`} Pause` : ''}${pe.lvT ? ` · ${esc(pe.lvT)}` : ''}${ex.need ? ` · braucht ${esc(ex.need)}` : ''}</small></button>${ex.d.t === 'time' && ex.id !== 'a_ergo' ? `<button class="pill-btn sm" data-a="hold-timer" data-ex="${ex.id}" data-sets="${n}" data-sec="${pe.sec}">${icon('timer')}${pe.sec} s</button>` : ''}</div>
       <div class="kstr-sets">${sets}</div>${loads}${prog ? `<p class="hint prog">${icon('trending-up')} ${esc(prog)}</p>` : ''}</div>`;
   }
   h += `<p class="flabel-s">Knieschmerz während der Einheit (0–10) · bis 5 okay, wenn er morgen früh wieder auf dem Ausgangswert ist</p>${scale0('kstr-pain', str.pain ?? null, k)}

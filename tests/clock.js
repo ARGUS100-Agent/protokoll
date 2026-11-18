@@ -24,8 +24,8 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok((await page.textContent('.sunday')).includes('82,1 kg eingetragen'), 'Sonntags-Check aktualisiert sich');
   await page.screenshot({ path: `${OUT}/c01-sonntag.png`, fullPage: true });
 
-  // Timer mit echten Haltezeiten
-  await ev(() => go('knie'));
+  // Timer mit echten Haltezeiten – mit gewählter Seite mit Aufschlag (seit 2.15 Standard „keine“, siehe v215.js)
+  await ev(() => { kneeCfg().side = 'rechts'; go('knie'); });
   await page.click('[data-a="timer-start"][data-r="taeglich"]');
   const st = () => ev(() => ({ i: ui.timer.i, ph: ui.timer.phase, ex: timerCur().ex, side: timerCur().side, sec: timerCur().sec, clock: ($('#tm-clock') || {}).textContent }));
   ok((await st()).ph === 'prep', 'Start mit 5 Sek. Vorbereitung');

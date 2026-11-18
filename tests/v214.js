@@ -139,7 +139,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
     ui.sheet = { type: 'import', data }; await A['import-do']({ dataset: { mode: 'replace' } });
     return { mig: S.settings.mig, flex: !!weekFlex(), goal: S.settings.energy.goal, pm: rtCfg().pm.length };
   });
-  ok(imp.mig === 214 && imp.flex && imp.goal === 'halten' && imp.pm === 5, 'Import eines älteren Backups: 2.14-Umstellung greift erneut');
+  ok(imp.mig >= 214 && imp.flex && imp.goal === 'halten' && imp.pm === 5, 'Import eines älteren Backups: 2.14-Umstellung greift erneut'); // seit 2.15 läuft danach auch migrate215
   await shot('v214-02-nach-import');
 
   /* ---------- 9. Wochen-Agent: abgeschnittene Antwort retten ---------- */

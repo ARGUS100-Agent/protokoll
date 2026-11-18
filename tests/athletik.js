@@ -24,7 +24,8 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
     return { bad, mins, plyoP1, cats: KNEE_EX.filter((e) => e.cat === 'athl').length };
   });
   ok(!chk.bad.length, 'Alle Übungen der Phasen gibt es ' + chk.bad.join(', '));
-  ok(chk.mins.flat().every((m) => m >= 18 && m <= 25), `Dauer je Einheit 18–25 Min.: ${chk.mins.map((x) => x.join('/')).join(' · ')}`);
+  // seit 2.15 Übungen ergänzt statt getauscht (Wunsch vom 18.11.2026): bis ca. 30 Min. je Einheit
+  ok(chk.mins.flat().every((m) => m >= 18 && m <= 30), `Dauer je Einheit 18–30 Min.: ${chk.mins.map((x) => x.join('/')).join(' · ')}`);
   ok(chk.plyoP1 === 0 && chk.cats >= 6, 'Phase 1 ohne Sprünge; neue Kategorie „Athletik & Sprünge“');
 
   /* Einheit A, Timer mit Pausen */

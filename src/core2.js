@@ -13,7 +13,7 @@ function defaultSettings2() {
     sauna: { goal: 60 },
     week: clone(DEFAULT_WEEK),
     gym: { anchor: '2026-11-02', first: 'A', kneeAlt: true },
-    knee: { start: '2026-10-26', side: 'rechts', extraSec: 15, extraReps: 5, trans: 10, signal: 'voice', phase: 1, ext: 0, bands: clone(KNEE_BANDS), insoles: null, cadence: null, routines: null, video: {}, longShort: false },
+    knee: { start: '2026-10-26', side: 'keine', extraSec: 15, extraReps: 5, trans: 10, signal: 'voice', phase: 1, ext: 0, bands: clone(KNEE_BANDS), insoles: null, cadence: null, routines: null, video: {}, longShort: false },
   };
 }
 function defaultStores() {
@@ -214,6 +214,15 @@ function migrate214() {
   // Sauna und „Kein Alkohol“ für die letzten 4 Wochen automatisch nachtragen
   for (let i = 1; i <= 28; i++) { try { autoHabits(addDays(todayKey(), -i)); } catch (e) { /* egal */ } }
   try { energyApply(); } catch (e) { /* egal */ }
+}
+/* 2.15 (Wunsch vom 18.11.2026): beide Seiten gleich viele Sätze und Wiederholungen. Läuft wie migrate214 auch nach
+   dem Import eines älteren Backups; die Wochen-Steigerung (knee.prog) legt kpEnsure beim ersten Öffnen an. */
+function migrate215() {
+  const st = S.settings;
+  if (!st || (st.mig || 0) >= 215) return;
+  if (st.knee) st.knee.side = 'keine';
+  st.mig = 215;
+  markDirty('settings'); invalidate();
 }
 
 /* ---------- Bereiche ---------- */
@@ -564,7 +573,8 @@ function exVideo(ex) {
 }
 function routines() { return kneeCfg().routines || KNEE_ROUTINES; }
 function routineById(id) { return routines().find((r) => r.id === id) || null; }
-function extraSide() { return kneeCfg().side === 'links' ? 'L' : 'R'; }
+/* Seite mit Aufschlag; seit 2.15 Standard „keine“: beide Seiten gleich (Wunsch vom 18.11.2026) */
+function extraSide() { const s = kneeCfg().side; return s === 'links' ? 'L' : s === 'rechts' ? 'R' : null; }
 function sideName(s) { return s === 'L' ? 'Links' : s === 'R' ? 'Rechts' : ''; }
 /* Dosis einer Übung als Text (links/rechts getrennt) */
 function doseText(ex, it = {}) {
@@ -574,7 +584,7 @@ function doseText(ex, it = {}) {
   const val = d.t === 'time' ? it.sec || d.sec : it.reps || d.reps;
   const ut = d.t === 'time' ? ' Sek.' : '';
   const xs = extraSide();
-  const extra = d.s === 2 && !d.noX ? (d.t === 'time' ? kneeCfg().extraSec : kneeCfg().extraReps) : 0;
+  const extra = d.s === 2 && !d.noX && xs ? (d.t === 'time' ? kneeCfg().extraSec : kneeCfg().extraReps) : 0;
   const pre = sets > 1 ? `${sets} × ` : '';
   const one = (v) => (d.t === 'reps' && !pre ? `${v}×` : d.t === 'time' && v >= 120 && v % 60 === 0 ? `${v / 60} Min.` : `${v}${ut}`);
   if (d.s === 2 && extra) {
@@ -601,7 +611,7 @@ function buildSteps(rt, opts = {}) {
       for (const side of sides) {
         const extra = side && !d.noX && side === extraSide();
         const val = d.t === 'time' ? base + (extra ? cfg.extraSec : 0) : base + (extra ? cfg.extraReps : 0);
-        steps.push({ ex: ex.id, idx, grp: it.grp || null, side, set: s + 1, sets, type: d.t, sec: d.t === 'time' ? val : null, reps: d.t === 'reps' ? val : null, label: ex.labels ? ex.labels[s] || null : null, alt: !!d.alt, sideName: ex.sideNames ? ex.sideNames[side === 'L' ? 0 : 1] : null, rest: it.rest || d.rest || null });
+        steps.push({ ex: ex.id, idx, grp: it.grp || null, side, set: s + 1, sets, type: d.t, sec: d.t === 'time' ? val : null, reps: d.t === 'reps' ? val : null, label: ex.labels ? ex.labels[s] || null : it.lvT || null, alt: !!d.alt, sideName: ex.sideNames ? ex.sideNames[side === 'L' ? 0 : 1] : null, rest: it.rest || d.rest || null });
       }
     }
   });

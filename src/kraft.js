@@ -17,6 +17,8 @@ const MUSCLES = {
   g_schulter: { Schultern: 1, Trizeps: 0.5 }, g_latzug: { Rücken: 1, Bizeps: 0.5 }, g_kabelrudern: { Rücken: 1, Bizeps: 0.5 }, g_schraeg_kh: { Brust: 1, Schultern: 0.5, Trizeps: 0.5 },
   g_seitheben2: { Schultern: 1 }, g_reverse_fly: { Schultern: 1 }, g_bayesian: { Bizeps: 1 }, g_trizeps_kopf: { Trizeps: 1 },
 };
+/* Knie-Block im Gym (2.15) zählt bei den harten Sätzen mit; isometrische Halteübungen und Adduktoren nicht */
+Object.assign(MUSCLES, { b_hsr: { Beine: 1 }, b_press: { Beine: 1, Gesäß: 0.5 }, b_curl: { Beinbeuger: 1 }, b_calf: { Waden: 1 }, b_abd: { Gesäß: 0.5 } });
 const MUSCLE_ORDER = ['Brust', 'Rücken', 'Schultern', 'Bizeps', 'Trizeps', 'Beine', 'Beinbeuger', 'Gesäß', 'Waden', 'Bauch'];
 const RIR_STEPS = [null, 1, 2.5, 4];
 const RIR_LABEL = { 1: '0–1', 2.5: '2–3', 4: '4+' };
@@ -144,7 +146,8 @@ function kxWeekSets(ws) {
     const d = peekDay(k);
     for (const t of (d && d.trainings) || []) {
       if (!t.gym || !t.gym.ex) continue;
-      for (const [id, e] of Object.entries(t.gym.ex)) {
+      const kb = t.gym.knee && t.gym.knee.on ? Object.entries(t.gym.knee.ex || {}) : [];
+      for (const [id, e] of [...Object.entries(t.gym.ex), ...kb]) {
         const done = (e.s || []).filter((s) => s.d || (s.r != null && s.w != null));
         const top = Math.max(0, ...done.map((s) => Number(s.w) || 0));
         const n = done.filter((s) => !kxWarm({ w: s.w != null ? Number(s.w) : null, rir: s.rir }, top)).length;

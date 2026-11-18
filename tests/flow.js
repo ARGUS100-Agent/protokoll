@@ -154,8 +154,8 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(kt && kt.sdL === true && kt.sdR === false && kt.k2wR === 9.5, 'Knie-Test gespeichert');
   ok((await ev(() => testDue().due)) === false, 'Test nicht mehr fällig');
 
-  // 9 Timer komplett
-  await ev(() => { ui.sub.knie = 'heute'; render(); });
+  // 9 Timer komplett – mit gewählter Seite mit Aufschlag (seit 2.15 ist der Standard „keine“, siehe v215.js)
+  await ev(() => { kneeCfg().side = 'rechts'; ui.sub.knie = 'heute'; render(); });
   // „Vor dem Lauf“ steht nur an Lauftagen auf Heute, sonst unter Läufe
   if (!(await page.$('[data-a="timer-start"][data-r="vorlauf"]'))) await ev(() => { ui.sub.knie = 'laeufe'; render(); });
   await page.click('[data-a="timer-start"][data-r="vorlauf"]');
