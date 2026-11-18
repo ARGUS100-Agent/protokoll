@@ -263,7 +263,7 @@ function recompCard(k) {
     <div class="kv-grid is-3">${tile('Gewicht 4 Wo.', r.dW != null ? sgn(r.dW) : '–', r.wOk, r.dW != null ? 'kg Trend' : 'mehr wiegen')}${tile('Bauch', r.dB != null ? sgn(r.dB) : '–', r.bOk, r.dB != null ? 'cm zur Messung davor' : 'alle 4 Wochen messen')}${tile('Kraft', r.dK != null ? `${sgn(r.dK)} %` : '–', r.kOk, r.dK != null ? `e1RM, ${r.nK} Übungen` : 'ab 2 Übungen in beiden Zeiträumen')}</div>
     <p class="hint">Grün heißt: Gewicht passt zur Phase, Bauch gleich oder kleiner, Kraft steigt. Das ist Fortschritt, auch wenn die Waage stillsteht. Kraft = Ø Veränderung des besten geschätzten 1RM je Übung, letzte 4 Wochen gegen die 4 davor.</p></section>`;
 }
-function phaseCard(k) {
+function phaseBodyCard(k) {
   const ps = phaseStatus(k), [cls, lab] = AMPEL[ps.st], ti = ps.ti, wt = ti.trend || null;
   const kg = (p) => (wt ? sgn((p * wt) / 100, 2) : sgn(p, 2) + ' %');
   return `<section class="sec"><div class="sec-head"><h2>${icon('trending-up')} Phase</h2><span class="ampel ${cls}">${esc(lab)}</span></div>
@@ -305,6 +305,7 @@ function monthCard(ym) {
   if (m.prs.length) h += `<p class="sec-sub">${icon('trending-up')} Stärker geworden: ${m.prs.slice(0, 4).map((p) => `${esc((kxEx(p.id) || {}).n || p.id)} ${sgn(p.pct)} %`).join(' · ')}</p>`;
   if (m.meas.length) h += `<p class="sec-sub">${icon('ruler')} Maße zum Vormonat: ${m.meas.map((x) => `${esc(x.n)} ${sgn(x.d)} cm`).join(' · ')}</p>`;
   h += physMonthPair(m.first, m.last);
+  h += monthAiHTML(ym);
   return h + '</section>';
 }
 function monthBanner(k) {
@@ -350,7 +351,7 @@ function vKoerperMasse() {
 }
 function vKoerperAnalyse() {
   const k = todayKey();
-  let h = phaseCard(k) + recompCard(k) + monthCard(ui.kMonth || k.slice(0, 7));
+  let h = phaseBodyCard(k) + recompCard(k) + monthCard(ui.kMonth || k.slice(0, 7));
   h += `<section class="sec"><div class="sec-head"><h2>Zweite Meinung</h2></div><p class="sec-sub">Das Backup enthält Gewicht, Maße und deine Fotos (verkleinert). Lade es bei Claude hoch und frag nach einer Einschätzung deines Fortschritts – zum Beispiel „Vergleiche meine Fotos von Anfang und Ende des Monats“.</p><div class="row-btns"><button class="pill-btn" data-a="backup-export">${icon('share')}Backup erstellen</button></div></section>`;
   return h;
 }

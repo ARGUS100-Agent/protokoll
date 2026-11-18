@@ -131,6 +131,10 @@ function vHeute() {
   h += monthBanner(k);
   h += unknownCard(k);
   h += bjjCard(k);
+  h += illnessCard(k);
+  h += msBanner(k);
+  h += yearBanner(k);
+  h += knowCard(k);
   h += goalsCard(k);
   h += `<section class="arc" id="arc" aria-label="Tagesbogen">${arcInner()}</section>
     <div class="arc-legend"><span><i class="lg-coffee"></i>Koffein ${minToTime(c1)}–${minToTime(c2)}</span><span><i class="lg-screens"></i>Bildschirmfrei ab ${minToTime(sleepMin(k) - 60)}</span><span><i class="lg-meal"></i>Mahlzeit erledigt</span></div>${rhythmLine(k)}`;
@@ -138,6 +142,7 @@ function vHeute() {
   h += bpTodayCard(k);
   h += zwTodayCard(k);
   h += sleepHelpCard(k);
+  h += sleepForecastCard(k);
   h += routineCard(k);
   if (weekday(k) <= 2) h += agentCard(addDays(weekStart(k), -7));
   if (!mcVisible(k)) h += kneeMorningCard(k, true);
@@ -305,7 +310,7 @@ function recoveryCard(k) {
   const how = !rd ? '' : rd.src === 'eigen' ? `Bereitschaft aus ${rd.parts.map((p) => p.n).join(', ')} – eigene Berechnung, weil Garmin sie nicht herausgibt.` : `Bereitschaft von dir eingetragen${rd.own != null ? ` (die App rechnet ${fmt(rd.own)})` : ''}.`;
   return `<section class="card rec-card st-${st}"><div class="rec-top">${stDot(st)}<b>${lbl}</b>${r.level === 'none' ? goBtn('garmin', 'Garmin eintragen') : score}</div>
     ${r.sig.length ? `<div class="chips chips-tight">${r.sig.map((x) => `<span class="chip chip-xs is-static sig-${x.s < 0 ? 'bad' : x.s > 0 ? 'good' : 'mid'}">${esc(x.n)} ${esc(x.v)}</span>`).join('')}</div>` : ''}
-    <p>${esc(r.text)}</p>${r.notes.map((n) => `<p class="hint">${icon('info')} ${esc(n)}</p>`).join('')}${how ? `<p class="hint">${esc(how)}</p>` : ''}</section>`;
+    <p>${esc(r.text)}</p>${r.notes.map((n) => `<p class="hint">${icon('info')} ${esc(n)}</p>`).join('')}${rd && rd.cap ? `<p class="hint">${icon('info')} ${esc(rd.cap)}</p>` : ''}${how ? `<p class="hint">${esc(how)}</p>` : ''}</section>`;
 }
 function trainRow(t, k) {
   const tt = trainType(t);
