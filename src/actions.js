@@ -46,7 +46,13 @@ function addEntry(k, food, g, meal) {
 }
 async function shareBackup() {
   await flush();
-  const json = JSON.stringify(exportData());
+  const data = exportData();
+  if (backupPhotoMode() !== 'keine') {
+    toast('Backup wird erstellt …');
+    try { data.photos = await photosForBackup(); } catch (e) { data.photos = []; }
+    data.photoInfo = `${data.photos.length} Fotos (Haut und Körper) im Feld „photos“, verkleinert auf 1080 px als JPEG in Base64. Volle Größe: Fotos-ZIP.`;
+  }
+  const json = JSON.stringify(data);
   const name = `protokoll-backup-${todayKey()}.json`;
   let file = null;
   try { file = new File([json], name, { type: 'application/json' }); } catch (e) { file = null; }
@@ -258,7 +264,9 @@ const A = {
     if (PUSH) await pushSave(); // Mitteilungen ebenso
     markDirty('settings'); markDirty('meta'); markDirty('foods'); STORE_KEYS.forEach((k) => markDirty(k)); Object.keys(S.days).forEach((k) => markDirty('day:' + k));
     await flush();
-    buildFoodIndex(); invalidate(); closeSheet(); render(); toast('Backup importiert');
+    let nPh = 0;
+    if (Array.isArray(data.photos) && data.photos.length) { try { nPh = await importBackupPhotos(data.photos); } catch (e) { /* Fotos optional */ } }
+    buildFoodIndex(); invalidate(); closeSheet(); render(); toast(nPh ? `Backup importiert, dazu ${nPh} Fotos` : 'Backup importiert');
   },
   'wipe-ask': () => {
     ui.sheet = { type: 'wipe' };

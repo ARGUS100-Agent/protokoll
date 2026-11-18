@@ -1082,7 +1082,7 @@ async function loadPhotoIndex() {
 }
 function photoKey(ws, angle) { return `${ws}|${angle}`; }
 function photosOfWeek(ws) { return PHOTO_ANGLES.filter((a) => photoIdx.keys.includes(photoKey(ws, a.id))).map((a) => a.id); }
-function photoWeeks() { return [...new Set(photoIdx.keys.map((k) => k.split('|')[0]))].sort().reverse(); }
+function photoWeeks() { return [...new Set(photoIdx.keys.filter((k) => !isPhys(k.split('|')[1])).map((k) => k.split('|')[0]))].sort().reverse(); }
 async function compressImage(file, maxEdge, q) {
   const url = URL.createObjectURL(file);
   try {
@@ -1196,7 +1196,7 @@ async function importPhotosZip(buf) {
   let list = [];
   if (man) { try { list = JSON.parse(new TextDecoder().decode(man.data)).photos || []; } catch (e) { list = []; } }
   if (!list.length) {
-    for (const e of entries) { const m = e.name.match(/(\d{4}-\d{2}-\d{2})_([a-z]+)\.jpe?g$/i); if (m && PHOTO_ANGLES.some((a) => a.id === m[2])) list.push({ file: e.name, week: weekStart(m[1]), date: m[1], angle: m[2] }); }
+    for (const e of entries) { const m = e.name.match(/(\d{4}-\d{2}-\d{2})_([a-z_]+)\.jpe?g$/i); if (m && PHOTO_ANGLES.concat(PHYS_ANGLES).some((a) => a.id === m[2])) list.push({ file: e.name, week: weekStart(m[1]), date: m[1], angle: m[2] }); }
   }
   let n = 0;
   for (const p of list) {

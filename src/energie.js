@@ -34,18 +34,25 @@ function weightTrend(k, days = 28) {
    Wenige Wiegungen schwanken stark (Wasser, Salz, Darminhalt) → Korrektur gedeckelt: ±300 kcal bis 6 Messungen,
    danach ±600 kcal. Unvollständig erfasste Tage (unter 60 % des Medians) zählen nicht. */
 function maintEstimate(k = todayKey()) {
-  const rows = rangeKeys(21, addDays(k, -1)).map((x) => ({ k: x, v: dayIntake(x) })).filter((r) => r.v != null && r.v > 0);
+  const rows = rangeKeys(21, addDays(k, -1)).map((x) => { const d = peekDay(x) || {}; return { k: x, v: dayIntake(x), ok: !!d.foodOk, inc: !!d.incomplete }; }).filter((r) => r.v != null && r.v > 0);
   if (!rows.length) return null;
   const vs = rows.map((r) => r.v).sort((a, b) => a - b), med = vs[Math.floor(vs.length / 2)];
-  const full = rows.filter((r) => r.v >= med * 0.6);
+  // „Passt so“ aus dem Morgen-Check zählt auch an kleinen Tagen, „unvollständig“ nie (seit 2.15)
+  const full = rows.filter((r) => !r.inc && (r.ok || r.v >= med * 0.6));
   if (full.length < 7) return { n: full.length, est: null };
   const intake = Math.round(mean(full.map((r) => r.v)));
-  const wt = weightTrend(addDays(k, -1)); // 4 Wochen: mehr Wiegungen, stabilerer Trend (wie in der Karte angezeigt)
+  const wt = weightRate(addDays(k, -1)); // seit 2.15: Rate aus dem Trendgewicht (stabiler als die Regression)
   if (wt.slope == null || wt.n < 3) return { n: full.length, intake, wt, est: null };
   const cap = wt.n >= 6 ? 600 : 300;
   const raw = Math.round((-wt.slope * 7700) / 7);
   const corr = clamp(raw, -cap, cap);
   return { n: full.length, intake, wt, raw, corr, capped: corr !== raw, est: Math.round((intake + corr) / 10) * 10 };
+}
+/* Gewichtsrate: aus dem Trendgewicht (koerper.js), sonst wie bisher aus der Regression über 4 Wochen */
+function weightRate(k) {
+  const ti = trendInfo(k);
+  if (ti.rate != null) return { n: ti.win === 14 ? ti.n14 : ti.n28, last: ti.last, slope: ti.rate, trend: ti.trend, src: 'trend' };
+  return weightTrend(k);
 }
 /* Kennzahlen bis einschließlich gestern (heute ist noch nicht fertig) */
 function energyStats(k = todayKey()) {
@@ -57,7 +64,7 @@ function energyStats(k = todayKey()) {
   const full = rows.filter((r) => r.burn != null && r.intake != null && r.intake >= r.burn * 0.5);
   const last7 = full.filter((r) => r.k >= addDays(k, -7));
   const bal = last7.length ? Math.round(mean(last7.map((r) => r.intake - r.burn))) : null;
-  const wt = weightTrend(addDays(k, -1));
+  const wt = weightRate(addDays(k, -1));
   const g = ENERGY_GOALS.find((x) => x[0] === cfg.goal) || ENERGY_GOALS[0];
   const me = maintEstimate(k);
   let offset = g[2];

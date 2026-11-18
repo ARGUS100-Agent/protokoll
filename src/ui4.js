@@ -66,12 +66,12 @@ function vHautFotos() {
   const ws = ui.photoWeek;
   const isCur = ws === weekStart(todayKey());
   let h = `<div class="week-nav"><button class="icon-btn" data-a="photo-week" data-d="-7" aria-label="Vorherige Woche">${icon('chevron-left')}</button><span>KW ${isoWeek(ws)} · ${esc(fmtDate(ws, { day: 'numeric', month: 'short' }))} – ${esc(fmtDate(addDays(ws, 6), { day: 'numeric', month: 'short' }))}</span><button class="icon-btn" data-a="photo-week" data-d="7" ${isCur ? 'disabled' : ''} aria-label="Nächste Woche">${icon('chevron-right')}</button></div>`;
-  h += `<p class="sec-sub">Sonntagmorgens, gleiches Licht, gleicher Abstand. Die Bilder bleiben nur auf diesem iPhone.</p><div class="ph-grid">`;
+  h += `<p class="sec-sub">Sonntagmorgens, gleiches Licht, gleicher Abstand. „Mit Schablone“ blendet das letzte Foto ein, damit Pose und Abstand stimmen. Die Fotos sind im Backup enthalten (verkleinert).</p><div class="ph-grid">`;
   for (const a of PHOTO_ANGLES) {
     const key = photoKey(ws, a.id);
     const has = photoIdx.keys.includes(key);
-    h += has ? `<div class="ph-slot"><button class="ph" data-a="photo-view" data-key="${key}" aria-label="${esc(a.n)} ansehen"><img data-photo="${key}" alt="${esc(a.n)}"></button><div class="ph-cap"><b>${esc(a.n)}</b><label class="link-btn">Ersetzen<input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label></div></div>`
-      : `<div class="ph-slot"><label class="ph is-add">${icon('camera')}<span>${esc(a.n)}</span><input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label><div class="ph-cap"><b>${esc(a.n)}</b><small>fehlt</small></div></div>`;
+    h += has ? `<div class="ph-slot"><button class="ph" data-a="photo-view" data-key="${key}" aria-label="${esc(a.n)} ansehen"><img data-photo="${key}" alt="${esc(a.n)}"></button><div class="ph-cap"><b>${esc(a.n)}</b><button class="link-btn" data-a="cam-open" data-ws="${ws}" data-angle="${a.id}">Kamera</button><label class="link-btn">Ersetzen<input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label></div></div>`
+      : `<div class="ph-slot"><label class="ph is-add">${icon('camera')}<span>${esc(a.n)}</span><input type="file" accept="image/*" data-c="photo-up" data-angle="${a.id}" data-ws="${ws}" hidden></label><div class="ph-cap"><b>${esc(a.n)}</b><button class="link-btn" data-a="cam-open" data-ws="${ws}" data-angle="${a.id}">Mit Schablone</button></div></div>`;
   }
   h += '</div>';
   const weeks = photoWeeks();
@@ -83,17 +83,16 @@ function vHautFotos() {
   }
   if (weeks.length) {
     h += `<section class="sec"><div class="sec-head"><h2>Galerie</h2><span class="count">${weeks.length} ${weeks.length === 1 ? 'Woche' : 'Wochen'}</span></div><div class="list">${weeks.map((w) => `<button class="row gal-row" data-a="photo-week-go" data-ws="${w}"><span class="row-main"><b>KW ${isoWeek(w)}</b><small>${esc(fmtDate(w, { day: 'numeric', month: 'short', year: 'numeric' }))} · ${photosOfWeek(w).length}/4</small></span><span class="gal-thumbs">${photosOfWeek(w).map((a) => `<img data-photo="${photoKey(w, a)}" alt="">`).join('')}</span></button>`).join('')}</div>
-      <p class="hint">Fotos sind nicht im normalen Backup (zu groß). Unter Einstellungen → Backup & Daten kannst du sie als ZIP sichern.</p></section>`;
+      <p class="hint">Die Fotos stecken verkleinert im Backup, damit Claude sie mit auswerten kann. Volle Größe: Einstellungen → Backup & Daten → Fotos als ZIP.</p></section>`;
   }
   return h;
 }
 function sheetPhoto(key) {
   const [ws, angle] = key.split('|');
-  const a = PHOTO_ANGLES.find((x) => x.id === angle);
   ui.sheet = { type: 'photo', key };
-  openSheet(`<h3 class="sheet-title">${esc(a ? a.n : angle)}</h3><p class="hint">KW ${isoWeek(ws)}, Woche ab ${esc(fmtDate(ws, { day: 'numeric', month: 'long', year: 'numeric' }))}</p>
+  openSheet(`<h3 class="sheet-title">${esc(angleName(angle))}</h3><p class="hint">KW ${isoWeek(ws)}, Woche ab ${esc(fmtDate(ws, { day: 'numeric', month: 'long', year: 'numeric' }))}</p>
     <div class="ph-full"><img data-photo="${key}" data-full="1" alt=""></div>
-    <div class="sheet-acts"><button class="btn is-danger" data-a="photo-del" data-key="${key}">Foto löschen</button></div>`);
+    <div class="sheet-acts"><button class="btn" data-a="photo-share" data-key="${key}">${icon('share')}In Fotos sichern</button><button class="btn is-danger" data-a="photo-del" data-key="${key}">Foto löschen</button></div>`);
   hydratePhotos($('#sheet'));
 }
 function skinChart() {
@@ -146,33 +145,6 @@ function vHautVerlauf() {
 /* ============================================================
    KÖRPER
    ============================================================ */
-function vKoerper() {
-  const k = ui.date, d = getDay(k);
-  let h = areaHead('koerper') + dateBar(k);
-  if (weekday(k) === 6) h += `<div class="banner is-soft">${icon('scale')}<div><b>Sonntagmorgen</b><span>Nüchtern, ohne Kleidung, nach dem Toilettengang – zusammen mit dem Hautcheck und den Wochenfotos.</span></div></div>`;
-  const prev = (f) => { for (let i = 1; i < 60; i++) { const x = peekDay(addDays(k, -i)); if (x && x.health && x.health[f] != null) return x.health[f]; } return null; };
-  const row = (f, n, unit, dec) => { const v = d.health[f]; const pv = prev(f); return `<div class="frow"><span class="flabel">${n}</span><div class="fin"><input type="text" inputmode="decimal" data-c="health" data-k="${f}" data-date="${k}" value="${numIn(v, dec)}" placeholder="${pv != null ? 'zuletzt ' + numIn(pv, dec) : '–'}" aria-label="${n}"><span class="unit">${unit}</span></div></div>`; };
-  h += `<section class="sec"><div class="form">${row('weight', 'Gewicht', 'kg', 1)}${row('waist', 'Bauchumfang (optional)', 'cm', 1)}</div><p class="hint">Bauchumfang auf Nabelhöhe, entspannt ausatmen.</p></section>`;
-  h += bpSection(k);
-  for (const [f, n, unit] of [['weight', 'Gewicht', 'kg'], ['waist', 'Bauchumfang', 'cm']]) {
-    const ser = weightSeries(f);
-    if (!ser.length) { if (f === 'weight') h += chartCard('kw', n, 'Trag dein Gewicht ein, dann siehst du hier Verlauf, gleitenden Schnitt und Veränderung.', emptyChart('Noch kein Eintrag.')); continue; }
-    const lastE = ser[ser.length - 1];
-    const weekAgo = [...ser].reverse().find((x) => daysBetween(x.k, lastE.k) >= 5) || (ser.length >= 2 ? ser[ser.length - 2] : null);
-    const first = ser[0];
-    const vals = ser.map((x) => x.v);
-    const ma = vals.map((_, i) => { const w = vals.slice(Math.max(0, i - 3), i + 1); return w.length >= 2 ? mean(w) : null; });
-    const kv = (l, v, s = '') => `<div class="kv"><span>${l}</span><b>${v}</b>${s ? `<small>${s}</small>` : ''}</div>`;
-    const dl = (a, b) => (a == null || b == null ? '–' : `${a - b >= 0 ? '+' : ''}${fmt(a - b, 1)}`);
-    h += `<div class="kv-grid is-3">${kv(`${n} aktuell`, `${fmt(lastE.v, 1)}`, `${unit} · ${fmtDate(lastE.k, { day: 'numeric', month: 'short' })}`)}${kv('zur Vorwoche', dl(lastE.v, weekAgo && weekAgo.v), weekAgo ? `${unit} seit ${fmtDate(weekAgo.k, { day: 'numeric', month: 'short' })}` : unit)}${kv('seit Start', dl(lastE.v, first.v), `${unit} seit ${fmtDate(first.k, { day: 'numeric', month: 'short' })}`)}</div>`;
-    const legend = `<div class="legend"><span><i class="line-key" style="background:${SERIES.one}"></i>${n}</span><span><i class="line-key" style="background:${SERIES.two}"></i>Ø der letzten 4 Messungen</span></div>`;
-    const body = lineChart({ keys: ser.map((x) => x.k), series: [{ name: n, color: SERIES.one, vals, dots: true }, { name: 'Gleitender Ø', color: SERIES.two, vals: ma }], unit, fmtY: (v) => fmt(v, 1) });
-    const table = `<tr><th>Datum</th><th>${n}</th><th>Ø 4</th></tr>` + ser.map((x, i) => `<tr><td>${shortDate(x.k)}</td><td>${fmt(x.v, 1)} ${unit}</td><td>${ma[i] != null ? fmt(ma[i], 1) : '–'}</td></tr>`).reverse().join('');
-    h += chartCard('k' + f, f === 'weight' ? 'Gewichtsverlauf' : 'Bauchumfang', '', body, table, legend);
-  }
-  return h;
-}
-
 /* ============================================================
    BLUTWERTE
    ============================================================ */
