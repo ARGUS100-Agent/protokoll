@@ -237,7 +237,7 @@ function suppSection(k) {
         <button class="tgl${on ? ' is-on' : ''}${warn ? ' is-warn' : ''}" data-a="toggle-item" data-id="${it.id}" aria-pressed="${on}">
           <span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>${esc(shortSupp(f))}</b><small>${esc(sub)}</small></span>
         </button>
-        <button class="dose" data-a="open-item" data-id="${it.id}" data-date="${k}" aria-label="Menge ${esc(shortSupp(f))} ändern">${esc(amountLabel(amt, it.u, true))}${icon('pencil')}</button>
+        <button class="dose" data-a="open-item" data-id="${it.id}" data-date="${k}" aria-label="Menge ${esc(shortSupp(f))} ändern">${esc(amountLabel(amt, itemDayUnit(it, d), true))}${icon('pencil')}</button>
       </div>`;
     }).join('')}</div>
   </section>`;
@@ -286,7 +286,7 @@ function itemRow(it, k, d, variant) {
   const amt = itemAmount(it, d, variant);
   const changed = d.amt && d.amt[it.id] != null;
   const blocked = phaseBlocks(k, f);
-  const amtTxt = amountLabel(amt, itemUnit(it, f));
+  const amtTxt = amountLabel(amt, itemShowUnit(it, d, f));
   let choice = '';
   if (it.choice) {
     const key = it.cg || it.id;
@@ -375,7 +375,7 @@ function vDetail(k) {
 }
 function searchResults() {
   const q = ui.q.trim().toLowerCase();
-  const all = Object.values(FOOD);
+  const all = Object.values(FOOD).filter((f) => !f.rt);
   if (!q) {
     const recent = recentFoods(8);
     let h = recent.length ? `<h4 class="meal-h">Zuletzt verwendet</h4><div class="list">${recent.map(foodRow).join('')}</div>` : '';
@@ -386,12 +386,15 @@ function searchResults() {
   const words = q.split(/\s+/);
   const hits = all.filter((f) => words.every((w) => (f.n + ' ' + f.cat + ' ' + [].concat(f.pl || []).join(' ')).toLowerCase().includes(w)));
   hits.sort((a, b) => (a.n.toLowerCase().startsWith(q) ? -1 : 0) - (b.n.toLowerCase().startsWith(q) ? -1 : 0) || a.n.localeCompare(b.n, 'de'));
-  if (!hits.length) return `<div class="empty"><p>Nichts gefunden für „${esc(ui.q)}“.</p><div class="row-btns center"><button class="pill-btn is-accent" data-a="frank-open" data-q="${esc(ui.q)}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new" data-name="${esc(ui.q)}">${icon('plus')}Selbst anlegen</button></div></div>`;
-  return `<div class="list">${hits.slice(0, 40).map(foodRow).join('')}</div>`;
+  // Seit 2.19 darunter der Bundeslebensmittelschlüssel (lädt beim ersten Mal)
+  const bls = blsResultsHTML(ui.q, 'search');
+  const none = `<div class="row-btns center"><button class="pill-btn is-accent" data-a="frank-open" data-q="${esc(ui.q)}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new" data-name="${esc(ui.q)}">${icon('plus')}Selbst anlegen</button></div>`;
+  if (!hits.length && !bls) return `<div class="empty"><p>Nichts gefunden für „${esc(ui.q)}“.</p>${none}</div>`;
+  return (hits.length ? `<div class="list">${hits.slice(0, 40).map(foodRow).join('')}</div>` : '') + bls + (hits.length ? '' : `<p class="hint center">Nicht dabei?</p>${none}`);
 }
 function foodRow(f) {
   const per = f.base === 1 ? `pro ${f.u[0][0]}` : isLiquid(f) ? 'pro 100 ml' : 'pro 100 g';
-  return `<button class="row" data-a="food-open" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.custom ? ` <em class="est">${f.frank ? 'Frank' : 'eigenes'}</em>` : ''}</b><small>${fmt(f.v.kcal || 0)} kcal, ${fmt(f.v.p || 0, 1)} g Protein ${per}</small></span>${icon('plus', 'row-ic')}</button>`;
+  return `<button class="row" data-a="food-open" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.custom ? ` <em class="est">${f.frank ? 'Frank' : f.bls ? 'BLS' : 'eigenes'}</em>` : f.bls ? ' <em class="est is-blue">BLS</em>' : ''}</b><small>${fmt(f.v.kcal || 0)} kcal, ${fmt(f.v.p || 0, 1)} g Protein ${per}</small></span>${icon('plus', 'row-ic')}</button>`;
 }
 function recentFoods(n) {
   const seen = new Map();
@@ -475,7 +478,7 @@ function suppEval(k) {
   const list = suppItems().filter(({ it }) => itemInVariant(it, variant));
   const open = ui.exp.has('m:supps');
   return `<section class="sec"><div class="sec-head"><h2>Supplements</h2></div><div class="mlist">
-    ${list.map(({ it }) => { const f = FOOD[it.food], on = !!d.checks[it.id]; return `<div class="mrow st-${on ? 'ok' : f.supp === 'daily' ? 'under' : 'none'}"><div class="mrow-hit is-static"><div class="mrow-top"><span class="mname">${esc(f.n)}</span><span class="mval">${on ? `<b>${fmt(itemAmount(it, d, variant), 1)}</b> <small>${esc(it.u)}</small>` : '<small>nicht genommen</small>'}</span></div><div class="mrow-meta">${on ? stBadge('ok') : f.supp === 'daily' ? stBadge('under') : '<span class="hint">bei Bedarf</span>'}</div></div></div>`; }).join('')}
+    ${list.map(({ it }) => { const f = FOOD[it.food], on = !!d.checks[it.id]; return `<div class="mrow st-${on ? 'ok' : f.supp === 'daily' ? 'under' : 'none'}"><div class="mrow-hit is-static"><div class="mrow-top"><span class="mname">${esc(f.n)}</span><span class="mval">${on ? `<b>${fmt(itemAmount(it, d, variant), 1)}</b> <small>${esc(itemDayUnit(it, d))}</small>` : '<small>nicht genommen</small>'}</span></div><div class="mrow-meta">${on ? stBadge('ok') : f.supp === 'daily' ? stBadge('under') : '<span class="hint">bei Bedarf</span>'}</div></div></div>`; }).join('')}
     <div class="mrow${open ? ' is-open' : ''}"><button class="mrow-hit" data-a="expand" data-key="m:supps"><div class="mrow-top"><span class="mname">Warum diese Supplements?</span>${icon(open ? 'chevron-down' : 'chevron-right', 'mrow-chev')}</div></button>${open ? `<div class="mrow-detail">${infoHTML('supps')}<h5>Kreatin</h5>${infoHTML('s_kreatin')}<h5>AG1</h5>${infoHTML('s_ag1')}</div>` : ''}</div>
   </div></section>`;
 }
@@ -512,23 +515,40 @@ function sheetItem(id, k) {
   if (!found) return;
   const { it } = found;
   const d = getDay(k), variant = dayVariant(k);
-  const fid = itemFoodId(it, d), food = FOOD[fid];
-  const amt = itemAmount(it, d, variant);
-  ui.sheet = { type: 'item', id, k, amt };
+  ui.sheet = { type: 'item', id, k, amt: itemAmount(it, d, variant), unit: itemDayUnit(it, d) };
+  renderItemSheet();
+}
+/* Einheiten im Mengen-Fenster eines Postens: seit 2.19 auch Gramm bzw. ml (z. B. Banane: Stück oder g) */
+function itemUnits(it, food) {
+  const base = food && food.base !== 1 ? (isLiquid(food) ? 'ml' : 'g') : null;
+  return foodUnits(food, it.u).filter((u) => !(base && (it.u === 'g' || it.u === 'ml') && u === base && u !== it.u));
+}
+function renderItemSheet() {
+  const s = ui.sheet;
+  const found = s && findItem(s.id);
+  if (!found) return;
+  const { it } = found;
+  const d = getDay(s.k), variant = dayVariant(s.k);
+  const food = FOOD[itemFoodId(it, d)];
   const def = it.av && it.av[variant] != null ? it.av[variant] : it.a;
+  const ul = (u) => (u === it.u ? itemUnit(it, food) : u);
+  const units = itemUnits(it, food);
+  const baseU = food && isLiquid(food) ? 'ml' : 'g';
+  const defG = food && food.base !== 1 && it.u !== 'g' && it.u !== 'ml' ? ` (${fmt(def * unitG(food, it.u))} ${baseU})` : '';
   openSheet(`<h3 class="sheet-title">${esc(itemLabel(it, d))}</h3>
     ${food && food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
     <div class="amount-row"><button class="step" data-a="sheet-step" data-d="-1" aria-label="Weniger">${icon('minus')}</button>
-      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(amt, 2)}" data-i="sheet-amt"><span>${esc(itemUnit(it, food))}</span></label>
+      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(s.amt, 2)}" data-i="sheet-amt"><span>${esc(ul(s.unit))}</span></label>
       <button class="step" data-a="sheet-step" data-d="1" aria-label="Mehr">${icon('plus')}</button></div>
-    <p class="hint center">Standardmenge: ${esc(amountLabel(def, itemUnit(it, food)))}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
-    ${food && food.id === 's_ag1' ? `<div class="banner is-soft">${icon('info')}<div><b>Wie viel AG1 heute passt</b><span>${esc(ag1BudgetLong(ag1Budget(k)))}</span></div></div>` : ''}
-    <div id="sh-prev">${nutPreview(food, amt * unitG(food, it.u))}</div>
+    ${units.length > 1 ? `<div class="chips center">${units.map((u) => `<button class="chip chip-sm${u === s.unit ? ' is-on' : ''}" data-a="sheet-unit" data-v="${esc(u)}">${esc(ul(u))}</button>`).join('')}</div>` : ''}
+    <p class="hint center">Standardmenge: ${esc(amountLabel(def, itemUnit(it, food)))}${defG}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
+    ${food && food.id === 's_ag1' ? `<div class="banner is-soft">${icon('info')}<div><b>Wie viel AG1 heute passt</b><span>${esc(ag1BudgetLong(ag1Budget(s.k)))}</span></div></div>` : ''}
+    <div id="sh-prev">${nutPreview(food, s.amt * unitG(food, s.unit))}</div>
     <div class="sheet-acts">
       <button class="btn is-accent" data-a="item-save" data-mode="check">Übernehmen und abhaken</button>
       <button class="btn" data-a="item-save" data-mode="amt">Nur Menge ändern</button>
       <button class="btn is-ghost" data-a="item-save" data-mode="default">Als neue Standardmenge speichern</button>
-      ${d.amt && d.amt[id] != null ? '<button class="btn is-ghost" data-a="item-save" data-mode="reset">Auf Standard zurücksetzen</button>' : ''}
+      ${d.amt && d.amt[s.id] != null ? '<button class="btn is-ghost" data-a="item-save" data-mode="reset">Auf Standard zurücksetzen</button>' : ''}
     </div>`);
 }
 function stepFor(unit, cur) {
@@ -550,6 +570,7 @@ function renderFoodSheet() {
   const blocked = phaseBlocks(s.k, food);
   openSheet(`<h3 class="sheet-title">${esc(food.n)}</h3>
     ${food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
+    ${food.bls ? `<p class="hint">Amtliche Nährwerte: Bundeslebensmittelschlüssel 4.0 (${esc(food.bls)}), Max Rubner-Institut.</p>` : ''}
     ${food.frank ? `<p class="hint">Von Frank recherchiert${food.frank.est && food.frank.est.length ? ', ein Teil geschätzt' : ''}${food.frank.src && food.frank.src.length ? `. Quellen: ${frankSrcLinks(food.frank.src)}` : ''}</p>` : ''}
     ${blocked ? `<div class="banner is-warn">${icon('triangle-alert')}<div><b>${esc(blocked.n)} im Haut-Protokoll</b><span>${esc(blocked.rules.join(', '))}</span></div></div>` : ''}
     ${s.entryId ? '' : swapHTML(food)}

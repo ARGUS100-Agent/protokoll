@@ -240,6 +240,48 @@ function migrate216() {
   markDirty('settings'); invalidate();
 }
 
+/* 2.19 (19.11.2026): ESN Super Omega-3 ersetzt das Algenöl (3 Kapseln, an Tagen mit Makrele 2), ESN Ashwa+ abends
+   (2 Kapseln). Frühere Tage behalten Algenöl und Menge (st.o3Old, o3Pin – greift auch nach einem Backup-Import).
+   Omega-3-Ziel bis 2,5 g, damit 3 Kapseln (2,1 g) im Ziel liegen; Einkauf: Hinweis Omega-3, Ashwagandha zuhause. */
+function migrate219() {
+  const st = S.settings;
+  if (!st || (st.mig || 0) >= 219) return;
+  const def = (id) => DEFAULT_PLAN.flatMap((b) => b.items).find((x) => x.id === id);
+  const hit = findItem('f_omega3');
+  if (hit && hit.it.food === 's_omega3') {
+    const it = hit.it, d = def('f_omega3');
+    st.o3Old = { food: it.food, a: it.a, u: it.u, av: it.av ? clone(it.av) : null, since: todayKey() };
+    Object.assign(it, { food: d.food, a: d.a, u: d.u, av: clone(d.av), hint: d.hint });
+  }
+  if (!findItem('s_ashwa')) { const blk = (st.plan || []).find((b) => b.id === 'schlaf'); if (blk) blk.items.push(clone(def('s_ashwa'))); }
+  const o3 = st.targets && st.targets.o3;
+  if (o3 && o3.lo === 1 && o3.hi === 2) o3.hi = 2.5;
+  if (S.shop && Array.isArray(S.shop.items)) {
+    const om = S.shop.items.find((x) => x.sid === 'h:Omega-3');
+    if (om && (!om.tip || om.tip === 'Algenöl')) om.tip = shopDef('h:Omega-3').tip;
+    if (!S.shop.items.some((x) => x.sid === 'h:Ashwagandha')) S.shop.items.push(shopNew(shopDef('h:Ashwagandha')));
+    markDirty('shop');
+  }
+  st.mig = 219;
+  markDirty('settings');
+  o3Pin();
+  invalidate();
+}
+/* Tage vor dem Wechsel: Omega-3 bleibt das Algenöl mit der damaligen Menge (mehrfach aufrufbar) */
+function o3Pin() {
+  const o = S.settings && S.settings.o3Old;
+  if (!o) return;
+  for (const [k, d] of Object.entries(S.days || {})) {
+    if (k >= o.since || !d || !d.checks || !d.checks.f_omega3 || (d.choice && d.choice.f_omega3)) continue;
+    d.choice = { ...(d.choice || {}), f_omega3: o.food };
+    d.amt = d.amt || {};
+    if (d.amt.f_omega3 == null) d.amt.f_omega3 = o.av && o.av[dayVariant(k)] != null ? o.av[dayVariant(k)] : o.a;
+    d.amtU = { ...(d.amtU || {}), f_omega3: o.u };
+    markDirty('day:' + k);
+  }
+  invalidate();
+}
+
 /* ---------- Bereiche ---------- */
 function areaById(id) { return AREAS.find((a) => a.id === id) || (id === 'mehr' ? MORE_TAB : null); }
 function navTabs() {

@@ -24,6 +24,7 @@ node tests/v214.js /tmp/out      # 2.14: Statistik ab dem ersten eigenen Eintrag
 node tests/v216.js /tmp/out      # 2.16: Trendgewicht, Gewichts-Erklärer, Körpermaße, Phase, Recomp-Ampel, Monatskarte, Physique-Fotos mit Schablone (Kamera), Fotos im Backup, Morgen-Check mit Koffein/Essen/Stimmung/lernender Routine
 node tests/v217.js /tmp/out      # 2.17: Bestwerte, Muskel-Karte, relative Kraft, Aufwärm-/Scheibenrechner, Pausen-Timer, Block/Deload, Technik-Notiz, Formcheck, Knie-Schmerzort/Auslöser, Sprung-Symmetrie, Alltagscheck, Garmin „Sonstiges“, BJJ-Journal mit Technik-Karten, Athletik-Profil, Ausdauer-Test, Ergometer-Programm
 node tests/v218.js /tmp/out      # 2.18: Bereitschaft 2.0 (HRV-7-Tage), Infekt-Frühwarnung, Schlaf-Prognose, Eiweiß Phase 2, Eiweiß pro Mahlzeit, Natrium, Kosten, Meilensteine, Ziele mit Prognose, Monatsbericht, Rückblick, Daten-Labor, CSV, Fokus-Blöcke, Wissens-Karten
+node tests/v219.js /tmp/out      # 2.19: Gramm für jeden Posten (Tageseinheit, neue Standardmenge, Einheit im Editor – frühere Tage behalten ihren Wert), ESN Super Omega-3 statt Algenöl mit Verlauf (auch nach Backup-Import), ESN Ashwa+ abends, Bundeslebensmittelschlüssel 4.0 (Suche, Eintragen, Getränke, Abgleich mit Vergleich, Posten hinzufügen, Quelle)
 ```
 
 `upgrade.js` prüft das Update einer alten Version mit Daten auf die aktuelle (alte `docs/` per `git archive` in einen Ordner, Symlink `cur` darauf, Server auf Port 8768 mit `--directory <ordner>/cur`, dann `node tests/upgrade.js <ordner>`).
@@ -31,3 +32,5 @@ node tests/v218.js /tmp/out      # 2.18: Bereitschaft 2.0 (HRV-7-Tage), Infekt-F
 `upgrade2.js` prüft genauso das Update von 2.0.0 (Schema 2) auf die aktuelle Version: Kiwi/Schokolade/Rote Bete behalten an alten Tagen ihr Lebensmittel, Einkaufsliste bekommt Läden und den Einkaufsstand (Server auf Port 8769).
 
 `upgrade3.js` prüft das Update von 2.2.0 auf die aktuelle Version mit dem Vorrat (Server auf Port 8770).
+
+Die BLS-Datei `data/bls40.json` entsteht mit `python3 tools/bls_build.py BLS_4_0_Daten_2025_DE.xlsx` (Download beim Max Rubner-Institut, blsdb.de); `build.py` kopiert sie nach `docs/`.

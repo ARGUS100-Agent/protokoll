@@ -35,7 +35,7 @@ const INFO = {
     wofuer: 'Hormone (Testosteron), Zellmembranen, Gehirn, Aufnahme der Vitamine A, D, E und K.',
     ziel: '30–33 % der Kalorien (bei 3.100 kcal ca. 100–115 g), nicht unter ca. 70 g (0,8 g/kg).',
     max: '35 % der Kalorien. Darüber verdrängt Fett die Kohlenhydrate, die du fürs Training brauchst.',
-    quellen: 'Basis einfach ungesättigt: Olivenöl extra vergine, Mandeln, Avocado. Omega-3: Makrele, Algenöl, Leinsamen. Omega-6 aus Nüssen und Kernen ist okay, nicht aus Frittierfett. Transfette meiden.',
+    quellen: 'Basis einfach ungesättigt: Olivenöl extra vergine, Mandeln, Avocado. Omega-3: Makrele, Fischöl-Kapseln, Leinsamen. Omega-6 aus Nüssen und Kernen ist okay, nicht aus Frittierfett. Transfette meiden.',
     timing: 'Fettlösliche Vitamine und Supplements (D3, K2, Omega-3) zu einer fetthaltigen Mahlzeit. Direkt vor dem Training eher wenig Fett, es verlangsamt die Verdauung.',
     studien: 'Whittaker & Wu 2021 (Meta-Analyse): Fettarme Ernährung senkt das Testosteron bei Männern leicht. PREDIMED (NEJM 2018): Mittelmeerkost mit Olivenöl extra vergine ≈ 30 % weniger Herz-Kreislauf-Ereignisse.',
     plan: 'Beschlossen: Walnüsse reduziert, dafür 30 g Mandeln. Größte Fettquellen: Prepmymeal, Nüsse und Kerne, Eier, Olivenöl, Schokolade.',
@@ -277,10 +277,10 @@ const INFO = {
   o3: {
     was: 'Langkettige Omega-3-Fettsäuren EPA und DHA. ALA aus Leinsamen wird nur zu ca. 5–10 % in EPA umgewandelt und zählt hier nicht mit.',
     wofuer: 'EPA wirkt entzündungshemmend, unterstützt Herz, Gehirn und Stimmung; DHA für Gehirn und Sehkraft. Gleicht das Omega-6-Übergewicht der üblichen Ernährung aus.',
-    ziel: 'Ca. 1–2 g EPA+DHA pro Tag (offizieller Bedarf unbekannt).',
+    ziel: 'Ca. 1–2,5 g EPA+DHA pro Tag (offizieller Bedarf unbekannt).',
     max: 'EFSA: bis 5 g EPA+DHA pro Tag unbedenklich.',
-    quellen: 'Sunday Natural Omega-3 Algenöl (EPA-betont): 1 Tagesdosis = 576 mg EPA + 324 mg DHA, TOTOX ca. 6 laut Laborbericht. Makrele (ca. 2,2 g pro Dose), Lachs, Sardinen.',
-    timing: 'Morgens zu den Eiern, zusammen mit den D3/K2-Tropfen. 2 Tagesdosen, an Makrele-Tagen 1.',
+    quellen: 'ESN Super Omega-3 (Fischöl): 3 Kapseln = 1.200 mg EPA + 900 mg DHA. Makrele (ca. 2,2 g pro Dose), Lachs, Sardinen. Bis November 2026: Sunday Natural Algenöl (1 Tagesdosis = 576 mg EPA + 324 mg DHA).',
+    timing: 'Morgens zu den Eiern, zusammen mit den D3/K2-Tropfen (fetthaltige Mahlzeit). 3 Kapseln, an Tagen mit Makrele 2.',
     huberman: '1–3 g EPA pro Tag, EPA-betont.',
     studien: 'Liao et al. 2019 (Meta-Analyse): EPA-betonte Präparate (mind. 60 % EPA) verbessern depressive Symptome. REDUCE-IT 2019: 4 g EPA pro Tag senkten Herz-Kreislauf-Ereignisse bei Risikopatienten um 25 %.',
   },
@@ -303,9 +303,23 @@ const INFO = {
 
   /* Supplements */
   supps: {
-    was: 'So wenig wie nötig supplementieren, so viel wie möglich über Lebensmittel. Täglich: D3+K2, Omega-3, Kreatin. Bei Bedarf: AG1 (alle paar Tage), Magnesium-Threonat, Zink-Lutschtabletten.',
+    was: 'So wenig wie nötig supplementieren, so viel wie möglich über Lebensmittel. Täglich: D3+K2, Omega-3 (ESN Super Omega-3), Kreatin, Ashwagandha (ESN Ashwa+, abends). Bei Bedarf: AG1 (alle paar Tage), Magnesium-Threonat, Zink-Lutschtabletten.',
     zaehlung: 'Supplements zählen erst, wenn du sie abhakst; dann fließen ihre Nährstoffe in die Tageswerte. Die Supplement-Serie zählt nur die täglichen.',
-    plan: 'Bezugsquelle künftig bevorzugt Sunday Natural (Laboranalysen veröffentlicht).',
+    plan: 'Omega-3 und Ashwagandha seit November 2026 von ESN, sonst bevorzugt Sunday Natural (Laboranalysen veröffentlicht).',
+  },
+  s_omega3_esn: {
+    was: 'Fischöl-Konzentrat in Weichkapseln (Hülle aus Rindergelatine). Pro Kapsel 400 mg EPA + 300 mg DHA, 3 Kapseln = 2,1 g.',
+    timing: 'Zu einer Mahlzeit mit Fett, bei dir zu den Eiern. 3 Kapseln, an Tagen mit Makrele 2 (eine Dose liefert selbst ca. 2,2 g).',
+    max: 'EFSA: bis 5 g EPA+DHA pro Tag unbedenklich. An Makrele-Tagen kommst du auf ca. 3,6 g.',
+    zaehlung: 'EPA und DHA zählen ins Omega-3-Ziel (1–2,5 g pro Tag).',
+  },
+  s_ashwagandha: {
+    was: 'Wurzelextrakt der Schlafbeere (Withania somnifera), Markenextrakt KSM-66. ESN Ashwa+: 2 Kapseln = 600 mg Extrakt (30 mg Withanolide), dazu 62 mg Magnesium, 2 mg Zink und 0,22 mg Vitamin B6.',
+    vorteile: 'Kleine, teils von Herstellern finanzierte Studien zeigen etwas weniger Stress und besseren Schlaf. Die Meta-Analyse von Cheah 2021 (5 Studien, 400 Personen) fand einen kleinen Effekt auf den Schlaf, am deutlichsten ab 600 mg täglich über mindestens 8 Wochen und bei Schlafstörungen.',
+    max: 'BfR (Mitteilung 39/2024): Fallberichte über Leberschäden, mögliche Effekte auf Schilddrüsen- und Sexualhormone, Blutzucker und Cortisol. Kinder, Schwangere, Stillende und Menschen mit Lebererkrankung sollen verzichten, allen anderen rät das BfR zur Zurückhaltung. Wechselwirkungen mit Mitteln gegen Diabetes, Bluthochdruck und mit Immunsuppressiva sind möglich. Bei dunklem Urin, gelblicher Haut oder Augen, Juckreiz oder Oberbauchschmerzen absetzen und ärztlich abklären lassen.',
+    timing: 'Abends 2 Kapseln mit reichlich Wasser (Hersteller: vorzugsweise zu einer Mahlzeit). Tagesdosis nicht überschreiten.',
+    zaehlung: 'Zählt 62 mg Magnesium, 2 mg Zink und 0,22 mg B6 mit. Das Magnesium gehört zur Grenze von 250 mg aus Supplements: zusammen mit Mg-Threonat 206 mg, mit AG1 dazu knapp darüber.',
+    plan: 'Ob es dir etwas bringt, siehst du am ehesten nach 8 Wochen im Verlauf von Schlaf, HRV und Stress.',
   },
   s_kreatin: {
     was: 'Speicher für schnelle Energie (Phosphokreatin) in Muskeln und Gehirn.',

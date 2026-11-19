@@ -105,8 +105,9 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
   ok(pp0.some((x) => x.startsWith('abend-11-16')) && pp0.some((x) => x.startsWith('mcheck-11-17') && x.endsWith('|#mcheck')) && !pp0.some((x) => x.startsWith('h-warmdusche') || x.startsWith('knie')), 'Mitteilungen: abends eine Erinnerung, morgens der Morgen-Check (' + pp0.join(', ') + ')');
   await shot('v214-01-heute');
   await page.click('#mcheck [data-a="mc-all"]'); await page.clock.runFor(200);
-  const y = await ev(() => { const d = getDay('2026-11-15'); return { pm: !!d.skin.pflege_pm, mg: !!d.checks.s_mg, mgT: (d.ct || {}).s_mg, h: ['bildschirm', 'mahlzeit', 'warm_dusche'].every((x) => d.habits[x]), mc: d.mc }; });
-  ok(y.pm && y.mg && /^\d\d:\d\d$/.test(y.mgT || '') && y.h && Object.values(y.mc).every((v) => v === 1), `„Alles ja“: Hautpflege, Magnesium (${y.mgT}), Bildschirm, Mahlzeit, Dusche für gestern eingetragen`);
+  // seit 2.19 steht im Block „Vor dem Schlafen“ Ashwagandha als fester Posten (Magnesium bleibt optional)
+  const y = await ev(() => { const d = getDay('2026-11-15'); const its = rtBlockItems(S.settings.plan.find((b) => b.id === 'schlaf'), dayVariant('2026-11-15')); return { pm: !!d.skin.pflege_pm, mg: its.length > 0 && its.every((it) => d.checks[it.id]), mgT: (d.ct || {})[its[0] && its[0].id], ids: its.map((it) => it.id).join(), h: ['bildschirm', 'mahlzeit', 'warm_dusche'].every((x) => d.habits[x]), mc: d.mc }; });
+  ok(y.pm && y.mg && y.ids === 's_ashwa' && /^\d\d:\d\d$/.test(y.mgT || '') && y.h && Object.values(y.mc).every((v) => v === 1), `„Alles ja“: Hautpflege, Vor dem Schlafen (${y.ids} ${y.mgT}), Bildschirm, Mahlzeit, Dusche für gestern eingetragen`);
   await page.click('#mcheck [data-a="knee-am"][data-v="2"]'); await page.clock.runFor(100);
   await page.click('#mcheck [data-a="skin-score"][data-v="6"]'); await page.clock.runFor(100);
   ok(!!(await page.$('#mcheck')), 'Ohne Gewicht noch offen');

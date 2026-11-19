@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.18.0';
+const APP_VERSION = '2.19.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -73,7 +73,7 @@ const DEFAULT_TARGETS = {
   cu:     { lo: 1.5, max: 5 },
   cho:    { lo: 400, hi: 550 },
   na:     { lo: 1500, hi: 4000, max: 6000 },
-  o3:     { lo: 1, hi: 2, max: 5 },
+  o3:     { lo: 1, hi: 2.5, max: 5 },  // seit 2.19 bis 2,5 g: 3 Kapseln ESN Super Omega-3 = 2,1 g
   caf:    { max: 400 },
   pre:    { lo: 5 },
   pp:     { lo: 10 },
@@ -123,6 +123,9 @@ const FOODS = [
   /* Supplements (Werte pro Einheit) */
   { id: 's_d3k2', n: 'D3 + K2 Tropfen (AG1)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Tropfen', 1]], v: { vd: 12.5, vk: 50, k2: 50 } },
   { id: 's_omega3', n: 'Omega-3 Algenöl (Sunday Natural)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Tagesdosis', 1]], v: { kcal: 13, f: 1.44, sf: 0.1, epa: 0.576, dha: 0.324 } },
+  /* seit 19.11.2026 (Herstellerangaben): ESN Super Omega-3, 3 Kapseln = 1.200 mg EPA + 900 mg DHA; ESN Ashwa+, 2 Kapseln = 600 mg KSM-66 + 62 mg Mg, 2 mg Zink, 0,22 mg B6 */
+  { id: 's_omega3_esn', n: 'ESN Super Omega-3 (Fischöl)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Kapsel', 1]], v: { kcal: 10, f: 1, epa: 0.4, dha: 0.3 } },
+  { id: 's_ashwagandha', n: 'ESN Ashwa+ (Ashwagandha KSM-66)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Kapsel', 1]], v: { mg: 31, zn: 1, b6: 0.11 } },
   { id: 's_kreatin', n: 'Kreatin (Monohydrat)', cat: 'Supplements', base: 1, supp: 'daily', u: [['g', 1]], v: {} },
   { id: 's_ag1', n: 'AG1 (EU-Rezeptur, 13 g)', cat: 'Supplements', base: 1, supp: 'opt', tags: ['ag1'], pp: 1, pre: 1, u: [['Portion', 1]], v: { kcal: 41, p: 2.6, f: 0.9, sf: 0.3, c: 4.4, sug: 1.2, fib: 2.5, na: 40, ca: 120, mg: 57, se: 22, zn: 10, cu: 0.2, vc: 420, va: 250, ve: 32, b12: 50, fol: 300, b6: 5, cho: 20 } },
   { id: 's_mg_threonat', n: 'Magnesium-L-Threonat', cat: 'Supplements', base: 1, supp: 'opt', u: [['Dosis (144 mg Mg)', 1]], v: { mg: 144 } },
@@ -288,7 +291,7 @@ const DEFAULT_PLAN = [
     { id: 'f_kiwi', food: 'kiwi_gold', choice: ['kiwi_gold', 'kiwi'], a: 1, u: 'Stück', label: 'Kiwi' },
     { id: 'f_ferm', food: 'sauerkraut', choice: ['sauerkraut', 'kimchi'], a: 40, u: 'g', label: 'Sauerkraut oder Kimchi' },
     { id: 'f_d3k2', food: 's_d3k2', a: 4, u: 'Tropfen', hint: 'zu den Eiern (fettlöslich)' },
-    { id: 'f_omega3', food: 's_omega3', a: 2, u: 'Tagesdosis', av: { doener: 1, makrele: 1 }, hint: 'an Makrele-Tagen 1' },
+    { id: 'f_omega3', food: 's_omega3_esn', a: 3, u: 'Kapsel', av: { doener: 2, makrele: 2 }, hint: 'zu den Eiern; an Tagen mit Makrele 2' },
   ] },
   { id: 'mittag', n: 'Mittag', time: '13:00', items: [
     { id: 'l_doener', food: 'doener', a: 1, u: 'Stück', label: 'Döner', v: ['doener'], hint: 'Uni-Tag' },
@@ -319,6 +322,7 @@ const DEFAULT_PLAN = [
   ] },
   { id: 'schlaf', n: 'Vor dem Schlafen', time: '21:45', items: [
     { id: 's_mg', food: 's_mg_threonat', a: 1, u: 'Dosis (144 mg Mg)', opt: true, hint: 'nur an Tagen mit wenig Magnesium aus Lebensmitteln' },
+    { id: 's_ashwa', food: 's_ashwagandha', a: 2, u: 'Kapsel', hint: 'Hinweise des BfR unter Supplements' },
   ] },
   { id: 'getraenke', n: 'Getränke über den Tag', time: null, items: [
     { id: 'g_osaft', food: 'o_saft', a: 250, u: 'ml', hint: 'am besten zum Frühstück (Eisenaufnahme)' },
@@ -466,7 +470,7 @@ const TIP_FOODS = {
   k: [['banane', 240, 120], ['kokoswasser', 330, 330], ['datteln', 60, 10], ['kartoffeln', 300, 100]],
   cu: [['kuerbiskerne', 30, 5], ['cashews', 30, 10], ['kakaonibs', 15, 5]],
   cho: [['ei', 110, 55], ['skyr', 300, 50]],
-  o3: [['s_omega3', 2, 1], ['makrele', 120, 120]],
+  o3: [['s_omega3_esn', 3, 1], ['makrele', 120, 120]],
   pre: [['haferflocken', 60, 10], ['zwiebel', 80, 40], ['knoblauch', 8, 4], ['banane', 120, 120]],
   pp: [['heidelbeeren', 150, 50], ['schokolade90', 20, 10], ['gruener_tee', 500, 250]],
   ferm: [['sauerkraut', 40, 40], ['kimchi', 40, 40], ['kefir', 150, 150], ['kombucha', 250, 250], ['joghurt', 150, 150]],

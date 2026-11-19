@@ -350,11 +350,11 @@ const SET_VIEWS = {
   },
   foods() {
     const q = ui.setQ.trim().toLowerCase();
-    const list = Object.values(FOOD).filter((f) => !q || f.n.toLowerCase().includes(q)).sort((a, b) => (b.est ? 1 : 0) - (a.est ? 1 : 0) || a.cat.localeCompare(b.cat, 'de') || a.n.localeCompare(b.n, 'de'));
-    return `<p class="hint">Alle Werte pro 100 g bzw. 100 ml, bei Supplements pro Einheit. Schätzwerte (Prepmymeal, Döner) stehen oben. Geänderte Werte sind markiert und lassen sich zurücksetzen.</p>
+    const list = Object.values(FOOD).filter((f) => !f.rt && (!q || f.n.toLowerCase().includes(q))).sort((a, b) => (b.est ? 1 : 0) - (a.est ? 1 : 0) || a.cat.localeCompare(b.cat, 'de') || a.n.localeCompare(b.n, 'de'));
+    return `<p class="hint">Alle Werte pro 100 g bzw. 100 ml, bei Supplements pro Einheit. Schätzwerte (Prepmymeal, Döner) stehen oben. Geänderte Werte sind markiert und lassen sich zurücksetzen. Auf amtliche Werte umstellen: Lebensmittel antippen → „Mit BLS 4.0 abgleichen“.</p>
       <div class="row-btns"><button class="pill-btn is-accent" data-a="food-new">${icon('plus')}Neues Lebensmittel</button><button class="pill-btn" data-a="food-new" data-supp="1">${icon('pill')}Neues Supplement</button></div>
       <div class="search"><span>${icon('search')}</span><input type="search" placeholder="Lebensmittel suchen" data-i="set-search" value="${esc(ui.setQ)}"></div>
-      <div class="list" id="set-foods">${list.slice(0, 60).map((f) => `<button class="row" data-a="food-edit" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.edited ? ' <em class="est">geändert</em>' : ''}${f.custom ? ' <em class="est">eigenes</em>' : ''}</b><small>${esc(f.cat)}, ${fmt(f.v.kcal || 0)} kcal</small></span>${icon('pencil', 'row-ic')}</button>`).join('')}</div>`;
+      <div class="list" id="set-foods">${list.slice(0, 60).map((f) => `<button class="row" data-a="food-edit" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.edited ? ` <em class="est${f.bls ? ' is-blue' : ''}">${f.bls ? 'BLS-Werte' : 'geändert'}</em>` : ''}${f.custom ? ` <em class="est">${f.bls ? 'BLS' : 'eigenes'}</em>` : ''}</b><small>${esc(f.cat)}, ${fmt(f.v.kcal || 0)} kcal</small></span>${icon('pencil', 'row-ic')}</button>`).join('')}</div>`;
   },
   haut() {
     const sk = S.settings.skin;
@@ -387,7 +387,7 @@ const SET_VIEWS = {
   about() {
     return `<h5>Auf dem iPhone installieren</h5><ol class="steps"><li>Die Web-Adresse der App in Safari öffnen.</li><li>Unten auf „Teilen“ tippen (Quadrat mit Pfeil).</li><li>„Zum Home-Bildschirm“ wählen, „Als Web-App öffnen“ aktiviert lassen, dann „Hinzufügen“.</li><li>Ab jetzt die App über das Icon öffnen: Vollbild und offline nutzbar.</li></ol>
       <h5>Updates</h5><p class="hint">Neue Versionen kommen automatisch: Beim nächsten Öffnen mit Internet holt sich die App die neueste Version, deine Daten bleiben dabei erhalten. Läuft die App gerade im Hintergrund, erscheint auf „Heute“ der Knopf „Neu laden“.</p>
-      <h5>Wichtig</h5><p class="hint">Diese App ersetzt keine ärztliche Beratung. Nährwerte stammen aus USDA FoodData Central, dem Bundeslebensmittelschlüssel und Herstellerangaben (AG1 EU-Rezeptur, Prepmymeal) und sind gerundete Durchschnittswerte. Prepmymeal und Döner sind Schätzungen. Präbiotika- und Polyphenol-Punkte sind grobe Orientierungswerte.</p>
+      <h5>Wichtig</h5><p class="hint">Diese App ersetzt keine ärztliche Beratung. Nährwerte stammen aus USDA FoodData Central, dem Bundeslebensmittelschlüssel und Herstellerangaben (AG1 EU-Rezeptur, Prepmymeal, ESN) und sind gerundete Durchschnittswerte. Die Suche nach amtlichen Werten nutzt den Bundeslebensmittelschlüssel 4.0: ${esc(BLS_SRC)} Frei nutzbar laut Nutzungsbedingungen des Max Rubner-Instituts. Prepmymeal und Döner sind Schätzungen. Präbiotika- und Polyphenol-Punkte sind grobe Orientierungswerte.</p>
       <h5>Datenschutz</h5><p class="hint">Keine Konten, keine Server, keine Analyse. Alles bleibt im Speicher dieses Browsers auf deinem iPhone. Wenn du die App vom Home-Bildschirm löschst, sind auch die Daten weg; deshalb Backups.</p>`;
   },
 };
@@ -414,6 +414,8 @@ function sheetFoodEdit(fid, opts = {}) {
         <div class="frow"><span class="flabel">Präbiotika-Punkte /100 g</span><div class="fin"><input type="text" inputmode="decimal" id="fe-pre" value="${numIn(f.pre, 2)}"></div></div>
         <div class="frow"><span class="flabel">Fermentiert: Portion (g)</span><div class="fin"><input type="text" inputmode="decimal" id="fe-ferm" value="${numIn(f.ferm, 0)}" placeholder="nein"></div></div>`}
     </div>
+    ${f.bls ? `<p class="hint">Werte aus dem Bundeslebensmittelschlüssel 4.0 (${esc(f.bls)}).</p>` : ''}
+    ${!isNew && f.base !== 1 ? `<button class="pill-btn" data-a="bls-match" data-id="${esc(f.id)}">${icon('database')}Mit BLS 4.0 abgleichen</button>` : ''}
     <h5>Nährwerte ${per}</h5>
     <div class="fe-grid">${EDIT_KEYS.map((k) => { const n = NUTRIENTS[k]; const unit = k === 'vd' ? 'µg' : n.u; return `<label><span>${esc(n.n)} <small>${esc(unit)}</small></span><input type="text" inputmode="decimal" data-fe="${k}" value="${numIn(f.v[k], 3)}" placeholder="0"></label>`; }).join('')}</div>
     <p class="hint">Vitamin D in µg (1 µg = 40 IE).</p>
@@ -427,6 +429,6 @@ function sheetPickFood(blockId) {
 }
 function pickResults(q) {
   q = q.trim().toLowerCase();
-  const list = Object.values(FOOD).filter((f) => !q || f.n.toLowerCase().includes(q)).slice(0, 40);
-  return list.map((f) => `<button class="row" data-a="pe-pick" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}</b><small>${esc(f.cat)}</small></span>${icon('plus', 'row-ic')}</button>`).join('');
+  const list = Object.values(FOOD).filter((f) => !f.rt && (!q || f.n.toLowerCase().includes(q))).slice(0, 40);
+  return list.map((f) => `<button class="row" data-a="pe-pick" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}</b><small>${esc(f.cat)}</small></span>${icon('plus', 'row-ic')}</button>`).join('') + blsResultsHTML(q, 'pick');
 }

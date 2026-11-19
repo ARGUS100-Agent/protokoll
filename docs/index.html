@@ -1383,6 +1383,15 @@ html.noscroll .rest-bar { display: none; }
 .know-a { font-size: 15px; margin: 6px 0 10px; padding: 10px 12px; border-radius: 12px; background: var(--bg-3); }
 #focus-topic { width: 100%; max-width: 320px; }
 
+/* ---------- 2.19: Gramm für jeden Posten, BLS 4.0 ---------- */
+.bls-h { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.bls-note { display: flex; align-items: center; gap: 6px; margin: 12px 2px; }
+.bls-note svg { width: 16px; height: 16px; flex: none; }
+.bls-cmp td small { color: var(--ink-3); font-size: 11.5px; }
+.bls-cmp td:nth-child(2), .bls-cmp td:nth-child(3), .bls-cmp th:nth-child(2), .bls-cmp th:nth-child(3) { text-align: right; }
+.bls-cmp tr.is-diff td { background: var(--accent-soft); }
+.bls-cmp tr.is-diff td:last-child { color: var(--accent); font-weight: 650; }
+
 </style>
 </head>
 <body>
@@ -1426,6 +1435,7 @@ const ICONS = {
   'clock': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" /></svg>',
   'coffee': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" /></svg>',
   'copy': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /> <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>',
+  'database': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3" /> <path d="M3 5V19A9 3 0 0 0 21 19V5" /> <path d="M3 12A9 3 0 0 0 21 12" /></svg>',
   'download': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <path d="m7 10 5 5 5-5" /></svg>',
   'droplet': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg>',
   'dumbbell': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z" /> <path d="m2.5 21.5 1.4-1.4" /> <path d="m20.1 3.9 1.4-1.4" /> <path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z" /> <path d="m9.6 14.4 4.8-4.8" /></svg>',
@@ -1524,7 +1534,7 @@ const ICONS = {
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.18.0';
+const APP_VERSION = '2.19.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung
@@ -1592,7 +1602,7 @@ const DEFAULT_TARGETS = {
   cu:     { lo: 1.5, max: 5 },
   cho:    { lo: 400, hi: 550 },
   na:     { lo: 1500, hi: 4000, max: 6000 },
-  o3:     { lo: 1, hi: 2, max: 5 },
+  o3:     { lo: 1, hi: 2.5, max: 5 },  // seit 2.19 bis 2,5 g: 3 Kapseln ESN Super Omega-3 = 2,1 g
   caf:    { max: 400 },
   pre:    { lo: 5 },
   pp:     { lo: 10 },
@@ -1642,6 +1652,9 @@ const FOODS = [
   /* Supplements (Werte pro Einheit) */
   { id: 's_d3k2', n: 'D3 + K2 Tropfen (AG1)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Tropfen', 1]], v: { vd: 12.5, vk: 50, k2: 50 } },
   { id: 's_omega3', n: 'Omega-3 Algenöl (Sunday Natural)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Tagesdosis', 1]], v: { kcal: 13, f: 1.44, sf: 0.1, epa: 0.576, dha: 0.324 } },
+  /* seit 19.11.2026 (Herstellerangaben): ESN Super Omega-3, 3 Kapseln = 1.200 mg EPA + 900 mg DHA; ESN Ashwa+, 2 Kapseln = 600 mg KSM-66 + 62 mg Mg, 2 mg Zink, 0,22 mg B6 */
+  { id: 's_omega3_esn', n: 'ESN Super Omega-3 (Fischöl)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Kapsel', 1]], v: { kcal: 10, f: 1, epa: 0.4, dha: 0.3 } },
+  { id: 's_ashwagandha', n: 'ESN Ashwa+ (Ashwagandha KSM-66)', cat: 'Supplements', base: 1, supp: 'daily', u: [['Kapsel', 1]], v: { mg: 31, zn: 1, b6: 0.11 } },
   { id: 's_kreatin', n: 'Kreatin (Monohydrat)', cat: 'Supplements', base: 1, supp: 'daily', u: [['g', 1]], v: {} },
   { id: 's_ag1', n: 'AG1 (EU-Rezeptur, 13 g)', cat: 'Supplements', base: 1, supp: 'opt', tags: ['ag1'], pp: 1, pre: 1, u: [['Portion', 1]], v: { kcal: 41, p: 2.6, f: 0.9, sf: 0.3, c: 4.4, sug: 1.2, fib: 2.5, na: 40, ca: 120, mg: 57, se: 22, zn: 10, cu: 0.2, vc: 420, va: 250, ve: 32, b12: 50, fol: 300, b6: 5, cho: 20 } },
   { id: 's_mg_threonat', n: 'Magnesium-L-Threonat', cat: 'Supplements', base: 1, supp: 'opt', u: [['Dosis (144 mg Mg)', 1]], v: { mg: 144 } },
@@ -1807,7 +1820,7 @@ const DEFAULT_PLAN = [
     { id: 'f_kiwi', food: 'kiwi_gold', choice: ['kiwi_gold', 'kiwi'], a: 1, u: 'Stück', label: 'Kiwi' },
     { id: 'f_ferm', food: 'sauerkraut', choice: ['sauerkraut', 'kimchi'], a: 40, u: 'g', label: 'Sauerkraut oder Kimchi' },
     { id: 'f_d3k2', food: 's_d3k2', a: 4, u: 'Tropfen', hint: 'zu den Eiern (fettlöslich)' },
-    { id: 'f_omega3', food: 's_omega3', a: 2, u: 'Tagesdosis', av: { doener: 1, makrele: 1 }, hint: 'an Makrele-Tagen 1' },
+    { id: 'f_omega3', food: 's_omega3_esn', a: 3, u: 'Kapsel', av: { doener: 2, makrele: 2 }, hint: 'zu den Eiern; an Tagen mit Makrele 2' },
   ] },
   { id: 'mittag', n: 'Mittag', time: '13:00', items: [
     { id: 'l_doener', food: 'doener', a: 1, u: 'Stück', label: 'Döner', v: ['doener'], hint: 'Uni-Tag' },
@@ -1838,6 +1851,7 @@ const DEFAULT_PLAN = [
   ] },
   { id: 'schlaf', n: 'Vor dem Schlafen', time: '21:45', items: [
     { id: 's_mg', food: 's_mg_threonat', a: 1, u: 'Dosis (144 mg Mg)', opt: true, hint: 'nur an Tagen mit wenig Magnesium aus Lebensmitteln' },
+    { id: 's_ashwa', food: 's_ashwagandha', a: 2, u: 'Kapsel', hint: 'Hinweise des BfR unter Supplements' },
   ] },
   { id: 'getraenke', n: 'Getränke über den Tag', time: null, items: [
     { id: 'g_osaft', food: 'o_saft', a: 250, u: 'ml', hint: 'am besten zum Frühstück (Eisenaufnahme)' },
@@ -1985,7 +1999,7 @@ const TIP_FOODS = {
   k: [['banane', 240, 120], ['kokoswasser', 330, 330], ['datteln', 60, 10], ['kartoffeln', 300, 100]],
   cu: [['kuerbiskerne', 30, 5], ['cashews', 30, 10], ['kakaonibs', 15, 5]],
   cho: [['ei', 110, 55], ['skyr', 300, 50]],
-  o3: [['s_omega3', 2, 1], ['makrele', 120, 120]],
+  o3: [['s_omega3_esn', 3, 1], ['makrele', 120, 120]],
   pre: [['haferflocken', 60, 10], ['zwiebel', 80, 40], ['knoblauch', 8, 4], ['banane', 120, 120]],
   pp: [['heidelbeeren', 150, 50], ['schokolade90', 20, 10], ['gruener_tee', 500, 250]],
   ferm: [['sauerkraut', 40, 40], ['kimchi', 40, 40], ['kefir', 150, 150], ['kombucha', 250, 250], ['joghurt', 150, 150]],
@@ -2124,7 +2138,7 @@ const SHOP_DEFAULT = {
   ],
   home: [
     ['Vorrat', 'Prepmymeal', '', 'online', 'rechtzeitig nachbestellen'], ['Vorrat', 'Flohsamenschalen', '', 'dm', ''], ['Vorrat', 'Kreatin', '', 'online', 'Monohydrat'], ['Vorrat', 'D3-K2', '', 'online', ''], ['Getränke', 'Grüner Tee', '', 'dm', ''], ['Vorrat', 'Olivenöl', '', 'lidl', 'nativ extra'], ['Vorrat', 'Leinsamen', '', 'dm', ''], ['Vorrat', 'Haferflocken', '', 'lidl', ''],
-    ['Vorrat', 'Mandeln', '', 'lidl', ''], ['Vorrat', 'Kürbiskerne', '', 'lidl', ''], ['Vorrat', 'Hanfsamen', '', 'dm', 'geschält'], ['Vorrat', 'Kakaonibs', '', 'dm', ''], ['Vorrat', 'Sonnenblumenkerne', '', 'lidl', ''], ['Vorrat', 'Dinkelflocken', '', 'dm', ''], ['Vorrat', 'Omega-3', '', 'online', 'Algenöl'], ['Vorrat', 'Magnesium-Threonat', '', 'online', ''],
+    ['Vorrat', 'Mandeln', '', 'lidl', ''], ['Vorrat', 'Kürbiskerne', '', 'lidl', ''], ['Vorrat', 'Hanfsamen', '', 'dm', 'geschält'], ['Vorrat', 'Kakaonibs', '', 'dm', ''], ['Vorrat', 'Sonnenblumenkerne', '', 'lidl', ''], ['Vorrat', 'Dinkelflocken', '', 'dm', ''], ['Vorrat', 'Omega-3', '', 'online', 'ESN Super Omega-3 (Fischöl, 3 Kapseln pro Tag)'], ['Vorrat', 'Magnesium-Threonat', '', 'online', ''], ['Vorrat', 'Ashwagandha', '', 'online', 'ESN Ashwa+ (2 Kapseln abends)'],
   ],
 };
 /* Vorrat, der mitzählt (nur Lebensmittel): welche Lebensmittel der Artikel liefert (f, re = Namensmuster für eigene),
@@ -2482,7 +2496,7 @@ const INFO = {
     wofuer: 'Hormone (Testosteron), Zellmembranen, Gehirn, Aufnahme der Vitamine A, D, E und K.',
     ziel: '30–33 % der Kalorien (bei 3.100 kcal ca. 100–115 g), nicht unter ca. 70 g (0,8 g/kg).',
     max: '35 % der Kalorien. Darüber verdrängt Fett die Kohlenhydrate, die du fürs Training brauchst.',
-    quellen: 'Basis einfach ungesättigt: Olivenöl extra vergine, Mandeln, Avocado. Omega-3: Makrele, Algenöl, Leinsamen. Omega-6 aus Nüssen und Kernen ist okay, nicht aus Frittierfett. Transfette meiden.',
+    quellen: 'Basis einfach ungesättigt: Olivenöl extra vergine, Mandeln, Avocado. Omega-3: Makrele, Fischöl-Kapseln, Leinsamen. Omega-6 aus Nüssen und Kernen ist okay, nicht aus Frittierfett. Transfette meiden.',
     timing: 'Fettlösliche Vitamine und Supplements (D3, K2, Omega-3) zu einer fetthaltigen Mahlzeit. Direkt vor dem Training eher wenig Fett, es verlangsamt die Verdauung.',
     studien: 'Whittaker & Wu 2021 (Meta-Analyse): Fettarme Ernährung senkt das Testosteron bei Männern leicht. PREDIMED (NEJM 2018): Mittelmeerkost mit Olivenöl extra vergine ≈ 30 % weniger Herz-Kreislauf-Ereignisse.',
     plan: 'Beschlossen: Walnüsse reduziert, dafür 30 g Mandeln. Größte Fettquellen: Prepmymeal, Nüsse und Kerne, Eier, Olivenöl, Schokolade.',
@@ -2724,10 +2738,10 @@ const INFO = {
   o3: {
     was: 'Langkettige Omega-3-Fettsäuren EPA und DHA. ALA aus Leinsamen wird nur zu ca. 5–10 % in EPA umgewandelt und zählt hier nicht mit.',
     wofuer: 'EPA wirkt entzündungshemmend, unterstützt Herz, Gehirn und Stimmung; DHA für Gehirn und Sehkraft. Gleicht das Omega-6-Übergewicht der üblichen Ernährung aus.',
-    ziel: 'Ca. 1–2 g EPA+DHA pro Tag (offizieller Bedarf unbekannt).',
+    ziel: 'Ca. 1–2,5 g EPA+DHA pro Tag (offizieller Bedarf unbekannt).',
     max: 'EFSA: bis 5 g EPA+DHA pro Tag unbedenklich.',
-    quellen: 'Sunday Natural Omega-3 Algenöl (EPA-betont): 1 Tagesdosis = 576 mg EPA + 324 mg DHA, TOTOX ca. 6 laut Laborbericht. Makrele (ca. 2,2 g pro Dose), Lachs, Sardinen.',
-    timing: 'Morgens zu den Eiern, zusammen mit den D3/K2-Tropfen. 2 Tagesdosen, an Makrele-Tagen 1.',
+    quellen: 'ESN Super Omega-3 (Fischöl): 3 Kapseln = 1.200 mg EPA + 900 mg DHA. Makrele (ca. 2,2 g pro Dose), Lachs, Sardinen. Bis November 2026: Sunday Natural Algenöl (1 Tagesdosis = 576 mg EPA + 324 mg DHA).',
+    timing: 'Morgens zu den Eiern, zusammen mit den D3/K2-Tropfen (fetthaltige Mahlzeit). 3 Kapseln, an Tagen mit Makrele 2.',
     huberman: '1–3 g EPA pro Tag, EPA-betont.',
     studien: 'Liao et al. 2019 (Meta-Analyse): EPA-betonte Präparate (mind. 60 % EPA) verbessern depressive Symptome. REDUCE-IT 2019: 4 g EPA pro Tag senkten Herz-Kreislauf-Ereignisse bei Risikopatienten um 25 %.',
   },
@@ -2750,9 +2764,23 @@ const INFO = {
 
   /* Supplements */
   supps: {
-    was: 'So wenig wie nötig supplementieren, so viel wie möglich über Lebensmittel. Täglich: D3+K2, Omega-3, Kreatin. Bei Bedarf: AG1 (alle paar Tage), Magnesium-Threonat, Zink-Lutschtabletten.',
+    was: 'So wenig wie nötig supplementieren, so viel wie möglich über Lebensmittel. Täglich: D3+K2, Omega-3 (ESN Super Omega-3), Kreatin, Ashwagandha (ESN Ashwa+, abends). Bei Bedarf: AG1 (alle paar Tage), Magnesium-Threonat, Zink-Lutschtabletten.',
     zaehlung: 'Supplements zählen erst, wenn du sie abhakst; dann fließen ihre Nährstoffe in die Tageswerte. Die Supplement-Serie zählt nur die täglichen.',
-    plan: 'Bezugsquelle künftig bevorzugt Sunday Natural (Laboranalysen veröffentlicht).',
+    plan: 'Omega-3 und Ashwagandha seit November 2026 von ESN, sonst bevorzugt Sunday Natural (Laboranalysen veröffentlicht).',
+  },
+  s_omega3_esn: {
+    was: 'Fischöl-Konzentrat in Weichkapseln (Hülle aus Rindergelatine). Pro Kapsel 400 mg EPA + 300 mg DHA, 3 Kapseln = 2,1 g.',
+    timing: 'Zu einer Mahlzeit mit Fett, bei dir zu den Eiern. 3 Kapseln, an Tagen mit Makrele 2 (eine Dose liefert selbst ca. 2,2 g).',
+    max: 'EFSA: bis 5 g EPA+DHA pro Tag unbedenklich. An Makrele-Tagen kommst du auf ca. 3,6 g.',
+    zaehlung: 'EPA und DHA zählen ins Omega-3-Ziel (1–2,5 g pro Tag).',
+  },
+  s_ashwagandha: {
+    was: 'Wurzelextrakt der Schlafbeere (Withania somnifera), Markenextrakt KSM-66. ESN Ashwa+: 2 Kapseln = 600 mg Extrakt (30 mg Withanolide), dazu 62 mg Magnesium, 2 mg Zink und 0,22 mg Vitamin B6.',
+    vorteile: 'Kleine, teils von Herstellern finanzierte Studien zeigen etwas weniger Stress und besseren Schlaf. Die Meta-Analyse von Cheah 2021 (5 Studien, 400 Personen) fand einen kleinen Effekt auf den Schlaf, am deutlichsten ab 600 mg täglich über mindestens 8 Wochen und bei Schlafstörungen.',
+    max: 'BfR (Mitteilung 39/2024): Fallberichte über Leberschäden, mögliche Effekte auf Schilddrüsen- und Sexualhormone, Blutzucker und Cortisol. Kinder, Schwangere, Stillende und Menschen mit Lebererkrankung sollen verzichten, allen anderen rät das BfR zur Zurückhaltung. Wechselwirkungen mit Mitteln gegen Diabetes, Bluthochdruck und mit Immunsuppressiva sind möglich. Bei dunklem Urin, gelblicher Haut oder Augen, Juckreiz oder Oberbauchschmerzen absetzen und ärztlich abklären lassen.',
+    timing: 'Abends 2 Kapseln mit reichlich Wasser (Hersteller: vorzugsweise zu einer Mahlzeit). Tagesdosis nicht überschreiten.',
+    zaehlung: 'Zählt 62 mg Magnesium, 2 mg Zink und 0,22 mg B6 mit. Das Magnesium gehört zur Grenze von 250 mg aus Supplements: zusammen mit Mg-Threonat 206 mg, mit AG1 dazu knapp darüber.',
+    plan: 'Ob es dir etwas bringt, siehst du am ehesten nach 8 Wochen im Verlauf von Schlaf, HRV und Stress.',
   },
   s_kreatin: {
     was: 'Speicher für schnelle Energie (Phosphokreatin) in Muskeln und Gehirn.',
@@ -3017,6 +3045,8 @@ async function loadState() {
 
 /* ---------- Lebensmittel-Index ---------- */
 let FOOD = {};
+/* Zur Laufzeit geöffnete Lebensmittel aus dem BLS 4.0 (seit 2.19): erst beim Eintragen in S.foods.custom gespeichert */
+const FOOD_RT = {};
 function buildFoodIndex() {
   FOOD = {};
   for (const f of FOODS) FOOD[f.id] = f;
@@ -3024,6 +3054,7 @@ function buildFoodIndex() {
   for (const [id, o] of Object.entries(S.foods.over || {})) {
     if (FOOD[id]) FOOD[id] = { ...FOOD[id], ...o, v: { ...FOOD[id].v, ...(o.v || {}) }, edited: true };
   }
+  for (const f of Object.values(FOOD_RT)) if (!FOOD[f.id]) FOOD[f.id] = { ...f, custom: true, rt: true };
 }
 function unitG(food, u) {
   if (!food) return 1;
@@ -3032,7 +3063,7 @@ function unitG(food, u) {
   return e ? e[1] : 1;
 }
 const isLiquid = (food) => !!food && !!food.fl;
-const PLURAL = { Tafel: 'Tafeln', Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
+const PLURAL = { Kapsel: 'Kapseln', Tafel: 'Tafeln', Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
 function unitLabel(u, n) { if (n === 1 || u === 'g' || u === 'ml') return u; return String(u).replace(/^([A-Za-zÄÖÜäöüß]+)/, (w) => PLURAL[w] || w); }
 function amountLabel(n, u, stripParen = false) { const d = n % 1 ? (Math.round(n * 100) % 10 ? 2 : 1) : 0; const ul = unitLabel(u, n); return `${fmt(n, d)} ${stripParen ? ul.replace(/\s*\(.*\)\s*/, '') : ul}`; }
 function fmtAmount(food, g) {
@@ -3111,7 +3142,8 @@ function itemChoices(it) {
   return it.choice.concat(own);
 }
 function itemFoodId(it, day) {
-  if (!it.choice) return it.food;
+  // Ohne Auswahl: ein früherer Tag kann sein damaliges Lebensmittel behalten (d.choice[id], z. B. Omega-3 vor 2.19)
+  if (!it.choice) { const pin = day && day.choice && day.choice[it.id]; return pin && pin !== it.food && FOOD[pin] ? pin : it.food; }
   const key = it.cg || it.id;
   const c = day && day.choice ? day.choice[key] : null;
   if (c && itemChoices(it).includes(c)) return c;
@@ -3135,12 +3167,49 @@ function itemAmount(it, day, variant) {
   if (it.av && it.av[variant] != null) return it.av[variant];
   return it.a;
 }
+/* Einheit eines Postens an einem Tag: seit 2.19 lässt sich je Tag auch in Gramm bzw. ml eintragen (d.amtU) */
+function itemDayUnit(it, day) {
+  const u = day && day.amtU && day.amtU[it.id];
+  return u && day.amt && day.amt[it.id] != null ? u : it.u;
+}
 function itemGrams(it, day, variant) {
   const food = FOOD[itemFoodId(it, day)];
-  return itemAmount(it, day, variant) * unitG(food, it.u);
+  return itemAmount(it, day, variant) * unitG(food, itemDayUnit(it, day));
+}
+/* Einheiten, in denen sich ein Posten eintragen lässt: die des Lebensmittels plus g bzw. ml (Supplements nur ihre) */
+function foodUnits(food, cur) {
+  if (!food) return [cur].filter(Boolean);
+  const list = food.u.map((u) => u[0]).concat(food.base === 1 ? [] : [isLiquid(food) ? 'ml' : 'g']);
+  if (cur && !list.includes(cur)) list.unshift(cur);
+  return list.filter((v, i, a) => a.indexOf(v) === i);
+}
+/* Menge umrechnen (über Gramm); Gramm/ml ganzzahlig, sonst in Vierteln */
+function convAmount(food, amt, from, to) {
+  const g = amt * unitG(food, from), ug = unitG(food, to);
+  if (to === 'g' || to === 'ml' || ug === 1) return Math.round(g * 10) / 10 >= 10 ? Math.round(g) : Math.round(g * 10) / 10;
+  return Math.max(0.25, Math.round((g / ug) * 4) / 4);
+}
+/* Bevor sich Standardmenge, Einheit oder Lebensmittel eines Postens ändern: Tage, an denen er schon abgehakt ist,
+   behalten ihren Wert (sonst würde die App die Vergangenheit mit dem neuen Standard neu rechnen).
+   keep: Tage, die den neuen Standard bekommen sollen (z. B. heute). */
+function pinItemHistory(it, opts = {}) {
+  const keep = new Set(opts.keep || []);
+  for (const [k, d] of Object.entries(S.days || {})) {
+    if (!d || !d.checks || !d.checks[it.id] || keep.has(k)) continue;
+    if (opts.before && k >= opts.before) continue;
+    let ch = false;
+    d.amt = d.amt || {};
+    if (d.amt[it.id] == null) { d.amt[it.id] = itemAmount(it, null, dayVariant(k)); ch = true; }
+    if (opts.unit && !(d.amtU && d.amtU[it.id])) { d.amtU = d.amtU || {}; d.amtU[it.id] = it.u; ch = true; }
+    if (opts.food && !it.choice && !(d.choice && d.choice[it.id])) { d.choice = d.choice || {}; d.choice[it.id] = it.food; ch = true; }
+    if (ch) markDirty('day:' + k);
+  }
+  invalidate();
 }
 /* Auswahl-Posten in g/ml: Einheit passend zum gewählten Lebensmittel (Saft in ml, Knolle in g) */
 function itemUnit(it, food) { return it.choice && food && (it.u === 'g' || it.u === 'ml') ? (isLiquid(food) ? 'ml' : 'g') : it.u; }
+/* Anzeige-Einheit an einem Tag (eigene Tageseinheit oder die des Postens) */
+function itemShowUnit(it, day, food) { const u = itemDayUnit(it, day); return u === it.u ? itemUnit(it, food) : u; }
 function itemLabel(it, day) {
   const fid = itemFoodId(it, day);
   if (it.choice && it.label && it.cg !== 'pmm') return FOOD[fid] ? FOOD[fid].n : it.label;
@@ -3368,7 +3437,7 @@ function friendlyTipAmount(food, g) {
   if (first && first[0] === 'Dose' && g % first[1] === 0) { const n = g / first[1]; return `${amountLabel(n, 'Dose')} ${food.n}`; }
   return `${fmt(g, g < 10 && g % 1 ? 1 : 0)} ${isLiquid(food) ? 'ml' : 'g'} ${food.n}`;
 }
-function shortName(f) { return ({ s_d3k2: 'D3 + K2', s_omega3: 'Omega-3', s_kreatin: 'Kreatin', s_ag1: 'AG1', s_mg_threonat: 'Mg-Threonat', s_zink_lutsch: 'Zink-Lutschtablette' })[f.id] || f.n; }
+function shortName(f) { return ({ s_d3k2: 'D3 + K2', s_omega3: 'Omega-3', s_omega3_esn: 'Omega-3', s_ashwagandha: 'Ashwagandha', s_kreatin: 'Kreatin', s_ag1: 'AG1', s_mg_threonat: 'Mg-Threonat', s_zink_lutsch: 'Zink-Lutschtablette' })[f.id] || f.n; }
 function overTip(key, m, ev) {
   const top = topContrib(ev.act.contrib, key === 'va' ? 'ret' : key, 1)[0];
   const src = top ? `Größter Anteil: ${top[0]} (${fmt(disp(key, top[1]), metaOf(key).d)} ${metaOf(key).u})` : '';
@@ -3391,7 +3460,7 @@ function overTip(key, m, ev) {
     upf: 'Mehr als 20 % der Kalorien aus Ultraverarbeitetem.',
     ve: 'Vitamin E über 300 mg kommt nur aus Supplements.',
     i: 'Jod über 600 µg: Algen meiden, weniger Jodsalz.',
-    o3: 'Über 5 g EPA+DHA: Algenöl-Dosis reduzieren.',
+    o3: 'Über 5 g EPA+DHA: weniger Omega-3-Kapseln.',
     vc: 'Über 2.000 mg Vitamin C: Durchfall möglich, Supplement-Dosis senken.',
     fib: 'Sehr viele Ballaststoffe: Flohsamen heute reduzieren und viel trinken.',
     fluid: 'Sehr viel getrunken: über ca. 6 l ohne Salz drohen Natriumprobleme.',
@@ -3449,7 +3518,7 @@ const TREND_KEYS = ['p', 'kcal', 'fib', 'fluid', 'o3', 'vd', 'mg', 'zn', 'fe', '
 const TREND_SUPP = {
   mg: 'Oder an Tagen mit wenig Kürbiskernen, Hafer und Nüssen abends Magnesium-Threonat (laut deinem Plan; max. 250 mg aus Supplements).',
   vd: 'Die D3+K2-Tropfen täglich nehmen (4 Tropfen = 2.000 IE). Die passende Dosis zeigt der Bluttest.',
-  o3: 'Omega-3-Algenöl täglich (2 Tagesdosen, an Makrele-Tagen 1).',
+  o3: 'Omega-3-Kapseln täglich (3 Kapseln, an Tagen mit Makrele 2).',
   zn: 'Kein Dauer-Supplement nötig. Eine AG1-Portion liefert 10 mg.',
   fe: 'Kein Eisen-Supplement ohne Bluttest (Ferritin).',
   se: 'Kein Supplement: 1 Paranuss am Tag reicht.',
@@ -3476,7 +3545,7 @@ const TREND_OVER = {
   va: 'Retinol-Quellen (Leber, Supplements) reduzieren. Beta-Carotin aus Gemüse ist unbedenklich.',
   vd: 'Tropfen reduzieren; über 4.000 IE nur mit ärztlicher Begleitung.',
   i: 'Weniger Jodsalz, Algen meiden.',
-  o3: 'Algenöl-Dosis reduzieren.',
+  o3: 'Weniger Omega-3-Kapseln.',
   fatPct: 'Weniger Nüsse oder Öl, dafür Haferflocken oder Obst.',
   sf: 'Schokolade, Käse oder Butter etwas reduzieren; Prepmymeal mit Sahne- oder Buttersoße seltener.',
   ve: 'Vitamin E über 300 mg kommt nur aus Supplements.',
@@ -3941,6 +4010,48 @@ function migrate216() {
   }
   st.mig = 216;
   markDirty('settings'); invalidate();
+}
+
+/* 2.19 (19.11.2026): ESN Super Omega-3 ersetzt das Algenöl (3 Kapseln, an Tagen mit Makrele 2), ESN Ashwa+ abends
+   (2 Kapseln). Frühere Tage behalten Algenöl und Menge (st.o3Old, o3Pin – greift auch nach einem Backup-Import).
+   Omega-3-Ziel bis 2,5 g, damit 3 Kapseln (2,1 g) im Ziel liegen; Einkauf: Hinweis Omega-3, Ashwagandha zuhause. */
+function migrate219() {
+  const st = S.settings;
+  if (!st || (st.mig || 0) >= 219) return;
+  const def = (id) => DEFAULT_PLAN.flatMap((b) => b.items).find((x) => x.id === id);
+  const hit = findItem('f_omega3');
+  if (hit && hit.it.food === 's_omega3') {
+    const it = hit.it, d = def('f_omega3');
+    st.o3Old = { food: it.food, a: it.a, u: it.u, av: it.av ? clone(it.av) : null, since: todayKey() };
+    Object.assign(it, { food: d.food, a: d.a, u: d.u, av: clone(d.av), hint: d.hint });
+  }
+  if (!findItem('s_ashwa')) { const blk = (st.plan || []).find((b) => b.id === 'schlaf'); if (blk) blk.items.push(clone(def('s_ashwa'))); }
+  const o3 = st.targets && st.targets.o3;
+  if (o3 && o3.lo === 1 && o3.hi === 2) o3.hi = 2.5;
+  if (S.shop && Array.isArray(S.shop.items)) {
+    const om = S.shop.items.find((x) => x.sid === 'h:Omega-3');
+    if (om && (!om.tip || om.tip === 'Algenöl')) om.tip = shopDef('h:Omega-3').tip;
+    if (!S.shop.items.some((x) => x.sid === 'h:Ashwagandha')) S.shop.items.push(shopNew(shopDef('h:Ashwagandha')));
+    markDirty('shop');
+  }
+  st.mig = 219;
+  markDirty('settings');
+  o3Pin();
+  invalidate();
+}
+/* Tage vor dem Wechsel: Omega-3 bleibt das Algenöl mit der damaligen Menge (mehrfach aufrufbar) */
+function o3Pin() {
+  const o = S.settings && S.settings.o3Old;
+  if (!o) return;
+  for (const [k, d] of Object.entries(S.days || {})) {
+    if (k >= o.since || !d || !d.checks || !d.checks.f_omega3 || (d.choice && d.choice.f_omega3)) continue;
+    d.choice = { ...(d.choice || {}), f_omega3: o.food };
+    d.amt = d.amt || {};
+    if (d.amt.f_omega3 == null) d.amt.f_omega3 = o.av && o.av[dayVariant(k)] != null ? o.av[dayVariant(k)] : o.a;
+    d.amtU = { ...(d.amtU || {}), f_omega3: o.u };
+    markDirty('day:' + k);
+  }
+  invalidate();
 }
 
 /* ---------- Bereiche ---------- */
@@ -5388,7 +5499,7 @@ function suppSection(k) {
         <button class="tgl${on ? ' is-on' : ''}${warn ? ' is-warn' : ''}" data-a="toggle-item" data-id="${it.id}" aria-pressed="${on}">
           <span class="tgl-box">${icon('check')}</span><span class="tgl-txt"><b>${esc(shortSupp(f))}</b><small>${esc(sub)}</small></span>
         </button>
-        <button class="dose" data-a="open-item" data-id="${it.id}" data-date="${k}" aria-label="Menge ${esc(shortSupp(f))} ändern">${esc(amountLabel(amt, it.u, true))}${icon('pencil')}</button>
+        <button class="dose" data-a="open-item" data-id="${it.id}" data-date="${k}" aria-label="Menge ${esc(shortSupp(f))} ändern">${esc(amountLabel(amt, itemDayUnit(it, d), true))}${icon('pencil')}</button>
       </div>`;
     }).join('')}</div>
   </section>`;
@@ -5437,7 +5548,7 @@ function itemRow(it, k, d, variant) {
   const amt = itemAmount(it, d, variant);
   const changed = d.amt && d.amt[it.id] != null;
   const blocked = phaseBlocks(k, f);
-  const amtTxt = amountLabel(amt, itemUnit(it, f));
+  const amtTxt = amountLabel(amt, itemShowUnit(it, d, f));
   let choice = '';
   if (it.choice) {
     const key = it.cg || it.id;
@@ -5526,7 +5637,7 @@ function vDetail(k) {
 }
 function searchResults() {
   const q = ui.q.trim().toLowerCase();
-  const all = Object.values(FOOD);
+  const all = Object.values(FOOD).filter((f) => !f.rt);
   if (!q) {
     const recent = recentFoods(8);
     let h = recent.length ? `<h4 class="meal-h">Zuletzt verwendet</h4><div class="list">${recent.map(foodRow).join('')}</div>` : '';
@@ -5537,12 +5648,15 @@ function searchResults() {
   const words = q.split(/\s+/);
   const hits = all.filter((f) => words.every((w) => (f.n + ' ' + f.cat + ' ' + [].concat(f.pl || []).join(' ')).toLowerCase().includes(w)));
   hits.sort((a, b) => (a.n.toLowerCase().startsWith(q) ? -1 : 0) - (b.n.toLowerCase().startsWith(q) ? -1 : 0) || a.n.localeCompare(b.n, 'de'));
-  if (!hits.length) return `<div class="empty"><p>Nichts gefunden für „${esc(ui.q)}“.</p><div class="row-btns center"><button class="pill-btn is-accent" data-a="frank-open" data-q="${esc(ui.q)}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new" data-name="${esc(ui.q)}">${icon('plus')}Selbst anlegen</button></div></div>`;
-  return `<div class="list">${hits.slice(0, 40).map(foodRow).join('')}</div>`;
+  // Seit 2.19 darunter der Bundeslebensmittelschlüssel (lädt beim ersten Mal)
+  const bls = blsResultsHTML(ui.q, 'search');
+  const none = `<div class="row-btns center"><button class="pill-btn is-accent" data-a="frank-open" data-q="${esc(ui.q)}">${icon('sparkles')}Frank fragen</button><button class="pill-btn" data-a="food-new" data-name="${esc(ui.q)}">${icon('plus')}Selbst anlegen</button></div>`;
+  if (!hits.length && !bls) return `<div class="empty"><p>Nichts gefunden für „${esc(ui.q)}“.</p>${none}</div>`;
+  return (hits.length ? `<div class="list">${hits.slice(0, 40).map(foodRow).join('')}</div>` : '') + bls + (hits.length ? '' : `<p class="hint center">Nicht dabei?</p>${none}`);
 }
 function foodRow(f) {
   const per = f.base === 1 ? `pro ${f.u[0][0]}` : isLiquid(f) ? 'pro 100 ml' : 'pro 100 g';
-  return `<button class="row" data-a="food-open" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.custom ? ` <em class="est">${f.frank ? 'Frank' : 'eigenes'}</em>` : ''}</b><small>${fmt(f.v.kcal || 0)} kcal, ${fmt(f.v.p || 0, 1)} g Protein ${per}</small></span>${icon('plus', 'row-ic')}</button>`;
+  return `<button class="row" data-a="food-open" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.custom ? ` <em class="est">${f.frank ? 'Frank' : f.bls ? 'BLS' : 'eigenes'}</em>` : f.bls ? ' <em class="est is-blue">BLS</em>' : ''}</b><small>${fmt(f.v.kcal || 0)} kcal, ${fmt(f.v.p || 0, 1)} g Protein ${per}</small></span>${icon('plus', 'row-ic')}</button>`;
 }
 function recentFoods(n) {
   const seen = new Map();
@@ -5626,7 +5740,7 @@ function suppEval(k) {
   const list = suppItems().filter(({ it }) => itemInVariant(it, variant));
   const open = ui.exp.has('m:supps');
   return `<section class="sec"><div class="sec-head"><h2>Supplements</h2></div><div class="mlist">
-    ${list.map(({ it }) => { const f = FOOD[it.food], on = !!d.checks[it.id]; return `<div class="mrow st-${on ? 'ok' : f.supp === 'daily' ? 'under' : 'none'}"><div class="mrow-hit is-static"><div class="mrow-top"><span class="mname">${esc(f.n)}</span><span class="mval">${on ? `<b>${fmt(itemAmount(it, d, variant), 1)}</b> <small>${esc(it.u)}</small>` : '<small>nicht genommen</small>'}</span></div><div class="mrow-meta">${on ? stBadge('ok') : f.supp === 'daily' ? stBadge('under') : '<span class="hint">bei Bedarf</span>'}</div></div></div>`; }).join('')}
+    ${list.map(({ it }) => { const f = FOOD[it.food], on = !!d.checks[it.id]; return `<div class="mrow st-${on ? 'ok' : f.supp === 'daily' ? 'under' : 'none'}"><div class="mrow-hit is-static"><div class="mrow-top"><span class="mname">${esc(f.n)}</span><span class="mval">${on ? `<b>${fmt(itemAmount(it, d, variant), 1)}</b> <small>${esc(itemDayUnit(it, d))}</small>` : '<small>nicht genommen</small>'}</span></div><div class="mrow-meta">${on ? stBadge('ok') : f.supp === 'daily' ? stBadge('under') : '<span class="hint">bei Bedarf</span>'}</div></div></div>`; }).join('')}
     <div class="mrow${open ? ' is-open' : ''}"><button class="mrow-hit" data-a="expand" data-key="m:supps"><div class="mrow-top"><span class="mname">Warum diese Supplements?</span>${icon(open ? 'chevron-down' : 'chevron-right', 'mrow-chev')}</div></button>${open ? `<div class="mrow-detail">${infoHTML('supps')}<h5>Kreatin</h5>${infoHTML('s_kreatin')}<h5>AG1</h5>${infoHTML('s_ag1')}</div>` : ''}</div>
   </div></section>`;
 }
@@ -5663,23 +5777,40 @@ function sheetItem(id, k) {
   if (!found) return;
   const { it } = found;
   const d = getDay(k), variant = dayVariant(k);
-  const fid = itemFoodId(it, d), food = FOOD[fid];
-  const amt = itemAmount(it, d, variant);
-  ui.sheet = { type: 'item', id, k, amt };
+  ui.sheet = { type: 'item', id, k, amt: itemAmount(it, d, variant), unit: itemDayUnit(it, d) };
+  renderItemSheet();
+}
+/* Einheiten im Mengen-Fenster eines Postens: seit 2.19 auch Gramm bzw. ml (z. B. Banane: Stück oder g) */
+function itemUnits(it, food) {
+  const base = food && food.base !== 1 ? (isLiquid(food) ? 'ml' : 'g') : null;
+  return foodUnits(food, it.u).filter((u) => !(base && (it.u === 'g' || it.u === 'ml') && u === base && u !== it.u));
+}
+function renderItemSheet() {
+  const s = ui.sheet;
+  const found = s && findItem(s.id);
+  if (!found) return;
+  const { it } = found;
+  const d = getDay(s.k), variant = dayVariant(s.k);
+  const food = FOOD[itemFoodId(it, d)];
   const def = it.av && it.av[variant] != null ? it.av[variant] : it.a;
+  const ul = (u) => (u === it.u ? itemUnit(it, food) : u);
+  const units = itemUnits(it, food);
+  const baseU = food && isLiquid(food) ? 'ml' : 'g';
+  const defG = food && food.base !== 1 && it.u !== 'g' && it.u !== 'ml' ? ` (${fmt(def * unitG(food, it.u))} ${baseU})` : '';
   openSheet(`<h3 class="sheet-title">${esc(itemLabel(it, d))}</h3>
     ${food && food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
     <div class="amount-row"><button class="step" data-a="sheet-step" data-d="-1" aria-label="Weniger">${icon('minus')}</button>
-      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(amt, 2)}" data-i="sheet-amt"><span>${esc(itemUnit(it, food))}</span></label>
+      <label class="amount-in"><input type="text" inputmode="decimal" id="sh-amt" value="${numIn(s.amt, 2)}" data-i="sheet-amt"><span>${esc(ul(s.unit))}</span></label>
       <button class="step" data-a="sheet-step" data-d="1" aria-label="Mehr">${icon('plus')}</button></div>
-    <p class="hint center">Standardmenge: ${esc(amountLabel(def, itemUnit(it, food)))}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
-    ${food && food.id === 's_ag1' ? `<div class="banner is-soft">${icon('info')}<div><b>Wie viel AG1 heute passt</b><span>${esc(ag1BudgetLong(ag1Budget(k)))}</span></div></div>` : ''}
-    <div id="sh-prev">${nutPreview(food, amt * unitG(food, it.u))}</div>
+    ${units.length > 1 ? `<div class="chips center">${units.map((u) => `<button class="chip chip-sm${u === s.unit ? ' is-on' : ''}" data-a="sheet-unit" data-v="${esc(u)}">${esc(ul(u))}</button>`).join('')}</div>` : ''}
+    <p class="hint center">Standardmenge: ${esc(amountLabel(def, itemUnit(it, food)))}${defG}${it.u === 'Portion' || it.u === 'Tagesdosis' || it.u === 'Tropfen' ? '. Auch halbe Mengen gehen, z. B. 0,5.' : ''}</p>
+    ${food && food.id === 's_ag1' ? `<div class="banner is-soft">${icon('info')}<div><b>Wie viel AG1 heute passt</b><span>${esc(ag1BudgetLong(ag1Budget(s.k)))}</span></div></div>` : ''}
+    <div id="sh-prev">${nutPreview(food, s.amt * unitG(food, s.unit))}</div>
     <div class="sheet-acts">
       <button class="btn is-accent" data-a="item-save" data-mode="check">Übernehmen und abhaken</button>
       <button class="btn" data-a="item-save" data-mode="amt">Nur Menge ändern</button>
       <button class="btn is-ghost" data-a="item-save" data-mode="default">Als neue Standardmenge speichern</button>
-      ${d.amt && d.amt[id] != null ? '<button class="btn is-ghost" data-a="item-save" data-mode="reset">Auf Standard zurücksetzen</button>' : ''}
+      ${d.amt && d.amt[s.id] != null ? '<button class="btn is-ghost" data-a="item-save" data-mode="reset">Auf Standard zurücksetzen</button>' : ''}
     </div>`);
 }
 function stepFor(unit, cur) {
@@ -5701,6 +5832,7 @@ function renderFoodSheet() {
   const blocked = phaseBlocks(s.k, food);
   openSheet(`<h3 class="sheet-title">${esc(food.n)}</h3>
     ${food.est ? '<p class="hint">Schätzwert, anpassbar unter Einstellungen → Lebensmittel.</p>' : ''}
+    ${food.bls ? `<p class="hint">Amtliche Nährwerte: Bundeslebensmittelschlüssel 4.0 (${esc(food.bls)}), Max Rubner-Institut.</p>` : ''}
     ${food.frank ? `<p class="hint">Von Frank recherchiert${food.frank.est && food.frank.est.length ? ', ein Teil geschätzt' : ''}${food.frank.src && food.frank.src.length ? `. Quellen: ${frankSrcLinks(food.frank.src)}` : ''}</p>` : ''}
     ${blocked ? `<div class="banner is-warn">${icon('triangle-alert')}<div><b>${esc(blocked.n)} im Haut-Protokoll</b><span>${esc(blocked.rules.join(', '))}</span></div></div>` : ''}
     ${s.entryId ? '' : swapHTML(food)}
@@ -6081,11 +6213,11 @@ const SET_VIEWS = {
   },
   foods() {
     const q = ui.setQ.trim().toLowerCase();
-    const list = Object.values(FOOD).filter((f) => !q || f.n.toLowerCase().includes(q)).sort((a, b) => (b.est ? 1 : 0) - (a.est ? 1 : 0) || a.cat.localeCompare(b.cat, 'de') || a.n.localeCompare(b.n, 'de'));
-    return `<p class="hint">Alle Werte pro 100 g bzw. 100 ml, bei Supplements pro Einheit. Schätzwerte (Prepmymeal, Döner) stehen oben. Geänderte Werte sind markiert und lassen sich zurücksetzen.</p>
+    const list = Object.values(FOOD).filter((f) => !f.rt && (!q || f.n.toLowerCase().includes(q))).sort((a, b) => (b.est ? 1 : 0) - (a.est ? 1 : 0) || a.cat.localeCompare(b.cat, 'de') || a.n.localeCompare(b.n, 'de'));
+    return `<p class="hint">Alle Werte pro 100 g bzw. 100 ml, bei Supplements pro Einheit. Schätzwerte (Prepmymeal, Döner) stehen oben. Geänderte Werte sind markiert und lassen sich zurücksetzen. Auf amtliche Werte umstellen: Lebensmittel antippen → „Mit BLS 4.0 abgleichen“.</p>
       <div class="row-btns"><button class="pill-btn is-accent" data-a="food-new">${icon('plus')}Neues Lebensmittel</button><button class="pill-btn" data-a="food-new" data-supp="1">${icon('pill')}Neues Supplement</button></div>
       <div class="search"><span>${icon('search')}</span><input type="search" placeholder="Lebensmittel suchen" data-i="set-search" value="${esc(ui.setQ)}"></div>
-      <div class="list" id="set-foods">${list.slice(0, 60).map((f) => `<button class="row" data-a="food-edit" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.edited ? ' <em class="est">geändert</em>' : ''}${f.custom ? ' <em class="est">eigenes</em>' : ''}</b><small>${esc(f.cat)}, ${fmt(f.v.kcal || 0)} kcal</small></span>${icon('pencil', 'row-ic')}</button>`).join('')}</div>`;
+      <div class="list" id="set-foods">${list.slice(0, 60).map((f) => `<button class="row" data-a="food-edit" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}${f.est ? ' <em class="est">Schätzung</em>' : ''}${f.edited ? ` <em class="est${f.bls ? ' is-blue' : ''}">${f.bls ? 'BLS-Werte' : 'geändert'}</em>` : ''}${f.custom ? ` <em class="est">${f.bls ? 'BLS' : 'eigenes'}</em>` : ''}</b><small>${esc(f.cat)}, ${fmt(f.v.kcal || 0)} kcal</small></span>${icon('pencil', 'row-ic')}</button>`).join('')}</div>`;
   },
   haut() {
     const sk = S.settings.skin;
@@ -6118,7 +6250,7 @@ const SET_VIEWS = {
   about() {
     return `<h5>Auf dem iPhone installieren</h5><ol class="steps"><li>Die Web-Adresse der App in Safari öffnen.</li><li>Unten auf „Teilen“ tippen (Quadrat mit Pfeil).</li><li>„Zum Home-Bildschirm“ wählen, „Als Web-App öffnen“ aktiviert lassen, dann „Hinzufügen“.</li><li>Ab jetzt die App über das Icon öffnen: Vollbild und offline nutzbar.</li></ol>
       <h5>Updates</h5><p class="hint">Neue Versionen kommen automatisch: Beim nächsten Öffnen mit Internet holt sich die App die neueste Version, deine Daten bleiben dabei erhalten. Läuft die App gerade im Hintergrund, erscheint auf „Heute“ der Knopf „Neu laden“.</p>
-      <h5>Wichtig</h5><p class="hint">Diese App ersetzt keine ärztliche Beratung. Nährwerte stammen aus USDA FoodData Central, dem Bundeslebensmittelschlüssel und Herstellerangaben (AG1 EU-Rezeptur, Prepmymeal) und sind gerundete Durchschnittswerte. Prepmymeal und Döner sind Schätzungen. Präbiotika- und Polyphenol-Punkte sind grobe Orientierungswerte.</p>
+      <h5>Wichtig</h5><p class="hint">Diese App ersetzt keine ärztliche Beratung. Nährwerte stammen aus USDA FoodData Central, dem Bundeslebensmittelschlüssel und Herstellerangaben (AG1 EU-Rezeptur, Prepmymeal, ESN) und sind gerundete Durchschnittswerte. Die Suche nach amtlichen Werten nutzt den Bundeslebensmittelschlüssel 4.0: ${esc(BLS_SRC)} Frei nutzbar laut Nutzungsbedingungen des Max Rubner-Instituts. Prepmymeal und Döner sind Schätzungen. Präbiotika- und Polyphenol-Punkte sind grobe Orientierungswerte.</p>
       <h5>Datenschutz</h5><p class="hint">Keine Konten, keine Server, keine Analyse. Alles bleibt im Speicher dieses Browsers auf deinem iPhone. Wenn du die App vom Home-Bildschirm löschst, sind auch die Daten weg; deshalb Backups.</p>`;
   },
 };
@@ -6145,6 +6277,8 @@ function sheetFoodEdit(fid, opts = {}) {
         <div class="frow"><span class="flabel">Präbiotika-Punkte /100 g</span><div class="fin"><input type="text" inputmode="decimal" id="fe-pre" value="${numIn(f.pre, 2)}"></div></div>
         <div class="frow"><span class="flabel">Fermentiert: Portion (g)</span><div class="fin"><input type="text" inputmode="decimal" id="fe-ferm" value="${numIn(f.ferm, 0)}" placeholder="nein"></div></div>`}
     </div>
+    ${f.bls ? `<p class="hint">Werte aus dem Bundeslebensmittelschlüssel 4.0 (${esc(f.bls)}).</p>` : ''}
+    ${!isNew && f.base !== 1 ? `<button class="pill-btn" data-a="bls-match" data-id="${esc(f.id)}">${icon('database')}Mit BLS 4.0 abgleichen</button>` : ''}
     <h5>Nährwerte ${per}</h5>
     <div class="fe-grid">${EDIT_KEYS.map((k) => { const n = NUTRIENTS[k]; const unit = k === 'vd' ? 'µg' : n.u; return `<label><span>${esc(n.n)} <small>${esc(unit)}</small></span><input type="text" inputmode="decimal" data-fe="${k}" value="${numIn(f.v[k], 3)}" placeholder="0"></label>`; }).join('')}</div>
     <p class="hint">Vitamin D in µg (1 µg = 40 IE).</p>
@@ -6158,8 +6292,8 @@ function sheetPickFood(blockId) {
 }
 function pickResults(q) {
   q = q.trim().toLowerCase();
-  const list = Object.values(FOOD).filter((f) => !q || f.n.toLowerCase().includes(q)).slice(0, 40);
-  return list.map((f) => `<button class="row" data-a="pe-pick" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}</b><small>${esc(f.cat)}</small></span>${icon('plus', 'row-ic')}</button>`).join('');
+  const list = Object.values(FOOD).filter((f) => !f.rt && (!q || f.n.toLowerCase().includes(q))).slice(0, 40);
+  return list.map((f) => `<button class="row" data-a="pe-pick" data-id="${f.id}"><span class="row-main"><b>${esc(f.n)}</b><small>${esc(f.cat)}</small></span>${icon('plus', 'row-ic')}</button>`).join('') + blsResultsHTML(q, 'pick');
 }
 
 /* ---- ui3.js ---- */
@@ -7060,7 +7194,7 @@ function sheetShopItem(id) {
   } else if (it.cat !== 'Drogerie/Haushalt') {
     if (it.inv && it.inv.off && (SHOP_INV[it.sid] || (it.inv.f && it.inv.f.length))) invH = `<h5>Vorrat</h5><button class="pill-btn" data-a="shop-inv" data-v="on">${icon('package')}Vorrat wieder zählen</button>`;
     else {
-      const foods = Object.values(FOOD).filter((f) => f.cat !== 'Supplements' && !f.base).sort((x, y) => x.n.localeCompare(y.n, 'de'));
+      const foods = Object.values(FOOD).filter((f) => f.cat !== 'Supplements' && !f.base && !f.rt).sort((x, y) => x.n.localeCompare(y.n, 'de'));
       const cats = [...new Set(foods.map((f) => f.cat))].sort((x, y) => x.localeCompare(y, 'de'));
       invH = `<h5>Vorrat zählen</h5><div class="form"><div class="frow is-wide"><span class="flabel">Lebensmittel</span><div class="fin"><select id="si-food"><option value="">Nicht zählen</option>${cats.map((c) => `<optgroup label="${esc(c)}">${foods.filter((f) => f.cat === c).map((f) => `<option value="${esc(f.id)}">${esc(f.n)}</option>`).join('')}</optgroup>`).join('')}</select></div></div></div>
         <p class="hint">Mit einem Lebensmittel verknüpft, zählt der Artikel wie Eier oder Skyr mit: Haken und Einträge ziehen ab, fast leer kommt er auf die Einkaufsliste.</p>`;
@@ -7792,7 +7926,7 @@ const A = {
   'sheet-close': () => { const t = ui.sheet && ui.sheet.type; closeSheet(); if (t === 'plants') render(); },
   'sheet-step': (el) => {
     const s = ui.sheet; if (!s) return;
-    const unit = s.type === 'item' ? findItem(s.id).it.u : s.unit;
+    const unit = s.unit || (s.type === 'item' ? findItem(s.id).it.u : null);
     const dir = Number(el.dataset.d);
     const step = stepFor(unit, s.amt + (dir < 0 ? -0.0001 : 0));
     s.amt = Math.max(0, Math.round((s.amt + dir * step) / step) * step);
@@ -7800,7 +7934,14 @@ const A = {
     updateSheetPreview();
   },
   'sheet-unit': (el) => {
-    const s = ui.sheet, food = FOOD[s.fid];
+    const s = ui.sheet;
+    if (s && s.type === 'item') {
+      const found = findItem(s.id); if (!found || el.dataset.v === s.unit) return;
+      const food = FOOD[itemFoodId(found.it, getDay(s.k))];
+      s.amt = convAmount(food, s.amt, s.unit, el.dataset.v); s.unit = el.dataset.v;
+      renderItemSheet(); return;
+    }
+    const food = FOOD[s.fid];
     const g = s.amt * unitG(food, s.unit);
     s.unit = el.dataset.v;
     const ug = unitG(food, s.unit);
@@ -7813,18 +7954,30 @@ const A = {
     const found = findItem(s.id); if (!found) return;
     const { it } = found;
     const k = s.k, variant = dayVariant(k);
+    const food = FOOD[itemFoodId(it, getDay(k))];
+    const unit = s.unit || it.u;
     const def = it.av && it.av[variant] != null ? it.av[variant] : it.a;
     const mode = el.dataset.mode;
+    const clear = (d) => { delete d.amt[s.id]; if (d.amtU) delete d.amtU[s.id]; };
     if (mode === 'default') {
+      // bisherige Tage behalten ihre Menge; dieser Tag und heute nehmen den neuen Standard
+      pinItemHistory(it, { keep: [k, todayKey()], unit: unit !== it.u });
+      if (unit !== it.u) {
+        if (it.av) for (const v of Object.keys(it.av)) it.av[v] = convAmount(food, it.av[v], it.u, unit);
+        it.a = convAmount(food, it.a, it.u, unit);
+        it.u = unit;
+      }
       if (it.av && it.av[variant] != null) it.av[variant] = s.amt; else it.a = s.amt;
-      mutDay(k, (d) => { delete d.amt[s.id]; });
+      mutDay(k, clear);
       markDirty('settings');
       toast('Neue Standardmenge gespeichert');
     } else if (mode === 'reset') {
-      mutDay(k, (d) => { delete d.amt[s.id]; });
+      mutDay(k, clear);
     } else {
       mutDay(k, (d) => {
-        if (Math.abs(s.amt - def) < 1e-9) delete d.amt[s.id]; else d.amt[s.id] = s.amt;
+        const same = unit === it.u ? Math.abs(s.amt - def) < 1e-9 : Math.abs(s.amt * unitG(food, unit) - def * unitG(food, it.u)) < 1e-6;
+        if (same) clear(d);
+        else { d.amt[s.id] = s.amt; if (unit !== it.u) d.amtU = { ...(d.amtU || {}), [s.id]: unit }; else if (d.amtU) delete d.amtU[s.id]; }
         if (mode === 'check') { d.checks[s.id] = 1; persistRotation(d, it); }
       });
     }
@@ -7932,6 +8085,7 @@ const A = {
     try { migrate214(); } catch (e) { /* egal */ } // 2.14: Morgen-Check, flexible Woche, Kalorien halten
     try { migrate215(); } catch (e) { /* egal */ } // 2.15: beide Seiten gleich
     try { migrate216(); } catch (e) { /* egal */ } // 2.16.1: Loop Bands, langes Band
+    try { migrate219(); o3Pin(); } catch (e) { /* egal */ } // 2.19: ESN Omega-3 statt Algenöl, Ashwa+
     await DB.clear();
     if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
     if (PUSH) await pushSave(); // Mitteilungen ebenso
@@ -7976,7 +8130,7 @@ const A = {
   'goto-profile': () => { ui.setOpen = 'profil'; go('set', { scrollTop: true }); },
   'set-open': (el) => { ui.setOpen = ui.setOpen === el.dataset.id ? null : el.dataset.id; render(); if (ui.setOpen) requestAnimationFrame(() => { const t = document.getElementById('set-' + ui.setOpen); if (t) t.scrollIntoView({ block: 'start' }); }); },
   'targets-reset': () => { if (!confirm('Alle Ziele auf die Standardwerte zurücksetzen?')) return; S.settings.targets = clone(DEFAULT_TARGETS); saveSettings(); },
-  'plan-reset': () => { if (!confirm('Standardtag auf den Ausgangsplan zurücksetzen? Eigene Posten gehen verloren.')) return; S.settings.plan = clone(DEFAULT_PLAN); S.settings.extra = clone(EXTRA_ITEMS); saveSettings(); },
+  'plan-reset': () => { if (!confirm('Standardtag auf den Ausgangsplan zurücksetzen? Eigene Posten gehen verloren.')) return; const defs = DEFAULT_PLAN.flatMap((x) => x.items).concat(EXTRA_ITEMS); for (const { it } of allPlanItems()) { const df = defs.find((x) => x.id === it.id); if (df && (df.a !== it.a || df.u !== it.u || df.food !== it.food || JSON.stringify(df.av || {}) !== JSON.stringify(it.av || {}))) pinItemHistory(it, { keep: [todayKey()], unit: df.u !== it.u, food: df.food !== it.food }); } S.settings.plan = clone(DEFAULT_PLAN); S.settings.extra = clone(EXTRA_ITEMS); saveSettings(); },
   'pe-move': (el) => { const b = S.settings.plan.find((x) => x.id === el.dataset.b); const i = Number(el.dataset.i), j = i + Number(el.dataset.d); if (!b || j < 0 || j >= b.items.length) return; [b.items[i], b.items[j]] = [b.items[j], b.items[i]]; saveSettings(); },
   'pe-del': (el) => { const b = S.settings.plan.find((x) => x.id === el.dataset.b); if (!b) return; const it = b.items[Number(el.dataset.i)]; if (!confirm(`„${it.label || (FOOD[it.food] ? FOOD[it.food].n : it.food)}“ aus dem Standardtag entfernen?`)) return; b.items.splice(Number(el.dataset.i), 1); saveSettings(); },
   'pe-var': (el) => {
@@ -8033,7 +8187,7 @@ const A = {
       const orig = FOODS.find((x) => x.id === f.id);
       const over = { v: {} };
       for (const k of EDIT_KEYS) { const a = orig.v[k] || 0, b = f.v[k] || 0; if (Math.abs(a - b) > 1e-9) over.v[k] = b; }
-      for (const k of ['n', 'cat', 'u', 'pl', 'pp', 'pre', 'ferm', 'fl', 'tags', 'supp']) if (JSON.stringify(orig[k]) !== JSON.stringify(f[k])) over[k] = f[k] === undefined ? null : f[k];
+      for (const k of ['n', 'cat', 'u', 'pl', 'pp', 'pre', 'ferm', 'fl', 'tags', 'supp', 'bls']) if (JSON.stringify(orig[k]) !== JSON.stringify(f[k])) over[k] = f[k] === undefined ? null : f[k];
       if (!Object.keys(over.v).length) delete over.v;
       if (Object.keys(over).length) S.foods.over[f.id] = over; else delete S.foods.over[f.id];
     }
@@ -8057,7 +8211,7 @@ const I = {
 function updateSheetPreview() {
   const s = ui.sheet, box = $('#sh-prev');
   if (!s || !box) return;
-  if (s.type === 'item') { const { it } = findItem(s.id); const d = getDay(s.k); const food = FOOD[itemFoodId(it, d)]; box.innerHTML = nutPreview(food, s.amt * unitG(food, it.u)); }
+  if (s.type === 'item') { const { it } = findItem(s.id); const d = getDay(s.k); const food = FOOD[itemFoodId(it, d)]; box.innerHTML = nutPreview(food, s.amt * unitG(food, s.unit || it.u)); }
   else if (s.type === 'food') { const food = FOOD[s.fid]; box.innerHTML = nutPreview(food, s.amt * unitG(food, s.unit)); }
 }
 
@@ -8111,9 +8265,16 @@ const C = {
     saveSettings(false); flashSaved(el);
   },
   'plan-block': (el) => { const b = S.settings.plan.find((x) => x.id === el.dataset.id); if (!b) return; if (el.dataset.f === 'n') b.n = el.value.trim() || b.n; else b.time = el.value || null; saveSettings(false); flashSaved(el); },
-  'pe-amt': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null || v < 0) { toast('Menge prüfen'); return; } it.a = v; saveSettings(false); flashSaved(el); },
-  'pe-unit': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); if (!it) return; it.u = el.value; saveSettings(false); flashSaved(el); },
-  'pe-av': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null) return; it.av[el.dataset.v] = v; saveSettings(false); flashSaved(el); },
+  'pe-amt': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null || v < 0) { toast('Menge prüfen'); return; } pinItemHistory(it, { keep: [todayKey()] }); it.a = v; saveSettings(false); flashSaved(el); },
+  // Einheit wechseln (seit 2.19): Mengen über Gramm umrechnen, bisherige Tage behalten ihren Wert
+  'pe-unit': (el) => {
+    const it = planItem(el.dataset.b, Number(el.dataset.i)); if (!it || el.value === it.u) return;
+    const food = FOOD[it.food];
+    pinItemHistory(it, { keep: [todayKey()], unit: true });
+    if (food) { it.a = convAmount(food, it.a, it.u, el.value); if (it.av) for (const v of Object.keys(it.av)) it.av[v] = convAmount(food, it.av[v], it.u, el.value); }
+    it.u = el.value; saveSettings(); toast(`Neue Einheit: ${amountLabel(it.a, it.u)}`);
+  },
+  'pe-av': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null) return; pinItemHistory(it, { keep: [todayKey()] }); it.av[el.dataset.v] = v; saveSettings(false); flashSaved(el); },
   'skin-phase': (el) => {
     const p = S.settings.skin.phases[Number(el.dataset.i)], f = el.dataset.f;
     if (f === 'rules') p.rules = el.value.split('\n').map((x) => x.trim()).filter(Boolean);
@@ -11919,6 +12080,196 @@ Object.assign(A, {
   'scan-manual': () => scanFound(($('#scan-code') || {}).value || ''),
 });
 
+/* ---- bls.js ---- */
+/* ============================================================
+   BUNDESLEBENSMITTELSCHLÜSSEL 4.0 (seit 2.19)
+   Quelle: Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0. Karlsruhe.
+   Kostenfrei und ohne Lizenzbarrieren, ausdrücklich auch für App-Entwicklung (Dokumentation 9.3).
+   bls40.json (tools/bls_build.py: rund 7.100 Lebensmittel, die ca. 30 Nährstoffe der App pro 100 g) lädt bei der
+   ersten Suche und bleibt danach offline gespeichert (eigener Cache im Service Worker, übersteht Updates).
+   - Suche (Ernährung → Lebensmittel, Posten hinzufügen): eigene Treffer zuerst, darunter der BLS.
+     Antippen öffnet das Eintragen-Fenster; gespeichert (id bls_<Code>) wird das Lebensmittel erst beim Eintragen.
+   - Bestehende Lebensmittel einzeln umstellen: Lebensmittel bearbeiten → „Mit BLS 4.0 abgleichen“ → Vergleich →
+     übernehmen. Übernommen werden nur Werte, die der BLS hat; Selen, Cholin, Koffein, Pflanzen und Punkte bleiben.
+   ============================================================ */
+/*icons: database*/
+const BLS_SRC = 'Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0. Karlsruhe.';
+const BLS_FILE = './bls40.json';
+const BLS_CAT = { B: 'Getreide & Brot', C: 'Getreide & Brot', D: 'Süßes & Snacks', F: 'Obst', G: 'Gemüse', K: 'Gemüse', M: 'Eier & Milch', N: 'Getränke', P: 'Getränke', Q: 'Öle & Fette', R: 'Kräuter & Gewürze', S: 'Süßes & Snacks', T: 'Fleisch & Fisch', U: 'Fleisch & Fisch', V: 'Fleisch & Fisch', W: 'Fleisch & Fisch', X: 'Fertiggerichte', Y: 'Fertiggerichte' };
+const BLS_CMP = ['kcal', 'p', 'f', 'sf', 'c', 'sug', 'fib', 'na', 'k', 'ca', 'mg', 'fe', 'zn', 'i', 'cu', 'vc', 'vd', 'va', 've', 'vk', 'b12', 'fol', 'b6', 'epa', 'dha'];
+let BLS = null, blsLoading = null, blsErr = null;
+
+function blsFold(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ß/g, 'ss'); }
+function blsLoad() {
+  if (BLS) return Promise.resolve(BLS);
+  if (!blsLoading) {
+    blsLoading = fetch(BLS_FILE).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then((j) => {
+      if (!j || !Array.isArray(j.k) || !Array.isArray(j.d)) throw new Error('Datei unvollständig');
+      BLS = { k: j.k, src: j.src || BLS_SRC, rows: j.d, by: new Map(), idx: j.d.map((r) => blsFold(r[1])), ik: j.k.indexOf('kcal'), ip: j.k.indexOf('p') };
+      j.d.forEach((r, i) => BLS.by.set(r[0], i));
+      blsErr = null;
+      return BLS;
+    }).catch((e) => { blsLoading = null; blsErr = (e && e.message) || String(e); throw e; });
+  }
+  return blsLoading;
+}
+function blsExtra(r) { const x = r[2 + BLS.k.length]; return x && typeof x === 'object' ? x : {}; }
+/* Treffer: alle Wörter im Namen; Namensanfang und „roh“ zuerst, Gerichte (X, Y) nach hinten */
+function blsSearch(q, n = 60) {
+  if (!BLS) return [];
+  const words = blsFold(q).split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  const w0 = words[0], hits = [];
+  for (let i = 0; i < BLS.rows.length; i++) {
+    const nm = BLS.idx[i];
+    if (!words.every((w) => nm.includes(w))) continue;
+    let sc = nm.length;
+    if (nm.startsWith(w0)) sc -= /^[^ ,/(]+/.exec(nm)[0] === w0 ? 260 : 200; else if (nm.includes(' ' + w0) || nm.includes('/' + w0)) sc -= 80;
+    if (/\broh\b/.test(nm)) sc -= 15;
+    if ('XY'.includes(BLS.rows[i][0][0])) sc += 120;
+    hits.push([sc, i]);
+  }
+  hits.sort((a, b) => a[0] - b[0]);
+  return hits.slice(0, n).map(([, i]) => BLS.rows[i]);
+}
+/* BLS-Zeile → Lebensmittel der App (Werte pro 100 g bzw. 100 ml) */
+function blsFood(r) {
+  const x = blsExtra(r), v = {};
+  BLS.k.forEach((k, j) => { const val = r[2 + j]; if (val != null && val !== 0) v[k] = val; });
+  if (x.fs) v.fs = x.fs;
+  const code = r[0], L = code[0];
+  let cat = BLS_CAT[L] || 'Eigene';
+  if (L === 'E') cat = code[1] === '1' ? 'Eier & Milch' : 'Getreide & Brot';
+  if (L === 'H') cat = '1234'.includes(code[1]) ? 'Nüsse & Samen' : '56'.includes(code[1]) ? 'Gemüse' : 'Hülsenfrüchte & Soja';
+  const f = { id: 'bls_' + code, n: r[1], cat, u: [[x.fl ? 'ml' : 'g', 1]], v, bls: code };
+  if (x.fl) f.fl = x.fl;
+  if (x.pl) f.pl = x.pl;
+  if (x.upf) f.tags = ['upf'];
+  return f;
+}
+function blsRegister(code) {
+  const i = BLS ? BLS.by.get(code) : null;
+  if (i == null) return null;
+  const id = 'bls_' + code;
+  if (!FOOD[id]) { FOOD_RT[id] = blsFood(BLS.rows[i]); buildFoodIndex(); }
+  return id;
+}
+/* Erst beim Eintragen bzw. Übernehmen in den Standardtag dauerhaft speichern */
+function blsPersist(id) {
+  if (!id || !/^bls_/.test(id) || S.foods.custom.some((f) => f.id === id) || !FOOD_RT[id]) return;
+  S.foods.custom.push(clone(FOOD_RT[id]));
+  delete FOOD_RT[id];
+  markDirty('foods'); buildFoodIndex();
+}
+function blsRow(r, act) {
+  const liquid = !!blsExtra(r).fl;
+  return `<button class="row" data-a="${act}" data-code="${esc(r[0])}"><span class="row-main"><b>${esc(r[1])}</b><small>${fmt(r[2 + BLS.ik] || 0)} kcal, ${fmt(r[2 + BLS.ip] || 0, 1)} g Protein pro 100 ${liquid ? 'ml' : 'g'}</small></span>${icon(act === 'bls-pick' ? 'chevron-right' : 'plus', 'row-ic')}</button>`;
+}
+/* Treffer-Liste für die Suche (mode search), Posten hinzufügen (pick) oder den Abgleich (match) */
+function blsResultsHTML(q, mode = 'search') {
+  q = String(q || '').trim();
+  if (q.length < 2) return '';
+  if (!BLS) {
+    blsLoad().then(() => blsRefresh(mode), () => blsRefresh(mode));
+    return blsErr
+      ? `<p class="hint bls-note">${icon('database')}Amtliche Nährwerte (BLS 4.0) gerade nicht erreichbar. Beim ersten Mal braucht die Suche Internet, danach geht sie offline.</p>`
+      : `<p class="hint bls-note">${icon('database')}Lade amtliche Nährwerte (BLS 4.0) …</p>`;
+  }
+  const list = blsSearch(q, 60).filter((r) => mode === 'match' || !FOOD['bls_' + r[0]] || FOOD_RT['bls_' + r[0]]);
+  if (!list.length) return mode === 'match' ? `<p class="hint">Im BLS nichts gefunden für „${esc(q)}“. Anders formulieren, z. B. nur das Hauptwort.</p>` : '';
+  const show = list.slice(0, ui.exp.has('bls:' + mode) ? 60 : 12);
+  const act = mode === 'pick' ? 'pe-pick-bls' : mode === 'match' ? 'bls-pick' : 'bls-open';
+  return `<h4 class="meal-h bls-h">Bundeslebensmittelschlüssel (BLS 4.0) <small>Max Rubner-Institut</small></h4>
+    <div class="list">${show.map((r) => blsRow(r, act)).join('')}</div>
+    ${list.length > show.length ? `<button class="link-btn" data-a="bls-more" data-mode="${mode}">${list.length > 59 ? 'Mehr' : list.length - show.length + ' weitere'} anzeigen</button>` : ''}`;
+}
+function blsRefresh(mode) {
+  if (mode === 'search') { const r = $('#results'); if (r && ui.q.trim().length >= 2) r.innerHTML = searchResults(); }
+  else if (mode === 'pick') { const r = $('#pick-res'), inp = $('[data-i="pick-search"]'); if (r) r.innerHTML = pickResults(inp ? inp.value : ''); }
+  else if (mode === 'match') { const r = $('#bls-res'); if (r && ui.sheet && ui.sheet.type === 'blsmatch') r.innerHTML = blsResultsHTML(ui.sheet.q, 'match'); }
+}
+
+/* ---------- Bestehendes Lebensmittel mit dem BLS abgleichen ---------- */
+function blsGuess(n) {
+  const w = String(n || '').split(/[(,]/)[0].replace(/\b(natur|frisch|gekocht|TK|Bio)\b/gi, ' ').trim().split(/\s+/).filter(Boolean);
+  return w.slice(0, 2).join(' ');
+}
+function sheetBlsMatch(fid, q) {
+  const f = FOOD[fid]; if (!f) return;
+  const q0 = q != null ? q : blsGuess(f.n);
+  ui.sheet = { type: 'blsmatch', fid, q: q0 };
+  openSheet(`<h3 class="sheet-title">Mit BLS 4.0 abgleichen</h3>
+    <p class="hint">${esc(f.n)}: passenden Eintrag aus dem Bundeslebensmittelschlüssel wählen. Danach siehst du den Vergleich und entscheidest.</p>
+    <div class="search"><span>${icon('search')}</span><input type="search" data-i="bls-q" value="${esc(q0)}" autocomplete="off" enterkeyhint="search" placeholder="BLS durchsuchen"></div>
+    <div id="bls-res">${blsResultsHTML(q0, 'match')}</div>
+    <div class="sheet-acts"><button class="btn is-ghost" data-a="food-edit" data-id="${esc(fid)}">Zurück</button></div>`);
+}
+function blsVal(r, k) { const j = BLS.k.indexOf(k); return j >= 0 ? r[2 + j] : null; }
+function sheetBlsCmp(fid, code) {
+  const f = FOOD[fid], i = BLS ? BLS.by.get(code) : null;
+  if (!f || i == null) return;
+  const r = BLS.rows[i], q = ui.sheet && ui.sheet.q;
+  ui.sheet = { type: 'blscmp', fid, code, q };
+  const show = (k, v) => (v == null ? '–' : fmt(k === 'vd' ? v * 40 : v, NUTRIENTS[k].d));
+  const rows = BLS_CMP.map((k) => {
+    const a = f.v[k] || 0, b = blsVal(r, k), m = NUTRIENTS[k];
+    const diff = b != null && Math.abs(a - b) > Math.max(Math.abs(a), Math.abs(b)) * 0.2 && Math.abs(a - b) * (k === 'vd' ? 40 : 1) >= Math.pow(10, -m.d);
+    return `<tr${diff ? ' class="is-diff"' : ''}><td>${esc(m.n)} <small>${esc(m.u)}</small></td><td>${show(k, a)}</td><td>${show(k, b)}</td></tr>`;
+  }).join('');
+  openSheet(`<h3 class="sheet-title">${esc(f.n)}</h3>
+    <p class="hint">Pro 100 ${isLiquid(f) ? 'ml' : 'g'}: deine bisherigen Werte und BLS 4.0 „${esc(r[1])}“ (${esc(r[0])}). Markiert: mehr als 20 % Unterschied.</p>
+    <div class="table-wrap"><table class="bls-cmp"><thead><tr><th>Nährstoff</th><th>Bisher</th><th>BLS</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="hint">Übernommen werden nur Werte, die der BLS hat (– = kein BLS-Wert). Selen, Cholin, Koffein, Pflanzen und Punkte bleiben.${FOODS.some((x) => x.id === fid) ? ' Zurück geht es jederzeit über „Auf Originalwerte zurücksetzen“.' : ''}</p>
+    <div class="sheet-acts"><button class="btn is-accent" data-a="bls-apply">BLS-Werte übernehmen</button><button class="btn is-ghost" data-a="bls-back">Anderen BLS-Eintrag wählen</button></div>`);
+}
+function blsApply(fid, code) {
+  const f = FOOD[fid], i = BLS ? BLS.by.get(code) : null;
+  if (!f || i == null) return false;
+  const r = BLS.rows[i], nv = {};
+  BLS.k.forEach((k, j) => { const val = r[2 + j]; if (val != null) nv[k] = val; });
+  const x = blsExtra(r);
+  if (x.fs != null) nv.fs = x.fs; // freier Zucker nur, wenn der BLS-Eintrag einen hat (Süßes, Gebäck, Getränke)
+  const orig = FOODS.find((o) => o.id === fid);
+  if (orig) {
+    const over = clone(S.foods.over[fid] || {});
+    over.v = { ...(over.v || {}) };
+    for (const [k, val] of Object.entries(nv)) { if (Math.abs((orig.v[k] || 0) - val) > 1e-9) over.v[k] = val; else delete over.v[k]; }
+    if (!Object.keys(over.v).length) delete over.v;
+    over.bls = code;
+    S.foods.over[fid] = over;
+  } else {
+    const c = S.foods.custom.find((o) => o.id === fid);
+    if (!c) return false;
+    c.v = { ...(c.v || {}), ...nv };
+    for (const k of Object.keys(c.v)) if (!c.v[k]) delete c.v[k];
+    c.bls = code;
+  }
+  markDirty('foods'); buildFoodIndex(); invalidate();
+  return true;
+}
+
+Object.assign(A, {
+  'bls-open': (el) => { const id = blsRegister(el.dataset.code); if (id) sheetFood(id, ui.date); },
+  'bls-more': (el) => { ui.exp.add('bls:' + el.dataset.mode); blsRefresh(el.dataset.mode); },
+  'pe-pick-bls': (el) => { const id = blsRegister(el.dataset.code); if (!id) return; blsPersist(id); A['pe-pick']({ dataset: { id } }); },
+  'bls-match': (el) => sheetBlsMatch(el.dataset.id),
+  'bls-pick': (el) => { if (ui.sheet && ui.sheet.fid) sheetBlsCmp(ui.sheet.fid, el.dataset.code); },
+  'bls-back': () => { const s = ui.sheet; if (s && s.fid) sheetBlsMatch(s.fid, s.q); },
+  'bls-apply': () => {
+    const s = ui.sheet; if (!s || s.type !== 'blscmp') return;
+    if (!blsApply(s.fid, s.code)) { toast('Übernehmen ging nicht'); return; }
+    closeSheet(); render(); toast('BLS-Werte übernommen');
+  },
+});
+I['bls-q'] = (el) => { if (!ui.sheet || ui.sheet.type !== 'blsmatch') return; ui.sheet.q = el.value; const r = $('#bls-res'); if (r) r.innerHTML = blsResultsHTML(el.value, 'match'); };
+/* Eintragen eines BLS-Lebensmittels speichert es dauerhaft (nur bei gültiger Menge) */
+const _blsEntrySave = A['entry-save'];
+A['entry-save'] = (el) => {
+  const s = ui.sheet;
+  if (s && s.type === 'food' && /^bls_/.test(s.fid || '')) { const food = FOOD[s.fid]; if (food && s.amt * unitG(food, s.unit) > 0) blsPersist(s.fid); }
+  return _blsEntrySave(el);
+};
+
 /* ---- umwelt.js ---- */
 /* ============================================================
    SONNE, UV, VITAMIN D und ZAHL AM APP-SYMBOL (seit 2.10.0)
@@ -15570,6 +15921,7 @@ function registerSW() {
   try { migrate214(); } catch (e) { /* egal */ }
   try { migrate215(); } catch (e) { /* egal */ }
   try { migrate216(); } catch (e) { /* egal */ }
+  try { migrate219(); } catch (e) { /* egal */ }
   try { energyApply(); } catch (e) { /* egal */ }
   setupEvents();
   render(false);

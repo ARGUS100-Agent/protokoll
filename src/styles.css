@@ -1363,3 +1363,12 @@ html.noscroll .rest-bar { display: none; }
 .know-q { font-size: 17px; font-weight: 650; margin: 6px 0; }
 .know-a { font-size: 15px; margin: 6px 0 10px; padding: 10px 12px; border-radius: 12px; background: var(--bg-3); }
 #focus-topic { width: 100%; max-width: 320px; }
+
+/* ---------- 2.19: Gramm für jeden Posten, BLS 4.0 ---------- */
+.bls-h { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.bls-note { display: flex; align-items: center; gap: 6px; margin: 12px 2px; }
+.bls-note svg { width: 16px; height: 16px; flex: none; }
+.bls-cmp td small { color: var(--ink-3); font-size: 11.5px; }
+.bls-cmp td:nth-child(2), .bls-cmp td:nth-child(3), .bls-cmp th:nth-child(2), .bls-cmp th:nth-child(3) { text-align: right; }
+.bls-cmp tr.is-diff td { background: var(--accent-soft); }
+.bls-cmp tr.is-diff td:last-child { color: var(--accent); font-weight: 650; }

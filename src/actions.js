@@ -120,7 +120,7 @@ const A = {
   'sheet-close': () => { const t = ui.sheet && ui.sheet.type; closeSheet(); if (t === 'plants') render(); },
   'sheet-step': (el) => {
     const s = ui.sheet; if (!s) return;
-    const unit = s.type === 'item' ? findItem(s.id).it.u : s.unit;
+    const unit = s.unit || (s.type === 'item' ? findItem(s.id).it.u : null);
     const dir = Number(el.dataset.d);
     const step = stepFor(unit, s.amt + (dir < 0 ? -0.0001 : 0));
     s.amt = Math.max(0, Math.round((s.amt + dir * step) / step) * step);
@@ -128,7 +128,14 @@ const A = {
     updateSheetPreview();
   },
   'sheet-unit': (el) => {
-    const s = ui.sheet, food = FOOD[s.fid];
+    const s = ui.sheet;
+    if (s && s.type === 'item') {
+      const found = findItem(s.id); if (!found || el.dataset.v === s.unit) return;
+      const food = FOOD[itemFoodId(found.it, getDay(s.k))];
+      s.amt = convAmount(food, s.amt, s.unit, el.dataset.v); s.unit = el.dataset.v;
+      renderItemSheet(); return;
+    }
+    const food = FOOD[s.fid];
     const g = s.amt * unitG(food, s.unit);
     s.unit = el.dataset.v;
     const ug = unitG(food, s.unit);
@@ -141,18 +148,30 @@ const A = {
     const found = findItem(s.id); if (!found) return;
     const { it } = found;
     const k = s.k, variant = dayVariant(k);
+    const food = FOOD[itemFoodId(it, getDay(k))];
+    const unit = s.unit || it.u;
     const def = it.av && it.av[variant] != null ? it.av[variant] : it.a;
     const mode = el.dataset.mode;
+    const clear = (d) => { delete d.amt[s.id]; if (d.amtU) delete d.amtU[s.id]; };
     if (mode === 'default') {
+      // bisherige Tage behalten ihre Menge; dieser Tag und heute nehmen den neuen Standard
+      pinItemHistory(it, { keep: [k, todayKey()], unit: unit !== it.u });
+      if (unit !== it.u) {
+        if (it.av) for (const v of Object.keys(it.av)) it.av[v] = convAmount(food, it.av[v], it.u, unit);
+        it.a = convAmount(food, it.a, it.u, unit);
+        it.u = unit;
+      }
       if (it.av && it.av[variant] != null) it.av[variant] = s.amt; else it.a = s.amt;
-      mutDay(k, (d) => { delete d.amt[s.id]; });
+      mutDay(k, clear);
       markDirty('settings');
       toast('Neue Standardmenge gespeichert');
     } else if (mode === 'reset') {
-      mutDay(k, (d) => { delete d.amt[s.id]; });
+      mutDay(k, clear);
     } else {
       mutDay(k, (d) => {
-        if (Math.abs(s.amt - def) < 1e-9) delete d.amt[s.id]; else d.amt[s.id] = s.amt;
+        const same = unit === it.u ? Math.abs(s.amt - def) < 1e-9 : Math.abs(s.amt * unitG(food, unit) - def * unitG(food, it.u)) < 1e-6;
+        if (same) clear(d);
+        else { d.amt[s.id] = s.amt; if (unit !== it.u) d.amtU = { ...(d.amtU || {}), [s.id]: unit }; else if (d.amtU) delete d.amtU[s.id]; }
         if (mode === 'check') { d.checks[s.id] = 1; persistRotation(d, it); }
       });
     }
@@ -260,6 +279,7 @@ const A = {
     try { migrate214(); } catch (e) { /* egal */ } // 2.14: Morgen-Check, flexible Woche, Kalorien halten
     try { migrate215(); } catch (e) { /* egal */ } // 2.15: beide Seiten gleich
     try { migrate216(); } catch (e) { /* egal */ } // 2.16.1: Loop Bands, langes Band
+    try { migrate219(); o3Pin(); } catch (e) { /* egal */ } // 2.19: ESN Omega-3 statt Algenöl, Ashwa+
     await DB.clear();
     if (GAR) await garSave(); // Garmin-Verbindung gehört zum Gerät, nicht zum Backup
     if (PUSH) await pushSave(); // Mitteilungen ebenso
@@ -304,7 +324,7 @@ const A = {
   'goto-profile': () => { ui.setOpen = 'profil'; go('set', { scrollTop: true }); },
   'set-open': (el) => { ui.setOpen = ui.setOpen === el.dataset.id ? null : el.dataset.id; render(); if (ui.setOpen) requestAnimationFrame(() => { const t = document.getElementById('set-' + ui.setOpen); if (t) t.scrollIntoView({ block: 'start' }); }); },
   'targets-reset': () => { if (!confirm('Alle Ziele auf die Standardwerte zurücksetzen?')) return; S.settings.targets = clone(DEFAULT_TARGETS); saveSettings(); },
-  'plan-reset': () => { if (!confirm('Standardtag auf den Ausgangsplan zurücksetzen? Eigene Posten gehen verloren.')) return; S.settings.plan = clone(DEFAULT_PLAN); S.settings.extra = clone(EXTRA_ITEMS); saveSettings(); },
+  'plan-reset': () => { if (!confirm('Standardtag auf den Ausgangsplan zurücksetzen? Eigene Posten gehen verloren.')) return; const defs = DEFAULT_PLAN.flatMap((x) => x.items).concat(EXTRA_ITEMS); for (const { it } of allPlanItems()) { const df = defs.find((x) => x.id === it.id); if (df && (df.a !== it.a || df.u !== it.u || df.food !== it.food || JSON.stringify(df.av || {}) !== JSON.stringify(it.av || {}))) pinItemHistory(it, { keep: [todayKey()], unit: df.u !== it.u, food: df.food !== it.food }); } S.settings.plan = clone(DEFAULT_PLAN); S.settings.extra = clone(EXTRA_ITEMS); saveSettings(); },
   'pe-move': (el) => { const b = S.settings.plan.find((x) => x.id === el.dataset.b); const i = Number(el.dataset.i), j = i + Number(el.dataset.d); if (!b || j < 0 || j >= b.items.length) return; [b.items[i], b.items[j]] = [b.items[j], b.items[i]]; saveSettings(); },
   'pe-del': (el) => { const b = S.settings.plan.find((x) => x.id === el.dataset.b); if (!b) return; const it = b.items[Number(el.dataset.i)]; if (!confirm(`„${it.label || (FOOD[it.food] ? FOOD[it.food].n : it.food)}“ aus dem Standardtag entfernen?`)) return; b.items.splice(Number(el.dataset.i), 1); saveSettings(); },
   'pe-var': (el) => {
@@ -361,7 +381,7 @@ const A = {
       const orig = FOODS.find((x) => x.id === f.id);
       const over = { v: {} };
       for (const k of EDIT_KEYS) { const a = orig.v[k] || 0, b = f.v[k] || 0; if (Math.abs(a - b) > 1e-9) over.v[k] = b; }
-      for (const k of ['n', 'cat', 'u', 'pl', 'pp', 'pre', 'ferm', 'fl', 'tags', 'supp']) if (JSON.stringify(orig[k]) !== JSON.stringify(f[k])) over[k] = f[k] === undefined ? null : f[k];
+      for (const k of ['n', 'cat', 'u', 'pl', 'pp', 'pre', 'ferm', 'fl', 'tags', 'supp', 'bls']) if (JSON.stringify(orig[k]) !== JSON.stringify(f[k])) over[k] = f[k] === undefined ? null : f[k];
       if (!Object.keys(over.v).length) delete over.v;
       if (Object.keys(over).length) S.foods.over[f.id] = over; else delete S.foods.over[f.id];
     }
@@ -385,7 +405,7 @@ const I = {
 function updateSheetPreview() {
   const s = ui.sheet, box = $('#sh-prev');
   if (!s || !box) return;
-  if (s.type === 'item') { const { it } = findItem(s.id); const d = getDay(s.k); const food = FOOD[itemFoodId(it, d)]; box.innerHTML = nutPreview(food, s.amt * unitG(food, it.u)); }
+  if (s.type === 'item') { const { it } = findItem(s.id); const d = getDay(s.k); const food = FOOD[itemFoodId(it, d)]; box.innerHTML = nutPreview(food, s.amt * unitG(food, s.unit || it.u)); }
   else if (s.type === 'food') { const food = FOOD[s.fid]; box.innerHTML = nutPreview(food, s.amt * unitG(food, s.unit)); }
 }
 
@@ -439,9 +459,16 @@ const C = {
     saveSettings(false); flashSaved(el);
   },
   'plan-block': (el) => { const b = S.settings.plan.find((x) => x.id === el.dataset.id); if (!b) return; if (el.dataset.f === 'n') b.n = el.value.trim() || b.n; else b.time = el.value || null; saveSettings(false); flashSaved(el); },
-  'pe-amt': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null || v < 0) { toast('Menge prüfen'); return; } it.a = v; saveSettings(false); flashSaved(el); },
-  'pe-unit': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); if (!it) return; it.u = el.value; saveSettings(false); flashSaved(el); },
-  'pe-av': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null) return; it.av[el.dataset.v] = v; saveSettings(false); flashSaved(el); },
+  'pe-amt': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null || v < 0) { toast('Menge prüfen'); return; } pinItemHistory(it, { keep: [todayKey()] }); it.a = v; saveSettings(false); flashSaved(el); },
+  // Einheit wechseln (seit 2.19): Mengen über Gramm umrechnen, bisherige Tage behalten ihren Wert
+  'pe-unit': (el) => {
+    const it = planItem(el.dataset.b, Number(el.dataset.i)); if (!it || el.value === it.u) return;
+    const food = FOOD[it.food];
+    pinItemHistory(it, { keep: [todayKey()], unit: true });
+    if (food) { it.a = convAmount(food, it.a, it.u, el.value); if (it.av) for (const v of Object.keys(it.av)) it.av[v] = convAmount(food, it.av[v], it.u, el.value); }
+    it.u = el.value; saveSettings(); toast(`Neue Einheit: ${amountLabel(it.a, it.u)}`);
+  },
+  'pe-av': (el) => { const it = planItem(el.dataset.b, Number(el.dataset.i)); const v = parseNum(el.value); if (!it || v == null) return; pinItemHistory(it, { keep: [todayKey()] }); it.av[el.dataset.v] = v; saveSettings(false); flashSaved(el); },
   'skin-phase': (el) => {
     const p = S.settings.skin.phases[Number(el.dataset.i)], f = el.dataset.f;
     if (f === 'rules') p.rules = el.value.split('\n').map((x) => x.trim()).filter(Boolean);

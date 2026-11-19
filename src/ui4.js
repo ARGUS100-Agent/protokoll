@@ -291,7 +291,7 @@ function sheetShopItem(id) {
   } else if (it.cat !== 'Drogerie/Haushalt') {
     if (it.inv && it.inv.off && (SHOP_INV[it.sid] || (it.inv.f && it.inv.f.length))) invH = `<h5>Vorrat</h5><button class="pill-btn" data-a="shop-inv" data-v="on">${icon('package')}Vorrat wieder zählen</button>`;
     else {
-      const foods = Object.values(FOOD).filter((f) => f.cat !== 'Supplements' && !f.base).sort((x, y) => x.n.localeCompare(y.n, 'de'));
+      const foods = Object.values(FOOD).filter((f) => f.cat !== 'Supplements' && !f.base && !f.rt).sort((x, y) => x.n.localeCompare(y.n, 'de'));
       const cats = [...new Set(foods.map((f) => f.cat))].sort((x, y) => x.localeCompare(y, 'de'));
       invH = `<h5>Vorrat zählen</h5><div class="form"><div class="frow is-wide"><span class="flabel">Lebensmittel</span><div class="fin"><select id="si-food"><option value="">Nicht zählen</option>${cats.map((c) => `<optgroup label="${esc(c)}">${foods.filter((f) => f.cat === c).map((f) => `<option value="${esc(f.id)}">${esc(f.n)}</option>`).join('')}</optgroup>`).join('')}</select></div></div></div>
         <p class="hint">Mit einem Lebensmittel verknüpft, zählt der Artikel wie Eier oder Skyr mit: Haken und Einträge ziehen ab, fast leer kommt er auf die Einkaufsliste.</p>`;

@@ -129,7 +129,7 @@ const SHOP_DEFAULT = {
   ],
   home: [
     ['Vorrat', 'Prepmymeal', '', 'online', 'rechtzeitig nachbestellen'], ['Vorrat', 'Flohsamenschalen', '', 'dm', ''], ['Vorrat', 'Kreatin', '', 'online', 'Monohydrat'], ['Vorrat', 'D3-K2', '', 'online', ''], ['Getränke', 'Grüner Tee', '', 'dm', ''], ['Vorrat', 'Olivenöl', '', 'lidl', 'nativ extra'], ['Vorrat', 'Leinsamen', '', 'dm', ''], ['Vorrat', 'Haferflocken', '', 'lidl', ''],
-    ['Vorrat', 'Mandeln', '', 'lidl', ''], ['Vorrat', 'Kürbiskerne', '', 'lidl', ''], ['Vorrat', 'Hanfsamen', '', 'dm', 'geschält'], ['Vorrat', 'Kakaonibs', '', 'dm', ''], ['Vorrat', 'Sonnenblumenkerne', '', 'lidl', ''], ['Vorrat', 'Dinkelflocken', '', 'dm', ''], ['Vorrat', 'Omega-3', '', 'online', 'Algenöl'], ['Vorrat', 'Magnesium-Threonat', '', 'online', ''],
+    ['Vorrat', 'Mandeln', '', 'lidl', ''], ['Vorrat', 'Kürbiskerne', '', 'lidl', ''], ['Vorrat', 'Hanfsamen', '', 'dm', 'geschält'], ['Vorrat', 'Kakaonibs', '', 'dm', ''], ['Vorrat', 'Sonnenblumenkerne', '', 'lidl', ''], ['Vorrat', 'Dinkelflocken', '', 'dm', ''], ['Vorrat', 'Omega-3', '', 'online', 'ESN Super Omega-3 (Fischöl, 3 Kapseln pro Tag)'], ['Vorrat', 'Magnesium-Threonat', '', 'online', ''], ['Vorrat', 'Ashwagandha', '', 'online', 'ESN Ashwa+ (2 Kapseln abends)'],
   ],
 };
 /* Vorrat, der mitzählt (nur Lebensmittel): welche Lebensmittel der Artikel liefert (f, re = Namensmuster für eigene),

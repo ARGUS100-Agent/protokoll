@@ -168,6 +168,8 @@ async function loadState() {
 
 /* ---------- Lebensmittel-Index ---------- */
 let FOOD = {};
+/* Zur Laufzeit geöffnete Lebensmittel aus dem BLS 4.0 (seit 2.19): erst beim Eintragen in S.foods.custom gespeichert */
+const FOOD_RT = {};
 function buildFoodIndex() {
   FOOD = {};
   for (const f of FOODS) FOOD[f.id] = f;
@@ -175,6 +177,7 @@ function buildFoodIndex() {
   for (const [id, o] of Object.entries(S.foods.over || {})) {
     if (FOOD[id]) FOOD[id] = { ...FOOD[id], ...o, v: { ...FOOD[id].v, ...(o.v || {}) }, edited: true };
   }
+  for (const f of Object.values(FOOD_RT)) if (!FOOD[f.id]) FOOD[f.id] = { ...f, custom: true, rt: true };
 }
 function unitG(food, u) {
   if (!food) return 1;
@@ -183,7 +186,7 @@ function unitG(food, u) {
   return e ? e[1] : 1;
 }
 const isLiquid = (food) => !!food && !!food.fl;
-const PLURAL = { Tafel: 'Tafeln', Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
+const PLURAL = { Kapsel: 'Kapseln', Tafel: 'Tafeln', Tagesdosis: 'Tagesdosen', Dosis: 'Dosen', Portion: 'Portionen', Tablette: 'Tabletten', Dose: 'Dosen', Scheibe: 'Scheiben', Tasse: 'Tassen', Flasche: 'Flaschen', Rippe: 'Rippen', Zehe: 'Zehen', Knolle: 'Knollen', Gabel: 'Gabeln', Glas: 'Gläser', Filet: 'Filets', Packung: 'Packungen', Kugel: 'Kugeln', Stange: 'Stangen', Prise: 'Prisen', Shot: 'Shots', Schale: 'Schalen', Tüte: 'Tüten', Einheit: 'Einheiten', Steak: 'Steaks', Messlöffel: 'Messlöffel' };
 function unitLabel(u, n) { if (n === 1 || u === 'g' || u === 'ml') return u; return String(u).replace(/^([A-Za-zÄÖÜäöüß]+)/, (w) => PLURAL[w] || w); }
 function amountLabel(n, u, stripParen = false) { const d = n % 1 ? (Math.round(n * 100) % 10 ? 2 : 1) : 0; const ul = unitLabel(u, n); return `${fmt(n, d)} ${stripParen ? ul.replace(/\s*\(.*\)\s*/, '') : ul}`; }
 function fmtAmount(food, g) {
@@ -262,7 +265,8 @@ function itemChoices(it) {
   return it.choice.concat(own);
 }
 function itemFoodId(it, day) {
-  if (!it.choice) return it.food;
+  // Ohne Auswahl: ein früherer Tag kann sein damaliges Lebensmittel behalten (d.choice[id], z. B. Omega-3 vor 2.19)
+  if (!it.choice) { const pin = day && day.choice && day.choice[it.id]; return pin && pin !== it.food && FOOD[pin] ? pin : it.food; }
   const key = it.cg || it.id;
   const c = day && day.choice ? day.choice[key] : null;
   if (c && itemChoices(it).includes(c)) return c;
@@ -286,12 +290,49 @@ function itemAmount(it, day, variant) {
   if (it.av && it.av[variant] != null) return it.av[variant];
   return it.a;
 }
+/* Einheit eines Postens an einem Tag: seit 2.19 lässt sich je Tag auch in Gramm bzw. ml eintragen (d.amtU) */
+function itemDayUnit(it, day) {
+  const u = day && day.amtU && day.amtU[it.id];
+  return u && day.amt && day.amt[it.id] != null ? u : it.u;
+}
 function itemGrams(it, day, variant) {
   const food = FOOD[itemFoodId(it, day)];
-  return itemAmount(it, day, variant) * unitG(food, it.u);
+  return itemAmount(it, day, variant) * unitG(food, itemDayUnit(it, day));
+}
+/* Einheiten, in denen sich ein Posten eintragen lässt: die des Lebensmittels plus g bzw. ml (Supplements nur ihre) */
+function foodUnits(food, cur) {
+  if (!food) return [cur].filter(Boolean);
+  const list = food.u.map((u) => u[0]).concat(food.base === 1 ? [] : [isLiquid(food) ? 'ml' : 'g']);
+  if (cur && !list.includes(cur)) list.unshift(cur);
+  return list.filter((v, i, a) => a.indexOf(v) === i);
+}
+/* Menge umrechnen (über Gramm); Gramm/ml ganzzahlig, sonst in Vierteln */
+function convAmount(food, amt, from, to) {
+  const g = amt * unitG(food, from), ug = unitG(food, to);
+  if (to === 'g' || to === 'ml' || ug === 1) return Math.round(g * 10) / 10 >= 10 ? Math.round(g) : Math.round(g * 10) / 10;
+  return Math.max(0.25, Math.round((g / ug) * 4) / 4);
+}
+/* Bevor sich Standardmenge, Einheit oder Lebensmittel eines Postens ändern: Tage, an denen er schon abgehakt ist,
+   behalten ihren Wert (sonst würde die App die Vergangenheit mit dem neuen Standard neu rechnen).
+   keep: Tage, die den neuen Standard bekommen sollen (z. B. heute). */
+function pinItemHistory(it, opts = {}) {
+  const keep = new Set(opts.keep || []);
+  for (const [k, d] of Object.entries(S.days || {})) {
+    if (!d || !d.checks || !d.checks[it.id] || keep.has(k)) continue;
+    if (opts.before && k >= opts.before) continue;
+    let ch = false;
+    d.amt = d.amt || {};
+    if (d.amt[it.id] == null) { d.amt[it.id] = itemAmount(it, null, dayVariant(k)); ch = true; }
+    if (opts.unit && !(d.amtU && d.amtU[it.id])) { d.amtU = d.amtU || {}; d.amtU[it.id] = it.u; ch = true; }
+    if (opts.food && !it.choice && !(d.choice && d.choice[it.id])) { d.choice = d.choice || {}; d.choice[it.id] = it.food; ch = true; }
+    if (ch) markDirty('day:' + k);
+  }
+  invalidate();
 }
 /* Auswahl-Posten in g/ml: Einheit passend zum gewählten Lebensmittel (Saft in ml, Knolle in g) */
 function itemUnit(it, food) { return it.choice && food && (it.u === 'g' || it.u === 'ml') ? (isLiquid(food) ? 'ml' : 'g') : it.u; }
+/* Anzeige-Einheit an einem Tag (eigene Tageseinheit oder die des Postens) */
+function itemShowUnit(it, day, food) { const u = itemDayUnit(it, day); return u === it.u ? itemUnit(it, food) : u; }
 function itemLabel(it, day) {
   const fid = itemFoodId(it, day);
   if (it.choice && it.label && it.cg !== 'pmm') return FOOD[fid] ? FOOD[fid].n : it.label;
@@ -519,7 +560,7 @@ function friendlyTipAmount(food, g) {
   if (first && first[0] === 'Dose' && g % first[1] === 0) { const n = g / first[1]; return `${amountLabel(n, 'Dose')} ${food.n}`; }
   return `${fmt(g, g < 10 && g % 1 ? 1 : 0)} ${isLiquid(food) ? 'ml' : 'g'} ${food.n}`;
 }
-function shortName(f) { return ({ s_d3k2: 'D3 + K2', s_omega3: 'Omega-3', s_kreatin: 'Kreatin', s_ag1: 'AG1', s_mg_threonat: 'Mg-Threonat', s_zink_lutsch: 'Zink-Lutschtablette' })[f.id] || f.n; }
+function shortName(f) { return ({ s_d3k2: 'D3 + K2', s_omega3: 'Omega-3', s_omega3_esn: 'Omega-3', s_ashwagandha: 'Ashwagandha', s_kreatin: 'Kreatin', s_ag1: 'AG1', s_mg_threonat: 'Mg-Threonat', s_zink_lutsch: 'Zink-Lutschtablette' })[f.id] || f.n; }
 function overTip(key, m, ev) {
   const top = topContrib(ev.act.contrib, key === 'va' ? 'ret' : key, 1)[0];
   const src = top ? `Größter Anteil: ${top[0]} (${fmt(disp(key, top[1]), metaOf(key).d)} ${metaOf(key).u})` : '';
@@ -542,7 +583,7 @@ function overTip(key, m, ev) {
     upf: 'Mehr als 20 % der Kalorien aus Ultraverarbeitetem.',
     ve: 'Vitamin E über 300 mg kommt nur aus Supplements.',
     i: 'Jod über 600 µg: Algen meiden, weniger Jodsalz.',
-    o3: 'Über 5 g EPA+DHA: Algenöl-Dosis reduzieren.',
+    o3: 'Über 5 g EPA+DHA: weniger Omega-3-Kapseln.',
     vc: 'Über 2.000 mg Vitamin C: Durchfall möglich, Supplement-Dosis senken.',
     fib: 'Sehr viele Ballaststoffe: Flohsamen heute reduzieren und viel trinken.',
     fluid: 'Sehr viel getrunken: über ca. 6 l ohne Salz drohen Natriumprobleme.',
@@ -600,7 +641,7 @@ const TREND_KEYS = ['p', 'kcal', 'fib', 'fluid', 'o3', 'vd', 'mg', 'zn', 'fe', '
 const TREND_SUPP = {
   mg: 'Oder an Tagen mit wenig Kürbiskernen, Hafer und Nüssen abends Magnesium-Threonat (laut deinem Plan; max. 250 mg aus Supplements).',
   vd: 'Die D3+K2-Tropfen täglich nehmen (4 Tropfen = 2.000 IE). Die passende Dosis zeigt der Bluttest.',
-  o3: 'Omega-3-Algenöl täglich (2 Tagesdosen, an Makrele-Tagen 1).',
+  o3: 'Omega-3-Kapseln täglich (3 Kapseln, an Tagen mit Makrele 2).',
   zn: 'Kein Dauer-Supplement nötig. Eine AG1-Portion liefert 10 mg.',
   fe: 'Kein Eisen-Supplement ohne Bluttest (Ferritin).',
   se: 'Kein Supplement: 1 Paranuss am Tag reicht.',
@@ -627,7 +668,7 @@ const TREND_OVER = {
   va: 'Retinol-Quellen (Leber, Supplements) reduzieren. Beta-Carotin aus Gemüse ist unbedenklich.',
   vd: 'Tropfen reduzieren; über 4.000 IE nur mit ärztlicher Begleitung.',
   i: 'Weniger Jodsalz, Algen meiden.',
-  o3: 'Algenöl-Dosis reduzieren.',
+  o3: 'Weniger Omega-3-Kapseln.',
   fatPct: 'Weniger Nüsse oder Öl, dafür Haferflocken oder Obst.',
   sf: 'Schokolade, Käse oder Butter etwas reduzieren; Prepmymeal mit Sahne- oder Buttersoße seltener.',
   ve: 'Vitamin E über 300 mg kommt nur aus Supplements.',
