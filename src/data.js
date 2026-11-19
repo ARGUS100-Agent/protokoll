@@ -5,7 +5,7 @@
    Supplements: base = 1 → Werte pro Einheit.
    ============================================================ */
 
-const APP_VERSION = '2.19.0';
+const APP_VERSION = '2.20.0';
 
 /* ---------- Nährstoff-Metadaten ---------- */
 // k: Schlüssel, n: Name, u: Einheit, d: Nachkommastellen, conv: Anzeige-Umrechnung

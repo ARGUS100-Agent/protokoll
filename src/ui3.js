@@ -291,11 +291,12 @@ function vTrain() {
   if (ui.gymSess) return vGymSession();
   const sub = getSub('train', 'heute');
   let h = areaHead('train');
-  h += subnav('train', sub, [['heute', 'Heute'], ['woche', 'Woche'], ['gym', 'Gym-Plan'], ['kraft', 'Bestwerte'], ['athletik', 'Athletik'], ['verlauf', 'Verlauf']]);
+  h += subnav('train', sub, [['heute', 'Heute'], ['woche', 'Woche'], ['gym', 'Gym-Plan'], ['zuhause', 'Zuhause'], ['kraft', 'Bestwerte'], ['athletik', 'Athletik'], ['verlauf', 'Verlauf']]);
   if (sub === 'heute' || sub === 'woche') h += goalNotes(['training', 'sauna']);
   if (sub === 'heute') h += vTrainToday(ui.date);
   else if (sub === 'woche') h += vTrainWeek();
   else if (sub === 'gym') h += vGymPlan();
+  else if (sub === 'zuhause') h += vHome();
   else if (sub === 'kraft') h += blockCardHTML() + muscleMapHTML(ui.muWeek || weekStart(todayKey())) + prBoardHTML();
   else if (sub === 'athletik') h += vTrainAthletik();
   else h += vTrainHistory();
@@ -328,6 +329,7 @@ function vTrainTodayRest(k) {
   h += recoveryCard(k);
   if (k === todayKey()) h += zwTrainHint(k);
   if (k === todayKey()) h += athTrainCard(k);
+  if (k === todayKey()) h += hkTrainCard(k);
   if (k === todayKey()) h += kxCard(k);
   const wp = weekPlan(weekStart(k)), day = wp.days[weekday(k)];
   h += `<section class="sec"><div class="sec-head"><h2>${k === todayKey() ? 'Heute geplant' : 'Geplant'}</h2>${goBtn('train', 'Woche', 'woche')}</div>${day.warn ? `<div class="banner is-warn">${icon('triangle-alert')}<div><span>${esc(day.warn)}</span></div></div>` : ''}<div class="list">`;

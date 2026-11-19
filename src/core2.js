@@ -13,6 +13,7 @@ function defaultSettings2() {
     sauna: { goal: 60 },
     week: clone(DEFAULT_WEEK),
     gym: { anchor: '2026-11-02', first: 'A', kneeAlt: true },
+    home: { tests: [], adj: [] }, // 2.20: Heim-Kraft (Tests, eigene Anpassungen)
     knee: { start: '2026-10-26', side: 'keine', extraSec: 15, extraReps: 5, trans: 10, signal: 'voice', phase: 1, ext: 0, bands: clone(KNEE_BANDS), longBand: false, insoles: null, cadence: null, routines: null, video: {}, longShort: false },
   };
 }

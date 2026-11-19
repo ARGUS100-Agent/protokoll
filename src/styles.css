@@ -1372,3 +1372,26 @@ html.noscroll .rest-bar { display: none; }
 .bls-cmp td:nth-child(2), .bls-cmp td:nth-child(3), .bls-cmp th:nth-child(2), .bls-cmp th:nth-child(3) { text-align: right; }
 .bls-cmp tr.is-diff td { background: var(--accent-soft); }
 .bls-cmp tr.is-diff td:last-child { color: var(--accent); font-weight: 650; }
+/* ---------- 2.20 Heim-Kraft ---------- */
+.set-row.hk-set { grid-template-columns: auto minmax(0, 1fr) auto; }
+.set-row.hk-set > small { min-width: 54px; color: var(--ink-3); font-size: 12px; text-align: right; white-space: nowrap; }
+.hk-fb { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; margin: 8px 0 2px; }
+.hk-fb > span { color: var(--ink-3); font-size: 13px; }
+.hk-tests { display: flex; flex-direction: column; gap: 10px; margin: 8px 0 12px; }
+.hk-test { padding: 10px 12px; border-radius: 12px; background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+.hk-test-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hk-test-top .set-in { flex: none; width: 130px; }
+.hk-test > small { display: block; margin: 6px 0 4px; color: var(--ink-3); font-size: 12.5px; line-height: 1.4; }
+.hk-test .chips { margin-top: 6px; }
+.hk-prog { display: flex; flex-direction: column; }
+.hk-tr { padding: 8px 0 10px; border-top: 1px solid var(--line); }
+.hk-tr:first-child { border-top: 0; }
+.hk-tr-top { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 40px; text-align: left; }
+.hk-tr-top b { flex: none; font-size: 15px; }
+.hk-tr-top span { flex: 1; min-width: 0; color: var(--ink-2); font-size: 13px; text-align: right; }
+.hk-tr .kp-dots { margin: 4px 0 6px; }
+.hk-tr > small { display: block; color: var(--ink-3); font-size: 12.5px; line-height: 1.4; }
+.hk-tr .row-btns { margin-top: 8px; }
+.hk-tr .pill-btn[disabled], .hk-today .chip[disabled] { opacity: .4; }
+.hk-card .sec-head h2 .ic, .hk-due .sec-head h2 .ic { width: 22px; height: 22px; margin-right: 6px; color: var(--accent); vertical-align: -2px; }
+.hk-card .pill-btn { margin-top: 2px; }

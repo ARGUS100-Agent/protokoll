@@ -57,9 +57,10 @@ function goalMetric(key) {
     sauna: ['Sauna', 'Min.', 'sauna', (k) => saunaMin(D(k))],
     mob: ['Mobility-Routine', '', 'knie', (k) => { const x = dd(k); return x ? (x.mob ? 1 : 0) : 0; }],
     knee_str: ['Knie-Kraft', '', 'knie', (k) => { const x = dd(k); return x ? (x.kraft ? 1 : 0) : 0; }],
+    home: ['Heim-Kraft', '', 'training', (k) => (hkDone(k) ? 1 : 0)],
     lang: ['Lange Routine', '', 'knie', (k) => { const x = dd(k); return x ? (x.lang ? 1 : 0) : 0; }],
   };
-  if (T[key]) { const [n, u, area, f] = T[key]; return { key, n, u, kind: ['mob', 'knee_str', 'lang'].includes(key) ? 'bool' : 'num', dec: key === 'run_km' ? 1 : 0, area, day: f }; }
+  if (T[key]) { const [n, u, area, f] = T[key]; return { key, n, u, kind: ['mob', 'knee_str', 'lang', 'home'].includes(key) ? 'bool' : 'num', dec: key === 'run_km' ? 1 : 0, area, day: f }; }
   if (key === 'knee_am') return { key, n: 'Knieschmerz morgens', u: '/10', kind: 'num', dec: 1, area: 'knie', day: (k) => kneeAm(k) };
   if (key === 'skin') return { key, n: 'Hautscore', u: '/10', kind: 'num', dec: 1, area: 'haut', day: (k) => { const d = D(k); return d && d.skin && d.skin.score != null ? d.skin.score : null; } };
   if (key === 'spots') return { key, n: 'Neue Pickel', u: '', kind: 'num', dec: 1, area: 'haut', day: (k) => { const d = D(k); return d && d.skin && d.skin.spots != null ? d.skin.spots : null; } };
@@ -525,6 +526,7 @@ function frankReportText(ws) {
   const act = [ims.length ? `Intensitätsminuten ${fmt(ims.reduce((a, b) => a + b, 0))} (Empfehlung: 150 pro Woche)` : '', kact != null ? `aktive Kalorien Ø ${fmt(kact)} kcal/Tag` : ''].filter(Boolean);
   if (act.length) L.push(act.join(' · '));
   const eb = energyLine(ws);
+  { const hl = typeof homeReportLine === 'function' ? homeReportLine(ws) : ''; if (hl) L.push(hl); }
   if (eb) L.push(eb + (S.settings.targets.kcal ? ` · Kalorienziel ${fmt(S.settings.targets.kcal.lo)}–${fmt(S.settings.targets.kcal.hi)} kcal` : ''));
   // Schlaf
   const hav = (f) => mean(r.past.map((k) => muHealth(k, f)).filter((v) => v != null));

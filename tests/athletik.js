@@ -65,7 +65,7 @@ const ok = (c, msg) => { console.log((c ? 'OK   ' : 'FAIL ') + msg); if (!c) pro
 
   /* Routine, Mitteilung, Bericht */
   const rt = await ev(() => { S.settings.routines = { am: ['knee:mob'], day: ['atem'], pm: [] }; const R = rtCfg(); return { day: R.day.join(','), v: R.v, step: rtStep('knee:kraft', todayKey()) }; });
-  ok(rt.day === 'atem,knee:kraft' && rt.v === 2 && rt.step.n === 'Knie-Athletik B' && rt.step.goSub === 'kraft', 'Routine: „Knie-Athletik“ einmal in Tagsüber ergänzt');
+  ok(rt.day === 'atem,knee:kraft,home:kraft' && rt.v === 3 && rt.step.n === 'Knie-Athletik B' && rt.step.goSub === 'kraft', 'Routine: „Knie-Athletik“ einmal in Tagsüber ergänzt (seit 2.20 danach die Heim-Kraft)');
   const pp = await ev(() => { S.settings.push = { ...(S.settings.push || {}), cats: {} }; return pushPlan().filter((x) => x.url === '#kraft' && dkey(new Date(x.at)) === todayKey()).map((x) => x.title); });
   ok(pp.length === 1 && pp[0] === 'Knie-Athletik B: Hüfte & Seite', 'Mitteilung: ' + pp.join(' | '));
   ok(await ev(() => frankReportText(weekStart('2026-11-16')).includes('Kraft & Athletik (Phase 1): 1/6 Einheiten (C)')), 'Wochenbericht mit Einheiten');

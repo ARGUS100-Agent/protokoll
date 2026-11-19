@@ -357,7 +357,7 @@ function timerStart(rid, opts = {}) {
   if (!steps.length) { toast('Diese Routine hat keine Übungen'); return; }
   Sound.init();
   if (kneeCfg().signal === 'voice') Sound.say(' ');
-  ui.timer = { rid, name: opts.name || (rt ? rt.n : 'Übung'), steps, i: 0, phase: 'prep', endAt: Date.now() + 5000, remain: 5000, paused: false, startedAt: Date.now(), act: 0, resumedAt: Date.now(), plan: steps.reduce((a, s) => a + stepSec(s), 0), rate: {}, noSave: !!opts.noSave, noExtra: !!opts.noExtra, onDone: opts.onDone || null, lastBeep: null, confirmEnd: false };
+  ui.timer = { rid, name: opts.name || (rt ? rt.n : 'Übung'), steps, i: 0, phase: 'prep', endAt: Date.now() + 5000, remain: 5000, paused: false, startedAt: Date.now(), act: 0, resumedAt: Date.now(), plan: steps.reduce((a, s) => a + stepSec(s), 0), rate: {}, noSave: !!opts.noSave, noExtra: !!opts.noExtra, onDone: opts.onDone || null, doneHTML: opts.doneHTML || null, partialOk: !!opts.partialOk, lastBeep: null, confirmEnd: false };
   lockScreen();
   $('#overlay').classList.add('open');
   document.documentElement.classList.add('noscroll');
@@ -405,7 +405,7 @@ function timerAdvance(silent = false) {
 function timerFinish() {
   const t = ui.timer;
   if (!t.paused) t.act += Date.now() - t.resumedAt;
-  t.phase = 'done'; t.endedAt = Date.now(); t.complete = true;
+  t.phase = 'done'; t.endedAt = Date.now(); t.complete = true; t.finished = true;
   if (t.onDone) { try { t.onDone(); } catch (e) { /* egal */ } t.onDone = null; }
   sig('end', 'Geschafft. Gut gemacht.');
   timerRender();
@@ -433,6 +433,7 @@ function timerRender() {
     o.innerHTML = `<div class="tm"><div class="tm-done">${icon('badge-check')}<h2>${esc(t.name)} geschafft</h2>
       <div class="kv-grid"><div class="kv"><span>Geplant</span><b>${fmtClock(t.plan + Math.max(0, t.steps.length - 1) * 6)}</b><small>Min.</small></div><div class="kv"><span>Tatsächlich</span><b>${fmtClock(real)}</b><small>Min. ohne Pausen</small></div></div>
       ${t.rid === 'kraft' ? `<h5>Knieschmerz während der Einheit (0–10)</h5>${scale0('tm-pain', t.pain ?? null, todayKey())}<p class="hint">Bis 5 ist okay, wenn das Knie morgen früh wieder auf dem Ausgangswert ist.</p>` : ''}
+      ${t.doneHTML ? t.doneHTML() : ''}
       ${stretches.length && !t.noSave ? `<h5>Wie stark war der Zug? (optional, 5–7 ist ideal)</h5><div class="rate-list">${stretches.map((e) => `<div class="rate-row"><span>${esc(e.n)}</span><div class="chips chips-tight">${[3, 4, 5, 6, 7, 8].map((n) => `<button class="chip chip-xs${t.rate[e.id] === n ? ' is-on' : ''}" data-a="tm-rate" data-ex="${e.id}" data-v="${n}">${n}</button>`).join('')}</div></div>`).join('')}</div>` : ''}
       <div class="sheet-acts">${t.noSave ? '' : '<button class="btn is-accent" data-a="tm-save">Speichern</button>'}<button class="btn is-ghost" data-a="tm-close">${t.noSave ? 'Schließen' : 'Ohne Speichern schließen'}</button></div></div></div>`;
     return;
@@ -445,7 +446,7 @@ function timerRender() {
   const reps = isRun && st.type !== 'time';
   const sideLbl = st.side ? `<span class="tm-side s-${st.side}">${st.sideName ? esc(st.sideName) : sideName(st.side)}${st.side === extraSide() && !ex.d.noX && !t.noExtra ? ' +' : ''}</span>` : '';
   o.innerHTML = `<div class="tm${isRun ? ' is-run' : ' is-pause'}">
-    <div class="tm-top"><button class="icon-btn" data-a="tm-end" aria-label="Beenden">${icon('x')}</button><div class="tm-title"><b>${esc(t.name)}</b><small>Übung ${new Set(t.steps.slice(0, t.i + 1).map((s) => s.idx)).size} von ${new Set(t.steps.map((s) => s.idx)).size} · <span id="tm-elapsed">0:00</span></small></div><a class="icon-btn" href="${esc(exVideo(ex))}" target="_blank" rel="noopener" aria-label="Video">${icon('square-play')}</a></div>
+    <div class="tm-top"><button class="icon-btn" data-a="tm-end" aria-label="Beenden">${icon('x')}</button><div class="tm-title"><b>${esc(t.name)}</b><small>Übung ${new Set(t.steps.slice(0, t.i + 1).filter((s) => !s.pause).map((s) => s.idx)).size} von ${new Set(t.steps.filter((s) => !s.pause).map((s) => s.idx)).size} · <span id="tm-elapsed">0:00</span></small></div><a class="icon-btn" href="${esc(exVideo(ex))}" target="_blank" rel="noopener" aria-label="Video">${icon('square-play')}</a></div>
     <div class="tm-prog"><i style="width:${(t.i / t.steps.length) * 100}%"></i></div>
     <p class="tm-phase">${esc(head)}</p>
     <h2 class="tm-ex">${esc(ex.n)}</h2>

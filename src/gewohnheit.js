@@ -35,16 +35,17 @@ Object.assign(INFO, {
 });
 const ROUTINE_DEFAULT = {
   am: ['mcheck', 'r_wasser', 'licht_morgen', 'block:morgen', 'skin:pflege_am', 'meditation', 'caf_start', 'knee:mob'],
-  day: ['atem', 'gehen_essen', 'schritte', 'knee:kraft', 'kein_kalt', 'sauna_woche', 'licht_nachmittag'],
+  day: ['atem', 'gehen_essen', 'schritte', 'knee:kraft', 'home:kraft', 'kein_kalt', 'sauna_woche', 'licht_nachmittag'],
   pm: ['skin:pflege_pm', 'block:schlaf', 'bildschirm', 'mahlzeit', 'warm_dusche'], // seit 2.14: abends nur Erinnerung, abgefragt im Morgen-Check
   custom: [{ id: 'r_wasser', n: 'Großes Glas Wasser (Prise Salz)' }],
 };
 const ROUTINE_PARTS = [['am', 'Morgenroutine', 'sunrise'], ['day', 'Tagsüber', 'sun'], ['pm', 'Abendroutine', 'moon']];
 function rtCfg() {
   const r = S.settings.routines;
-  if (!r || !Array.isArray(r.am)) { S.settings.routines = { ...clone(ROUTINE_DEFAULT), v: 2 }; markDirty('settings'); }
+  if (!r || !Array.isArray(r.am)) { S.settings.routines = { ...clone(ROUTINE_DEFAULT), v: 3 }; markDirty('settings'); }
   const R = S.settings.routines;
   if (!(R.v >= 2)) { if (![...R.am, ...(R.day || []), ...(R.pm || [])].includes('knee:kraft')) (R.day = R.day || []).splice(Math.min(3, R.day.length), 0, 'knee:kraft'); R.v = 2; markDirty('settings'); } // 2.13: Knie-Athletik einmal ergänzen
+  if (!(R.v >= 3)) { if (![...R.am, ...(R.day || []), ...(R.pm || [])].includes('home:kraft')) { R.day = R.day || []; const i = R.day.indexOf('knee:kraft'); R.day.splice(i >= 0 ? i + 1 : Math.min(4, R.day.length), 0, 'home:kraft'); } R.v = 3; markDirty('settings'); } // 2.20: Heim-Kraft einmal ergänzen
   return R;
 }
 function phoneCfg() { return { social: 30, total: 180, ...(S.settings.phone || {}) }; }
@@ -114,6 +115,7 @@ function rtStep(id, k) {
   if (id === 'bp_am' || id === 'bp_pm') { const st = bpTodayState(k)[id.slice(3)], w = bpWeek(k); return { id, n: `Blutdruck messen (${st}/2)`, sub: `Messwoche Tag ${w.day}/7 · 5 Min. sitzen, 2 Messungen`, t: id === 'bp_am' ? r.wake + 15 : r.bed - 45, go: 'koerper', done: st >= 2, part: st === 1 }; }
   if (id === 'sauna_woche') { const g = S.settings.sauna.goal, v = weekSauna(k); return { id, n: `Sauna ${fmt(v)}/${fmt(g)} Min. diese Woche`, sub: 'Wochenziel, nach dem Training', go: 'train', done: v >= g, part: v > 0 && v < g }; }
   if (id === 'knee:mob') { const dd = dayDone(k); return { id, n: 'Mobility (tägliche Routine)', sub: 'Knie & Mobility', go: 'knie', done: !!dd.mob }; }
+  if (id === 'home:kraft') return hkRtStep(k);
   if (id === 'knee:kraft') { const t = athType(k); return { id, n: `Knie-Athletik ${t}`, sub: `${ATH_TYPES[t]} · ca. ${athMin(k, t)} Min.`, go: 'knie', goSub: 'kraft', done: !!dayDone(k).kraft }; }
   if (id.startsWith('block:')) {
     const b = S.settings.plan.find((x) => x.id === id.slice(6));
@@ -293,7 +295,7 @@ Object.assign(A, {
 function setRoutinesHTML() {
   const R = rtCfg();
   const label = (id) => { const s = rtStep(id, todayKey()); if (s) return s.n; const hb = HABITS.find((h) => h.id === id); return hb ? hb.n : id; };
-  const catalog = ['mcheck', 'caf_start', 'knee:mob', 'knee:kraft', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
+  const catalog = ['mcheck', 'caf_start', 'knee:mob', 'knee:kraft', 'home:kraft', 'sauna_woche', ...S.settings.plan.filter((b) => b.items.length).map((b) => 'block:' + b.id), ...(S.settings.skin.routine || []).map((x) => 'skin:' + x.id), ...HABITS.map((h) => h.id), ...(R.custom || []).map((x) => x.id)];
   let h = mcSetHTML();
   for (const [part, n] of ROUTINE_PARTS) {
     const ids = R[part] || [];

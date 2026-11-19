@@ -1,5 +1,5 @@
 /* Service Worker: App offline verfügbar machen */
-const CACHE = 'protokoll-71cc77f7d8';
+const CACHE = 'protokoll-55feabf111';
 /* Bundeslebensmittelschlüssel (ca. 1,2 MB): eigener Cache, bleibt über App-Updates erhalten; neuer Name bei neuer Datei */
 const BLS_CACHE = 'protokoll-bls40-1';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
